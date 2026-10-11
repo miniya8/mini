@@ -13,9 +13,9 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 #g{position:fixed;inset:0;display:none;background:linear-gradient(135deg,#ecc77f,#d09a4c)}#hud{position:absolute;top:0;left:0;right:0;height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;background:#000a;z-index:2;font-weight:700;gap:6px}
 #hud button,.mdl button{background:#3b2b17;color:#ffe9b0;border:1px solid #c9a24a;border-radius:8px;padding:6px 12px;font-size:15px;font-weight:700;cursor:pointer}#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .sd{padding:3px 8px;border-radius:8px;font-size:14px;white-space:nowrap;overflow:hidden;max-width:30vw;text-overflow:ellipsis}.sc{background:#1f8f6a}.sh{background:#b53226}.on{box-shadow:0 0 0 3px #fff8,0 0 12px #fff}
-#tt{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#000d;border:1px solid #ffd54a;padding:10px 16px;border-radius:12px;z-index:50;display:none;max-width:90vw;text-align:center}
+#tt{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#000d;border:1px solid #ffd54a;padding:10px 16px;border-radius:12px;z-index:50;display:none;max-width:90%;text-align:center}#tw{position:fixed;inset:0;pointer-events:none;z-index:60}
 #ov{position:absolute;inset:0;background:#000b;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;font-size:32px;font-weight:900;color:#ffd54a;z-index:5;text-align:center}
-.mdl{position:fixed;inset:0 0 auto 0;height:var(--vh,100%);background:#000b;display:none;align-items:center;justify-content:center;z-index:30;padding:12px}.card{background:#141b2e;border:2px solid #c9a24a;border-radius:16px;padding:18px;width:min(92vw,520px);max-height:calc(var(--vh,100vh) - 24px);overflow:auto;text-align:center}
+.mdl{position:fixed;inset:0 0 auto 0;height:var(--vh,100%);background:#000b;display:none;align-items:center;justify-content:center;z-index:30;padding:12px}.card{background:#141b2e;border:2px solid #c9a24a;border-radius:16px;padding:18px;width:min(calc(var(--mw,100vw)*.92),520px);max-height:calc(var(--mh,var(--vh,100vh)) - 24px);overflow:auto;text-align:center}
 .card h2{color:#ffd54a;margin-bottom:10px}.code{font-size:56px;font-weight:900;letter-spacing:10px;color:#fff;text-shadow:0 0 14px #ffb300;margin:6px 0}.card p{color:#cdd7f3;margin:6px 0 10px;font-size:14px}.card button{margin:4px}
 .op{display:block;width:100%;text-align:left;margin:8px 0!important;padding:10px 14px!important}.op b{font-size:18px;color:#fff}.op span{display:block;font-size:12px;color:#c9d3ee;font-weight:400;margin-top:3px}.op.on{border-color:#52c3ff!important;box-shadow:0 0 10px #2aa9ff}
 
@@ -31,6 +31,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 .nm{display:flex;justify-content:space-between;color:#f1cf86;font-weight:700;font-size:14px;padding:0 6px}.nm span{max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #dpk{display:none;gap:10px;justify-content:center;margin:6px 0}#dc #dpk button{font-size:16px;padding:12px 6px;flex:1;white-space:nowrap}
 #da{display:block;margin:6px auto;width:100%;max-width:340px;height:auto;aspect-ratio:320/200}
+.sh .card{padding:10px 12px}.sh .card h2{font-size:17px;margin-bottom:4px}.sh .code{font-size:38px;letter-spacing:6px;margin:2px 0}.sh .card p{margin:3px 0 6px;font-size:13px}.sh #da{width:auto;height:min(calc(var(--mh,100vh)*.3),140px);max-width:100%;margin:2px auto}.sh .card button,.sh #dc .card button{padding:8px 12px;font-size:15px}.sh #dres{min-height:22px;font-size:18px;margin:3px 0}.sh .op{padding:6px 12px!important;margin:5px 0!important}.sh .op b{font-size:16px}
 </style></head><body>
 <div id="st"><div id="fr"></div></div>
 <div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button></div></div></div>
@@ -38,7 +39,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 <div class="mdl" id="md"><div class="card"><h2>포진(차림) 선택</h2><div id="sl"></div><button id="mx">닫기</button></div></div>
 <div class="mdl" id="dc" style="z-index:40"><div class="card"><h2>🎲 선공 정하기</h2><p id="dp"></p><canvas id="da" width="320" height="200"></canvas><div class="nm"><span id="dn1"></span><span id="dn2"></span></div><div id="dres"></div><div id="dpk"><button id="pf">⚔️ 선공 (초나라)</button><button id="pb">🛡️ 후공 (한나라)</button></div><button id="drb">🎲 주사위 굴리기</button><button id="drx">취소</button></div></div>
 <div id="sa" style="position:fixed;left:0;top:0;visibility:hidden;padding-bottom:env(safe-area-inset-bottom,0px)"></div>
-<div id="tt"></div>
+<div id="tw"><div id="tt"></div></div>
 <script id="rules">const VAL={R:13,C:7,N:5,B:3,G:3,P:2,K:0};
 let B;
 function init(sc,sh){B=[];for(let y=0;y<10;y++)B.push(new Array(9).fill(null));
@@ -90,39 +91,15 @@ const $=id=>document.getElementById(id);
 /* ===== 세로/커버 화면 대응: 가로 레이아웃으로 강제 회전 ===== */
 function fitScreen(){
   try{
-    const w = window.visualViewport ? window.visualViewport.width : window.innerWidth;
-    const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-    const isPortrait = h > w;
-    const targets = ['g'].map($).filter(Boolean);
-    document.querySelectorAll('.mdl').forEach(el => targets.push(el));
-    const tt = $('tt'); if(tt) targets.push(tt);
-    targets.forEach(el => {
-      if(isPortrait){
-        el.style.position = 'fixed';
-        el.style.width = h + 'px';
-        el.style.height = w + 'px';
-        el.style.top = '0px';
-        el.style.left = w + 'px';
-        el.style.right = 'auto';
-        el.style.bottom = 'auto';
-        el.style.transformOrigin = 'top left';
-        el.style.transform = 'rotate(90deg)';
-        el.style.inset = 'auto';
-      } else {
-        el.style.position = '';
-        el.style.width = '';
-        el.style.height = '';
-        el.style.top = '';
-        el.style.left = '';
-        el.style.right = '';
-        el.style.bottom = '';
-        el.style.transformOrigin = '';
-        el.style.transform = '';
-        el.style.inset = '';
-      }
-    });
-    // 캔버스 리사이즈 트리거
-    if(typeof resize === 'function') try{ resize(); }catch(e){}
+    const w=innerWidth,h=innerHeight,g=$('g'),inG=!!g&&getComputedStyle(g).display!=='none';
+    const rot=h>=w&&!inG,mh=rot?w:h,mw=rot?h:w,rs=document.documentElement;
+    rs.style.setProperty('--mh',mh+'px');rs.style.setProperty('--mw',mw+'px');
+    rs.classList.toggle('sh',mh<520);
+    const els=Array.from(document.querySelectorAll('.mdl'));const tw=$('tw');if(tw)els.push(tw);
+    els.forEach(el=>{const s=el.style;
+      if(rot){s.top='0px';s.left=w+'px';s.right='auto';s.bottom='auto';s.width=h+'px';s.height=w+'px';s.transformOrigin='top left';s.transform='rotate(90deg)'}
+      else{s.top='';s.left='';s.right='';s.bottom='';s.width='';s.height='';s.transformOrigin='';s.transform=''}});
+    if(typeof resize==='function') try{ resize(); }catch(e){}
     window.dispatchEvent(new Event('jg-fit'));
   }catch(e){ console.error('fitScreen', e); }
 }
@@ -136,6 +113,7 @@ if(window.visualViewport){
   visualViewport.addEventListener('scroll', fitScreen);
 }
 document.addEventListener('visibilitychange', () => { if(!document.hidden) setTimeout(fitScreen, 50); });
+try{new MutationObserver(()=>fitScreen()).observe($('g'),{attributes:true,attributeFilter:['style']})}catch(e){}
 const SETUPS=[['마상마상','왼상차림','RNBG.GNBR','마·상이 같은 쪽에 묶여 좌우 균형이 좋은 기본형'],['상마상마','오른상차림','RBNG.GBNR','상이 바깥에서 마를 받쳐 주는 안정형'],['마상상마','안상차림','RNBG.GBNR','상이 안쪽에 모여 중앙 수비가 단단한 형'],['상마마상','바깥상차림','RBNG.GNBR','마가 안쪽에 있어 중앙 공격에 빨리 가담하는 형']];
 let cfg={mode:'ai',lv:'고수',time:45,si:0},turn='c',over=false,inGame=false,busy=false,sel=null,lm=null,anim=null,jang=null,tleft=0,tint,conn=null,peer=null,cv,cx2,W,H,C,CX,CY,OX,OY,flip=false,bc,me='c',hostSide='c',looping=false,wk=null,aiId=0,aiWd,AC;
 const toast=(t,ms=3500)=>{const e=$('tt');e.textContent=t;e.style.display='block';clearTimeout(toast.i);toast.i=setTimeout(()=>e.style.display='none',ms)};
@@ -180,8 +158,8 @@ function lib(){if(window.Peer)return true;toast('P2P 모듈을 불러오지 못�
 function closeNet(){try{conn&&conn.close()}catch(e){}try{peer&&peer.destroy()}catch(e){}conn=peer=null}
 let code='',rmS=false,rmO=false,isHost=false,hostDice=false,hostReady=null,dTok=0,dTimer=0,gs=null,mc=0,sid='',dropT=0,jTok=0,jLast=0,RESUMED=false;
 function keepAlive(pr){pr.on('disconnected',()=>{setTimeout(()=>{if(peer===pr&&!pr.destroyed){try{pr.reconnect()}catch(e){}}},1000)})}
-function mkRoom(c0,tries){if(!lib())return;tries=tries||0;closeNet();code=c0||String(1000+Math.random()*9000|0);isHost=true;const pr=peer=new Peer('sjg-'+code);keepAlive(pr);
-pr.on('open',()=>{if(peer!==pr)return;$('rc').textContent=code;if(!(inGame&&!over)){$('rs').textContent='친구를 기다리는 중… 코드를 알려주세요';$('rm').style.display='flex'}save()});
+function mkRoom(c0,tries){if(!lib())return;tries=tries||0;closeNet();code=c0||String(1000+Math.random()*9000|0);isHost=true;if(!c0&&!tries)toast('방을 여는 중…',5000);const pr=peer=new Peer('sjg-'+code);keepAlive(pr);if(!c0)setTimeout(()=>{if(peer===pr&&!pr.open&&$('rm').style.display!='flex')toast('서버 연결이 느려요. 잠시만 기다려 주세요…',4000)},6000);
+pr.on('open',()=>{if(peer!==pr)return;if(!c0){clearTimeout(toast.i);$('tt').style.display='none'}$('rc').textContent=code;if(!(inGame&&!over)){$('rs').textContent='친구를 기다리는 중… 코드를 알려주세요';$('rm').style.display='flex'}save()});
 pr.on('connection',c=>{if(peer!==pr)return;const resumeMode=inGame&&!over&&cfg.mode=='mp';if(conn&&conn.open){netEvents(c);return}conn=c;netEvents(c);clearTimeout(dropT);c.on('open',()=>{if(resumeMode)sendSync();else{isHost=true;oppNick='상대';hostStart()}})});
 pr.on('error',e=>{if(peer!==pr)return;if(e.type=='unavailable-id'){if(c0){if(tries<15)setTimeout(()=>{if(peer===pr)mkRoom(c0,tries+1)},2000);else toast('방을 다시 열지 못했어요. 로비에서 새로 만들어 주세요',5000)}else mkRoom()}else toast('연결 오류: '+e.type)})}
 function inviteText(){const u=location.protocol.startsWith('http')?location.href.split('#')[0]+'#'+code:'';return{title:'세미니의 전설장기',text:`장기 한판 해요! 🎲\n방 코드: ${code}`+(u?`\n${u}`:''),url:u||undefined}}
@@ -306,7 +284,7 @@ function boom(){try{AC=AC||new(window.AudioContext||webkitAudioContext)();const 
 $('cv').addEventListener('pointerdown',e=>{if(over||anim||busy||turn!=me)return;const r=cv.getBoundingClientRect();let a=Math.round((e.clientX-r.left-OX)/CX),b=Math.round((e.clientY-r.top-OY)/CY);if(a<0||a>8||b<0||b>9)return;if(flip){a=8-a;b=9-b}
 if(sel){const m=sel.L.find(z=>z[2]==a&&z[3]==b);if(m){play(m);return}}const p=B[b][a];if(p&&p.s==me){sel={x:a,y:b,L:legal(me).filter(z=>z[0]==a&&z[1]==b)}}else sel=null});
 /* ---------- 그리기 ---------- */
-function spr(s,key,fr,x,y,o={}){const arr=SP[s.s][s.t][key];if(!arr||!arr.length)return;const f=arr[Math.floor(fr)%arr.length||0];if(!f||!f.im.complete)return;const k=(key=='token'?C*(s.t=='P'||s.t=='G'?.64:.76)/Math.max(f.w,f.h):C/115)*(o.sc||1),w=f.w*k,h=f.h*k;cx2.save();cx2.globalAlpha=o.a==null?1:Math.max(0,Math.min(1,o.a));cx2.translate(x,o.feet?y+C*.45:y);if(o.fl)cx2.scale(-1,1);cx2.drawImage(f.im,-w/2,o.feet?-h:-h/2,w,h);cx2.restore()}
+function spr(s,key,fr,x,y,o={}){const arr=SP[s.s][s.t][key];if(!arr||!arr.length)return;const f=arr[Math.floor(fr)%arr.length||0];if(!f||!f.im.complete)return;const k=(key=='token'?C*(s.t=='P'||s.t=='G'?.64:s.t=='K'?.88:.76)/Math.max(f.w,f.h):C/115*(s.t=='K'?1.16:1))*(o.sc||1),w=f.w*k,h=f.h*k;cx2.save();cx2.globalAlpha=o.a==null?1:Math.max(0,Math.min(1,o.a));cx2.translate(x,o.feet?y+C*.45:y);if(o.fl)cx2.scale(-1,1);cx2.drawImage(f.im,-w/2,o.feet?-h:-h/2,w,h);cx2.restore()}
 function board(g){const gr=g.createLinearGradient(0,0,W,H);gr.addColorStop(0,'#ecc77f');gr.addColorStop(1,'#d09a4c');g.fillStyle=gr;g.fillRect(0,0,W,H);g.strokeStyle='#2b1405';g.lineCap='round';g.lineWidth=Math.max(1.6,C*.05);g.beginPath();
 for(let i=0;i<10;i++){g.moveTo(OX,OY+i*CY);g.lineTo(OX+8*CX,OY+i*CY)}for(let i=0;i<9;i++){g.moveTo(OX+i*CX,OY);g.lineTo(OX+i*CX,OY+9*CY)}
 for(const y of[0,7]){g.moveTo(OX+3*CX,OY+y*CY);g.lineTo(OX+5*CX,OY+(y+2)*CY);g.moveTo(OX+5*CX,OY+y*CY);g.lineTo(OX+3*CX,OY+(y+2)*CY)}g.stroke();g.lineWidth=Math.max(3,C*.09);g.strokeRect(OX,OY,8*CX,9*CY)}
