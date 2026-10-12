@@ -141,7 +141,7 @@
     </div>
   </header>
 
-  <!-- 메인 게임 선택 카드 그리드 (3x3 레이아웃) -->
+  <!-- 메인 게임 선택 카드 그리드 -->
   <main class="w-full max-w-6xl my-4 sm:my-6 flex-1 flex flex-col justify-start">
     <div class="text-center mb-4 sm:mb-6">
       <h2 class="text-xl sm:text-3xl font-black text-slate-100 title-font flex items-center justify-center gap-2">
@@ -150,15 +150,14 @@
       <p class="text-xs sm:text-sm text-slate-400 mt-1">원하는 게임을 터치해 바로 시작하세요 🥳</p>
     </div>
 
-    <!-- 3x3 그리드 구성 -->
     <div class="grid grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4.5">
 
-      <!-- 1. 세미니 삼국장기 (장기 최상단 #1) -->
+      <!-- 1. 세미니 삼국장기 -->
       <a href="games/삼국장기/index.html" class="neon-card bg-slate-900/90 border-2 border-red-500/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 cursor-pointer flex flex-col justify-between group block text-left shadow-lg">
         <div>
           <div class="flex items-center justify-between mb-2">
             <span class="text-3xl sm:text-4xl group-hover:scale-110 transition-transform">🏮</span>
-            <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-red-950 border border-red-500 text-red-300 text-[10px] sm:text-[11px] font-black rounded-lg sm:rounded-xl animate-pulse">🔥 신규 게임</span>
+            <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-red-950 border border-red-500 text-red-300 text-[10px] sm:text-[11px] font-black rounded-lg sm:rounded-xl animate-pulse">🔥 인기 게임</span>
           </div>
           <h3 class="text-base sm:text-lg font-black text-red-400 title-font">세미니 삼국장기</h3>
           <p class="text-[11px] sm:text-xs text-slate-300 mt-1.5 leading-relaxed line-clamp-2 sm:line-clamp-none">
@@ -171,7 +170,7 @@
         </div>
       </a>
 
-      <!-- 2. 전설장기 1 (장기 최상단 #2) -->
+      <!-- 2. 전설장기 1 -->
       <a href="games/janggi/index.html" class="neon-card bg-slate-900/90 border-2 border-emerald-500/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 cursor-pointer flex flex-col justify-between group block text-left shadow-lg">
         <div>
           <div class="flex items-center justify-between mb-2">
@@ -189,43 +188,25 @@
         </div>
       </a>
 
-      <!-- 3. 미니앤파이터 -->
-      <a href="games/%EB%AF%B8%EB%8B%88%EC%95%A4%ED%8C%8C%EC%9D%B4%ED%84%B0/index.html" class="neon-card bg-slate-900/90 border-2 border-orange-500/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 cursor-pointer flex flex-col justify-between group block text-left shadow-lg">
+      <!-- 3. 미니삼국 땅따먹기 (신규 추가) -->
+      <a href="games/미니삼국 땅따먹기/index.html" class="neon-card bg-slate-900/90 border-2 border-cyan-500/80 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 cursor-pointer flex flex-col justify-between group block text-left shadow-lg">
         <div>
           <div class="flex items-center justify-between mb-2">
-            <span class="text-3xl sm:text-4xl group-hover:scale-110 transition-transform">🥊</span>
-            <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-orange-950 border border-orange-500 text-orange-300 text-[10px] sm:text-[11px] font-black rounded-lg sm:rounded-xl">액션 대전</span>
+            <span class="text-3xl sm:text-4xl group-hover:scale-110 transition-transform">🗺️</span>
+            <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-cyan-950 border border-cyan-500 text-cyan-300 text-[10px] sm:text-[11px] font-black rounded-lg sm:rounded-xl animate-pulse">🔥 신규 게임</span>
           </div>
-          <h3 class="text-base sm:text-lg font-black text-orange-400 title-font">미니앤파이터</h3>
+          <h3 class="text-base sm:text-lg font-black text-cyan-400 title-font">미니삼국 땅따먹기</h3>
           <p class="text-[11px] sm:text-xs text-slate-300 mt-1.5 leading-relaxed line-clamp-2 sm:line-clamp-none">
-            짜릿한 타격감과 화려한 콤보 액션! 박진감 넘치는 실시간 대전 배틀.
+            삼국지 무장들과 함께 영토를 점령하라! 긴장감 넘치는 전략 땅따먹기 대결.
           </p>
         </div>
-        <div class="mt-3 flex items-center justify-between text-[11px] sm:text-xs font-bold text-orange-300 pt-2 border-t border-slate-800">
-          <span>경기장 입장</span>
+        <div class="mt-3 flex items-center justify-between text-[11px] sm:text-xs font-bold text-cyan-300 pt-2 border-t border-slate-800">
+          <span>전장 입장</span>
           <span class="group-hover:translate-x-1 transition-transform">👉</span>
         </div>
       </a>
 
-      <!-- 4. 전설의 알까기 -->
-      <a href="games/alkkagi/index.html" class="neon-card bg-slate-900/90 border-2 border-slate-700 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 cursor-pointer flex flex-col justify-between group block text-left shadow-lg">
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-3xl sm:text-4xl group-hover:scale-110 transition-transform">💥</span>
-            <span class="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-purple-950 border border-purple-500 text-purple-300 text-[10px] sm:text-[11px] font-black rounded-lg sm:rounded-xl">오픈 배틀</span>
-          </div>
-          <h3 class="text-base sm:text-lg font-black text-purple-400 title-font">전설의 알까기</h3>
-          <p class="text-[11px] sm:text-xs text-slate-300 mt-1.5 leading-relaxed line-clamp-2 sm:line-clamp-none">
-            슬링샷 드래그 물리 조준 & 당구식 탄성 충돌로 장기알을 날려보세요!
-          </p>
-        </div>
-        <div class="mt-3 flex items-center justify-between text-[11px] sm:text-xs font-bold text-purple-300 pt-2 border-t border-slate-800">
-          <span>알까기판 입장</span>
-          <span class="group-hover:translate-x-1 transition-transform">👉</span>
-        </div>
-      </a>
-
-      <!-- 5. 복불복 핀볼 -->
+      <!-- 4. 복불복 핀볼 -->
       <a href="games/pinball/index.html" class="neon-card bg-slate-900/90 border-2 border-slate-700 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 cursor-pointer flex flex-col justify-between group block text-left shadow-lg">
         <div>
           <div class="flex items-center justify-between mb-2">
@@ -243,7 +224,14 @@
         </div>
       </a>
 
-      <!-- 6~9 슬롯: 3x3 구성을 완성하기 위한 준비 중 슬롯 (향후 게임 추가 가능) -->
+      <!-- 5. 준비 중 슬롯 -->
+      <div class="bg-slate-950/40 border border-dashed border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 flex flex-col items-center justify-center text-center opacity-70">
+        <span class="text-2xl sm:text-3xl mb-1">🚀</span>
+        <h3 class="text-xs sm:text-sm font-bold text-slate-400">새로운 게임</h3>
+        <p class="text-[10px] text-slate-600 mt-0.5">준비 중입니다</p>
+      </div>
+
+      <!-- 6. 준비 중 슬롯 -->
       <div class="bg-slate-950/40 border border-dashed border-slate-800 rounded-2xl sm:rounded-3xl p-3.5 sm:p-4.5 flex flex-col items-center justify-center text-center opacity-70">
         <span class="text-2xl sm:text-3xl mb-1">🚀</span>
         <h3 class="text-xs sm:text-sm font-bold text-slate-400">새로운 게임</h3>
