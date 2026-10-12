@@ -1,0 +1,4641 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#150c07">
+  <title>천하통일: 동아시아 대전 (우측 병법서 & 배수의 진 역전판)</title>
+  <style>
+    :root {
+      --bg-dark: #0a0705;
+      --gold: #d4af37;
+      --gold-bright: #ffe685;
+      --gold-dark: #7a5f13;
+      --wood-dark: #160e08;
+      --wood-border: #4d331e;
+
+      /* 한국 세력 */
+      --goguryeo-color: #dc2626;
+      --baekje-color: #2563eb;
+      --silla-color: #d97706;
+      --joseon-color: #059669;
+
+      /* 중국 세력 */
+      --wei-color: #3b82f6;
+      --shu-color: #10b981;
+      --wu-color: #ef4444;
+      --lubu-color: #8b5cf6;
+
+      /* 일본 세력 */
+      --oda-color: #7c2d12;
+      --yamato-color: #e11d48;
+
+      /* 중립 */
+      --neutral-color: #78716c;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+      margin: 0;
+      padding: 0;
+      touch-action: manipulation;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background-color: var(--bg-dark);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Malgun Gothic", sans-serif;
+      color: #f5f5f5;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #1e130b 0%, #0d0805 100%);
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      background: radial-gradient(circle at 50% 50%, #1e130b 0%, #0d0805 100%);
+      touch-action: none;
+    }
+
+    /* 🌟 상단 황실 조정 대시보드 (어떤 줌 상태에서도 고정 표시) */
+    header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      padding: calc(6px + env(safe-area-inset-top, 0px)) 12px 6px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(180deg, rgba(16, 10, 6, 0.95) 0%, rgba(16, 10, 6, 0.75) 80%, transparent 100%);
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .header-left, .header-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      pointer-events: auto;
+    }
+
+    .title-banner {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .imperial-seal {
+      width: 22px;
+      height: 22px;
+      background: #991b1b;
+      border: 1.5px solid var(--gold);
+      border-radius: 4px;
+      color: var(--gold-bright);
+      font-weight: 900;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 6px rgba(220, 38, 38, 0.6);
+    }
+    .game-title {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--gold-bright);
+      letter-spacing: 0.5px;
+      text-shadow: 1px 1px 2px #000;
+    }
+
+    .resource-pill {
+      background: rgba(30, 20, 13, 0.85);
+      border: 1px solid var(--wood-border);
+      border-radius: 12px;
+      padding: 3px 7px;
+      font-size: 11px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      box-shadow: inset 0 1px 3px rgba(0,0,0,0.6);
+    }
+    .res-gold { color: #facc15; }
+    .res-food { color: #86efac; }
+    .res-season { color: #f472b6; }
+
+    .header-btn {
+      background: linear-gradient(180deg, #442d1d 0%, #26160d 100%);
+      border: 1px solid var(--gold);
+      border-radius: 8px;
+      color: var(--gold-bright);
+      font-size: 10.5px;
+      font-weight: bold;
+      padding: 4px 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    }
+    .header-btn:active {
+      transform: scale(0.96);
+      background: #180d07;
+    }
+
+    /* 상단 판도 게이지 */
+    #territory-strip {
+      position: fixed;
+      top: calc(38px + env(safe-area-inset-top, 0px));
+      z-index: 50;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      height: 4px;
+      background: #1a120c;
+      border: 1px solid #3d2616;
+      border-radius: 2px;
+      display: flex;
+      overflow: hidden;
+      z-index: 10;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+    }
+    .territory-segment { height: 100%; transition: width 0.4s ease; }
+
+    /* 거점 상세 패널 (증축 및 성벽 수리 전용) */
+    /* 🌟 거점 상세 패널 (줌인/줌아웃 시에도 화면 하단에 상시 고정 유지) */
+    #city-detail-panel {
+      position: fixed;
+      bottom: calc(90px + env(safe-area-inset-bottom, 24px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(24, 15, 10, 0.98);
+      border: 2px solid var(--gold);
+      border-radius: 12px;
+      padding: 8px 12px;
+      display: none;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 60;
+      box-shadow: 0 10px 35px rgba(0,0,0,0.95);
+      width: 95%;
+      max-width: 440px;
+    }
+    #city-detail-panel.show { display: flex; }
+
+    .city-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .city-name-big { font-size: 13.5px; font-weight: 900; color: var(--gold-bright); }
+    .city-stat-line { font-size: 9.5px; color: #ccc; }
+    .city-action-grid {
+      display: flex;
+      gap: 6px;
+    }
+    .action-sub-btn {
+      background: linear-gradient(180deg, #3d2719 0%, #20130b 100%);
+      border: 1px solid var(--wood-border);
+      border-radius: 6px;
+      color: #eee;
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .action-sub-btn:active {
+      transform: scale(0.96);
+      background: #150d08;
+    }
+    .action-sub-btn.highlight {
+      border-color: var(--gold);
+      color: var(--gold-bright);
+      background: linear-gradient(180deg, #634327 0%, #3a2213 100%);
+    }
+
+    /* 🌟 카메라 시야 줌인/줌아웃 컨트롤러 (상시 화면 고정) */
+    #camera-controls {
+      position: fixed;
+      right: 12px;
+      bottom: calc(92px + env(safe-area-inset-bottom, 24px));
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      z-index: 60;
+      pointer-events: auto;
+    }
+
+    .cam-btn {
+      background: rgba(26, 16, 10, 0.94);
+      border: 1.5px solid var(--gold);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      color: var(--gold-bright);
+      font-size: 13.5px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 14px rgba(0,0,0,0.85);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .cam-btn:active {
+      transform: scale(0.92);
+      background: #442d1d;
+    }
+
+    /* 🌟 하단 커맨드 독 (어떤 줌 배율에서도 화면 하단에 절대 고정) */
+    #bottom-dock {
+      position: fixed;
+      bottom: max(calc(16px + env(safe-area-inset-bottom, 0px)), 52px);
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(22, 14, 9, 0.96);
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      padding: 6px 10px;
+      padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      z-index: 50;
+      box-shadow: 0 6px 24px rgba(0,0,0,0.92);
+      touch-action: manipulation;
+    }
+
+    #city-detail-panel {
+      position: fixed;
+      bottom: max(calc(84px + env(safe-area-inset-bottom, 0px)), 122px) !important;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 60;
+    }
+
+    .zoom-controls {
+      position: fixed;
+      right: 12px;
+      bottom: max(calc(84px + env(safe-area-inset-bottom, 0px)), 122px) !important;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 45;
+    }
+
+    /* 🌟 우측 전장 배치 기술 연구 사이드 패널 (전황 시야를 가리지 않음) */
+    #tech-drawer {
+      position: fixed;
+      top: calc(44px + env(safe-area-inset-top, 0px));
+      right: 0;
+      width: 380px;
+      max-width: 92vw;
+      height: calc(100vh - 120px);
+      background: linear-gradient(180deg, rgba(28, 18, 12, 0.98) 0%, rgba(18, 11, 7, 0.98) 100%);
+      border-left: 2px solid var(--gold);
+      border-top: 2px solid var(--gold);
+      border-bottom: 2px solid var(--gold);
+      border-top-left-radius: 14px;
+      border-bottom-left-radius: 14px;
+      box-shadow: -8px 8px 30px rgba(0,0,0,0.85);
+      z-index: 85;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(110%);
+      transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+      padding: 12px;
+      backdrop-filter: blur(10px);
+    }
+    #tech-drawer.show {
+      transform: translateX(0);
+    }
+    .tech-drawer-header {
+      border-bottom: 1px solid var(--wood-border);
+      padding-bottom: 8px;
+      margin-bottom: 8px;
+    }
+    .tech-drawer-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tech-drawer-title-row h3 {
+      font-size: 15px;
+      color: var(--gold-bright);
+      font-weight: 900;
+      margin: 0;
+    }
+    .tech-drawer-close-btn {
+      background: #7f1d1d;
+      color: #fff;
+      border: 1px solid #ef4444;
+      border-radius: 6px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .tech-tabs-row {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      margin-top: 6px;
+      padding-bottom: 2px;
+    }
+    .tech-tab-btn {
+      background: #2a1a10;
+      border: 1px solid var(--wood-border);
+      color: #ccc;
+      padding: 4px 7px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .tech-tab-btn.active {
+      background: var(--gold);
+      color: #120a05;
+      border-color: #fde047;
+    }
+
+    /* ⚡ 9:1 역전 비책 배너 및 버튼 */
+    #comeback-alert-banner {
+      display: none;
+      position: fixed;
+      top: calc(72px + env(safe-area-inset-top, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(90deg, #b91c1c 0%, #d97706 50%, #b91c1c 100%);
+      border: 2px solid #fde047;
+      color: #fff;
+      font-weight: 900;
+      font-size: 11.5px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      z-index: 55;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.8);
+      animation: pulseAlert 1.5s infinite;
+      white-space: nowrap;
+    }
+    @keyframes pulseAlert {
+      0%, 100% { transform: translateX(-50%) scale(1); }
+      50% { transform: translateX(-50%) scale(1.03); }
+    }
+    .btn-comeback-stratagem {
+      display: none;
+      background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+      border: 1.5px solid #fde047;
+      color: #fef08a;
+      font-weight: 900;
+      font-size: 11px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 0 12px rgba(220, 38, 38, 0.7);
+      animation: pulseBtn 1.2s infinite;
+    }
+    @keyframes pulseBtn {
+      0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.6); }
+      50% { box-shadow: 0 0 18px rgba(253, 224, 71, 0.9); }
+    }
+
+    .comeback-stratagem-card {
+      background: linear-gradient(180deg, #2b1209 0%, #170a04 100%);
+      border: 1.5px solid #ea580c;
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-bottom: 8px;
+    }
+    .comeback-stratagem-title {
+      font-size: 13px;
+      font-weight: 900;
+      color: #fde047;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .comeback-stratagem-desc {
+      font-size: 10px;
+      color: #ddd;
+      line-height: 1.4;
+    }
+    .comeback-exec-btn {
+      background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+      color: #fff;
+      border: 1px solid #fde047;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11.5px;
+      font-weight: 900;
+      cursor: pointer;
+      margin-top: 4px;
+    }
+
+    .dock-group { gap: 2px; }
+      .dock-toggle-btn { padding: 4px 5px; font-size: 9.5px; min-height: 28px; }
+      .btn-stratagem-toggle { padding: 4px 7px; font-size: 9.5px; min-height: 28px; }
+      .btn-frontline-defend { padding: 4px 7px; font-size: 9.5px; min-height: 28px; }
+      .btn-all-out { padding: 4px 7px; font-size: 9.5px; min-height: 28px; }
+    }
+
+    .dock-group { display: flex; align-items: center; gap: 3px; }
+
+    .troop-toggle, .ratio-toggle {
+      display: flex;
+      background: #150d08;
+      border: 1px solid var(--wood-border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .dock-toggle-btn {
+      background: transparent;
+      border: none;
+      color: #aaa;
+      padding: 5px 7px;
+      font-size: 10.5px;
+      font-weight: bold;
+      cursor: pointer;
+      min-height: 30px;
+    }
+    .dock-toggle-btn.active {
+      background: var(--gold);
+      color: #150d08;
+    }
+
+    .btn-stratagem-toggle {
+      background: linear-gradient(180deg, #442d1d 0%, #26160d 100%);
+      color: var(--gold-bright);
+      border: 1px solid var(--gold);
+      padding: 5px 9px;
+      font-size: 10.5px;
+      font-weight: 900;
+      border-radius: 6px;
+      cursor: pointer;
+      min-height: 30px;
+      white-space: nowrap;
+    }
+
+    .btn-frontline-defend {
+      background: linear-gradient(180deg, #1e3a8a 0%, #0f172a 100%);
+      color: #93c5fd;
+      border: 1px solid #3b82f6;
+      padding: 5px 8px;
+      font-size: 10px;
+      font-weight: 900;
+      border-radius: 6px;
+      cursor: pointer;
+      min-height: 30px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      transition: all 0.15s;
+    }
+    .btn-frontline-defend:active {
+      transform: scale(0.95);
+      background: linear-gradient(180deg, #2563eb 0%, #1e3a8a 100%);
+    }
+
+    .btn-all-out {
+      background: linear-gradient(180deg, #7f1d1d 0%, #450a0a 100%);
+      color: #fca5a5;
+      border: 1px solid #ef4444;
+      padding: 5px 8px;
+      font-size: 10.5px;
+      font-weight: 900;
+      border-radius: 6px;
+      cursor: pointer;
+      min-height: 30px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      transition: all 0.15s;
+    }
+    .btn-all-out.active {
+      background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+      color: #fff;
+      box-shadow: 0 0 10px #ef4444;
+    }
+
+    .skill-btn {
+      position: relative;
+      background: linear-gradient(135deg, #854d0e 0%, #3f2206 100%);
+      border: 2px solid var(--gold);
+      border-radius: 50%;
+      width: 36px;
+      height: 36px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      overflow: hidden;
+      box-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
+    }
+    .skill-btn:active { transform: scale(0.92); }
+    .skill-cooldown-overlay {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 0%;
+      background: rgba(0,0,0,0.7);
+      transition: height 0.1s linear;
+      pointer-events: none;
+    }
+    #skill-icon { font-size: 13px; line-height: 1; }
+    #skill-name { font-size: 7.5px; font-weight: bold; color: var(--gold-bright); margin-top: 1px; }
+
+    /* 상황 알림 로그 */
+    #log-drawer {
+      position: fixed;
+      top: calc(48px + env(safe-area-inset-top, 0px));
+      z-index: 45;
+      left: 10px;
+      width: 220px;
+      max-height: 120px;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 10;
+      display: flex;
+      flex-direction: column-reverse;
+      gap: 3px;
+    }
+    .log-entry {
+      background: rgba(16, 10, 6, 0.88);
+      border-left: 2px solid var(--gold);
+      padding: 2px 6px;
+      font-size: 9px;
+      color: #ddd;
+      border-radius: 0 4px 4px 0;
+      animation: fadeIn 0.3s ease;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    /* 반맹주 연합 긴급 알림 */
+    #coalition-alert-banner {
+      display: none;
+      position: fixed;
+      z-index: 55;
+      top: calc(48px + env(safe-area-inset-top, 0px));
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(153, 27, 27, 0.95);
+      border: 2px solid #f87171;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 900;
+      color: #fff;
+      z-index: 15;
+      box-shadow: 0 0 15px rgba(220, 38, 38, 0.8);
+      animation: pulse 1s infinite alternate;
+      pointer-events: none;
+    }
+    @keyframes pulse {
+      from { transform: translateX(-50%) scale(0.98); }
+      to { transform: translateX(-50%) scale(1.02); }
+    }
+
+    /* 공통 모달 스타일 */
+    .modal-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(0, 0, 0, 0.85);
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 12px;
+    }
+    .modal-backdrop.show { display: flex; }
+    .modal-card {
+      background: linear-gradient(180deg, #24160e 0%, #140d07 100%);
+      border: 2px solid var(--gold);
+      border-radius: 14px;
+      padding: 16px;
+      width: 100%;
+      max-width: 520px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.95);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .modal-header { text-align: center; }
+    .modal-header h2 { font-size: 17px; color: var(--gold-bright); margin-bottom: 3px; font-weight: 900; }
+    .modal-close-btn {
+      background: #7f1d1d;
+      color: #fff;
+      border: 1px solid #ef4444;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    /* 맵 선택 카드 그리드 */
+    .map-select-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 7px;
+      margin: 6px 0;
+    }
+    .map-card {
+      background: #1a100a;
+      border: 1.5px solid var(--wood-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      transition: all 0.2s;
+    }
+    .map-card.selected {
+      border-color: var(--gold);
+      background: #331e11;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+    .map-title { font-size: 12.5px; font-weight: 900; color: var(--gold-bright); display: flex; justify-content: space-between; }
+    .map-desc { font-size: 10px; color: #bbb; }
+
+    /* 문화권별 군웅 선택 카드 */
+    .culture-section-title {
+      font-size: 11.5px;
+      font-weight: bold;
+      color: var(--gold);
+      border-bottom: 1px solid var(--wood-border);
+      padding-bottom: 3px;
+      margin-top: 6px;
+    }
+    .faction-grid-culture {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+      margin: 4px 0;
+    }
+    .faction-card {
+      background: #1a110a;
+      border: 1.5px solid var(--wood-border);
+      border-radius: 8px;
+      padding: 6px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      text-align: center;
+      transition: all 0.15s;
+    }
+    .faction-card.selected {
+      border-color: var(--gold);
+      background: #381f10;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+    .faction-emblem { font-size: 18px; font-weight: 900; }
+    .faction-name { font-size: 11px; font-weight: bold; }
+    .faction-trait { font-size: 9px; color: #bbb; }
+
+    /* 계략 선택 모달 */
+    .stratagem-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 6px;
+    }
+    .stratagem-card {
+      background: #1b1109;
+      border: 1px solid var(--wood-border);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .stratagem-card:active { background: #2f1d10; }
+    .stratagem-info { display: flex; flex-direction: column; gap: 2px; }
+    .stratagem-name { font-size: 12px; font-weight: 900; color: var(--gold-bright); }
+    .stratagem-desc { font-size: 9.5px; color: #aaa; }
+    .stratagem-cost { font-size: 11px; font-weight: bold; color: #facc15; }
+
+    /* 기술 트리 모달 */
+    .tech-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 68vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .tech-cat-card {
+      background: linear-gradient(180deg, #1f140c 0%, #150d07 100%);
+      border: 1.5px solid var(--wood-border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+    }
+    .tech-cat-card.mastered {
+      border-color: #eab308;
+      background: linear-gradient(180deg, #2b1f09 0%, #171105 100%);
+    }
+    .tech-cat-header { display: flex; flex-direction: column; gap: 3px; }
+    .tech-cat-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .tech-cat-name { font-size: 13px; font-weight: 900; color: var(--gold-bright); }
+    .tech-cat-level-badge {
+      background: #332014;
+      border: 1px solid var(--gold);
+      color: #fef08a;
+      padding: 2px 7px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 800;
+    }
+    .tech-cat-level-badge.gold {
+      background: #ca8a04;
+      color: #120a05;
+      border-color: #fde047;
+    }
+    .tech-cat-desc { font-size: 9.5px; color: #bbb; line-height: 1.3; }
+    .tech-progress-bar-bg {
+      width: 100%;
+      height: 5px;
+      background: #2a1b11;
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 2px;
+    }
+    .tech-progress-bar-fill {
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+    .tech-unlocked-skills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      align-items: center;
+      font-size: 9.5px;
+      color: #93c5fd;
+      background: rgba(30, 41, 59, 0.4);
+      padding: 4px 6px;
+      border-radius: 6px;
+    }
+    .tech-skill-pill {
+      background: #1e3a8a;
+      border: 1px solid #3b82f6;
+      color: #bfdbfe;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 8.5px;
+      font-weight: bold;
+    }
+    .tech-next-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(0,0,0,0.3);
+      padding: 7px 8px;
+      border-radius: 7px;
+      border: 1px dashed rgba(212, 175, 55, 0.3);
+      gap: 8px;
+    }
+    .tech-next-info { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+    .tech-next-title { font-size: 11px; font-weight: 900; color: #fde047; }
+    .tech-next-desc { font-size: 9px; color: #ccc; }
+    .tech-next-skill { font-size: 9px; color: #f97316; font-weight: bold; margin-top: 1px; }
+    .tech-mastered-text { font-size: 11px; font-weight: 900; color: #fbbf24; }
+    .tech-btn {
+      background: linear-gradient(180deg, #f59e0b 0%, #b45309 100%);
+      color: #1a0a03;
+      border: 1px solid #fde047;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 900;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+    .tech-btn:active { transform: scale(0.96); }
+    .tech-btn:disabled, .tech-btn.disabled {
+      background: #444 !important;
+      color: #888 !important;
+      border-color: #666 !important;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+    .tech-tier-details {
+      margin-top: 3px;
+      font-size: 9.5px;
+      color: #d4af37;
+    }
+    .tech-tier-details summary {
+      cursor: pointer;
+      user-select: none;
+      padding: 2px 0;
+      outline: none;
+    }
+    .tech-tier-list {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      margin-top: 5px;
+      background: #110904;
+      border-radius: 6px;
+      padding: 5px;
+      max-height: 120px;
+      overflow-y: auto;
+    }
+    .tech-tier-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 8.5px;
+      padding: 2px 4px;
+      border-radius: 3px;
+      color: #777;
+    }
+    .tech-tier-item.done {
+      color: #4ade80;
+      background: rgba(34, 197, 94, 0.1);
+    }
+    .tech-tier-item.next {
+      color: #fde047;
+      background: rgba(253, 224, 71, 0.15);
+      font-weight: bold;
+    }
+    .tier-num { font-weight: 900; width: 28px; }
+    .tier-name { flex: 1; }
+    .tier-cost { color: #f59e0b; width: 38px; text-align: right; }
+    .tier-desc { color: #aaa; flex: 2; font-size: 8px; }
+
+    @media (min-width: 768px) {
+      .map-select-grid { grid-template-columns: repeat(2, 1fr); }
+      .faction-grid-culture { grid-template-columns: repeat(4, 1fr); }
+      .tech-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 상단 황실 조정 대시보드 -->
+  <header>
+    <div class="header-left">
+      <div class="title-banner">
+        <div class="imperial-seal">天下</div>
+        <div class="game-title">동아시아 대전</div>
+      </div>
+      <div id="player-faction-badge" class="resource-pill" style="border-color:#fde047; color:#fde047; background:rgba(153,27,27,0.9); font-weight:900;">⭐ <span id="hud-my-faction">고구려 (광개토)</span></div>
+      <div class="resource-pill res-gold">🪙 <span id="res-gold">300</span></div>
+      <div class="resource-pill res-food">🌾 <span id="res-food">400</span></div>
+      <div class="resource-pill res-season"><span id="res-season">🌸 춘</span></div>
+    </div>
+
+    <div class="header-right">
+      <button id="btn-speed" class="header-btn">⏩ 1x</button>
+      <button id="btn-tech-tree" class="header-btn">📜 병법서</button>
+      <button id="btn-menu" class="header-btn">⚙️ 전장</button>
+    </div>
+  </header>
+
+  <!-- 상단 영토 판도 게이지 스트립 -->
+  <div id="territory-strip"></div>
+
+  <!-- 반맹주 연합 긴급 알림 배너 -->
+  <div id="coalition-alert-banner">🚨 [반맹주 동맹 결성] 열강들이 아군을 협공합니다! 🚨</div>
+
+  <!-- 좌상단 전황 로그 -->
+  <div id="log-drawer"></div>
+
+  <!-- 메인 캔버스 뷰 -->
+  <div id="game-container">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- 거점 상세 내정 바텀 시트 (증축 및 성벽수리) -->
+    <div id="city-detail-panel">
+      <div class="city-info-row">
+        <div id="panel-city-name" class="city-name-big">평양성 [Lv.1]</div>
+        <div id="panel-city-stats" class="city-stat-line">주둔: 50/50 | 성벽: 60/60</div>
+      </div>
+      <div class="city-action-grid">
+        <button id="btn-panel-upgrade" class="action-sub-btn highlight" style="flex:1.8;">증축(🪙50)</button>
+        <button id="btn-panel-repair" class="action-sub-btn" style="flex:1.2;">성벽수리(🪙30)</button>
+
+        <button id="btn-panel-close" class="action-sub-btn" style="flex:0.8; background:#5a1818;">닫기✖</button>
+      </div>
+    </div>
+
+    <!-- 시야 줌인/줌아웃 및 아군 본성 리셋 카메라 컨트롤러 -->
+    <div id="camera-controls">
+      <button id="btn-zoom-in" class="cam-btn" title="시야 줌인 (확대)">🔍+</button>
+      <button id="btn-zoom-reset" class="cam-btn" title="아군 본성 집중 / 시야 리셋">🎯</button>
+      <button id="btn-zoom-out" class="cam-btn" title="시야 줌아웃 (축소)">🔍−</button>
+    </div>
+
+    <!-- 하단 통솔 커맨드 독 -->
+    <div id="bottom-dock">
+      <div class="dock-group">
+        <div class="troop-toggle">
+          <button class="dock-toggle-btn active" data-type="infantry">🛡️보</button>
+          <button class="dock-toggle-btn" data-type="cavalry">🐎기</button>
+          <button class="dock-toggle-btn" data-type="archer">🏹궁</button>
+        </div>
+      </div>
+
+      <div class="dock-group">
+        <div class="ratio-toggle">
+          <button class="dock-toggle-btn" data-ratio="0.25">25%</button>
+          <button class="dock-toggle-btn active" data-ratio="0.5">50%</button>
+          <button class="dock-toggle-btn" data-ratio="1.0">전군</button>
+        </div>
+      </div>
+
+      <button id="btn-stratagem-menu" class="btn-stratagem-toggle">📜 계략</button>
+
+      <div class="dock-group">
+        <button id="btn-frontline-defend" class="btn-frontline-defend" title="비전선 후방 거점에서 최전방 전선으로 병력 90% 지원 급파">🛡️ 최전방 수비</button>
+        <button id="btn-all-out" class="btn-all-out">총공격🚩</button>
+        <button id="btn-comeback-stratagem" class="btn-comeback-stratagem">⚡역전비책</button>
+        <button id="btn-skill" class="skill-btn">
+          <span id="skill-icon">⚡</span>
+          <span id="skill-name">비기</span>
+          <div id="skill-cooldown-bar" class="skill-cooldown-overlay"></div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 대형 시작 모달 (맵 선택 & 군웅 선택) -->
+  <div id="start-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div class="imperial-seal" style="display:inline-block; margin-bottom:4px;">동아시아 대전</div>
+        <h2>천하통일: 전장 및 군웅 선택</h2>
+        <p style="font-size:11px; color:#aaa;">5대 대형 전장 중 하나를 고르고 군웅을 선택하십시오!</p>
+      </div>
+
+      <div style="font-size:12px; color:#ddd;">
+        <span style="color:var(--gold); font-weight:bold;">1. 결전 전장 선택 (도시 개수 대폭 증설)</span>
+      </div>
+      <div class="map-select-grid">
+        <div class="map-card selected" data-map="east_asia">
+          <div class="map-title">🗺️ 동아시아 천하통일도 <span>(27개 거점)</span></div>
+          <div class="map-desc">한·중·일 통합 대전. 요동 육로·서해 횡단 해상로·대한해협 교두보 결전.</div>
+        </div>
+        <div class="map-card" data-map="korea_peninsula">
+          <div class="map-title">🇰🇷 한반도 삼국통일도 <span>(20개 거점)</span></div>
+          <div class="map-desc">고구려·백제·신라·가야. 임진강·한강 방어선과 문경새재(조령) 관문 격전.</div>
+        </div>
+        <div class="map-card" data-map="china_continent">
+          <div class="map-title">🇨🇳 중원 삼국쟁패도 <span>(22개 거점)</span></div>
+          <div class="map-desc">위·촉·오·여포. 호뢰관·검각·장강 삼협과 형주·합비 대회랑 쟁탈전.</div>
+        </div>
+        <div class="map-card" data-map="japan_sengoku">
+          <div class="map-title">🇯🇵 열도 전국통일도 <span>(18개 거점)</span></div>
+          <div class="map-desc">오다·도쿠가와·다케다·우에스기. 도카이도 해안로·나카센도 산악 관문 대결.</div>
+        </div>
+        <div class="map-card" data-map="passes">
+          <div class="map-title">⛰️ 4대 관문 쟁탈전 <span>(16개 거점)</span></div>
+          <div class="map-desc">호뢰관·검각·문경새재·철령관 4대 관문과 중앙 낙양 외원 거성 결전.</div>
+        </div>
+      </div>
+
+      <div style="font-size:12px; color:#ddd; margin-top:6px;">
+        <span style="color:var(--gold); font-weight:bold;">2. 플레이 군웅 선택</span>
+      </div>
+
+      <!-- 한국 -->
+      <div class="culture-section-title">🇰🇷 한국 세력 (산성 수호 & 개마무사/신궁)</div>
+      <div class="faction-grid-culture">
+        <div class="faction-card selected" data-faction="goguryeo" style="border-color:var(--goguryeo-color);">
+          <div class="faction-emblem" style="color:var(--goguryeo-color);">高</div>
+          <div class="faction-name" style="color:var(--goguryeo-color);">고구려 (광개토)</div>
+          <div class="faction-trait">개마무사 철기 돌격</div>
+        </div>
+        <div class="faction-card" data-faction="baekje" style="border-color:var(--baekje-color);">
+          <div class="faction-emblem" style="color:var(--baekje-color);">百</div>
+          <div class="faction-name" style="color:var(--baekje-color);">백제 (근초고왕)</div>
+          <div class="faction-trait">해상무역·칠지도</div>
+        </div>
+        <div class="faction-card" data-faction="silla" style="border-color:var(--silla-color);">
+          <div class="faction-emblem" style="color:var(--silla-color);">羅</div>
+          <div class="faction-name" style="color:var(--silla-color);">신라 (문무왕)</div>
+          <div class="faction-trait">화랑도·산성철벽</div>
+        </div>
+        <div class="faction-card" data-faction="joseon" style="border-color:var(--joseon-color);">
+          <div class="faction-emblem" style="color:var(--joseon-color);">朝</div>
+          <div class="faction-name" style="color:var(--joseon-color);">조선 (이순신)</div>
+          <div class="faction-trait">편전 신궁·학익진</div>
+        </div>
+      </div>
+
+      <!-- 중국 -->
+      <div class="culture-section-title">🇨🇳 중국 세력 (대군 징집 & 중원 공성)</div>
+      <div class="faction-grid-culture">
+        <div class="faction-card" data-faction="wei" style="border-color:var(--wei-color);">
+          <div class="faction-emblem" style="color:var(--wei-color);">魏</div>
+          <div class="faction-name" style="color:var(--wei-color);">조위 (조조)</div>
+          <div class="faction-trait">호표기·둔전제</div>
+        </div>
+        <div class="faction-card" data-faction="shu" style="border-color:var(--shu-color);">
+          <div class="faction-emblem" style="color:var(--shu-color);">蜀</div>
+          <div class="faction-name" style="color:var(--shu-color);">촉한 (유비)</div>
+          <div class="faction-trait">오호대장·연노병</div>
+        </div>
+        <div class="faction-card" data-faction="wu" style="border-color:var(--wu-color);">
+          <div class="faction-emblem" style="color:var(--wu-color);">吳</div>
+          <div class="faction-name" style="color:var(--wu-color);">손오 (손책)</div>
+          <div class="faction-trait">장강 수군·화공술</div>
+        </div>
+        <div class="faction-card" data-faction="lubu" style="border-color:var(--lubu-color);">
+          <div class="faction-emblem" style="color:var(--lubu-color);">呂</div>
+          <div class="faction-name" style="color:var(--lubu-color);">여포 (방천화극)</div>
+          <div class="faction-trait">무쌍 돌격·기병극대화</div>
+        </div>
+      </div>
+
+      <!-- 일본 -->
+      <div class="culture-section-title">🇯🇵 일본 세력 (신속 기동 & 조총/철포)</div>
+      <div class="faction-grid-culture">
+        <div class="faction-card" data-faction="oda" style="border-color:var(--oda-color);">
+          <div class="faction-emblem" style="color:var(--oda-color);">織</div>
+          <div class="faction-name" style="color:var(--oda-color);">오다 (노부나가)</div>
+          <div class="faction-trait">삼단사격 철포대</div>
+        </div>
+        <div class="faction-card" data-faction="yamato" style="border-color:var(--yamato-color);">
+          <div class="faction-emblem" style="color:var(--yamato-color);">大</div>
+          <div class="faction-name" style="color:var(--yamato-color);">야마토 (성덕태자)</div>
+          <div class="faction-trait">무사도·신속 행군</div>
+        </div>
+      </div>
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+        <span style="font-size:11px; color:#aaa;">난이도 설정:</span>
+        <select id="select-difficulty" style="background:#1a100a; color:var(--gold); border:1px solid var(--wood-border); border-radius:6px; padding:3px 8px; font-size:11px;">
+          <option value="easy">초급 (초보 군주)</option>
+          <option value="normal" selected>중급 (정규 전장)</option>
+          <option value="hard">상급 (적군 AI 총공세)</option>
+        </select>
+      </div>
+
+      <button id="btn-start-game" class="header-btn" style="width:100%; padding:10px; font-size:14px; margin-top:6px; justify-content:center;">천하 출정 시작 ⚔️</button>
+    </div>
+  </div>
+
+  <!-- 계략 시전 모달 -->
+  <div id="stratagem-modal" class="modal-backdrop">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h2>📜 비단 주머니 5대 계략</h2>
+        <p style="font-size:10.5px; color:#aaa;">군사를 움직여 전황을 일거에 뒤집으십시오.</p>
+      </div>
+      <div class="stratagem-grid">
+        <div class="stratagem-card" data-stratagem="fire">
+          <div class="stratagem-info">
+            <div class="stratagem-name">🔥 화공 (火攻)</div>
+            <div class="stratagem-desc">적 거점 1곳에 맹화를 질러 성벽과 주둔군 35% 소실</div>
+          </div>
+          <div class="stratagem-cost">🪙 80</div>
+        </div>
+        <div class="stratagem-card" data-stratagem="raid">
+          <div class="stratagem-info">
+            <div class="stratagem-name">⚡ 급습 (急襲)</div>
+            <div class="stratagem-desc">12초간 아군 모든 부대 이동속도 2.2배 및 돌파력 급증</div>
+          </div>
+          <div class="stratagem-cost">🪙 90</div>
+        </div>
+        <div class="stratagem-card" data-stratagem="discord">
+          <div class="stratagem-info">
+            <div class="stratagem-name">🎭 이간계 (離間計)</div>
+            <div class="stratagem-desc">임의의 적 거점 1곳을 혼란에 빠뜨려 주둔군 50%가 탈주</div>
+          </div>
+          <div class="stratagem-cost">🪙 110</div>
+        </div>
+        <div class="stratagem-card" data-stratagem="ambush">
+          <div class="stratagem-info">
+            <div class="stratagem-name">🌲 매복계 (埋伏計)</div>
+            <div class="stratagem-desc">도로 위 행군 중인 적 부대 전체에 복병 기습 가해 50% 섬멸</div>
+          </div>
+          <div class="stratagem-cost">🪙 120</div>
+        </div>
+        <div class="stratagem-card" data-stratagem="mercenary">
+          <div class="stratagem-info">
+            <div class="stratagem-name">🏹 의용병 징집 (義勇兵)</div>
+            <div class="stratagem-desc">모든 아군 거점에 즉시 정예병 +20명씩 긴급 충원</div>
+          </div>
+          <div class="stratagem-cost">🪙 130</div>
+        </div>
+      </div>
+      <button id="btn-close-stratagem" class="modal-close-btn">닫기</button>
+    </div>
+  </div>
+
+  <!-- 기술 트리 모달 -->
+  <!-- 🌟 우측 전장 배치 기술 연구 사이드 드로어 (전황 시야를 가리지 않음) -->
+  <div id="tech-drawer" class="tech-sidebar">
+    <div class="tech-drawer-header">
+      <div class="tech-drawer-title-row">
+        <h3>📜 국가 병법 및 기술 연구</h3>
+        <button id="btn-close-tech" class="tech-drawer-close-btn">✖</button>
+      </div>
+      <p style="font-size:9.5px; color:#bbb; margin:2px 0 6px 0;">전황을 실시간으로 확인하며 우측에서 병법·상업·수성을 연구합니다.</p>
+      <div id="tech-cat-tabs" class="tech-tabs-row">
+        <button class="tech-tab-btn active" data-cat="all">전체</button>
+        <button class="tech-tab-btn" data-cat="military">⚔️ 3대병법</button>
+        <button class="tech-tab-btn" data-cat="commerce">🪙 상업재정</button>
+        <button class="tech-tab-btn" data-cat="defense">🏰 수성방어</button>
+        <button class="tech-tab-btn" data-cat="siege">🏗️ 공성</button>
+      </div>
+    </div>
+    <div id="tech-list-grid" class="tech-grid"></div>
+  </div>
+
+  <!-- ⚡ 9:1 절체절명 배수의 진 알림 배너 -->
+  <div id="comeback-alert-banner">⚡ [절체절명 배수의 진] 천하역전의 비책이 해금되었습니다! ⚡</div>
+
+  <!-- ⚡ 천하역전 비책 선택 모달 -->
+  <div id="comeback-modal" class="modal-backdrop">
+    <div class="modal-card" style="max-width: 480px; border-color: #ef4444;">
+      <div class="modal-header">
+        <h2 style="color: #f87171;">⚡ 천하역전 4대 비책 (배수의 진)</h2>
+        <p style="font-size:10.5px; color:#fca5a5;">절체절명의 위기에서 전세를 일거에 뒤집을 역사적 비책을 발동하십시오!</p>
+      </div>
+      <div id="comeback-stratagems-list">
+        <div class="comeback-stratagem-card">
+          <div class="comeback-stratagem-title">
+            <span>🔥 적벽대전 연환화계 (Great Chibi Firestorm)</span>
+          </div>
+          <div class="comeback-stratagem-desc">
+            동풍의 화계가 전장을 덮칩니다! 아군으로 진격해오는 <strong>모든 적 공격군을 즉시 전소</strong>시키고, 인접한 적 거점 성벽을 전면 붕괴시키며 주둔군 50%를 불태웁니다.
+          </div>
+          <button class="comeback-exec-btn" data-stratagem="chibi_fire">🔥 연환화계 발동</button>
+        </div>
+
+        <div class="comeback-stratagem-card">
+          <div class="comeback-stratagem-title">
+            <span>🚩 천하의병 총봉기 (Righteous Volunteers Rally)</span>
+          </div>
+          <div class="comeback-stratagem-desc">
+            폭정에 신음하던 적 후방 민초들과 충신들이 일제히 봉기합니다! <strong>적 후방 거점 2곳을 즉시 아군으로 전향</strong>시키고, 본성에 <strong>정예 의병 +120명</strong>이 즉시 결집합니다.
+          </div>
+          <button class="comeback-exec-btn" data-stratagem="righteous_revolt">🚩 의병 총봉기 발동</button>
+        </div>
+
+        <div class="comeback-stratagem-card">
+          <div class="comeback-stratagem-title">
+            <span>🌪️ 배수지진 결사대 (Battle with Backs to River)</span>
+          </div>
+          <div class="comeback-stratagem-desc">
+            더 이상 물러설 곳이 없다! 45초간 아군 전군 <strong>공격력 3배(300%)</strong>, <strong>피해 75% 경감</strong>, <strong>이동속도 2배</strong>, 원정 피로도 완전 면역 및 거점 자동 증원이 폭발합니다.
+          </div>
+          <button class="comeback-exec-btn" data-stratagem="last_stand_frenzy">🌪️ 배수지진 결사 돌격</button>
+        </div>
+
+        <div class="comeback-stratagem-card">
+          <div class="comeback-stratagem-title">
+            <span>🎭 이호경식 / 반간계 (Great Discord & Civil War)</span>
+          </div>
+          <div class="comeback-stratagem-desc">
+            오만한 적 열강들의 탐욕을 찔러 상호 배신을 유도합니다! <strong>적 동맹이 완전히 와해</strong>되며, 가장 강력한 적 두 세력이 서로의 수도로 총력전을 감행하여 자멸합니다.
+          </div>
+          <button class="comeback-exec-btn" data-stratagem="internal_strife">🎭 이호경식 이간계 발동</button>
+        </div>
+      </div>
+      <button id="btn-close-comeback" class="modal-close-btn">닫기</button>
+    </div>
+  </div>
+
+  <!-- 게임 종료 모달 -->
+  <div id="gameover-modal" class="modal-backdrop">
+    <div class="modal-card" style="text-align:center;">
+      <div id="gameover-banner" style="font-size:40px; margin-bottom:8px;">🏆</div>
+      <h2 id="gameover-title" style="font-size:20px; color:var(--gold-bright);">천하통일 달성!</h2>
+      <p id="gameover-desc" style="font-size:12px; color:#ccc; margin:8px 0;">귀하의 세력이 천하의 모든 거점을 평정하고 대제국을 건설했습니다!</p>
+      <div id="gameover-stats" style="background:#180f08; border:1px solid var(--wood-border); border-radius:8px; padding:10px; font-size:11px; text-align:left; color:#aaa; margin-bottom:12px;"></div>
+      <button id="btn-restart" class="header-btn" style="width:100%; padding:10px; font-size:14px; justify-content:center;">새로운 천하 출정</button>
+    </div>
+  </div>
+
+  <script>
+    // Canvas roundRect Polyfill (안드로이드 구형 브라우저 및 호환성 완벽 지원)
+    if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
+      CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, radii) {
+        if (!radii) return this.rect(x, y, w, h);
+        const r = typeof radii === 'number' ? radii : (radii[0] || 0);
+        this.moveTo(x + r, y);
+        this.lineTo(x + w - r, y);
+        this.quadraticCurveTo(x + w, y, x + w, y + r);
+        this.lineTo(x + w, y + h - r);
+        this.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        this.lineTo(x + r, y + h);
+        this.quadraticCurveTo(x, y + h, x, y + h - r);
+        this.lineTo(x, y + r);
+        this.quadraticCurveTo(x, y, x + r, y);
+        return this;
+      };
+    }
+
+    /* -----------------------------------------------------------------------
+       음향 효과 (Web Audio API 무의존성 합성)
+       ----------------------------------------------------------------------- */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) this.ctx = new AudioContext();
+        }
+      }
+      playTone(freq, duration, type = 'sine', gainVal = 0.1) {
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainVal, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.0001, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch(e) {}
+      }
+      playDrum() { this.playTone(80, 0.25, 'triangle', 0.25); }
+      playVictory() {
+        this.playTone(392, 0.15, 'triangle', 0.2);
+        setTimeout(() => this.playTone(523, 0.15, 'triangle', 0.2), 150);
+        setTimeout(() => this.playTone(659, 0.35, 'triangle', 0.2), 300);
+      }
+      playCombat() { this.playTone(180 + Math.random() * 80, 0.1, 'sawtooth', 0.12); }
+      playExplosion() { this.playTone(60, 0.4, 'sawtooth', 0.3); }
+      playFireArrow() {
+        this.playTone(650, 0.12, 'sawtooth', 0.15);
+        setTimeout(() => this.playTone(220, 0.22, 'triangle', 0.16), 70);
+      }
+      playSkill() {
+        this.playTone(440, 0.09, 'triangle', 0.22);
+        setTimeout(() => this.playTone(660, 0.12, 'triangle', 0.22), 80);
+        setTimeout(() => this.playTone(880, 0.22, 'triangle', 0.25), 170);
+      }
+      playRam() {
+        this.playTone(95, 0.35, 'sawtooth', 0.3);
+        setTimeout(() => this.playTone(55, 0.25, 'triangle', 0.25), 100);
+      }
+    }
+    const sound = new SoundEngine();
+
+    /* -----------------------------------------------------------------------
+       10대 군웅 세력 정의 (한국 4국, 중국 4국, 일본 2국)
+       ----------------------------------------------------------------------- */
+    const FACTIONS = {
+      goguryeo: { id: 'goguryeo', culture: 'korea', name: '고구려', leader: '광개토대왕', hanja: '高', color: '#dc2626', lightColor: '#f87171', darkColor: '#7f1d1d', roofColor: '#991b1b', skillName: '호태왕 총동원령', skillCooldown: 30 },
+      baekje: { id: 'baekje', culture: 'korea', name: '백제', leader: '근초고왕', hanja: '百', color: '#2563eb', lightColor: '#60a5fa', darkColor: '#1e3a8a', roofColor: '#1d4ed8', skillName: '칠지도 신풍', skillCooldown: 28 },
+      silla: { id: 'silla', culture: 'korea', name: '신라', leader: '문무왕', hanja: '羅', color: '#d97706', lightColor: '#fbbf24', darkColor: '#78350f', roofColor: '#b45309', skillName: '화랑 풍류결전', skillCooldown: 25 },
+      joseon: { id: 'joseon', culture: 'korea', name: '조선', leader: '이순신', hanja: '朝', color: '#059669', lightColor: '#34d399', darkColor: '#064e3b', roofColor: '#047857', skillName: '필사즉생 학익진', skillCooldown: 32 },
+
+      wei: { id: 'wei', culture: 'china', name: '조위', leader: '조조', hanja: '魏', color: '#3b82f6', lightColor: '#93c5fd', darkColor: '#1e3a8a', roofColor: '#1d4ed8', skillName: '단가행 호표기', skillCooldown: 26 },
+      shu: { id: 'shu', culture: 'china', name: '촉한', leader: '유비', hanja: '蜀', color: '#10b981', lightColor: '#6ee7b7', darkColor: '#064e3b', roofColor: '#047857', skillName: '도원결의 의용병', skillCooldown: 28 },
+      wu: { id: 'wu', culture: 'china', name: '손오', leader: '손책', hanja: '吳', color: '#ef4444', lightColor: '#fca5a5', darkColor: '#991b1b', roofColor: '#b91c1c', skillName: '적벽 대화계', skillCooldown: 30 },
+      lubu: { id: 'lubu', culture: 'china', name: '여포', leader: '여포', hanja: '呂', color: '#8b5cf6', lightColor: '#c4b5fd', darkColor: '#4c1d95', roofColor: '#6d28d9', skillName: '천하무쌍 난무', skillCooldown: 22 },
+
+      oda: { id: 'oda', culture: 'japan', name: '오다', leader: '오다 노부나가', hanja: '織', color: '#7c2d12', lightColor: '#fdba74', darkColor: '#431407', roofColor: '#262626', skillName: '천하포무 철포일제사', skillCooldown: 28 },
+      yamato: { id: 'yamato', culture: 'japan', name: '야마토', leader: '성덕태자', hanja: '大', color: '#e11d48', lightColor: '#fda4af', darkColor: '#881337', roofColor: '#171717', skillName: '십칠조 헌법결집', skillCooldown: 25 },
+
+      neutral: { id: 'neutral', culture: 'neutral', name: '중립/토착', leader: '태수', hanja: '城', color: '#78716c', lightColor: '#d6d3d1', darkColor: '#44403c', roofColor: '#57534e', skillName: '', skillCooldown: 999 }
+    };
+
+    /* -----------------------------------------------------------------------
+       🌟 무한 거점 증축 시스템 & 단계별 가파른 비용 곡선 공식
+       ----------------------------------------------------------------------- */
+    function getCastleLevelData(level) {
+      const titles = [
+        '소읍/관문',     // Lv.1
+        '현성',          // Lv.2
+        '군목/주도',     // Lv.3
+        '도독부/요새',   // Lv.4
+        '황도/거성',     // Lv.5
+        '천하제일성',    // Lv.6
+        '만인지상성',    // Lv.7
+        '구주제패성',    // Lv.8
+        '황금불야성',    // Lv.9
+        '천하패도성'     // Lv.10+
+      ];
+
+      const name = level <= titles.length ? titles[level - 1] : `천하패도성 [${level}단]`;
+      
+      // 주둔군 한도 (점진적 확장)
+      const maxTroops = Math.floor(35 + level * 25 + Math.pow(level, 1.25) * 6);
+      
+      // 모병 속도 (/s)
+      const spawnRate = +(1.2 + level * 0.6).toFixed(1);
+      
+      // 성벽 최대치
+      const maxWall = Math.floor(40 + level * 28 + Math.pow(level, 1.3) * 8);
+
+      // 단계별 큰 차이가 나는 필요 금화 공식: 50 -> 120 -> 290 -> 700 -> 1700 -> 4100 -> 9900 ...
+      const upgradeCost = Math.floor(50 * Math.pow(2.4, level - 1));
+
+      // 🌟 초소형 성 크기 (지도 시야를 가리지 않도록 콤팩트화)
+      const baseW = Math.min(12, 6.5 + Math.min(level, 7) * 0.65);
+      const baseH = Math.min(9, 5.0 + Math.min(level, 7) * 0.5);
+
+      return {
+        level,
+        name,
+        maxTroops,
+        spawnRate,
+        maxWall,
+        upgradeCost,
+        baseW,
+        baseH
+      };
+    }
+
+    // 기존 인덱스 참조와 100% 호환되는 무한 배열 Proxy
+    const CASTLE_LEVELS = new Proxy([], {
+      get(target, prop) {
+        if (typeof prop === 'string' && !isNaN(prop)) {
+          return getCastleLevelData(parseInt(prop, 10) + 1);
+        }
+        if (prop === 'length') return 999999;
+        return target[prop];
+      }
+    });
+
+    /* -----------------------------------------------------------------------
+       10단계 국가 병법 및 기술 연구 체계 (4개 병과별 10단계 & 마일스톤 특수기)
+       ----------------------------------------------------------------------- */
+    const TECH_CATEGORIES = {
+      archery: {
+        id: 'archery',
+        name: '🏹 궁술 병법',
+        icon: '🏹',
+        color: '#4ade80',
+        tab: 'military',
+        desc: '궁병 공격력·사거리·공격속도 및 🔥불화살(특수기) 연구',
+        levels: [
+          { level: 1, name: '각궁 제식화', desc: '궁병 공격력 +15%, 사거리 +10%', cost: 70 },
+          { level: 2, name: '속사 훈련', desc: '궁병 공격속도 +20%', cost: 120 },
+          { level: 3, name: '【특수기】 🎯 정밀 저격', desc: '망루 공격력 +50% 및 원거리 타격 주기 단축', cost: 180, skill: 'snipe' },
+          { level: 4, name: '강궁 밀집대형', desc: '궁병 공격력 +25%, 관통력 증가', cost: 260 },
+          { level: 5, name: '【특수기】 🔥 불화살 (Fire Arrows)', desc: '궁병·망루가 불화살 일제 발사! 성벽 전소 & 지속 화염 피해', cost: 360, skill: 'fire_arrow' },
+          { level: 6, name: '제갈연노 연사', desc: '궁병 공격속도 +35%, 2연발 연사', cost: 480 },
+          { level: 7, name: '【특수기】 ⚡ 관통 철궁', desc: '성벽과 방패를 뚫고 적 주둔군에 직접 관통 피해', cost: 620, skill: 'pierce' },
+          { level: 8, name: '편전 고속탄도', desc: '궁병 사거리 +30%, 기동 속도 +20%', cost: 780 },
+          { level: 9, name: '신궁 일제사격', desc: '궁병 공격력 +45%, 치명타율 +30%', cost: 960 },
+          { level: 10, name: '【궁극기】 🌧️ 만전화우 (Rain of Fire)', desc: '3발의 불화살 일제 폭격! 전장을 불바다로 초토화', cost: 1200, skill: 'fire_rain' }
+        ]
+      },
+      cavalry: {
+        id: 'cavalry',
+        name: '🐎 기마 병법',
+        icon: '🐎',
+        color: '#f59e0b',
+        tab: 'military',
+        desc: '기병 돌격력·행군속도 및 ⚡철기돌격/🌪️풍림화산(특수기) 연구',
+        levels: [
+          { level: 1, name: '등자 보급', desc: '기병 이동속도 +15%, 돌격 안정성 향상', cost: 70 },
+          { level: 2, name: '돌격 장창', desc: '기병 돌격 피해 +20%', cost: 120 },
+          { level: 3, name: '【특수기】 ⚡ 철기 돌격', desc: '성문 충돌 시 충격파 방출 및 성벽에 1.8배 폭발 돌파 피해', cost: 180, skill: 'iron_charge' },
+          { level: 4, name: '기마 궁술', desc: '기병 원거리 방어력 +25%', cost: 260 },
+          { level: 5, name: '개마무사 중장갑', desc: '기병 공격력 +30%, 받는 피해 20% 경감', cost: 360 },
+          { level: 6, name: '철갑 마구', desc: '성벽 충돌 시 기병 피해 40% 경감', cost: 480 },
+          { level: 7, name: '【특수기】 🌪️ 풍림화산', desc: '말발굽 화염 궤적 생성! 속도 +40% 및 원정 피로도 완전 면역', cost: 620, skill: 'swift_gale' },
+          { level: 8, name: '진형 붕괴술', desc: '성내 주둔군 제압력 +40%', cost: 780 },
+          { level: 9, name: '천리 질주', desc: '출진 군량 소모 50% 절감, 기습 공격력 +35%', cost: 960 },
+          { level: 10, name: '【궁극기】 🐉 호표기 궤멸', desc: '황금 충격파와 함께 적 주둔군과 성벽을 일격에 베어넘기는 결전 돌격', cost: 1200, skill: 'tiger_trample' }
+        ]
+      },
+      infantry: {
+        id: 'infantry',
+        name: '🛡️ 보진 병법',
+        icon: '🛡️',
+        color: '#60a5fa',
+        tab: 'military',
+        desc: '보병 방어벽·성벽파쇄 및 🛡️철벽방진/🪓파성추(특수기) 연구',
+        levels: [
+          { level: 1, name: '장창 방진', desc: '보병 공격력 +15%', cost: 70 },
+          { level: 2, name: '대방패 보급', desc: '보병 방어력 +20%, 원거리 피해 25% 경감', cost: 120 },
+          { level: 3, name: '공성 사다리', desc: '성벽 등반 및 공성 피해 +25%', cost: 180 },
+          { level: 4, name: '【특수기】 🛡️ 철벽 방진', desc: '성벽 앞 교전 시 육각 방패벽 전개! 받는 피해 50% 차단 및 화살 방어', cost: 260, skill: 'iron_phalanx' },
+          { level: 5, name: '판갑 정예병', desc: '보병 체력 +35%, 주둔군 소모율 30% 감소', cost: 360 },
+          { level: 6, name: '공성 도끼', desc: '성벽 파쇄력 +40%', cost: 480 },
+          { level: 7, name: '백병전 결사대', desc: '성내 근접전 공격력 +40%', cost: 620 },
+          { level: 8, name: '【특수기】 🪓 성문 파성추', desc: '거대 공성추로 성벽에 2.5배 굉음 파쇄 피해 및 석재 파편 폭발', cost: 780, skill: 'battering_ram' },
+          { level: 9, name: '금군 중장보병', desc: '보병 공방 능력치 +35%', cost: 960 },
+          { level: 10, name: '【궁극기】 ⚔️ 불굴 결사대', desc: '병력 40% 이하 시 붉은 투기 발산! 공격력 2.5배 폭증 및 결사 항전', cost: 1200, skill: 'indomitable' }
+        ]
+      },
+      commerce: {
+        id: 'commerce',
+        name: '🪙 상업·재정 연구',
+        icon: '🪙',
+        color: '#fbbf24',
+        tab: 'commerce',
+        desc: '금화 세입·대상단·실크로드 및 국고 이자/천하거부 연구',
+        levels: [
+          { level: 1, name: '시장 상권 정비', desc: '영지 금화 세입 +25% 증가', cost: 60 },
+          { level: 2, name: '주전원 화폐 주조', desc: '영지 금화 생산 +35% 증가', cost: 100 },
+          { level: 3, name: '【특수기】 💰 대상단 조직', desc: '거점 간 무역 수입 상시 +40% 및 거점 점령 시 금화 약탈 2배', cost: 160, skill: 'caravan' },
+          { level: 4, name: '염철 전매제', desc: '금화 세입 +45%, 상업 도시 금화 보너스', cost: 240 },
+          { level: 5, name: '【특수기】 🚢 해상 실크로드', desc: '25초마다 대규모 무역선 입항 (+200 금화 자동 유입)', cost: 350, skill: 'silk_road' },
+          { level: 6, name: '환전 어음 제도', desc: '군량 구매 및 군수 보급 비용 40% 절감', cost: 480 },
+          { level: 7, name: '【특수기】 🏦 국고 이자 배당', desc: '보유 금화의 5%를 15초마다 이자로 추가 지급', cost: 620, skill: 'interest' },
+          { level: 8, name: '대외 통상 독점', desc: '모든 영지 금화 생산량 2배로 폭증', cost: 780 },
+          { level: 9, name: '천하 도량형 통일', desc: '금화 및 군량 세입 +80% 증가', cost: 960 },
+          { level: 10, name: '【궁극기】 💎 천하거부 (Tycoon)', desc: '금화 생산량 3배, 징집 비용 50% 절감, 전군 상시 공/이속 +20%', cost: 1200, skill: 'tycoon' }
+        ]
+      },
+      fortification: {
+        id: 'fortification',
+        name: '🏰 성 방어·수성 연구',
+        icon: '🏰',
+        color: '#38bdf8',
+        tab: 'defense',
+        desc: '해자·망루 십자노포·낙석트랩 및 불락의 요새 연구',
+        levels: [
+          { level: 1, name: '성벽 석재 보강', desc: '모든 아군 거점 기본 성벽 내구도 +30', cost: 60 },
+          { level: 2, name: '방어 망루 증설', desc: '망루 화살 사거리 +25%, 공격력 +25%', cost: 100 },
+          { level: 3, name: '【특수기】 🌊 성곽 해자 (Moat)', desc: '성문 앞 해자 축조! 접근하는 적 공격군 이동속도 40% 감속 & 성벽 공격력 25% 경감', cost: 160, skill: 'moat' },
+          { level: 4, name: '치성/흉벽 증축', desc: '성벽 내구도 +50, 수비 주둔군 받는 피해 20% 경감', cost: 240 },
+          { level: 5, name: '【특수기】 🏹 수성 십자노포', desc: '망루가 3발의 철갑 연노를 고속 연사하여 성벽에 붙은 적 공성군 일망타진!', cost: 350, skill: 'cross_battery' },
+          { level: 6, name: '방화 석회 방벽', desc: '화염 피해 60% 경감, 적 불화살 방어', cost: 480 },
+          { level: 7, name: '【특수기】 🪨 낙석 트랩', desc: '적군이 성벽 타격 시 2초마다 거대 낙석을 굴려 적 공격군 18~25명 즉시 압살!', cost: 620, skill: 'rock_trap' },
+          { level: 8, name: '철벽 금강성채', desc: '모든 거점 성벽 내구도 +100, 수리 쿨다운 35% 단축', cost: 780 },
+          { level: 9, name: '결사 수성대', desc: '거점 주둔군 수성 전투력 +50%', cost: 960 },
+          { level: 10, name: '【궁극기】 🏯 불락의 요새 (Citadel)', desc: '성벽 내구도 2배, 적 공성 파쇄력 50% 차단, 수비군 전사 시 50% 의병 부활', cost: 1200, skill: 'citadel' }
+        ]
+      },
+      siege: {
+        id: 'siege',
+        name: '🏗️ 공성·병참 병법',
+        icon: '🏗️',
+        color: '#c084fc',
+        tab: 'siege',
+        desc: '벽력거·화룡포 및 군량 병참/천하통일 천명 연구',
+        levels: [
+          { level: 1, name: '둔전제 개혁', desc: '영지 식량 생산량 +25% 증가', cost: 70 },
+          { level: 2, name: '병참 보급소', desc: '출진 군량 소모 25% 절감', cost: 120 },
+          { level: 3, name: '【특수기】 ☄️ 벽력거 (Fire Catapult)', desc: '공성 시 불타는 거대 암석을 성벽에 투척하여 광역 파쇄', cost: 180, skill: 'catapult' },
+          { level: 4, name: '석재 채굴술', desc: '모든 아군 성벽 최대 내구도 +40', cost: 260 },
+          { level: 5, name: '수리시설 확충', desc: '성벽 수리 비용 30% 절감 및 수리 쿨다운 25% 단축', cost: 360 },
+          { level: 6, name: '【특수기】 🏰 공성 철퇴 망치', desc: '성벽에 가하는 공성 피해 상시 +45% 증가', cost: 480, skill: 'iron_hammer' },
+          { level: 7, name: '병참 도로망', desc: '지원군 이동속도 +30%, 원정 군량 소모 30% 감소', cost: 620 },
+          { level: 8, name: '화룡포 화약술', desc: '공성 시 성벽 파쇄 피해 +50%', cost: 780 },
+          { level: 9, name: '부국강병 칙령', desc: '금화 및 군량 세입 +50% 증가', cost: 960 },
+          { level: 10, name: '【궁극기】 🌟 천하통일 천명', desc: '모든 자원 생산 2배, 모든 아군 부대 공방 +25%, 성벽 수리 시간 50% 단축', cost: 1200, skill: 'mandate' }
+        ]
+      }
+    };
+
+    const TECH_TREE = [
+      { id: 'archery', name: '🏹 궁술 병법' },
+      { id: 'cavalry', name: '🐎 기마 병법' },
+      { id: 'infantry', name: '🛡️ 보진 병법' },
+      { id: 'siege', name: '🏗️ 공성·내정' }
+    ];
+
+    /* -----------------------------------------------------------------------
+       메인 게임 엔진 클래스
+       ----------------------------------------------------------------------- */
+    class EastAsiaGrandConquestGameV10 {
+      constructor() {
+        this.canvas = document.getElementById('game-canvas');
+        this.ctx = this.canvas.getContext('2d');
+
+        this.castles = [];
+        this.roads = [];
+        this.obstacles = [];
+        this.armies = [];
+        this.particles = [];
+        this.floatingTexts = [];
+        this.shockwaves = [];
+        this.arrows = [];
+        this.weatherParticles = [];
+
+        this.techLevels = { archery: 0, cavalry: 0, infantry: 0, commerce: 0, fortification: 0, siege: 0 };
+        this.factionTechLevels = {};
+        this.activeTechTab = 'all';
+        this.silkRoadTimer = 0;
+        this.interestTimer = 0;
+        this.comebackCrisisActive = false;
+        this.comebackUsed = false;
+
+        this.gold = 300;
+        this.food = 400;
+        this.seasonIndex = 0;
+        this.seasonTimer = 0;
+        this.seasons = [
+          { name: '🌸춘', bonus: '식량 생산 +30%' },
+          { name: '🌧️하', bonus: '강변/해상 유속 증가' },
+          { name: '🍁추', bonus: '금화/식량 대풍수' },
+          { name: '❄️동', bonus: '산악 이동속도 감소' }
+        ];
+
+        this.silkRoadTimer = 0;
+        this.interestTimer = 0;
+        this.comebackCrisisActive = false;
+        this.comebackUsed = false;
+        const cbBan = document.getElementById('comeback-alert-banner');
+        if (cbBan) cbBan.style.display = 'none';
+        const cbBtn = document.getElementById('btn-comeback-stratagem');
+        if (cbBtn) cbBtn.style.display = 'none';
+
+        this.coalitionActive = false;
+        this.coalitionLeader = null;
+        this.randomEventTimer = 0;
+
+        this.diplomacy = {};
+        this.selectedCastles = new Set();
+        this.dragStartCastle = null;
+        this.dragCurrentPos = null;
+        this.currentTroopType = 'infantry';
+        this.dispatchRatio = 0.5;
+        this.allOutMode = false;
+        this.inspectedCastle = null;
+
+        this.skillCooldownRemaining = 5;
+        this.skillActiveTimer = 0;
+        this.activeBuffs = { raid: 0 };
+
+        this.speed = 1;
+        this.paused = false;
+        this.gameOver = false;
+        this.gameTime = 0;
+        this.stats = { captures: 0, losses: 0, stratagemsUsed: 0 };
+
+        this.width = 0;
+        this.height = 0;
+        this.dpr = 1;
+
+        // 🌟 가상 월드 좌표계 & 카메라 줌/팬 시스템
+        this.worldWidth = 1600;
+        this.worldHeight = 1100;
+        this.camera = { x: 800, y: 550, zoom: 0.85, minZoom: 0.45, maxZoom: 2.6 };
+        this.isPanning = false;
+        this.isPinching = false;
+        this.panStart = { x: 0, y: 0, camX: 0, camY: 0 };
+
+        this.resize();
+        window.addEventListener('resize', () => this.resize());
+
+        this.setupInputs();
+        // 🌟 모바일 검은 화면 방지: 페이지 로드 시 즉시 동아시아 전장을 실시간 초기화
+        this.initBattlefield('east_asia', 'goguryeo', 'normal');
+        this.lastTime = performance.now();
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      /* -----------------------------------------------------------------------
+         카메라 줌/팬 및 월드-스크린 좌표계 변환 시스템
+         ----------------------------------------------------------------------- */
+      screenToWorld(sx, sy) {
+        return {
+          x: (sx - this.width / 2) / this.camera.zoom + this.camera.x,
+          y: (sy - this.height / 2) / this.camera.zoom + this.camera.y
+        };
+      }
+
+      worldToScreen(wx, wy) {
+        return {
+          x: (wx - this.camera.x) * this.camera.zoom + this.width / 2,
+          y: (wy - this.camera.y) * this.camera.zoom + this.height / 2
+        };
+      }
+
+      clampCamera() {
+        this.camera.x = Math.max(120, Math.min(this.worldWidth - 120, this.camera.x));
+        this.camera.y = Math.max(120, Math.min(this.worldHeight - 120, this.camera.y));
+      }
+
+      zoomBy(delta) {
+        this.camera.zoom = Math.max(this.camera.minZoom, Math.min(this.camera.maxZoom, this.camera.zoom + delta));
+        this.addFloatingText(this.width / 2, 75, `시야 배율: ${(this.camera.zoom * 100).toFixed(0)}%`, '#fde047', true);
+      }
+
+      centerOnPlayerCapital() {
+        const myCap = this.castles.find(c => c.faction === this.playerFaction && c.isCapital) ||
+                      this.castles.find(c => c.faction === this.playerFaction);
+        if (myCap) {
+          this.camera.x = myCap.x;
+          this.camera.y = myCap.y;
+          this.camera.zoom = 1.0;
+        } else {
+          this.camera.x = this.worldWidth / 2;
+          this.camera.y = this.worldHeight / 2;
+          this.camera.zoom = 0.85;
+        }
+        this.clampCamera();
+        this.addFloatingText(this.width / 2, 75, '🎯 아군 본성 시야 집중', '#fde047', true);
+      }
+
+      resize() {
+        const container = document.getElementById('game-container');
+        const winW = window.innerWidth || document.documentElement.clientWidth || 360;
+        const winH = window.innerHeight || document.documentElement.clientHeight || 640;
+
+        this.width = (container && container.clientWidth > 0) ? container.clientWidth : winW;
+        this.height = (container && container.clientHeight > 0) ? container.clientHeight : winH;
+        this.dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+        this.canvas.width = this.width * this.dpr;
+        this.canvas.height = this.height * this.dpr;
+        this.ctx.setTransform(1, 0, 0, 1, 0, 0);
+        this.ctx.scale(this.dpr, this.dpr);
+
+        // 대형 가상 월드 좌표 유지
+        if (this.castles && this.castles.length > 0) {
+          this.castles.forEach(c => {
+            c.x = c.normX * this.worldWidth;
+            c.y = c.normY * this.worldHeight;
+          });
+        }
+      }
+
+      loop(timestamp) {
+        if (!this.lastTime) this.lastTime = timestamp;
+        let dt = (timestamp - this.lastTime) / 1000;
+        this.lastTime = timestamp;
+        dt = Math.min(dt, 0.1);
+
+        if (!this.paused && !this.gameOver) {
+          dt *= this.speed;
+          this.gameTime += dt;
+          this.update(dt);
+        }
+
+        this.render();
+        requestAnimationFrame((t) => this.loop(t));
+      }
+
+      /* 메인 물리 및 게임 상태 업데이트 */
+      update(dt) {
+        // 0. 🌟 9:1 절체절명 위기 판정 (보유 거점 1~2개 & 적군 압도적 우세 시 역전 비책 개방)
+        const myCastlesCount = this.castles.filter(c => c.faction === this.playerFaction).length;
+        const totalCastlesCount = this.castles.length;
+        const enemyCastlesCount = this.castles.filter(c => c.faction !== this.playerFaction && c.faction !== 'neutral').length;
+
+        const isDesperate = (myCastlesCount <= 2 && enemyCastlesCount >= 7 && (myCastlesCount / totalCastlesCount) <= 0.18);
+        const cbBanner = document.getElementById('comeback-alert-banner');
+        const cbBtn = document.getElementById('btn-comeback-stratagem');
+
+        if (isDesperate && !this.comebackUsed) {
+          this.comebackCrisisActive = true;
+          if (cbBanner) cbBanner.style.display = 'block';
+          if (cbBtn) cbBtn.style.display = 'block';
+
+          // 상시 구호 자금 & 자생 의병 유입 (9:1 상황에서도 굶어죽거나 무력하게 끝나지 않음)
+          if (this.gold < 150) this.gold += dt * 30;
+          if (this.food < 150) this.food += dt * 35;
+        } else {
+          this.comebackCrisisActive = false;
+          if (cbBanner) cbBanner.style.display = 'none';
+        }
+
+        // 🌟 배수지진 결사대 버프 타이머
+        if (this.activeBuffs.lastStandFrenzy > 0) {
+          this.activeBuffs.lastStandFrenzy -= dt;
+          if (Math.random() < 0.25) {
+            this.particles.push({
+              x: this.worldWidth / 2 + (Math.random() - 0.5) * 600,
+              y: this.worldHeight / 2 + (Math.random() - 0.5) * 400,
+              vx: 0, vy: -15, color: '#fde047', life: 0.4, size: 3
+            });
+          }
+        }
+
+        // 🌟 상업 5레벨: 해상 실크로드 무역선 주기적 금화 입고 (25초 주기)
+        const comLv = this.techLevels.commerce || 0;
+        if (comLv >= 5) {
+          this.silkRoadTimer = (this.silkRoadTimer || 0) + dt;
+          if (this.silkRoadTimer >= 25) {
+            this.silkRoadTimer = 0;
+            const tradeGold = 180 + comLv * 25;
+            this.gold += tradeGold;
+            this.addFloatingText(this.worldWidth / 2, 75, `🚢 실크로드 무역선 입항 (+🪙${tradeGold})`, '#fbbf24');
+          }
+        }
+
+        // 🌟 상업 7레벨: 국고 이자 배당 (15초 주기)
+        if (comLv >= 7) {
+          this.interestTimer = (this.interestTimer || 0) + dt;
+          if (this.interestTimer >= 15) {
+            this.interestTimer = 0;
+            const interest = Math.min(250, Math.floor(this.gold * 0.05));
+            if (interest > 5) {
+              this.gold += interest;
+              this.addFloatingText(this.worldWidth / 2, 95, `🏦 국고 금융 이자 (+🪙${interest})`, '#fde047');
+            }
+          }
+        }
+
+        // 1. 사계절 순환 타이머
+        this.seasonTimer += dt;
+        if (this.seasonTimer >= 30) {
+          this.seasonTimer = 0;
+          this.seasonIndex = (this.seasonIndex + 1) % 4;
+          const s = this.seasons[this.seasonIndex];
+          this.addLog(`[절기] ${s.name} (${s.bonus})`);
+          if (this.seasonIndex === 2) {
+            this.gold += 150;
+            this.food += 200;
+            Object.keys(FACTIONS).forEach(f => {
+              if (f !== this.playerFaction && f !== 'neutral') {
+                this.factionGold[f] = (this.factionGold[f] || 0) + 120;
+                this.factionFood[f] = (this.factionFood[f] || 0) + 150;
+              }
+            });
+            this.addFloatingText(this.width / 2, 70, '가을 대풍수! +🪙150 +🌾200', '#fde047', true);
+          }
+        }
+
+        // 2. 돌발 역사 사건
+        this.randomEventTimer += dt;
+        if (this.randomEventTimer >= 45) {
+          this.randomEventTimer = 0;
+          this.triggerRandomEvent();
+        }
+
+        // 3. 반맹주 연합 체크
+        this.checkCoalition();
+
+        // 4. 자원 생산 및 거점 업데이트 (농업/상업 내정 대신 거점 레벨 기반 세입)
+        let totalTroops = 0;
+        const siegeTech = this.techLevels.siege || 0;
+        const hasTuntian = (siegeTech >= 1);
+        const hasSalt = (siegeTech >= 2);
+        const hasMandate = (siegeTech >= 10);
+
+        this.castles.forEach(c => {
+          c.x = c.normX * this.worldWidth;
+          c.y = c.normY * this.worldHeight;
+          c.pulseTimer += dt;
+          if (c.fireEffectTimer > 0) {
+            c.fireEffectTimer -= dt;
+            // 화염 지속 피해 (불타는 성벽 및 주둔군 초당 지속 감소)
+            if (c.wall > 0) {
+              c.wall = Math.max(0, c.wall - dt * 14);
+            } else {
+              c.troops = Math.max(2, c.troops - dt * 8);
+            }
+          }
+          if (c.repairCooldown > 0) c.repairCooldown -= dt;
+
+          const lvlInfo = getCastleLevelData(c.level);
+
+          if (c.fireEffectTimer <= 0 && c.wall < c.maxWall) {
+            c.wall = Math.min(c.maxWall, c.wall + 0.8 * dt);
+          }
+
+          let rate = lvlInfo.spawnRate;
+          if (c.faction === 'neutral') rate *= 0.45;
+          if (c.faction === 'wei') rate *= 1.25;
+          if (c.fireEffectTimer > 0) rate = 0;
+
+          if (c.troops < lvlInfo.maxTroops) {
+            c.troops += rate * dt;
+          } else if (c.troops > lvlInfo.maxTroops * 1.5) {
+            c.troops -= 1.0 * dt;
+          }
+
+          // 🌟 성의 레벨에 정비례하는 자연 세입 및 군량 산출
+          if (c.faction === this.playerFaction) {
+            totalTroops += Math.floor(c.troops);
+            let farmRate = (1.5 + c.level * 1.0) * (hasTuntian ? 1.5 : 1.0);
+            let marketRate = (1.0 + c.level * 0.8) * (hasSalt ? 1.5 : 1.0);
+
+            if (this.playerFaction === 'shu' || this.playerFaction === 'baekje') farmRate *= 1.25;
+            if (this.playerFaction === 'wu' || this.playerFaction === 'baekje') marketRate *= 1.4;
+
+            this.food += farmRate * dt;
+            this.gold += marketRate * dt;
+          } else if (c.faction !== 'neutral') {
+            const af = c.faction;
+            let farmRate = 1.5 + c.level * 1.0;
+            let marketRate = 1.0 + c.level * 0.8;
+            if (af === 'shu' || af === 'baekje') farmRate *= 1.25;
+            if (af === 'wu' || af === 'baekje') marketRate *= 1.4;
+
+            this.factionFood[af] = (this.factionFood[af] || 0) + farmRate * dt;
+            this.factionGold[af] = (this.factionGold[af] || 0) + marketRate * dt;
+          }
+        });
+
+        this.food = Math.max(0, this.food - (totalTroops / 90) * dt);
+
+        // 5. 도로 위 야전 조우전
+        this.updateRoadSkirmishes(dt);
+
+        // 5-1. 성곽 방어 망루(Arrow Tower) 자동 사격 & 치안 수습기 업데이트
+        this.castles.forEach(c => {
+          // 치안 수습기 카운트다운 & 미주둔 시 반란 위험
+          if (c.pacificationTimer > 0) {
+            c.pacificationTimer -= dt;
+            if (c.troops < 8 && Math.random() < 0.05 * dt) {
+              c.faction = 'neutral';
+              c.troops = 20;
+              c.wall = Math.floor(c.maxWall * 0.5);
+              c.pacificationTimer = 0;
+              this.addFloatingText(c.x, c.y - 25, '⚔️ 토착 의병 봉기! (수복됨)', '#f87171');
+              this.addLog(`[반란] ${c.name}의 주둔군이 부족하여 토착 의병이 거점을 수복했습니다!`);
+              sound.playExplosion();
+            }
+          }
+
+          // Lv 2 이상 거점 방어 망루(Arrow Tower) 자동 사격
+          if (c.level >= 2 && c.troops >= 8 && c.wall > 0) {
+            if (!c.arrowTowerTimer) c.arrowTowerTimer = 0;
+            c.arrowTowerTimer += dt;
+            if (c.arrowTowerTimer >= 1.5) {
+              c.arrowTowerTimer = 0;
+              const approachingEnemy = this.armies.find(a =>
+                a.faction !== c.faction &&
+                a.targetId === c.id &&
+                Math.hypot(a.x - c.x, a.y - c.y) < 100
+              );
+              if (approachingEnemy) {
+                const fortLv = this.getFactionTechLevel(c.faction, 'fortification');
+                let arrowDmg = Math.min(approachingEnemy.troops * 0.15, 3 + c.level * 1.8) * (1 + fortLv * 0.08);
+
+                // 수성 5레벨 특수기: 🏹 수성 십자노포 (3발 고속 연사)
+                const isCrossBattery = (fortLv >= 5);
+                const shots = isCrossBattery ? 3 : 1;
+
+                for (let s = 0; s < shots; s++) {
+                  const sOff = (s - (shots - 1) / 2) * 12;
+                  this.arrows.push({
+                    x: c.x, y: c.y,
+                    vx: (approachingEnemy.x - c.x + sOff) * 2.6,
+                    vy: (approachingEnemy.y - c.y + sOff) * 2.6,
+                    isFireArrow: (this.getFactionTechLevel(c.faction, 'archery') >= 5),
+                    life: 0.36
+                  });
+                }
+
+                if (isCrossBattery) arrowDmg *= 1.6;
+                approachingEnemy.troops -= arrowDmg;
+                this.addFloatingText(approachingEnemy.x, approachingEnemy.y - 12, isCrossBattery ? `🏹 십자노포 -${Math.floor(arrowDmg)}` : `망루 -${Math.floor(arrowDmg)}`, '#facc15');
+
+                // 수성 7레벨 특수기: 🪨 낙석 트랩
+                if (fortLv >= 7 && Math.random() < 0.25) {
+                  const rockDmg = 20 + fortLv * 3;
+                  approachingEnemy.troops = Math.max(0, approachingEnemy.troops - rockDmg);
+                  this.createExplosion(approachingEnemy.x, approachingEnemy.y, '#78716c', 12);
+                  sound.playRam();
+                  this.addFloatingText(approachingEnemy.x, approachingEnemy.y - 20, `🪨 낙석트랩 -${rockDmg}!`, '#94a3b8');
+                }
+              }
+            }
+          }
+        });
+
+        // 6. 도로망 경로 행군 & 실시간 우당탕탕 공방전/증원 전투 시스템
+        for (let i = this.armies.length - 1; i >= 0; i--) {
+          const army = this.armies[i];
+          const finalTarget = this.castles.find(c => c.id === army.targetId);
+
+          if (!finalTarget) {
+            this.armies.splice(i, 1);
+            continue;
+          }
+
+          // 🌟 6-1. 행군 상태: 도로망의 거점들을 차례대로 경유하여 이동
+          if (army.state === 'marching') {
+            const nextWaypointId = (army.path && army.path.length > 0) ? army.path[0] : army.targetId;
+            const nextWaypoint = this.castles.find(c => c.id === nextWaypointId) || finalTarget;
+
+            const dx = nextWaypoint.x - army.x;
+            const dy = nextWaypoint.y - army.y;
+            const dist = Math.hypot(dx, dy);
+            army.headingAngle = Math.atan2(dy, dx);
+
+            army.traveledTime = (army.traveledTime || 0) + dt;
+            if (army.traveledTime > 4) {
+              army.fatigue = Math.min(0.3, (army.traveledTime - 4) * 0.04);
+            }
+
+            let speed = army.speed * (1 - (army.fatigue || 0) * 0.6);
+            if (army.troopType === 'cavalry') speed *= 1.65;
+            if (this.activeBuffs.raid > 0 && army.faction === this.playerFaction) speed *= 2.2;
+            if (army.faction === this.playerFaction && this.food <= 0) speed *= 0.5;
+
+            // 혹한기(겨울 ❄️) 감속
+            if (this.seasonIndex === 3) speed *= 0.75;
+
+            const step = speed * dt;
+
+            // 기병 질주 흙먼지 파티클 방출
+            if (army.troopType === 'cavalry' && Math.random() < 0.25) {
+              this.particles.push({
+                x: army.x - Math.cos(army.headingAngle) * 8,
+                y: army.y - Math.sin(army.headingAngle) * 8,
+                vx: (Math.random() - 0.5) * 8,
+                vy: (Math.random() - 0.5) * 8,
+                color: 'rgba(212, 175, 55, 0.35)',
+                life: 0.3,
+                size: 2.2
+              });
+            }
+
+            if (dist <= step || dist < 16) {
+              if (army.path && army.path.length > 1) {
+                // 중간 경유지 도달 -> 다음 도로 세그먼트로 전진
+                army.x = nextWaypoint.x;
+                army.y = nextWaypoint.y;
+                army.path.shift();
+              } else {
+                // 최종 목표 거점 성문 앞 도달 -> 실시간 공방전 또는 증원 돌입!
+                army.x = finalTarget.x - Math.cos(army.headingAngle) * 16;
+                army.y = finalTarget.y - Math.sin(army.headingAngle) * 16;
+                if (army.faction === finalTarget.faction) {
+                  army.state = 'reinforcing';
+                } else {
+                  army.state = 'clashing';
+                  sound.playCombat();
+                }
+              }
+            } else {
+              army.x += (dx / dist) * step;
+              army.y += (dy / dist) * step;
+            }
+          }
+
+          // 🌟 6-2. 실시간 적 거점 공성전: "우당탕탕" 주둔군/성벽 연속 격돌 감소
+          else if (army.state === 'clashing') {
+            if (finalTarget.faction === army.faction) {
+              // 이미 아군이 점령 완료한 경우 -> 잔여 병력 주둔군으로 합류
+              finalTarget.troops += army.troops;
+              this.armies.splice(i, 1);
+              continue;
+            }
+
+            const armyTech = {
+              archery: this.getFactionTechLevel(army.faction, 'archery'),
+              cavalry: this.getFactionTechLevel(army.faction, 'cavalry'),
+              infantry: this.getFactionTechLevel(army.faction, 'infantry'),
+              siege: this.getFactionTechLevel(army.faction, 'siege')
+            };
+
+            // 기병 3레벨 특수기: ⚡ 철기 돌격 (첫 도달 시 1회성 거대 충격파 및 성벽 폭쇄)
+            if (army.troopType === 'cavalry' && armyTech.cavalry >= 3 && !army.hasCharged) {
+              army.hasCharged = true;
+              this.addShockwave(finalTarget.x, finalTarget.y, '#f59e0b');
+              sound.playExplosion();
+              const chargeDmg = 35 + armyTech.cavalry * 6;
+              if (finalTarget.wall > 0) {
+                finalTarget.wall = Math.max(0, finalTarget.wall - chargeDmg * 1.5);
+              } else {
+                finalTarget.troops = Math.max(0, finalTarget.troops - chargeDmg);
+              }
+              this.createExplosion(finalTarget.x, finalTarget.y, '#fde047', 15);
+              this.addFloatingText(finalTarget.x, finalTarget.y - 30, '⚡ 철기돌격 -' + chargeDmg + '!', '#fbbf24');
+            }
+
+            // 🌟 🏹 궁수 5레벨 특수기: 🔥 불화살 (Fire Arrows) 발사! (0.85초 주기)
+            if (army.troopType === 'archer' && armyTech.archery >= 5) {
+              army.fireArrowTimer = (army.fireArrowTimer || 0) + dt;
+              if (army.fireArrowTimer >= 0.85) {
+                army.fireArrowTimer = 0;
+                sound.playFireArrow();
+
+                // 10레벨 궁극기: 🌧️ 만전화우 (3발 일제 폭격)
+                const arrowCount = (armyTech.archery >= 10) ? 3 : 1;
+                for (let k = 0; k < arrowCount; k++) {
+                  const spreadOffset = (k - (arrowCount - 1) / 2) * 16;
+                  this.arrows.push({
+                    x: army.x,
+                    y: army.y,
+                    vx: (finalTarget.x - army.x + spreadOffset) * 2.8,
+                    vy: (finalTarget.y - army.y + spreadOffset) * 2.8,
+                    isFireArrow: true,
+                    life: 0.38,
+                    targetCastle: finalTarget
+                  });
+                }
+
+                // 성벽 화염 전소 및 지속 불길
+                finalTarget.fireEffectTimer = 4.0;
+                const fireDmg = 18 + armyTech.archery * 4;
+                if (finalTarget.wall > 0) {
+                  finalTarget.wall = Math.max(0, finalTarget.wall - fireDmg * 1.4);
+                } else {
+                  finalTarget.troops = Math.max(0, finalTarget.troops - fireDmg);
+                }
+                this.createExplosion(finalTarget.x, finalTarget.y, '#f97316', 10);
+                this.addFloatingText(finalTarget.x, finalTarget.y - 25, arrowCount > 1 ? ('🌧️ 만전화우 -' + fireDmg + '!') : ('🔥 불화살 전소 -' + fireDmg + '!'), '#f97316');
+              }
+            }
+
+            // 공성 3레벨 특수기: ☄️ 벽력거 (Fire Catapult) 불타는 암석 투척 (2.4초 주기)
+            if (armyTech.siege >= 3 && finalTarget.wall > 0) {
+              army.catapultTimer = (army.catapultTimer || 0) + dt;
+              if (army.catapultTimer >= 2.4) {
+                army.catapultTimer = 0;
+                sound.playExplosion();
+                this.createExplosion(finalTarget.x, finalTarget.y, '#ea580c', 20);
+                this.addShockwave(finalTarget.x, finalTarget.y, '#f97316');
+                const catDmg = 45 + armyTech.siege * 8;
+                finalTarget.wall = Math.max(0, finalTarget.wall - catDmg);
+                this.addFloatingText(finalTarget.x, finalTarget.y - 32, '☄️ 벽력거 폭격 -' + catDmg + '!', '#f87171');
+              }
+            }
+
+            // 보병 8레벨 특수기: 🪓 성문 파성추 (Battering Ram)
+            let ramBonus = 1.0;
+            if (army.troopType === 'infantry' && armyTech.infantry >= 8 && finalTarget.wall > 0) {
+              ramBonus = 2.2;
+              army.ramTimer = (army.ramTimer || 0) + dt;
+              if (army.ramTimer >= 1.4) {
+                army.ramTimer = 0;
+                sound.playRam();
+                this.createExplosion(finalTarget.x, finalTarget.y, '#94a3b8', 12);
+                this.addFloatingText(finalTarget.x, finalTarget.y - 22, '🪓 파성추 강타!', '#60a5fa');
+              }
+            }
+
+            // 🌟 대군(10배 병력) 공성 파쇄력: 부대 규모(army.troops)에 비례한 현실적 성벽 파괴 공식
+            // 기존 고정 20~30/sec 한계 폐지 -> 대군일수록 성벽이 순식간에 우르르 무너짐
+            const baseClash = dt * (22 + Math.random() * 8);
+            const armyMassFactor = Math.sqrt(army.troops) * 2.2 + Math.max(0, army.troops - 35) * 0.35;
+            let siegeDamage = (baseClash * 2.4 + armyMassFactor * dt * 32);
+
+            // 병종 및 기술 배수
+            if (army.troopType === 'infantry') siegeDamage *= (1.4 * ramBonus * (1 + armyTech.infantry * 0.06));
+            // 🌟 배수지진 결사대 버프 (공격력 3배!)
+            if (this.activeBuffs.lastStandFrenzy > 0 && army.faction === this.playerFaction) {
+              siegeDamage *= 3.0;
+            }
+            if (army.troopType === 'cavalry') siegeDamage *= (1.2 * (1 + armyTech.cavalry * 0.05));
+            if (army.troopType === 'archer') siegeDamage *= (0.95 * (1 + armyTech.archery * 0.05));
+            if (army.fatigue) siegeDamage *= (1 - army.fatigue);
+            if (this.seasonIndex === 3) siegeDamage *= 0.75; // 겨울 감쇄
+
+            // 성벽이 남아있을 때: 성벽 파쇄 우선
+            if (finalTarget.wall > 0) {
+              finalTarget.wall -= siegeDamage;
+              this.createExplosion(finalTarget.x, finalTarget.y, '#fde047', 2);
+
+              // 🌟 성벽 공격 중 공격군 피해 현실화:
+              // 성벽 자체에 의한 1:1 몰살 제거! 수비 주둔군의 반격 화력에 비례하여 소모
+              const garrisonDefenseAtk = (finalTarget.troops * 0.12 + 2) * dt * (1 + (finalTarget.generalPwr || 80) * 0.005);
+              const siegeRisk = dt * 3.0; // 낙석/기름 등 경미한 공성 위험
+              let wallCasualty = garrisonDefenseAtk + siegeRisk;
+
+              // 보병 4레벨 특수기: 🛡️ 철벽 방진 (방패벽 전개로 받는 피해 50% 차단)
+              if (army.troopType === 'infantry' && armyTech.infantry >= 4) {
+                wallCasualty *= 0.5;
+              }
+
+              army.troops -= Math.min(army.troops * 0.3, wallCasualty);
+
+              if (finalTarget.wall <= 0) {
+                finalTarget.wall = 0;
+                sound.playExplosion();
+                this.addShockwave(finalTarget.x, finalTarget.y, '#f87171');
+                this.addFloatingText(finalTarget.x, finalTarget.y - 20, '💥 성벽 전면 붕괴!', '#f87171');
+              }
+            } else {
+              // 성벽 붕괴 후 주둔군 백병전
+              let meleeDmg = baseClash * (1 + Math.sqrt(army.troops) * 0.15);
+
+              // 보병 10레벨 궁극기: ⚔️ 불굴 결사대 (병력 40% 이하 시 공격력 2.5배)
+              if (army.troopType === 'infantry' && armyTech.infantry >= 10 && army.troops < 35) {
+                meleeDmg *= 2.5;
+                if (Math.random() < 0.2) {
+                  this.addFloatingText(army.x, army.y - 15, '⚔️ 불굴 결사대!', '#ef4444');
+                }
+              }
+
+              if (this.activeBuffs.lastStandFrenzy > 0 && army.faction === this.playerFaction) {
+                meleeDmg *= 3.0;
+              }
+              if (army.troopType === 'cavalry') meleeDmg *= (1.3 + (armyTech.cavalry >= 10 ? 0.7 : 0));
+              if (army.fatigue) meleeDmg *= (1 - army.fatigue);
+
+              finalTarget.troops -= meleeDmg;
+              army.troops -= dt * (finalTarget.troops * 0.18 + 5);
+
+              this.createExplosion(finalTarget.x, finalTarget.y, FACTIONS[army.faction].color, 2);
+              if (Math.random() < 0.2) {
+                sound.playCombat();
+                this.addFloatingText(finalTarget.x, finalTarget.y - 15, '⚔️ -' + Math.ceil(meleeDmg), '#f87171');
+              }
+            }
+
+            // 거점 최종 함락 판정
+            if (finalTarget.troops <= 0) {
+              const prevFaction = finalTarget.faction;
+              finalTarget.faction = army.faction;
+              finalTarget.troops = Math.max(8, Math.floor(army.troops));
+              finalTarget.wall = Math.floor(finalTarget.maxWall * 0.25);
+              finalTarget.pacificationTimer = 18;
+
+              sound.playVictory();
+              this.createExplosion(finalTarget.x, finalTarget.y, FACTIONS[army.faction].lightColor, 25);
+              this.addShockwave(finalTarget.x, finalTarget.y, FACTIONS[army.faction].color);
+
+              if (army.faction === this.playerFaction) {
+                this.stats.captures++;
+                this.gold += 80;
+                this.food += 100;
+                this.addFloatingText(finalTarget.x, finalTarget.y - 25, '거점 함락! [치안 수습]', '#fde047');
+                this.addLog(`[함락] 아군이 ${finalTarget.name}을(를) 정복하였습니다! (18초간 치안 수습)`);
+              } else {
+                if (prevFaction === this.playerFaction) {
+                  this.stats.losses++;
+                  this.addLog(`[비보] 아군의 ${finalTarget.name}이(가) ${FACTIONS[army.faction].name}에 함락되었습니다!`);
+                }
+              }
+              this.armies.splice(i, 1);
+              continue;
+            }
+
+            // 공성 부대 전멸 판정
+            if (army.troops <= 0.8) {
+              this.addFloatingText(finalTarget.x, finalTarget.y - 18, '공성 격퇴!', '#93c5fd');
+              this.armies.splice(i, 1);
+              continue;
+            }
+          }
+
+          // 🌟 6-3. 실시간 아군 지원군 합류: "우당탕탕" 주둔군 연속 증가
+          else if (army.state === 'reinforcing') {
+            if (finalTarget.faction !== army.faction) {
+              // 이동 중 적에게 함락된 경우 -> 즉시 공성 공격 태세로 전환!
+              army.state = 'clashing';
+              continue;
+            }
+
+            // 초당 약 26명 속도로 성 안으로 와르르 주둔군 보충
+            const pour = Math.min(army.troops, dt * 26);
+            army.troops -= pour;
+            finalTarget.troops += pour;
+
+            this.createExplosion(finalTarget.x, finalTarget.y, '#60a5fa', 1);
+            if (Math.random() < 0.2) {
+              sound.playDrum();
+              this.addFloatingText(finalTarget.x, finalTarget.y - 18, `+${Math.ceil(pour)} 증원!`, '#86efac');
+            }
+
+            if (army.troops <= 0.8) {
+              this.armies.splice(i, 1);
+              continue;
+            }
+          }
+        }
+
+        // 🌟 사계절 환경 날씨 파티클 스폰 (겨울 눈, 가을 낙엽, 여름 비, 봄 벚꽃)
+        if (this.weatherParticles.length < 40) {
+          this.weatherParticles.push({
+            x: Math.random() * this.width,
+            y: -10,
+            vx: (Math.random() - 0.4) * 25,
+            vy: Math.random() * 35 + 20,
+            size: Math.random() * 2.8 + 1.2,
+            life: Math.random() * 5 + 3
+          });
+        }
+        for (let wi = this.weatherParticles.length - 1; wi >= 0; wi--) {
+          const wp = this.weatherParticles[wi];
+          wp.x += wp.vx * dt;
+          wp.y += wp.vy * dt;
+          wp.life -= dt;
+          if (wp.life <= 0 || wp.y > this.height) {
+            this.weatherParticles.splice(wi, 1);
+          }
+        }
+
+        // 7. 활 시위 및 화살 물리
+        this.updateArrows(dt);
+
+        // 8. 파티클 및 플로팅 텍스트
+        this.updateEffects(dt);
+
+        // 9. 컴퓨터 AI 공수 및 내정
+        this.updateAI(dt);
+
+        // 10. 대시보드 및 승패 판정
+        this.updateDashboard();
+        this.renderTerritoryStrip();
+        this.checkGameEnd();
+      }
+
+      /* 도로 위 야전 조우전 */
+      updateRoadSkirmishes(dt) {
+        for (let i = 0; i < this.armies.length; i++) {
+          for (let j = i + 1; j < this.armies.length; j++) {
+            const a1 = this.armies[i];
+            const a2 = this.armies[j];
+            if (a1.faction !== a2.faction && Math.hypot(a1.x - a2.x, a1.y - a2.y) < 20) {
+              const clashDamage = 18 * dt;
+              a1.troops -= clashDamage;
+              a2.troops -= clashDamage;
+
+              if (Math.random() < 0.2) {
+                sound.playCombat();
+                this.createExplosion((a1.x + a2.x) / 2, (a1.y + a2.y) / 2, '#fde047', 5);
+                this.addFloatingText((a1.x + a2.x) / 2, (a1.y + a2.y) / 2 - 10, '야전 격돌!', '#f87171');
+              }
+            }
+          }
+        }
+        this.armies = this.armies.filter(a => a.troops > 2);
+      }
+
+      /* -----------------------------------------------------------------------
+         5대 대형 전장 맵 초기화 (대폭 증설된 거점 & 전략적 노선)
+         ----------------------------------------------------------------------- */
+      initBattlefield(mapId, playerFaction, difficulty) {
+        this.selectedMap = mapId;
+        this.playerFaction = playerFaction;
+        this.difficulty = difficulty;
+        this.gameOver = false;
+        this.gameTime = 0;
+
+        this.gold = 300;
+        this.food = 400;
+        this.factionGold = {};
+        this.factionFood = {};
+        Object.keys(FACTIONS).forEach(f => {
+          this.factionGold[f] = 200;
+          this.factionFood[f] = 280;
+        });
+
+        this.seasonIndex = 0;
+        this.seasonTimer = 0;
+        this.randomEventTimer = 0;
+        this.coalitionActive = false;
+        this.coalitionLeader = null;
+        document.getElementById('coalition-alert-banner').style.display = 'none';
+
+        this.castles = [];
+        this.roads = [];
+        this.obstacles = [];
+        this.armies = [];
+        this.particles = [];
+        this.floatingTexts = [];
+        this.shockwaves = [];
+        this.arrows = [];
+        this.selectedCastles.clear();
+        this.dragStartCastle = null;
+        this.allOutMode = false;
+        this.inspectedCastle = null;
+        this.hideCityPanel();
+
+        this.techLevels = { archery: 0, cavalry: 0, infantry: 0, commerce: 0, fortification: 0, siege: 0 };
+        this.factionTechLevels = {};
+        Object.keys(FACTIONS).forEach(f => {
+          this.factionTechLevels[f] = { archery: 0, cavalry: 0, infantry: 0, commerce: 0, fortification: 0, siege: 0 };
+        });
+        this.skillCooldownRemaining = 5;
+        this.skillActiveTimer = 0;
+        this.activeBuffs = { raid: 0 };
+        this.stats = { captures: 0, losses: 0, stratagemsUsed: 0 };
+
+        Object.keys(FACTIONS).forEach(f => {
+          this.diplomacy[f] = (f === this.playerFaction) ? 'self' : 'neutral';
+        });
+
+        let cityMap = [];
+        let roadPairs = [];
+        let obstacleData = [];
+
+        /* 1. 🗺️ 동아시아 천하통일도 (27개 거점 - 한국·일본 넓은 시야 간격 확보) */
+        if (mapId === 'east_asia') {
+          cityMap = [
+            // 한반도 (시야 겹침 완벽 해소: X 0.44~0.66, Y 0.14~0.76으로 여유롭게 분산)
+            { id: 1, name: '평양성 (平壤)', culture: 'korea', normX: 0.50, normY: 0.28, level: 4, faction: 'goguryeo', troops: 60, isCapital: true, general: '광개토대왕', generalPwr: 99 },
+            { id: 2, name: '국내성 (國內)', culture: 'korea', normX: 0.54, normY: 0.14, level: 3, faction: 'goguryeo', troops: 45, general: '을지문덕', generalPwr: 96 },
+            { id: 3, name: '안학궁 (安鶴)', culture: 'korea', normX: 0.44, normY: 0.36, level: 2, faction: 'goguryeo', troops: 40, general: '연개소문', generalPwr: 97 },
+            { id: 4, name: '한성/위례 (漢城)', culture: 'korea', normX: 0.58, normY: 0.38, level: 3, faction: 'baekje', troops: 50, isCapital: true, general: '근초고왕', generalPwr: 95 },
+            { id: 5, name: '웅진/사비 (泗沘)', culture: 'korea', normX: 0.48, normY: 0.50, level: 3, faction: 'baekje', troops: 45, general: '계백', generalPwr: 94 },
+            { id: 6, name: '서라벌 (徐羅伐)', culture: 'korea', normX: 0.65, normY: 0.50, level: 4, faction: 'silla', troops: 55, isCapital: true, general: '문무왕', generalPwr: 94 },
+            { id: 7, name: '금관가야 (伽倻)', culture: 'korea', normX: 0.60, normY: 0.64, level: 2, faction: 'neutral', troops: 35, general: '김수로', generalPwr: 90 },
+            { id: 8, name: '탐라국 (耽羅)', culture: 'korea', normX: 0.48, normY: 0.74, level: 1, faction: 'neutral', troops: 25, general: '고을나', generalPwr: 85 },
+
+            // 중원 대륙 (시원한 대륙 전황도 배치)
+            { id: 9, name: '낙양 (洛陽)', culture: 'china', normX: 0.24, normY: 0.36, level: 4, faction: 'wei', troops: 60, isCapital: true, general: '조조', generalPwr: 96 },
+            { id: 10, name: '장안 (長安)', culture: 'china', normX: 0.12, normY: 0.34, level: 3, faction: 'wei', troops: 50, general: '사마의', generalPwr: 94 },
+            { id: 11, name: '업성 (鄴城)', culture: 'china', normX: 0.28, normY: 0.20, level: 3, faction: 'neutral', troops: 40, general: '원소', generalPwr: 89 },
+            { id: 12, name: '허창 (許昌)', culture: 'china', normX: 0.26, normY: 0.48, level: 3, faction: 'wei', troops: 45, general: '하후돈', generalPwr: 92 },
+            { id: 13, name: '서주 (徐州)', culture: 'china', normX: 0.36, normY: 0.38, level: 3, faction: 'lubu', troops: 50, isCapital: true, general: '여포', generalPwr: 100 },
+            { id: 14, name: '유주/계현 (幽州)', culture: 'china', normX: 0.40, normY: 0.16, level: 2, faction: 'neutral', troops: 35, general: '공손찬', generalPwr: 88 },
+            { id: 15, name: '성도 (成都)', culture: 'china', normX: 0.08, normY: 0.66, level: 4, faction: 'shu', troops: 60, isCapital: true, general: '유비', generalPwr: 90 },
+            { id: 16, name: '한중 (漢中)', culture: 'china', normX: 0.12, normY: 0.50, level: 3, faction: 'shu', troops: 45, general: '제갈량', generalPwr: 98 },
+            { id: 17, name: '백제성 (白帝)', culture: 'china', normX: 0.18, normY: 0.64, level: 2, faction: 'shu', troops: 40, general: '관우', generalPwr: 98 },
+            { id: 18, name: '건업 (建業)', culture: 'china', normX: 0.36, normY: 0.62, level: 4, faction: 'wu', troops: 60, isCapital: true, general: '손책', generalPwr: 95 },
+            { id: 19, name: '시상/무창 (柴桑)', culture: 'china', normX: 0.27, normY: 0.70, level: 3, faction: 'wu', troops: 45, general: '주유', generalPwr: 96 },
+            { id: 20, name: '형주/강릉 (荊州)', culture: 'china', normX: 0.20, normY: 0.54, level: 3, faction: 'neutral', troops: 40, general: '유표', generalPwr: 84 },
+
+            // 일본 열도 (완벽한 간격 분산: X 0.72~0.95, Y 0.38~0.72)
+            { id: 21, name: '교토/야마시로 (京都)', culture: 'japan', normX: 0.84, normY: 0.48, level: 4, faction: 'oda', troops: 60, isCapital: true, general: '오다 노부нага', generalPwr: 96 },
+            { id: 22, name: '아즈치 (安土)', culture: 'japan', normX: 0.88, normY: 0.38, level: 3, faction: 'oda', troops: 45, general: '아케치 미쓰히데', generalPwr: 91 },
+            { id: 23, name: '나고야 (名古屋)', culture: 'japan', normX: 0.92, normY: 0.52, level: 3, faction: 'oda', troops: 40, general: '도요토미 히데요시', generalPwr: 93 },
+            { id: 24, name: '오사카/난바 (大坂)', culture: 'japan', normX: 0.82, normY: 0.58, level: 3, faction: 'yamato', troops: 50, isCapital: true, general: '성덕태자', generalPwr: 94 },
+            { id: 25, name: '하카타 (博多)', culture: 'japan', normX: 0.72, normY: 0.68, level: 3, faction: 'yamato', troops: 45, general: '쇼토쿠', generalPwr: 90 },
+            { id: 26, name: '가마쿠라 (鎌倉)', culture: 'japan', normX: 0.95, normY: 0.42, level: 2, faction: 'neutral', troops: 35, general: '미나모토', generalPwr: 89 },
+            { id: 27, name: '시모노세키 (下関)', culture: 'japan', normX: 0.75, normY: 0.56, level: 2, faction: 'neutral', troops: 30, general: '다이라', generalPwr: 87 }
+          ];
+
+          roadPairs = [
+            // 한반도 내선
+            [2, 1], [1, 3], [1, 4], [3, 4], [4, 5], [4, 6], [5, 7], [6, 7], [7, 8],
+            // 대륙 내선
+            [14, 11], [11, 9], [10, 9], [9, 12], [12, 13], [10, 16], [16, 15],
+            [15, 17], [17, 20], [16, 20], [9, 20], [12, 20], [20, 19], [19, 18], [13, 18],
+            // 대륙 - 한반도 연계 (요동 회랑 & 황해 해상로)
+            [14, 2], [13, 5], [18, 8],
+            // 한반도 - 일본 열도 연계 (대한해협/대마도 해상로)
+            [7, 25], [8, 25],
+            // 열도 내선
+            [25, 27], [27, 24], [24, 21], [21, 22], [21, 23], [22, 26], [23, 26]
+          ];
+
+          obstacleData = [
+            { type: 'mountain', name: '백두산맥', normX: 0.58, normY: 0.12, normR: 0.05 },
+            { type: 'mountain', name: '태백산맥', normX: 0.65, normY: 0.38, normR: 0.05 },
+            { type: 'mountain', name: '진령산맥', normX: 0.18, normY: 0.44, normR: 0.06 },
+            { type: 'mountain', name: '후지산', normX: 0.89, normY: 0.48, normR: 0.04 }
+          ];
+
+        /* 2. 🇰🇷 한반도 삼국통일도 (20개 거점 - 완벽한 여유 간격 배치) */
+        } else if (mapId === 'korea_peninsula') {
+          cityMap = [
+            { id: 1, name: '국내성 (고구려)', culture: 'korea', normX: 0.48, normY: 0.10, level: 4, faction: 'goguryeo', troops: 60, isCapital: true, general: '광개토대왕', generalPwr: 99 },
+            { id: 2, name: '평양성 (대동강)', culture: 'korea', normX: 0.36, normY: 0.22, level: 3, faction: 'goguryeo', troops: 50, general: '을지문덕', generalPwr: 96 },
+            { id: 3, name: '안학궁 (북방요새)', culture: 'korea', normX: 0.54, normY: 0.20, level: 2, faction: 'goguryeo', troops: 40, general: '양만춘', generalPwr: 95 },
+            { id: 4, name: '철령/원산 (관동)', culture: 'korea', normX: 0.66, normY: 0.25, level: 2, faction: 'neutral', troops: 35, general: '고연수', generalPwr: 87 },
+            { id: 5, name: '개성/송악 (예성강)', culture: 'korea', normX: 0.38, normY: 0.34, level: 3, faction: 'neutral', troops: 40, general: '궁예', generalPwr: 91 },
+            { id: 6, name: '칠중성 (임진강)', culture: 'korea', normX: 0.52, normY: 0.33, level: 2, faction: 'neutral', troops: 35, general: '온달', generalPwr: 93 },
+            { id: 7, name: '한성/위례 (백제)', culture: 'korea', normX: 0.45, normY: 0.44, level: 4, faction: 'baekje', troops: 60, isCapital: true, general: '근초고왕', generalPwr: 95 },
+            { id: 8, name: '문경새재 (조령)', culture: 'korea', normX: 0.62, normY: 0.50, level: 2, faction: 'neutral', troops: 35, general: '견훤', generalPwr: 92 },
+            { id: 9, name: '충주/중원 (남한강)', culture: 'korea', normX: 0.56, normY: 0.42, level: 2, faction: 'neutral', troops: 35, general: '김유신', generalPwr: 97 },
+            { id: 10, name: '강릉/명주 (동해)', culture: 'korea', normX: 0.76, normY: 0.36, level: 2, faction: 'neutral', troops: 30, general: '이사부', generalPwr: 91 },
+            { id: 11, name: '웅진/공주 (금강)', culture: 'korea', normX: 0.34, normY: 0.53, level: 3, faction: 'baekje', troops: 45, general: '계백', generalPwr: 94 },
+            { id: 12, name: '사비/부여 (백제남부)', culture: 'korea', normX: 0.30, normY: 0.65, level: 3, faction: 'baekje', troops: 40, general: '의자왕', generalPwr: 85 },
+            { id: 13, name: '전주/완산 (호남)', culture: 'korea', normX: 0.40, normY: 0.74, level: 2, faction: 'neutral', troops: 35, general: '능창', generalPwr: 88 },
+            { id: 14, name: '서라벌 (신라)', culture: 'korea', normX: 0.78, normY: 0.60, level: 4, faction: 'silla', troops: 60, isCapital: true, general: '문무왕', generalPwr: 94 },
+            { id: 15, name: '대야성 (합천요새)', culture: 'korea', normX: 0.62, normY: 0.66, level: 3, faction: 'silla', troops: 45, general: '김품석', generalPwr: 88 },
+            { id: 16, name: '금관가야 (김해)', culture: 'korea', normX: 0.74, normY: 0.74, level: 2, faction: 'neutral', troops: 35, general: '김수로', generalPwr: 90 },
+            { id: 17, name: '대가야 (고령)', culture: 'korea', normX: 0.50, normY: 0.58, level: 2, faction: 'neutral', troops: 35, general: '이진아시', generalPwr: 89 },
+            { id: 18, name: '진주/남강 (진주성)', culture: 'korea', normX: 0.54, normY: 0.79, level: 2, faction: 'neutral', troops: 30, general: '김시민', generalPwr: 93 },
+            { id: 19, name: '나주/영산포 (서남해)', culture: 'korea', normX: 0.30, normY: 0.82, level: 2, faction: 'joseon', troops: 45, isCapital: true, general: '이순신', generalPwr: 99 },
+            { id: 20, name: '탐라/제주 (남해해상)', culture: 'korea', normX: 0.36, normY: 0.94, level: 1, faction: 'neutral', troops: 25, general: '배중손', generalPwr: 88 }
+          ];
+
+          roadPairs = [
+            [1, 2], [1, 3], [2, 3], [2, 5], [3, 4], [4, 10], [5, 6], [4, 6],
+            [6, 7], [7, 9], [7, 11], [9, 8], [10, 8], [9, 10],
+            [8, 17], [11, 12], [11, 15], [12, 13], [13, 19], [19, 18], [19, 20],
+            [17, 15], [15, 14], [15, 18], [14, 16], [16, 18], [8, 14]
+          ];
+
+          obstacleData = [
+            { type: 'mountain', name: '낭림산맥', normX: 0.58, normY: 0.18, normR: 0.05 },
+            { type: 'mountain', name: '태백산맥', normX: 0.66, normY: 0.36, normR: 0.06 },
+            { type: 'mountain', name: '소백산맥', normX: 0.56, normY: 0.52, normR: 0.05 }
+          ];
+
+        /* 3. 🇨🇳 중원 삼국쟁패도 (22개 거점 & 호뢰관/검각/장강) */
+        } else if (mapId === 'china_continent') {
+          cityMap = [
+            { id: 1, name: '낙양 (천하중심)', culture: 'china', normX: 0.46, normY: 0.36, level: 4, faction: 'wei', troops: 60, isCapital: true, general: '조조', generalPwr: 96 },
+            { id: 2, name: '장안 (관중서도)', culture: 'china', normX: 0.32, normY: 0.36, level: 3, faction: 'wei', troops: 50, general: '사마의', generalPwr: 94 },
+            { id: 3, name: '호뢰관 (동방관문)', culture: 'china', normX: 0.52, normY: 0.36, level: 2, faction: 'neutral', troops: 35, general: '화웅', generalPwr: 92 },
+            { id: 4, name: '허창 (중원본영)', culture: 'china', normX: 0.50, normY: 0.44, level: 3, faction: 'wei', troops: 45, general: '하후돈', generalPwr: 92 },
+            { id: 5, name: '업성 (하북거성)', culture: 'china', normX: 0.50, normY: 0.22, level: 3, faction: 'neutral', troops: 45, general: '원소', generalPwr: 89 },
+            { id: 6, name: '복양 (황하요충)', culture: 'china', normX: 0.56, normY: 0.30, level: 2, faction: 'neutral', troops: 35, general: '전위', generalPwr: 95 },
+            { id: 7, name: '서주/하비 (동방)', culture: 'china', normX: 0.66, normY: 0.38, level: 3, faction: 'lubu', troops: 50, isCapital: true, general: '여포', generalPwr: 100 },
+            { id: 8, name: '한중 (진령요새)', culture: 'china', normX: 0.26, normY: 0.48, level: 3, faction: 'shu', troops: 45, general: '제갈량', generalPwr: 98 },
+            { id: 9, name: '검각 (촉도천험)', culture: 'china', normX: 0.20, normY: 0.56, level: 2, faction: 'shu', troops: 40, general: '강유', generalPwr: 94 },
+            { id: 10, name: '성도 (촉한수도)', culture: 'china', normX: 0.16, normY: 0.68, level: 4, faction: 'shu', troops: 60, isCapital: true, general: '유비', generalPwr: 90 },
+            { id: 11, name: '백제성 (삼협관문)', culture: 'china', normX: 0.30, normY: 0.66, level: 2, faction: 'shu', troops: 40, general: '장비', generalPwr: 98 },
+            { id: 12, name: '양양/번성 (형북)', culture: 'china', normX: 0.44, normY: 0.54, level: 3, faction: 'neutral', troops: 40, general: '유표', generalPwr: 85 },
+            { id: 13, name: '강릉/형주 (형남)', culture: 'china', normX: 0.44, normY: 0.64, level: 3, faction: 'neutral', troops: 45, general: '관우', generalPwr: 98 },
+            { id: 14, name: '이릉 (장강협곡)', culture: 'china', normX: 0.36, normY: 0.64, level: 2, faction: 'neutral', troops: 35, general: '육손', generalPwr: 95 },
+            { id: 15, name: '수춘/회남 (회하)', culture: 'china', normX: 0.60, normY: 0.48, level: 2, faction: 'neutral', troops: 35, general: '원술', generalPwr: 86 },
+            { id: 16, name: '합비 (장강전선)', culture: 'china', normX: 0.64, normY: 0.56, level: 3, faction: 'wei', troops: 40, general: '장료', generalPwr: 95 },
+            { id: 17, name: '건업 (손오수도)', culture: 'china', normX: 0.72, normY: 0.56, level: 4, faction: 'wu', troops: 60, isCapital: true, general: '손책', generalPwr: 95 },
+            { id: 18, name: '시상/파양호 (수군)', culture: 'china', normX: 0.58, normY: 0.68, level: 3, faction: 'wu', troops: 45, general: '주유', generalPwr: 96 },
+            { id: 19, name: '여남 (중원곡창)', culture: 'china', normX: 0.52, normY: 0.50, level: 2, faction: 'neutral', troops: 35, general: '조인', generalPwr: 90 },
+            { id: 20, name: '서량/무위 (서북)', culture: 'china', normX: 0.16, normY: 0.26, level: 3, faction: 'neutral', troops: 40, general: '마초', generalPwr: 97 },
+            { id: 21, name: '천수 (농서요충)', culture: 'china', normX: 0.24, normY: 0.38, level: 2, faction: 'neutral', troops: 35, general: '마등', generalPwr: 90 },
+            { id: 22, name: '유주/북평 (북방)', culture: 'china', normX: 0.64, normY: 0.18, level: 2, faction: 'neutral', troops: 35, general: '공손찬', generalPwr: 88 }
+          ];
+
+          roadPairs = [
+            [20, 21], [21, 2], [2, 1], [1, 3], [3, 4], [3, 6], [6, 5], [5, 22], [6, 7],
+            [4, 19], [19, 15], [15, 16], [16, 17], [17, 18], [4, 12], [1, 12],
+            [2, 8], [8, 9], [9, 10], [10, 11], [11, 14], [14, 13], [12, 13],
+            [13, 18], [8, 12], [7, 17]
+          ];
+
+          obstacleData = [
+            { type: 'mountain', name: '진령산맥', normX: 0.28, normY: 0.42, normR: 0.06 },
+            { type: 'mountain', name: '파산산맥', normX: 0.22, normY: 0.62, normR: 0.05 },
+            { type: 'mountain', name: '태행산맥', normX: 0.44, normY: 0.24, normR: 0.06 }
+          ];
+
+                /* 4. 🇯🇵 열도 전국통일도 (18개 거점 - 완벽한 시야 분산 배치) */
+        } else if (mapId === 'japan_sengoku') {
+          cityMap = [
+            { id: 1, name: '교토/야마시로 (조정)', culture: 'japan', normX: 0.52, normY: 0.49, level: 4, faction: 'oda', troops: 60, isCapital: true, general: '오다 노부нага', generalPwr: 96 },
+            { id: 2, name: '아즈치/오미 (비와호)', culture: 'japan', normX: 0.56, normY: 0.38, level: 3, faction: 'oda', troops: 45, general: '시바타 가쓰이에', generalPwr: 91 },
+            { id: 3, name: '기후/미노 (미노)', culture: 'japan', normX: 0.63, normY: 0.36, level: 3, faction: 'oda', troops: 40, general: '아케치 미쓰히데', generalPwr: 91 },
+            { id: 4, name: '나고야/오와리 (오와리)', culture: 'japan', normX: 0.63, normY: 0.53, level: 3, faction: 'oda', troops: 45, general: '마에다 도시이에', generalPwr: 90 },
+            { id: 5, name: '하마마쓰/미카와 (미카와)', culture: 'japan', normX: 0.72, normY: 0.56, level: 3, faction: 'yamato', troops: 50, isCapital: true, general: '도쿠가와 이에야스', generalPwr: 94 },
+            { id: 6, name: '슨푸/스루가 (스루가)', culture: 'japan', normX: 0.78, normY: 0.50, level: 2, faction: 'yamato', troops: 40, general: '혼다 다다카쓰', generalPwr: 97 },
+            { id: 7, name: '오다와라/사가미 (불락)', culture: 'japan', normX: 0.84, normY: 0.46, level: 3, faction: 'neutral', troops: 45, general: '호조 우지야스', generalPwr: 93 },
+            { id: 8, name: '에도/무사시 (관동)', culture: 'japan', normX: 0.91, normY: 0.39, level: 3, faction: 'neutral', troops: 40, general: '오타 도칸', generalPwr: 88 },
+            { id: 9, name: '가스가야마 (에치고)', culture: 'japan', normX: 0.77, normY: 0.26, level: 3, faction: 'neutral', troops: 45, general: '우에스기 겐신', generalPwr: 98 },
+            { id: 10, name: '고후/카이 (카이)', culture: 'japan', normX: 0.77, normY: 0.38, level: 3, faction: 'neutral', troops: 45, general: '다케다 신겐', generalPwr: 98 },
+            { id: 11, name: '우에다/시나노 (시나노)', culture: 'japan', normX: 0.70, normY: 0.30, level: 2, faction: 'neutral', troops: 35, general: '사나다 유키무라', generalPwr: 97 },
+            { id: 12, name: '오사카/셋쓰 (난바)', culture: 'japan', normX: 0.43, normY: 0.57, level: 3, faction: 'neutral', troops: 45, general: '도요토미 히데요시', generalPwr: 93 },
+            { id: 13, name: '히메지/하리마 (백로성)', culture: 'japan', normX: 0.34, normY: 0.52, level: 2, faction: 'neutral', troops: 35, general: '구로다 간베에', generalPwr: 95 },
+            { id: 14, name: '히로시마/아키 (주고쿠)', culture: 'japan', normX: 0.25, normY: 0.58, level: 3, faction: 'neutral', troops: 40, general: '모리 모토나리', generalPwr: 96 },
+            { id: 15, name: '시모노세키 (간몬)', culture: 'japan', normX: 0.17, normY: 0.64, level: 2, faction: 'neutral', troops: 35, general: '무라카미 수군', generalPwr: 89 },
+            { id: 16, name: '후쿠오카/하카타 (북규슈)', culture: 'japan', normX: 0.13, normY: 0.72, level: 3, faction: 'neutral', troops: 40, general: '다치바나 도세쓰', generalPwr: 94 },
+            { id: 17, name: '구마모토/히고 (중규슈)', culture: 'japan', normX: 0.11, normY: 0.82, level: 2, faction: 'neutral', troops: 35, general: '가토 기요마사', generalPwr: 95 },
+            { id: 18, name: '가고시마/사쓰마 (남규슈)', culture: 'japan', normX: 0.09, normY: 0.93, level: 3, faction: 'neutral', troops: 45, general: '시마즈 요시히로', generalPwr: 96 }
+          ];
+
+          roadPairs = [
+            [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8],
+            [3, 11], [11, 10], [10, 7], [11, 9], [9, 8],
+            [1, 12], [12, 13], [13, 14], [14, 15], [15, 16], [16, 17], [17, 18], [2, 12]
+          ];
+
+          obstacleData = [
+            { type: 'mountain', name: '일본알프스', normX: 0.70, normY: 0.36, normR: 0.05 },
+            { type: 'mountain', name: '주고쿠산지', normX: 0.32, normY: 0.52, normR: 0.04 }
+          ];
+
+        /* 5. ⛰️ 4대 관문 쟁탈전 (16개 거점 & 외곽 전초기지/외원 거성) */
+        } else {
+          cityMap = [
+            // 중앙 제1거성
+            { id: 1, name: '낙양 외원 (천하대평원)', culture: 'china', normX: 0.50, normY: 0.50, level: 4, faction: 'neutral', troops: 60, general: '사마의', generalPwr: 96 },
+
+            // 4대 관문
+            { id: 2, name: '호뢰관 (제1동북관)', culture: 'china', normX: 0.50, normY: 0.36, level: 2, faction: 'neutral', troops: 40, general: '여포', generalPwr: 100 },
+            { id: 3, name: '검각 (제2서남관)', culture: 'china', normX: 0.36, normY: 0.50, level: 2, faction: 'neutral', troops: 40, general: '강유', generalPwr: 94 },
+            { id: 4, name: '문경새재 (제3동남관)', culture: 'korea', normX: 0.64, normY: 0.50, level: 2, faction: 'neutral', troops: 40, general: '을지문덕', generalPwr: 96 },
+            { id: 5, name: '철령관 (제4서북관)', culture: 'korea', normX: 0.50, normY: 0.64, level: 2, faction: 'neutral', troops: 40, general: '양만춘', generalPwr: 95 },
+
+            // 4대 외곽 군웅 본영
+            { id: 6, name: '중원 본영 (조조)', culture: 'china', normX: 0.50, normY: 0.14, level: 4, faction: 'wei', troops: 60, isCapital: true, general: '조조', generalPwr: 96 },
+            { id: 7, name: '하북 전초기지', culture: 'china', normX: 0.66, normY: 0.22, level: 2, faction: 'wei', troops: 40, general: '하후돈', generalPwr: 92 },
+
+            { id: 8, name: '서촉 본영 (유비)', culture: 'china', normX: 0.14, normY: 0.50, level: 4, faction: 'shu', troops: 60, isCapital: true, general: '유비', generalPwr: 90 },
+            { id: 9, name: '파촉 전초기지', culture: 'china', normX: 0.22, normY: 0.34, level: 2, faction: 'shu', troops: 40, general: '제갈량', generalPwr: 98 },
+
+            { id: 10, name: '한반도 본영 (고구려)', culture: 'korea', normX: 0.86, normY: 0.50, level: 4, faction: 'goguryeo', troops: 60, isCapital: true, general: '광개토대왕', generalPwr: 99 },
+            { id: 11, name: '삼한 전초기지', culture: 'korea', normX: 0.78, normY: 0.66, level: 2, faction: 'goguryeo', troops: 40, general: '연개소문', generalPwr: 97 },
+
+            { id: 12, name: '강동 본영 (손책)', culture: 'china', normX: 0.50, normY: 0.86, level: 4, faction: 'wu', troops: 60, isCapital: true, general: '손책', generalPwr: 95 },
+            { id: 13, name: '장강 전초기지', culture: 'china', normX: 0.34, normY: 0.78, level: 2, faction: 'wu', troops: 40, general: '주유', generalPwr: 96 },
+
+            // 능선 요새
+            { id: 14, name: '서북 능선 요새', culture: 'china', normX: 0.30, normY: 0.24, level: 2, faction: 'neutral', troops: 35, general: '마초', generalPwr: 97 },
+            { id: 15, name: '동북 능선 요새', culture: 'korea', normX: 0.70, normY: 0.24, level: 2, faction: 'neutral', troops: 35, general: '계백', generalPwr: 94 },
+            { id: 16, name: '남동 능선 요새', culture: 'japan', normX: 0.70, normY: 0.76, level: 2, faction: 'neutral', troops: 35, general: '노부나가', generalPwr: 96 }
+          ];
+
+          roadPairs = [
+            // 외곽 본영 - 전초기지
+            [6, 7], [6, 14], [7, 15], [14, 2], [15, 2], [6, 2],
+            [8, 9], [8, 14], [9, 3], [8, 3],
+            [10, 11], [10, 15], [10, 4], [11, 4],
+            [12, 13], [12, 16], [12, 5], [13, 5], [16, 5],
+            // 4대 관문 -> 중앙 제1거성
+            [2, 1], [3, 1], [4, 1], [5, 1],
+            // 4대 관문 환상 연결 (외곽 순환도로)
+            [2, 3], [3, 5], [5, 4], [4, 2]
+          ];
+
+          obstacleData = [
+            { type: 'mountain', name: '호뢰천험', normX: 0.38, normY: 0.38, normR: 0.05 },
+            { type: 'mountain', name: '검각절벽', normX: 0.62, normY: 0.38, normR: 0.05 },
+            { type: 'mountain', name: '새재암벽', normX: 0.62, normY: 0.62, normR: 0.05 },
+            { type: 'mountain', name: '철령단애', normX: 0.38, normY: 0.62, normR: 0.05 }
+          ];
+        }
+
+        this.roads = roadPairs;
+        this.obstacles = obstacleData;
+
+        // 🌟 거점을 대형 가상 월드 좌표계(1600x1100)에 여유롭게 배치
+        this.castles = cityMap.map(c => {
+          const lvlData = getCastleLevelData(c.level);
+          return {
+            id: c.id,
+            name: c.name,
+            culture: c.culture,
+            normX: c.normX,
+            normY: c.normY,
+            x: c.normX * this.worldWidth,
+            y: c.normY * this.worldHeight,
+            level: c.level,
+            faction: c.faction,
+            troops: c.troops,
+            maxWall: lvlData.maxWall,
+            wall: lvlData.maxWall,
+            isCapital: !!c.isCapital,
+            general: c.general || '태수',
+            generalPwr: c.generalPwr || 85,
+            pulseTimer: Math.random() * Math.PI,
+            fireEffectTimer: 0
+          };
+        });
+
+        // 카메라를 플레이어 아군 본성으로 즉시 자동 센터링
+        const myCap = this.castles.find(c => c.faction === this.playerFaction && c.isCapital) ||
+                      this.castles.find(c => c.faction === this.playerFaction) ||
+                      this.castles[0];
+        if (myCap) {
+          this.camera.x = myCap.x;
+          this.camera.y = myCap.y;
+        }
+
+        this.addLog(`[출정] ${FACTIONS[this.playerFaction].name} 세력으로 천하통일 전쟁을 개시합니다!`);
+        this.renderTerritoryStrip();
+      }
+
+      /* -----------------------------------------------------------------------
+         전선 인접 및 연결 검증
+         ----------------------------------------------------------------------- */
+      isDirectlyConnected(cA, cB) {
+        if (!cA || !cB) return false;
+        return this.roads.some(([idA, idB]) =>
+          (idA === cA.id && idB === cB.id) || (idA === cB.id && idB === cA.id)
+        );
+      }
+
+      /* -----------------------------------------------------------------------
+         공수 밸런스 및 적극적 공세 AI (가용 인원 충만 시 전격 공격)
+         ----------------------------------------------------------------------- */
+      updateAI(dt) {
+        if (!this.aiTimer) this.aiTimer = 0;
+        this.aiTimer += dt;
+
+        let interval = 1.4;
+        if (this.difficulty === 'easy') interval = 2.2;
+        if (this.difficulty === 'hard') interval = 0.9;
+
+        if (this.aiTimer < interval) return;
+        this.aiTimer = 0;
+
+        const aiFactions = Object.keys(FACTIONS).filter(f => f !== this.playerFaction && f !== 'neutral');
+
+        aiFactions.forEach(f => {
+          const myCastles = this.castles.filter(c => c.faction === f);
+          if (myCastles.length === 0) return;
+
+          // 1. 위급 전방 방어선 지원
+          myCastles.forEach(castle => {
+            const hasEnemyNeighbor = this.castles.some(other =>
+              other.faction !== f && this.isDirectlyConnected(castle, other)
+            );
+
+            if (hasEnemyNeighbor && castle.troops < 22) {
+              const rearSupporters = myCastles.filter(supporter =>
+                supporter.id !== castle.id && supporter.troops > 25 &&
+                !this.castles.some(enemy => enemy.faction !== f && this.isDirectlyConnected(supporter, enemy))
+              );
+
+              if (rearSupporters.length > 0) {
+                rearSupporters.sort((a, b) => b.troops - a.troops);
+                this.dispatchArmy(rearSupporters[0], castle, 0.45, 'infantry');
+              }
+            }
+          });
+
+          // 2. 🌟 가용 인원이 가득 차거나 준비된 모든 성들의 적극적 공세 (동시 협공 지원)
+          myCastles.forEach(attacker => {
+            const lvlInfo = getCastleLevelData(attacker.level);
+            const isFull = attacker.troops >= lvlInfo.maxTroops * 0.72;
+            const isReady = attacker.troops >= 20;
+
+            if (!isFull && !isReady) return;
+
+            const candidateTargets = this.castles.filter(target =>
+              target.faction !== f && this.isDirectlyConnected(attacker, target)
+            );
+
+            if (candidateTargets.length > 0) {
+              let bestTarget = null;
+              let bestScore = -9999;
+
+              candidateTargets.forEach(target => {
+                if (target.faction === this.playerFaction && this.diplomacy[f] === 'alliance') return;
+
+                // 🌟 반맹주 연합 체제: 열강끼리는 상호 공격을 자제하고 플레이어 전선으로 총력 협공!
+                if (this.coalitionActive) {
+                  if (target.faction !== this.playerFaction && target.faction !== 'neutral') {
+                    return; // 연합국 간 소모전 차단
+                  }
+                }
+
+                let score = 0;
+                if (target.faction === 'neutral') {
+                  score = (attacker.troops - target.troops) * 2.2 + 20;
+                } else {
+                  score = (attacker.troops - target.troops * 0.95) * 1.6;
+                  if (target.isCapital) score += 15;
+                }
+
+                // 플레이어 공격 시 연합군 합동 공격 가중치
+                if (this.coalitionActive && target.faction === this.playerFaction) {
+                  score += 40;
+                }
+
+                // 가용 인원이 꽉 찬 성은 공격 가중치 대폭 부여!
+                if (isFull) score += 35;
+
+                if (score > bestScore) {
+                  bestScore = score;
+                  bestTarget = target;
+                }
+              });
+
+              if (bestTarget && (isFull || bestScore > 0)) {
+                const ratio = isFull ? 0.6 : 0.5;
+                const chosenType = ['infantry', 'cavalry', 'archer'][Math.floor(Math.random() * 3)];
+                this.dispatchArmy(attacker, bestTarget, ratio, chosenType);
+              }
+            } else if (isFull) {
+              // 인접한 적이 없는데 가용인원이 꽉 찬 후방 성 -> 전방 성으로 병력 적극 수송
+              const frontlineFriendly = myCastles.filter(other =>
+                other.id !== attacker.id &&
+                this.castles.some(enemy => enemy.faction !== f && this.isDirectlyConnected(other, enemy))
+              );
+
+              if (frontlineFriendly.length > 0) {
+                frontlineFriendly.sort((a, b) => a.troops - b.troops);
+                this.dispatchArmy(attacker, frontlineFriendly[0], 0.55, 'infantry');
+              }
+            }
+          });
+
+          // 3. AI 내정 및 무한 증축 활동 (항상 실행!)
+          const gold = this.factionGold[f] || 0;
+
+          const underSiegeCastle = (c) => this.armies.some(a =>
+            a.targetId === c.id && a.state === 'clashing' && a.faction !== c.faction
+          );
+
+          // 3-1. 🌟 AI 성벽 수리 (교전 중 무한 치트 수리 완전 차단 & 쿨다운 준수)
+          const damagedCastle = myCastles.find(c =>
+            c.wall < c.maxWall * 0.65 && !underSiegeCastle(c) && (c.repairCooldown || 0) <= 0
+          );
+
+          if (damagedCastle && gold >= 40) {
+            const missing = damagedCastle.maxWall - damagedCastle.wall;
+            const cost = Math.min(gold, Math.max(25, Math.ceil(missing * 0.35)));
+            damagedCastle.wall = Math.min(damagedCastle.maxWall, damagedCastle.wall + missing * 0.6);
+            damagedCastle.repairCooldown = 12.0; // AI 12초 쿨다운
+            this.factionGold[f] -= cost;
+            this.addFloatingText(damagedCastle.x, damagedCastle.y - 20, '성벽 정비', '#93c5fd');
+          } else {
+            // 3-2. 🌟 거점 증축 (포위 공격받지 않는 안전 거점만 증축 가능 & 성벽 풀피 치트 제거)
+            const safeCastles = myCastles.filter(c => !underSiegeCastle(c));
+            safeCastles.sort((a, b) => {
+              const aP = (a.isCapital ? 4 : 0) + (a.troops / getCastleLevelData(a.level).maxTroops) * 2;
+              const bP = (b.isCapital ? 4 : 0) + (b.troops / getCastleLevelData(b.level).maxTroops) * 2;
+              return bP - aP;
+            });
+
+            const targetCastle = safeCastles[0];
+            if (targetCastle) {
+              const curData = getCastleLevelData(targetCastle.level);
+              const cost = curData.upgradeCost;
+              if (gold >= cost) {
+                this.factionGold[f] -= cost;
+                targetCastle.level++;
+                const nextData = getCastleLevelData(targetCastle.level);
+                const wallDiff = nextData.maxWall - curData.maxWall;
+                targetCastle.maxWall = nextData.maxWall;
+                targetCastle.wall = Math.min(targetCastle.maxWall, targetCastle.wall + wallDiff);
+                this.createExplosion(targetCastle.x, targetCastle.y, '#fde047', 15);
+                this.addShockwave(targetCastle.x, targetCastle.y, FACTIONS[f].color);
+                this.addFloatingText(targetCastle.x, targetCastle.y - 20, `증축: ${nextData.name} (Lv.${targetCastle.level})`, '#fde047');
+                this.addLog(`[AI 내정] ${FACTIONS[f].name} 세력이 ${targetCastle.name}을(를) ${nextData.name}(으)로 증축! (Lv.${targetCastle.level})`);
+              }
+            }
+
+            // 3-3. 🌟 AI 병법 및 기술 연구 투자
+            if (gold >= 100) {
+              const aiCats = ['archery', 'cavalry', 'infantry', 'siege'];
+              const chosenCat = aiCats[Math.floor(Math.random() * aiCats.length)];
+              if (!this.factionTechLevels[f]) this.factionTechLevels[f] = { archery: 0, cavalry: 0, infantry: 0, commerce: 0, fortification: 0, siege: 0 };
+              const curLv = this.factionTechLevels[f][chosenCat] || 0;
+              if (curLv < 10) {
+                const nextTier = TECH_CATEGORIES[chosenCat].levels[curLv];
+                if (nextTier && gold >= nextTier.cost + 40) {
+                  this.factionGold[f] -= nextTier.cost;
+                  this.factionTechLevels[f][chosenCat]++;
+                  this.addLog(`[세력 발전] ${FACTIONS[f].name} 세력이 ${TECH_CATEGORIES[chosenCat].name} Lv.${curLv + 1} 연구 완료!`);
+                }
+              }
+            }
+          }
+        });
+      }
+
+      /* -----------------------------------------------------------------------
+         도로망 최단 경로 탐색 (BFS) - 먼 곳 지원 시 도로를 따라 이동하여 지연 도착
+         ----------------------------------------------------------------------- */
+      getFactionTechLevel(faction, category) {
+        if (faction === this.playerFaction) {
+          return this.techLevels[category] || 0;
+        }
+        if (!this.factionTechLevels[faction]) {
+          this.factionTechLevels[faction] = { archery: 0, cavalry: 0, infantry: 0, siege: 0 };
+        }
+        return this.factionTechLevels[faction][category] || 0;
+      }
+      findRoadPath(fromId, toId) {
+        if (fromId === toId) return [toId];
+        const queue = [[fromId]];
+        const visited = new Set([fromId]);
+
+        while (queue.length > 0) {
+          const path = queue.shift();
+          const curr = path[path.length - 1];
+
+          if (curr === toId) return path;
+
+          const neighbors = [];
+          this.roads.forEach(([a, b]) => {
+            if (a === curr && !visited.has(b)) neighbors.push(b);
+            if (b === curr && !visited.has(a)) neighbors.push(a);
+          });
+
+          for (const n of neighbors) {
+            visited.add(n);
+            queue.push([...path, n]);
+          }
+        }
+        return [fromId, toId]; // 연결된 도로가 없을 때 폴백
+      }
+
+      dispatchArmy(fromCastle, toCastle, ratio = this.dispatchRatio, type = this.currentTroopType) {
+        if (!fromCastle || !toCastle || fromCastle.id === toCastle.id) return;
+
+        // 🌟 1. 점령 후 치안 수습기 거점은 즉시 연속 출진 불가 (정리 및 주둔 의무)
+        if (fromCastle.pacificationTimer > 0) {
+          this.addFloatingText(fromCastle.x, fromCastle.y - 20, `⚠️ 치안 수습 중 (${Math.ceil(fromCastle.pacificationTimer)}초)`, '#f87171');
+          this.addLog(`[출진 불가] ${fromCastle.name}은(는) 점령 후 치안 수습 중이어서 즉시 출격할 수 없습니다.`);
+          return;
+        }
+
+        // 🌟 3. 전선 인접 방어선 룰: 적/중립 거점은 도로로 직접 연결된 인접 거점만 공격 가능!
+        const isNeighbor = this.isDirectlyConnected(fromCastle, toCastle);
+
+        if (toCastle.faction !== fromCastle.faction && !isNeighbor) {
+          this.addFloatingText(toCastle.x, toCastle.y - 15, '⚠️ 인접 거점만 공격 가능!', '#f87171');
+          this.addLog(`[진격 불가] ${toCastle.name}은(는) 인접하지 않아 직접 공격할 수 없습니다. 국경 거점을 먼저 공략하십시오.`);
+          return;
+        }
+
+        const count = Math.floor(fromCastle.troops * ratio);
+        if (count < 2) return;
+
+        if (fromCastle.faction === this.playerFaction) {
+          this.food = Math.max(0, this.food - count * 0.25);
+        }
+
+        fromCastle.troops -= count;
+        sound.playDrum();
+
+        // 🌟 도로망 노선을 따라 이동하도록 경로 탐색
+        const roadPath = this.findRoadPath(fromCastle.id, toCastle.id);
+        const waypoints = roadPath.slice(1); // 경유할 거점 ID 목록
+
+        this.armies.push({
+          id: Math.random().toString(36).substr(2, 9),
+          sourceId: fromCastle.id,
+          targetId: toCastle.id,
+          path: waypoints,
+          x: fromCastle.x,
+          y: fromCastle.y,
+          troops: count,
+          faction: fromCastle.faction,
+          troopType: type,
+          speed: 85,
+          traveledTime: 0,
+          fatigue: 0,
+          state: 'marching', // 'marching' | 'clashing' | 'reinforcing'
+          headingAngle: 0
+        });
+
+        this.addFloatingText(fromCastle.x, fromCastle.y - 15, `${type === 'cavalry' ? '🐎' : (type === 'archer' ? '🏹' : '🛡️')} -${count}`, '#ddd');
+      }
+
+      dispatchAllOut(targetCastle) {
+        if (!targetCastle) return;
+        const myCastles = this.castles.filter(c => c.faction === this.playerFaction && c.id !== targetCastle.id);
+        let count = 0;
+
+        myCastles.forEach(fromCastle => {
+          if (targetCastle.faction !== this.playerFaction && !this.isDirectlyConnected(fromCastle, targetCastle)) {
+            return;
+          }
+          if (fromCastle.troops >= 6) {
+            this.dispatchArmy(fromCastle, targetCastle, this.dispatchRatio, this.currentTroopType);
+            count++;
+          }
+        });
+
+        if (count > 0) {
+          this.addLog(`[전군] ${targetCastle.name}(으)로 인접 전군 일제 출격!`);
+        } else {
+          this.addLog(`[전군 불가] ${targetCastle.name}에 직접 인접한 아군 성이 없습니다.`);
+        }
+      }
+
+      /* 🌟 최전방 수비 강화: 비전선 후방 거점에서 최전방 전선으로 병력 90% 급파 */
+      reinforceFrontlines() {
+        const myCastles = this.castles.filter(c => c.faction === this.playerFaction);
+        if (myCastles.length <= 1) {
+          this.addLog('[수비 강화] 아군 거점이 1개뿐이어 후방 지원군을 편성할 수 없습니다.');
+          this.addFloatingText(this.width / 2, 70, '아군 거점이 1개뿐입니다!', '#f87171');
+          return;
+        }
+
+        // 최전방 성 판별 (적군 또는 중립과 직접 도로로 연결된 아군 거점)
+        const isFrontline = (c) => {
+          return this.castles.some(other =>
+            other.faction !== this.playerFaction && this.isDirectlyConnected(c, other)
+          );
+        };
+
+        const frontlines = myCastles.filter(c => isFrontline(c));
+        const rearCastles = myCastles.filter(c => !isFrontline(c));
+
+        if (frontlines.length === 0) {
+          this.addLog('[수비 강화] 현재 위협받는 국경 최전방 거점이 없습니다. (천하 안정)');
+          this.addFloatingText(this.width / 2, 70, '위협받는 최전방 거점이 없습니다!', '#93c5fd');
+          return;
+        }
+
+        if (rearCastles.length === 0) {
+          this.addLog('[수비 강화] 후방 거점이 없습니다. 모든 성이 최전방 전선에 배치되어 있습니다.');
+          this.addFloatingText(this.width / 2, 70, '모든 거점이 최전방 전선입니다!', '#f87171');
+          return;
+        }
+
+        let totalDispatched = 0;
+        let dispatchCount = 0;
+
+        rearCastles.forEach(rc => {
+          if (rc.troops < 5) return;
+
+          // 주둔군의 90% 지원군 편성
+          const sendTroops = Math.floor(rc.troops * 0.9);
+          if (sendTroops < 2) return;
+
+          rc.troops -= sendTroops;
+          totalDispatched += sendTroops;
+
+          // 가장 지원이 시급한 최전방 거점들 선정 (병력이 적고 가까운 성 우선)
+          const sortedFrontlines = [...frontlines].sort((a, b) => {
+            const distA = Math.hypot(a.x - rc.x, a.y - rc.y);
+            const distB = Math.hypot(b.x - rc.x, b.y - rc.y);
+            return (a.troops * 1.4 + distA * 0.08) - (b.troops * 1.4 + distB * 0.08);
+          });
+
+          const targetCount = Math.min(2, sortedFrontlines.length);
+          const targets = sortedFrontlines.slice(0, targetCount);
+          const perTarget = Math.floor(sendTroops / targetCount);
+          const remainder = sendTroops % targetCount;
+
+          targets.forEach((targetFC, idx) => {
+            const amount = perTarget + (idx === 0 ? remainder : 0);
+            if (amount <= 0) return;
+
+          const rfPath = this.findRoadPath(rc.id, targetFC.id);
+          const rfWaypoints = rfPath.slice(1);
+
+          this.armies.push({
+            id: Math.random().toString(36).substr(2, 9),
+            sourceId: rc.id,
+            targetId: targetFC.id,
+            path: rfWaypoints,
+            x: rc.x,
+            y: rc.y,
+            troops: amount,
+            faction: this.playerFaction,
+            troopType: 'infantry',
+            speed: 95,
+            traveledTime: 0,
+            fatigue: 0,
+            state: 'marching',
+            headingAngle: 0
+          });
+            this.addFloatingText(targetFC.x, targetFC.y - 20, `+${amount} 지원군 이동`, '#93c5fd');
+          });
+
+          this.addFloatingText(rc.x, rc.y - 15, `후방지원 -${sendTroops}`, '#60a5fa');
+          this.addShockwave(rc.x, rc.y, '#3b82f6');
+          dispatchCount++;
+        });
+
+        if (dispatchCount > 0) {
+          sound.playDrum();
+          this.food = Math.max(0, this.food - totalDispatched * 0.15);
+          this.addLog(`[최전방 수비 강화] 후방 ${dispatchCount}개 거점에서 전선으로 90% 지원군(총 ${totalDispatched}명) 일제 출격!`);
+          this.addFloatingText(this.width / 2, 70, `🛡️ 최전방으로 ${totalDispatched}명 수비 지원 급파!`, '#60a5fa', true);
+        } else {
+          this.addLog('[수비 강화] 후방 거점의 주둔 병력이 부족하여 지원군을 파견할 수 없습니다.');
+          this.addFloatingText(this.width / 2, 70, '후방 거점 병력이 부족합니다.', '#f87171');
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         계략 및 비기 시스템
+         ----------------------------------------------------------------------- */
+      castStratagem(type) {
+        const costs = { fire: 80, raid: 90, discord: 110, ambush: 120, mercenary: 130 };
+        const cost = costs[type];
+
+        if (this.gold < cost) {
+          this.addLog(`[계략 불가] 금화 부족 (필요: ${cost})`);
+          return;
+        }
+
+        this.gold -= cost;
+        this.stats.stratagemsUsed++;
+        sound.playVictory();
+
+        if (type === 'fire') {
+          const enemyCastles = this.castles.filter(c => c.faction !== this.playerFaction && c.faction !== 'neutral');
+          const target = enemyCastles[Math.floor(Math.random() * enemyCastles.length)];
+          if (target) {
+            target.fireEffectTimer = 10;
+            target.troops = Math.max(5, target.troops * 0.65);
+            target.wall = target.maxWall * 0.4;
+            sound.playExplosion();
+            this.createExplosion(target.x, target.y, '#ef4444', 35);
+            this.addFloatingText(target.x, target.y - 25, '화공 화염 소실! -35%', '#ef4444');
+            this.addLog(`[계략] ${target.name}에 대화계를 감행하였습니다!`);
+          }
+        } else if (type === 'raid') {
+          this.activeBuffs.raid = 12;
+          this.addLog('[계략] 12초간 전군 기동력과 돌파력을 극대화합니다!');
+          this.addFloatingText(this.width / 2, 100, '전군 신속 급습 개시!', '#fde047');
+        } else if (type === 'discord') {
+          const enemyCastles = this.castles.filter(c => c.faction !== this.playerFaction && c.faction !== 'neutral');
+          const target = enemyCastles[Math.floor(Math.random() * enemyCastles.length)];
+          if (target) {
+            target.troops = Math.max(5, target.troops * 0.5);
+            this.createExplosion(target.x, target.y, '#8b5cf6', 20);
+            this.addFloatingText(target.x, target.y - 25, '이간계 군심 와해! -50%', '#c4b5fd');
+            this.addLog(`[계략] ${target.name}에 이간계를 펼쳐 주둔군 절반이 탈주했습니다.`);
+          }
+        } else if (type === 'ambush') {
+          let count = 0;
+          this.armies.forEach(a => {
+            if (a.faction !== this.playerFaction) {
+              a.troops = Math.max(2, a.troops * 0.5);
+              this.createExplosion(a.x, a.y, '#22c55e', 12);
+              count++;
+            }
+          });
+          this.addLog(`[계략] 적 부대 ${count}곳에 매복 기습을 가했습니다!`);
+        } else if (type === 'mercenary') {
+          this.castles.forEach(c => {
+            if (c.faction === this.playerFaction) {
+              c.troops += 20;
+              this.addFloatingText(c.x, c.y - 20, '+20 의용병', '#86efac');
+            }
+          });
+          this.addLog('[계략] 각지에 의용병 20명씩을 긴급 징집하였습니다!');
+        }
+
+        document.getElementById('stratagem-modal').classList.remove('show');
+      }
+
+      activateMonarchSkill() {
+        if (this.skillCooldownRemaining > 0) {
+          this.addLog(`[비기] 준비 중... (${Math.ceil(this.skillCooldownRemaining)}초 남음)`);
+          return;
+        }
+
+        const info = FACTIONS[this.playerFaction];
+        this.skillCooldownRemaining = info.skillCooldown;
+        sound.playVictory();
+
+        this.castles.forEach(c => {
+          if (c.faction === this.playerFaction) {
+            c.troops += 30;
+            c.wall = c.maxWall;
+            this.createExplosion(c.x, c.y, info.lightColor, 20);
+            this.addFloatingText(c.x, c.y - 25, `${info.skillName}!`, '#fde047');
+          }
+        });
+
+        this.addLog(`[비기] ${info.leader}의 총동원령으로 전군 병력이 증원되었습니다!`);
+      }
+
+      /* -----------------------------------------------------------------------
+         도시 상세 패널 및 무한 증축 내정
+         ----------------------------------------------------------------------- */
+      showCityPanel(castle) {
+        this.inspectedCastle = castle;
+        const panel = document.getElementById('city-detail-panel');
+        const nameEl = document.getElementById('panel-city-name');
+        const statsEl = document.getElementById('panel-city-stats');
+        const upgradeBtn = document.getElementById('btn-panel-upgrade');
+        const repairBtn = document.getElementById('btn-panel-repair');
+
+        const lvlInfo = getCastleLevelData(castle.level);
+        const f = FACTIONS[castle.faction];
+        const isPlayer = (castle.faction === this.playerFaction);
+
+        nameEl.innerHTML = `<span style="color:${isPlayer ? '#fde047' : f.lightColor}; font-weight:900;">[${isPlayer ? '⭐아군' : f.name}]</span> ${castle.name} [${lvlInfo.name} Lv.${castle.level}]`;
+        statsEl.textContent = `주둔군: ${Math.floor(castle.troops)}/${lvlInfo.maxTroops} | 성벽: ${Math.floor(castle.wall)}/${castle.maxWall} | 태수: ${castle.general} (무력 ${castle.generalPwr})`;
+
+        if (isPlayer) {
+          upgradeBtn.style.display = 'block';
+          repairBtn.style.display = 'block';
+          upgradeBtn.textContent = `증축 (🪙${lvlInfo.upgradeCost})`;
+
+          const isUnderSiege = this.armies.some(a =>
+            a.targetId === castle.id && a.state === 'clashing' && a.faction !== castle.faction
+          );
+
+          if (castle.repairCooldown > 0) {
+            repairBtn.textContent = `수리대기 (${Math.ceil(castle.repairCooldown)}s)`;
+            repairBtn.style.opacity = '0.6';
+          } else if (isUnderSiege) {
+            repairBtn.textContent = `긴급땜질 (🪙45)`;
+            repairBtn.style.opacity = '1.0';
+          } else {
+            const missing = Math.max(0, castle.maxWall - castle.wall);
+            const siegeTech = this.techLevels.siege || 0;
+            const discount = (siegeTech >= 5 ? 0.7 : 1.0);
+            const cost = missing === 0 ? 0 : Math.max(20, Math.ceil(missing * 0.35 * discount));
+            repairBtn.textContent = missing === 0 ? '성벽 완전' : `성벽보수 (🪙${cost})`;
+            repairBtn.style.opacity = '1.0';
+          }
+        } else {
+          upgradeBtn.style.display = 'none';
+          repairBtn.style.display = 'none';
+        }
+
+        panel.classList.add('show');
+      }
+
+      hideCityPanel() {
+        this.inspectedCastle = null;
+        document.getElementById('city-detail-panel').classList.remove('show');
+      }
+
+
+      upgradeInspectedCity() {
+        if (!this.inspectedCastle || this.inspectedCastle.faction !== this.playerFaction) return;
+        const c = this.inspectedCastle;
+
+        // 🌟 공성전 교전 중 증축 불가!
+        const isUnderSiege = this.armies.some(a =>
+          a.targetId === c.id && a.state === 'clashing' && a.faction !== c.faction
+        );
+        if (isUnderSiege) {
+          this.addLog(`[증축 불가] ${c.name}이(가) 적군에게 포위 공격받고 있어 대규모 증축 공사를 진행할 수 없습니다!`);
+          this.addFloatingText(c.x, c.y - 25, '⚠️ 공성전 중 증축 불가!', '#f87171');
+          return;
+        }
+
+        const curData = getCastleLevelData(c.level);
+        const cost = curData.upgradeCost;
+
+        if (this.gold < cost) {
+          this.addLog(`[내정] 금화 부족 (필요: 🪙${cost})`);
+          this.addFloatingText(c.x, c.y - 25, `금화 부족! (필요 🪙${cost})`, '#f87171');
+          return;
+        }
+
+        this.gold -= cost;
+        c.level++;
+        const nextData = getCastleLevelData(c.level);
+        const wallDiff = nextData.maxWall - curData.maxWall;
+        c.maxWall = nextData.maxWall;
+        c.wall = Math.min(c.maxWall, c.wall + wallDiff); // 100% 매직 풀피 회복 방지
+        this.createExplosion(c.x, c.y, '#fde047', 22);
+        this.addShockwave(c.x, c.y, '#fde047');
+        sound.playVictory();
+        this.addLog(`[내정] ${c.name}을(를) ${nextData.name}(으)로 증축! (Lv.${c.level})`);
+        this.addFloatingText(c.x, c.y - 25, `성곽 증축! (Lv.${c.level})`, '#fde047');
+        this.showCityPanel(c);
+      }
+
+      repairWall() {
+        if (!this.inspectedCastle || this.inspectedCastle.faction !== this.playerFaction) return;
+        const c = this.inspectedCastle;
+        if (c.wall >= c.maxWall) {
+          this.addLog('[내정] 성벽이 이미 견고하여 수리할 필요가 없습니다.');
+          return;
+        }
+
+        // 쿨다운 검사
+        if (c.repairCooldown > 0) {
+          this.addLog(`[수리 대기] 성벽 보수 인부 재정비 중입니다. (${Math.ceil(c.repairCooldown)}초 대기 필요)`);
+          this.addFloatingText(c.x, c.y - 25, `수리 재정비 중 (${Math.ceil(c.repairCooldown)}초)`, '#f87171');
+          return;
+        }
+
+        // 🌟 적군이 성벽을 공격 중(clashing)인지 검사 -> 공성전 중 100% 즉시 수리 불가!
+        const isUnderSiege = this.armies.some(a =>
+          a.targetId === c.id && a.state === 'clashing' && a.faction !== c.faction
+        );
+
+        if (isUnderSiege) {
+          // 공성전 중에는 긴급 땜질만 가능 (성벽의 18%만 긴급 땜질 회복, 쿨다운 10초)
+          const emergencyCost = 45;
+          if (this.gold < emergencyCost) {
+            this.addLog(`[내정] 긴급 땜질 금화 부족 (필요: 🪙${emergencyCost})`);
+            return;
+          }
+          this.gold -= emergencyCost;
+          const patchAmount = Math.max(15, Math.floor(c.maxWall * 0.18));
+          c.wall = Math.min(c.maxWall, c.wall + patchAmount);
+          c.repairCooldown = 10.0; // 10초 쿨다운
+          sound.playRam();
+          this.addFloatingText(c.x, c.y - 25, `⚠️ 포위 중 긴급땜질 (+${patchAmount})`, '#f59e0b');
+          this.addLog(`[긴급 땜질] ${c.name}이(가) 적군에게 포위 공격받고 있어 전면 수리가 불가능합니다! 긴급 땜질로 내구도 +${patchAmount} 회복.`);
+          this.showCityPanel(c);
+          return;
+        }
+
+        // 평시 수리: 결손 내구도 비례 비용 계산 (공성 내정 기술 할인 적용)
+        const missing = c.maxWall - c.wall;
+        const siegeTech = this.techLevels.siege || 0;
+        const discount = (siegeTech >= 5 ? 0.7 : 1.0);
+        const cost = Math.max(20, Math.ceil(missing * 0.35 * discount));
+
+        if (this.gold < cost) {
+          this.addLog(`[내정] 금화 부족 (필요: 🪙${cost})`);
+          this.addFloatingText(c.x, c.y - 25, `금화 부족! (🪙${cost})`, '#f87171');
+          return;
+        }
+
+        this.gold -= cost;
+        c.wall = c.maxWall;
+        c.repairCooldown = 6.0; // 6초 쿨다운
+        sound.playVictory();
+        this.addFloatingText(c.x, c.y - 25, `성벽 완전 보수! (+${Math.floor(missing)})`, '#93c5fd');
+        this.addLog(`[내정] ${c.name}의 성벽을 완전 보수하였습니다. (소모: 🪙${cost})`);
+        this.showCityPanel(c);
+      }
+
+      toggleTechDrawer() {
+        const drawer = document.getElementById('tech-drawer');
+        if (drawer.classList.contains('show')) {
+          drawer.classList.remove('show');
+        } else {
+          this.openTechModal();
+        }
+      }
+
+      openTechModal() {
+        const drawer = document.getElementById('tech-drawer');
+        const grid = document.getElementById('tech-list-grid');
+        grid.innerHTML = '';
+
+        const activeTab = this.activeTechTab || 'all';
+
+        // 탭 버튼 상태 동기화
+        const tabBtns = document.querySelectorAll('.tech-tab-btn');
+        tabBtns.forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.cat === activeTab);
+          btn.onclick = () => {
+            this.activeTechTab = btn.dataset.cat;
+            this.openTechModal();
+          };
+        });
+
+        const filteredCats = Object.values(TECH_CATEGORIES).filter(cat => {
+          if (activeTab === 'all') return true;
+          return cat.tab === activeTab;
+        });
+
+        filteredCats.forEach(cat => {
+          const curLevel = this.techLevels[cat.id] || 0;
+          const nextTier = cat.levels[curLevel] || null;
+          const isMastered = curLevel >= 10;
+
+          const card = document.createElement('div');
+          card.className = `tech-cat-card ${isMastered ? 'mastered' : ''}`;
+
+          const unlockedSkills = cat.levels
+            .filter(l => l.level <= curLevel && l.skill)
+            .map(l => `<span class="tech-skill-pill active">${l.name.replace('【특수기】 ', '').replace('【궁극기】 ', '')}</span>`)
+            .join(' ');
+
+          const nextSkillPreview = nextTier && nextTier.skill
+            ? `<div class="tech-next-skill">✨ 다음 해금: <strong>${nextTier.name}</strong></div>`
+            : '';
+
+          card.innerHTML = `
+            <div class="tech-cat-header">
+              <div class="tech-cat-title-row">
+                <span class="tech-cat-name">${cat.name}</span>
+                <span class="tech-cat-level-badge ${isMastered ? 'gold' : ''}">Lv.${curLevel} / 10</span>
+              </div>
+              <div class="tech-cat-desc">${cat.desc}</div>
+              <div class="tech-progress-bar-bg">
+                <div class="tech-progress-bar-fill" style="width: ${(curLevel / 10) * 100}%; background: ${cat.color};"></div>
+              </div>
+            </div>
+
+            ${unlockedSkills ? `<div class="tech-unlocked-skills">보유 특수기: ${unlockedSkills}</div>` : ''}
+
+            <div class="tech-next-row">
+              <div class="tech-next-info">
+                ${isMastered ? '<div class="tech-mastered-text">🏆 10단계 마스터 완료 (극의 도달)</div>' : `
+                  <div class="tech-next-title">다음: Lv.${nextTier.level} [${nextTier.name}]</div>
+                  <div class="tech-next-desc">${nextTier.desc}</div>
+                  ${nextSkillPreview}
+                `}
+              </div>
+              <button class="tech-btn ${isMastered ? 'disabled' : ''}" ${isMastered ? 'disabled' : ''}>
+                ${isMastered ? '연구 완료' : `Lv.${nextTier.level} 연구 (🪙${nextTier.cost})`}
+              </button>
+            </div>
+
+            <details class="tech-tier-details">
+              <summary>10단계 전체 기술 로드맵 펼치기</summary>
+              <div class="tech-tier-list">
+                ${cat.levels.map(l => {
+                  const isDone = l.level <= curLevel;
+                  const isNext = l.level === curLevel + 1;
+                  return `
+                    <div class="tech-tier-item ${isDone ? 'done' : (isNext ? 'next' : '')}">
+                      <span class="tier-num">Lv.${l.level}</span>
+                      <span class="tier-name">${l.name}</span>
+                      <span class="tier-cost">🪙${l.cost}</span>
+                      <span class="tier-desc">${l.desc}</span>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </details>
+          `;
+
+          const btn = card.querySelector('.tech-btn');
+          if (!isMastered && nextTier) {
+            btn.addEventListener('click', () => {
+              if (this.gold >= nextTier.cost) {
+                this.gold -= nextTier.cost;
+                this.techLevels[cat.id]++;
+                const newLv = this.techLevels[cat.id];
+                sound.playVictory();
+                this.addLog(`[병법 연구] ${cat.name} Lv.${newLv} [${nextTier.name}] 연구 완료!`);
+
+                if (nextTier.skill) {
+                  sound.playSkill();
+                  this.addFloatingText(this.worldWidth / 2, 90, `✨ ${cat.name} 특수기 [${nextTier.name}] 해금!`, '#fde047');
+                  this.createExplosion(this.worldWidth / 2, 90, cat.color, 25);
+                }
+
+                // 성 방어 연구(fortification) 즉시 보강
+                if (cat.id === 'fortification') {
+                  const boost = (newLv === 1 ? 30 : (newLv === 4 ? 50 : (newLv === 8 ? 100 : 0)));
+                  if (boost > 0) {
+                    this.castles.filter(c => c.faction === this.playerFaction).forEach(c => {
+                      c.maxWall += boost;
+                      c.wall += boost;
+                    });
+                    this.addFloatingText(this.worldWidth / 2, 110, `모든 아군 성벽 +${boost} 보강!`, '#38bdf8');
+                  }
+                }
+
+                this.openTechModal();
+              } else {
+                this.addLog(`[연구 불가] 금화가 부족합니다. (필요: 🪙${nextTier.cost})`);
+                this.addFloatingText(this.worldWidth / 2, 90, `금화 부족! (필요: 🪙${nextTier.cost})`, '#f87171');
+              }
+            });
+          }
+
+          grid.appendChild(card);
+        });
+
+        drawer.classList.add('show');
+      }
+
+      openComebackModal() {
+        document.getElementById('comeback-modal').classList.add('show');
+      }
+
+      executeComebackStratagem(type) {
+        if (this.comebackUsed) {
+          this.addLog('[비책 불가] 이미 천하역전의 비책을 사용하였습니다.');
+          return;
+        }
+
+        const myCastles = this.castles.filter(c => c.faction === this.playerFaction);
+        if (myCastles.length === 0) return;
+        const mainCastle = myCastles[0];
+
+        document.getElementById('comeback-modal').classList.remove('show');
+        this.comebackUsed = true;
+        sound.playVictory();
+
+        if (type === 'chibi_fire') {
+          // 1. 🔥 적벽대전 연환화계
+          this.addShockwave(mainCastle.x, mainCastle.y, '#ef4444');
+          sound.playExplosion();
+
+          let burnedArmies = 0;
+          for (let i = this.armies.length - 1; i >= 0; i--) {
+            const a = this.armies[i];
+            if (a.faction !== this.playerFaction && a.targetId === mainCastle.id) {
+              this.createExplosion(a.x, a.y, '#f97316', 15);
+              this.armies.splice(i, 1);
+              burnedArmies++;
+            }
+          }
+
+          this.castles.forEach(c => {
+            if (c.faction !== this.playerFaction && this.isDirectlyConnected(mainCastle, c)) {
+              c.wall = 0;
+              c.fireEffectTimer = 12.0;
+              c.troops = Math.max(8, Math.floor(c.troops * 0.45));
+              this.createExplosion(c.x, c.y, '#ea580c', 25);
+              this.addFloatingText(c.x, c.y - 25, '🔥 연환화계 전소!', '#f97316');
+            }
+          });
+
+          this.addFloatingText(mainCastle.x, mainCastle.y - 35, '🔥 적벽 연환화계 대성공!', '#fde047');
+          this.addLog(`[천하역전] 적벽대전 연환화계 발동! 아군 거점으로 몰려오던 적 대군(${burnedArmies}부대)이 불타 소멸하고 인접 적 거점이 전소되었습니다!`);
+
+        } else if (type === 'righteous_revolt') {
+          // 2. 🚩 천하의병 총봉기
+          const enemyCastles = this.castles.filter(c => c.faction !== this.playerFaction && c.id !== mainCastle.id);
+          enemyCastles.sort((a, b) => {
+            const distA = Math.hypot(a.x - mainCastle.x, a.y - mainCastle.y);
+            const distB = Math.hypot(b.x - mainCastle.x, b.y - mainCastle.y);
+            return distB - distA;
+          });
+
+          const flipCount = Math.min(2, enemyCastles.length);
+          for (let i = 0; i < flipCount; i++) {
+            const c = enemyCastles[i];
+            c.faction = this.playerFaction;
+            c.troops = 55;
+            c.wall = Math.floor(c.maxWall * 0.7);
+            c.pacificationTimer = 0;
+            this.createExplosion(c.x, c.y, '#3b82f6', 25);
+            this.addShockwave(c.x, c.y, '#60a5fa');
+            this.addFloatingText(c.x, c.y - 25, '🚩 의병 봉기 전향!', '#93c5fd');
+            this.addLog(`[천하역전] ${c.name}에서 천하 의병이 거병하여 성을 장악하고 아군으로 전향했습니다!`);
+          }
+
+          mainCastle.troops += 120;
+          this.gold += 300;
+          this.food += 400;
+          this.addFloatingText(mainCastle.x, mainCastle.y - 30, '🚩 충신의병 +120명 결집!', '#fde047');
+          this.addLog(`[천하역전] 천하의 충신과 의병 120명이 최후의 거점 ${mainCastle.name}으로 결집했습니다!`);
+
+        } else if (type === 'last_stand_frenzy') {
+          // 3. 🌪️ 배수지진 결사대
+          this.activeBuffs.lastStandFrenzy = 45.0;
+          mainCastle.troops += 60;
+          this.gold += 250;
+          this.food += 350;
+          this.addShockwave(mainCastle.x, mainCastle.y, '#f59e0b');
+          this.addFloatingText(mainCastle.x, mainCastle.y - 35, '🌪️ 배수지진 결사대! (공격3배/방어4배)', '#fde047');
+          this.addLog('[천하역전] 배수지진 발동! 45초간 아군 전군 공격력 3배, 방어력 4배, 이동속도 2배의 기적적인 각성이 일어납니다!');
+
+        } else if (type === 'internal_strife') {
+          // 4. 🎭 이호경식 반간계
+          this.coalitionActive = false;
+          document.getElementById('coalition-alert-banner').style.display = 'none';
+
+          const activeFactions = Object.keys(FACTIONS).filter(f =>
+            f !== this.playerFaction && f !== 'neutral' && this.castles.some(c => c.faction === f)
+          );
+
+          if (activeFactions.length >= 2) {
+            const f1 = activeFactions[0];
+            const f2 = activeFactions[1];
+            this.diplomacy[f1] = 'hostile';
+            this.diplomacy[f2] = 'hostile';
+
+            this.armies.forEach(a => {
+              if (a.faction === f1 || a.faction === f2) {
+                const rivalCastle = this.castles.find(c => c.faction === (a.faction === f1 ? f2 : f1));
+                if (rivalCastle) a.targetId = rivalCastle.id;
+              }
+            });
+
+            this.addFloatingText(mainCastle.x, mainCastle.y - 30, '🎭 반간계 성공! 적 열강 내전 돌입!', '#fde047');
+            this.addLog(`[천하역전] 이호경식 반간계 성공! ${FACTIONS[f1].name}과(와) ${FACTIONS[f2].name}이(가) 상호 배신하여 내전에 돌입했습니다!`);
+          } else {
+            this.addLog('[천하역전] 반간계 발동: 적군의 사기가 꺾여 공격군이 퇴각했습니다.');
+          }
+        }
+      }
+
+      triggerRandomEvent() {
+        const events = [
+          { name: '대풍년', desc: '풍년으로 군량이 크게 증가했습니다.', action: () => { this.food += 150; this.addFloatingText(this.width/2, 80, '풍년! +🌾150', '#86efac'); } },
+          { name: '상인단 입성', desc: '교역 활성화로 금화가 유입됩니다.', action: () => { this.gold += 120; this.addFloatingText(this.width/2, 80, '교역 번창! +🪙120', '#fde047'); } },
+          { name: '의용군 봉기', desc: '백성들이 의용군을 조직해 입대합니다.', action: () => {
+              this.castles.filter(c => c.faction === this.playerFaction).forEach(c => c.troops += 15);
+              this.addFloatingText(this.width/2, 80, '의용군 전군 합류!', '#93c5fd');
+            }
+          }
+        ];
+        const ev = events[Math.floor(Math.random() * events.length)];
+        ev.action();
+        this.addLog(`[역사 사건] ${ev.name}: ${ev.desc}`);
+      }
+
+      checkCoalition() {
+        const myCastlesCount = this.castles.filter(c => c.faction === this.playerFaction).length;
+        const totalCastles = this.castles.length;
+        if (myCastlesCount >= totalCastles * 0.35 && !this.coalitionActive) {
+          this.coalitionActive = true;
+          document.getElementById('coalition-alert-banner').style.display = 'block';
+          document.getElementById('coalition-alert-banner').textContent = '🚨 [반맹주 동맹 결성] 열강들이 아군을 향해 합동 양면 협공을 단행합니다!';
+          this.addLog('🚨 [천하 위기] 아군의 급속한 팽창에 위협을 느낀 열강들이 반맹주 연합을 결성하고 총공세를 시작했습니다!');
+          this.addFloatingText(this.width / 2, 80, '🚨 반맹주 동맹 결성! 열강 합동 총공세 개시!', '#f87171', true);
+          sound.playExplosion();
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         화살 및 시각 파티클 물리
+         ----------------------------------------------------------------------- */
+      updateArrows(dt) {
+        for (let i = this.arrows.length - 1; i >= 0; i--) {
+          const arr = this.arrows[i];
+          arr.x += arr.vx * dt;
+          arr.y += arr.vy * dt;
+          arr.life -= dt;
+          if (arr.life <= 0) this.arrows.splice(i, 1);
+        }
+      }
+
+      updateEffects(dt) {
+        // 폭발 파티클
+        for (let i = this.particles.length - 1; i >= 0; i--) {
+          const p = this.particles[i];
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.life -= dt;
+          if (p.life <= 0) this.particles.splice(i, 1);
+        }
+
+        // 플로팅 텍스트
+        for (let i = this.floatingTexts.length - 1; i >= 0; i--) {
+          const ft = this.floatingTexts[i];
+          ft.y -= 18 * dt;
+          ft.life -= dt;
+          if (ft.life <= 0) this.floatingTexts.splice(i, 1);
+        }
+
+        // 충격파
+        for (let i = this.shockwaves.length - 1; i >= 0; i--) {
+          const sw = this.shockwaves[i];
+          sw.r += sw.speed * dt;
+          sw.alpha -= dt * 1.5;
+          if (sw.alpha <= 0) this.shockwaves.splice(i, 1);
+        }
+
+        if (this.skillCooldownRemaining > 0) {
+          this.skillCooldownRemaining = Math.max(0, this.skillCooldownRemaining - dt);
+          const ratio = this.skillCooldownRemaining / FACTIONS[this.playerFaction].skillCooldown;
+          document.getElementById('skill-cooldown-bar').style.height = `${ratio * 100}%`;
+        }
+
+        if (this.activeBuffs.raid > 0) this.activeBuffs.raid -= dt;
+      }
+
+      createExplosion(x, y, color, count = 12) {
+        for (let i = 0; i < count; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const spd = Math.random() * 55 + 20;
+          this.particles.push({
+            x, y,
+            vx: Math.cos(ang) * spd,
+            vy: Math.sin(ang) * spd,
+            color,
+            life: Math.random() * 0.4 + 0.2,
+            size: Math.random() * 2.5 + 1.2
+          });
+        }
+      }
+
+      addFloatingText(x, y, text, color = '#fde047', isScreen = false) {
+        this.floatingTexts.push({ x, y, text, color, isScreen, life: 1.1 });
+      }
+
+      addShockwave(x, y, color) {
+        this.shockwaves.push({ x, y, r: 8, speed: 65, alpha: 1.0, color });
+      }
+
+      addLog(msg) {
+        const box = document.getElementById('log-drawer');
+        const el = document.createElement('div');
+        el.className = 'log-entry';
+        el.textContent = msg;
+        box.prepend(el);
+        if (box.children.length > 5) box.removeChild(box.lastChild);
+      }
+
+      updateDashboard() {
+        document.getElementById('res-gold').textContent = Math.floor(this.gold);
+        document.getElementById('res-food').textContent = Math.floor(this.food);
+        const s = this.seasons[this.seasonIndex];
+        document.getElementById('res-season').textContent = `${s.name}`;
+
+        const badgeEl = document.getElementById('hud-my-faction');
+        if (badgeEl && this.playerFaction && FACTIONS[this.playerFaction]) {
+          const f = FACTIONS[this.playerFaction];
+          badgeEl.textContent = `${f.hanja} ${f.name} (${f.leader})`;
+        }
+      }
+
+      renderTerritoryStrip() {
+        const strip = document.getElementById('territory-strip');
+        strip.innerHTML = '';
+        const counts = {};
+        this.castles.forEach(c => {
+          counts[c.faction] = (counts[c.faction] || 0) + 1;
+        });
+
+        const total = this.castles.length || 1;
+        Object.keys(counts).forEach(f => {
+          const seg = document.createElement('div');
+          seg.className = 'territory-segment';
+          seg.style.width = `${(counts[f] / total) * 100}%`;
+          seg.style.backgroundColor = FACTIONS[f].color;
+          strip.appendChild(seg);
+        });
+      }
+
+      checkGameEnd() {
+        if (this.gameOver) return;
+        const myCastles = this.castles.filter(c => c.faction === this.playerFaction);
+
+        if (myCastles.length === this.castles.length && this.castles.length > 0) {
+          this.gameOver = true;
+          sound.playVictory();
+          document.getElementById('gameover-banner').textContent = '🏆';
+          document.getElementById('gameover-title').textContent = '천하통일 달성!';
+          document.getElementById('gameover-desc').textContent = '모든 전장을 평정하고 동아시아의 진정한 패자가 되셨습니다!';
+          document.getElementById('gameover-stats').innerHTML = `
+            <p>⏱️ 통일 소요 시간: <strong>${Math.floor(this.gameTime)}초</strong></p>
+            <p>🏰 점령한 거점: <strong>${this.stats.captures}개</strong> | 📜 계략 사용: <strong>${this.stats.stratagemsUsed}회</strong></p>
+          `;
+          document.getElementById('gameover-modal').classList.add('show');
+        } else if (myCastles.length === 0 && this.castles.length > 0) {
+          this.gameOver = true;
+          document.getElementById('gameover-banner').textContent = '💀';
+          document.getElementById('gameover-title').textContent = '패망';
+          document.getElementById('gameover-desc').textContent = '모든 거점을 잃고 천하통일의 대업이 무너졌습니다...';
+          document.getElementById('gameover-stats').innerHTML = `
+            <p>⏱️ 생존 시간: <strong>${Math.floor(this.gameTime)}초</strong></p>
+          `;
+          document.getElementById('gameover-modal').classList.add('show');
+        }
+      }
+
+      /* -----------------------------------------------------------------------
+         화면 렌더링 파이프라인
+         ----------------------------------------------------------------------- */
+      render() {
+        const ctx = this.ctx;
+        ctx.clearRect(0, 0, this.width, this.height);
+
+        // 🌟 카메라 뷰포트 행렬 적용 (시야 줌 & 팬 화면 이동)
+        ctx.save();
+        ctx.translate(this.width / 2, this.height / 2);
+        ctx.scale(this.camera.zoom, this.camera.zoom);
+        ctx.translate(-this.camera.x, -this.camera.y);
+
+        this.renderMapBase(ctx);
+        this.renderObstacles(ctx);
+        this.renderRoads(ctx);
+        this.renderDrag(ctx);
+        this.renderArrows(ctx);
+
+        // 초소형 성곽 건축물 렌더링
+        this.castles.forEach(c => this.renderSlimCastle(ctx, c));
+
+        this.armies.forEach(a => this.renderArmy(ctx, a));
+        this.renderWorldEffects(ctx);
+
+        ctx.restore();
+
+        // 🌟 화면 공간 효과 (줌/카메라 이동과 무관하게 화면 중앙에 선명하게 표시)
+        this.renderScreenEffects(ctx);
+
+        if (this.allOutMode) {
+          ctx.save();
+          ctx.fillStyle = 'rgba(212, 175, 55, 0.15)';
+          ctx.fillRect(0, 0, this.width, this.height);
+          ctx.fillStyle = '#fde047';
+          ctx.font = 'bold 14px serif';
+          ctx.textAlign = 'center';
+          ctx.fillText('공격할 목표 성을 터치하십시오! (전군 총공격)', this.width / 2, 70);
+          ctx.restore();
+        }
+      }
+
+      renderMapBase(ctx) {
+        // 🌟 고지도 양식의 생생한 대륙 전황도 배경 (검은색 화면 완전 퇴출)
+        const bgGrad = ctx.createRadialGradient(
+          this.worldWidth / 2, this.worldHeight / 2, 40,
+          this.worldWidth / 2, this.worldHeight / 2, Math.max(this.worldWidth, this.worldHeight) * 0.9
+        );
+        bgGrad.addColorStop(0, '#3a281c');     // 밝은 황토색 군사 고지도 중심
+        bgGrad.addColorStop(0.5, '#2e1f15');   // 고풍스러운 양피지 지형
+        bgGrad.addColorStop(1, '#1e140d');     // 앤틱 테두리
+        ctx.fillStyle = bgGrad;
+        ctx.fillRect(0, 0, this.worldWidth, this.worldHeight);
+
+        // 은은한 격자 경위선 (작전도 느낌)
+        ctx.save();
+        ctx.strokeStyle = 'rgba(212, 175, 55, 0.08)';
+        ctx.lineWidth = 1;
+        const gridStep = 100;
+        for (let gx = 0; gx <= this.worldWidth; gx += gridStep) {
+          ctx.beginPath();
+          ctx.moveTo(gx, 0);
+          ctx.lineTo(gx, this.worldHeight);
+          ctx.stroke();
+        }
+        for (let gy = 0; gy <= this.worldHeight; gy += gridStep) {
+          ctx.beginPath();
+          ctx.moveTo(0, gy);
+          ctx.lineTo(this.worldWidth, gy);
+          ctx.stroke();
+        }
+        ctx.restore();
+
+        // 🌟 선명한 대하천 및 바다 수계 (황하/장강/한강/남해)
+        const waveOffset = (this.gameTime * 30) % 40;
+        ctx.save();
+        // 하천 외곽 깊이감
+        ctx.lineWidth = 22;
+        ctx.strokeStyle = 'rgba(29, 78, 216, 0.45)';
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(this.worldWidth * 0.08, this.worldHeight * 0.72);
+        ctx.bezierCurveTo(
+          this.worldWidth * 0.35, this.worldHeight * 0.62,
+          this.worldWidth * 0.55, this.worldHeight * 0.78,
+          this.worldWidth * 0.96, this.worldHeight * 0.56
+        );
+        ctx.stroke();
+
+        // 하천 중심 수류
+        ctx.lineWidth = 6;
+        ctx.strokeStyle = 'rgba(59, 130, 246, 0.6)';
+        ctx.stroke();
+
+        // 흐르는 푸른 물결 파선
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.5)';
+        ctx.setLineDash([12, 16]);
+        ctx.lineDashOffset = -waveOffset;
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      renderObstacles(ctx) {
+        ctx.save();
+        this.obstacles.forEach(obs => {
+          const ox = obs.normX * this.worldWidth;
+          const oy = obs.normY * this.worldHeight;
+          const or = obs.normR * Math.min(this.worldWidth, this.worldHeight);
+
+          if (obs.type === 'mountain') {
+            ctx.fillStyle = 'rgba(70, 50, 32, 0.45)';
+            ctx.beginPath();
+            ctx.ellipse(ox, oy, or * 1.6, or, -0.2, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(95, 70, 45, 0.6)';
+            ctx.beginPath();
+            ctx.moveTo(ox - or, oy + or * 0.4);
+            ctx.lineTo(ox, oy - or * 0.8);
+            ctx.lineTo(ox + or, oy + or * 0.4);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.fillStyle = 'rgba(212, 175, 55, 0.35)';
+            ctx.font = 'bold 9px serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(obs.name, ox, oy + or * 0.7);
+          }
+        });
+        ctx.restore();
+      }
+
+      renderRoads(ctx) {
+        ctx.save();
+        // 1. 도로 바탕 그림자 (지형과 확실한 분리)
+        ctx.strokeStyle = 'rgba(10, 6, 4, 0.6)';
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = 'round';
+        this.roads.forEach(([idA, idB]) => {
+          const cA = this.castles.find(c => c.id === idA);
+          const cB = this.castles.find(c => c.id === idB);
+          if (cA && cB) {
+            ctx.beginPath();
+            ctx.moveTo(cA.x, cA.y);
+            ctx.lineTo(cB.x, cB.y);
+            ctx.stroke();
+          }
+        });
+
+        // 2. 황금빛 도로 노선 (아군 연결로는 푸른빛, 적 대치로는 황금빛)
+        this.roads.forEach(([idA, idB]) => {
+          const cA = this.castles.find(c => c.id === idA);
+          const cB = this.castles.find(c => c.id === idB);
+          if (cA && cB) {
+            const isFriendlyLink = (cA.faction === this.playerFaction && cB.faction === this.playerFaction);
+            ctx.strokeStyle = isFriendlyLink ? 'rgba(96, 165, 250, 0.85)' : 'rgba(253, 224, 71, 0.75)';
+            ctx.lineWidth = 2.0;
+            ctx.setLineDash([5, 4]);
+            ctx.beginPath();
+            ctx.moveTo(cA.x, cA.y);
+            ctx.lineTo(cB.x, cB.y);
+            ctx.stroke();
+          }
+        });
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
+
+      renderDrag(ctx) {
+        if (!this.dragStartCastle || !this.dragCurrentPos) return;
+
+        ctx.save();
+        const start = this.dragStartCastle;
+        const end = this.dragCurrentPos;
+        const faction = FACTIONS[start.faction];
+
+        ctx.strokeStyle = faction.lightColor;
+        ctx.lineWidth = 3;
+        ctx.setLineDash([6, 4]);
+        ctx.beginPath();
+        ctx.moveTo(start.x, start.y);
+        ctx.lineTo(end.x, end.y);
+        ctx.stroke();
+
+        ctx.fillStyle = faction.color;
+        ctx.beginPath();
+        ctx.arc(end.x, end.y, 5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      /* 🌟 성곽 건축물 렌더링: 플레이어(아군) 독보적 황금 식별 & 세력별 선명한 구분 */
+      renderSlimCastle(ctx, castle) {
+        const f = FACTIONS[castle.faction];
+        const lvl = castle.level;
+        const culture = castle.culture || 'china';
+        const isSelected = this.selectedCastles.has(castle.id);
+        const isPlayer = (castle.faction === this.playerFaction);
+        const lvlData = getCastleLevelData(lvl);
+
+        const cx = castle.x;
+        const cy = castle.y;
+        const bw = lvlData.baseW;
+        const bh = lvlData.baseH;
+
+        ctx.save();
+
+        // 🌟 1. 거점 바닥 세력별 영토 원형 후광 (Territory Glow)
+        if (isPlayer) {
+          // 플레이어 아군 성: 영구적인 황금 수호 조명 & 맥동하는 이중 오라
+          const pulse = Math.sin(this.gameTime * 4.5) * 3;
+          const auraGrad = ctx.createRadialGradient(cx, cy, 2, cx, cy, bw + 15);
+          auraGrad.addColorStop(0, 'rgba(253, 224, 71, 0.5)');
+          auraGrad.addColorStop(0.7, 'rgba(245, 158, 11, 0.25)');
+          auraGrad.addColorStop(1, 'rgba(253, 224, 71, 0)');
+          ctx.fillStyle = auraGrad;
+          ctx.beginPath();
+          ctx.arc(cx, cy, bw + 15, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 맥동하는 황금 수호 링
+          ctx.strokeStyle = '#fde047';
+          ctx.lineWidth = 2.2;
+          ctx.setLineDash([4, 3]);
+          ctx.beginPath();
+          ctx.arc(cx, cy, bw + 8 + pulse, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        } else {
+          // 타 세력 및 적 성: 세력 고유 색상의 영토 링
+          ctx.fillStyle = f.color + '33';
+          ctx.beginPath();
+          ctx.arc(cx, cy, bw + 7, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.strokeStyle = f.color;
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.arc(cx, cy, bw + 5, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // 선택(Touch/Drag) 조준 링
+        if (isSelected) {
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 2.5;
+          ctx.setLineDash([4, 2]);
+          ctx.beginPath();
+          ctx.arc(cx, cy, bw + 10, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.setLineDash([]);
+        }
+
+        // 수도 특별 광륜
+        if (castle.isCapital) {
+          const capPulse = Math.sin(castle.pulseTimer * 3.5) * 2;
+          ctx.strokeStyle = isPlayer ? '#ffe685' : 'rgba(212, 175, 55, 0.6)';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.arc(cx, cy, bw + 6 + capPulse, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        // 3. 성곽 건축물 본체 (다층 지붕)
+        const roofTier = lvl >= 5 ? 3 : (lvl >= 3 ? 2 : 1);
+
+        if (culture === 'korea') {
+          // 기단 석축
+          ctx.fillStyle = '#33271f';
+          ctx.beginPath();
+          ctx.roundRect(cx - bw, cy - bh * 0.4, bw * 2, bh * 1.4, 3);
+          ctx.fill();
+          ctx.strokeStyle = '#5a4231';
+          ctx.lineWidth = 1.0;
+          ctx.stroke();
+
+          // 한국 전통 기와 누각 (다층 지붕)
+          ctx.fillStyle = f.roofColor || '#7f1d1d';
+          for (let tier = 0; tier < roofTier; tier++) {
+            const tierScale = 1.0 - tier * 0.18;
+            const tierBaseY = cy - bh * (0.8 + tier * 0.42);
+            const tierPeakY = tierBaseY - bh * 0.42;
+            const halfW = bw * 0.9 * tierScale;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, tierPeakY);
+            ctx.lineTo(cx + halfW, tierBaseY);
+            ctx.quadraticCurveTo(cx, tierBaseY - bh * 0.15, cx - halfW, tierBaseY);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          if (lvl >= 5) {
+            ctx.fillStyle = '#fde047';
+            ctx.beginPath();
+            ctx.arc(cx, cy - bh * (0.8 + (roofTier - 1) * 0.42) - bh * 0.45, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        } else if (culture === 'japan') {
+          // 성곽 석원(이시가키)
+          ctx.fillStyle = '#262626';
+          ctx.beginPath();
+          ctx.roundRect(cx - bw, cy - bh * 0.4, bw * 2, bh * 1.4, 2);
+          ctx.fill();
+
+          // 백색 회벽 천수각
+          ctx.fillStyle = '#e5e5e5';
+          ctx.fillRect(cx - bw * 0.6, cy - bh * 0.85, bw * 1.2, bh * 0.55);
+
+          // 다층 팔작지붕
+          ctx.fillStyle = '#1c1917';
+          for (let tier = 0; tier < roofTier; tier++) {
+            const tierScale = 1.0 - tier * 0.2;
+            const tierBaseY = cy - bh * (0.85 + tier * 0.4);
+            const tierPeakY = tierBaseY - bh * 0.4;
+            const halfW = bw * 0.8 * tierScale;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, tierPeakY);
+            ctx.lineTo(cx + halfW, tierBaseY);
+            ctx.lineTo(cx - halfW, tierBaseY);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          if (lvl >= 5) {
+            ctx.fillStyle = '#fde047';
+            ctx.fillRect(cx - 1.5, cy - bh * (0.85 + (roofTier - 1) * 0.4) - bh * 0.42, 3, 2.5);
+          }
+        } else {
+          // 중원 고대 성벽 적벽
+          ctx.fillStyle = '#261b14';
+          ctx.beginPath();
+          ctx.roundRect(cx - bw, cy - bh * 0.4, bw * 2, bh * 1.4, 2.5);
+          ctx.fill();
+          ctx.strokeStyle = '#4a3424';
+          ctx.stroke();
+
+          // 중원 황실 다층 누각 지붕
+          ctx.fillStyle = f.roofColor || f.color;
+          for (let tier = 0; tier < roofTier; tier++) {
+            const tierScale = 1.0 - tier * 0.18;
+            const tierBaseY = cy - bh * (0.85 + tier * 0.4);
+            const tierPeakY = tierBaseY - bh * 0.4;
+            const halfW = bw * 0.9 * tierScale;
+
+            ctx.beginPath();
+            ctx.moveTo(cx, tierPeakY);
+            ctx.lineTo(cx + halfW, tierBaseY);
+            ctx.quadraticCurveTo(cx, tierBaseY - bh * 0.16, cx - halfW, tierBaseY);
+            ctx.closePath();
+            ctx.fill();
+          }
+
+          if (lvl >= 5) {
+            ctx.fillStyle = '#fde047';
+            ctx.beginPath();
+            ctx.arc(cx, cy - bh * (0.85 + (roofTier - 1) * 0.4) - bh * 0.42, 2, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        // 4. 펄럭이는 깃발
+        const flagWave = Math.sin(castle.pulseTimer * 4.5) * 2;
+        const totalTopY = cy - bh * (0.85 + (roofTier - 1) * 0.4) - bh * 0.4;
+        const poleY = totalTopY;
+
+        ctx.strokeStyle = '#d4af37';
+        ctx.lineWidth = 0.8;
+        ctx.beginPath();
+        ctx.moveTo(cx, poleY);
+        ctx.lineTo(cx, poleY - 8);
+        ctx.stroke();
+
+        ctx.fillStyle = f.color;
+        ctx.beginPath();
+        ctx.moveTo(cx, poleY - 8);
+        ctx.lineTo(cx + 7 + flagWave, poleY - 5);
+        ctx.lineTo(cx, poleY - 2);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 5.5px serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(f.hanja, cx + 3.5, poleY - 5);
+
+        // 5. 상단 명패 (🌟 플레이어 아군과 타 세력 100% 확실한 구분)
+        const tag = isPlayer ? (castle.isCapital ? '👑아군본성' : '⭐아군') : `[${f.hanja}]`;
+        const nameStr = `${tag} ${castle.name} Lv.${castle.level}`;
+        ctx.font = isPlayer ? 'bold 9px sans-serif' : 'bold 7.5px sans-serif';
+        const nw = ctx.measureText(nameStr).width;
+        const bannerY = poleY - (isPlayer ? 13 : 11);
+
+        if (isPlayer) {
+          // 플레이어 아군 명패: 진한 버건디 배경 + 황금 테두리 + 빛나는 황금 텍스트
+          ctx.fillStyle = 'rgba(60, 20, 10, 0.96)';
+          ctx.fillRect(cx - nw / 2 - 4, bannerY - 5.5, nw + 8, 12);
+          ctx.strokeStyle = '#fde047';
+          ctx.lineWidth = 1.8;
+          ctx.strokeRect(cx - nw / 2 - 4, bannerY - 5.5, nw + 8, 12);
+
+          ctx.fillStyle = '#fde047';
+          ctx.fillText(nameStr, cx, bannerY + 1);
+        } else {
+          // 타 세력 및 적군 명패: 세력 고유 색상 테두리 + 세력 식별자
+          ctx.fillStyle = 'rgba(20, 14, 10, 0.92)';
+          ctx.fillRect(cx - nw / 2 - 3, bannerY - 4.5, nw + 6, 10);
+          ctx.strokeStyle = (castle.faction === 'neutral') ? '#78716c' : f.color;
+          ctx.lineWidth = 1.2;
+          ctx.strokeRect(cx - nw / 2 - 3, bannerY - 4.5, nw + 6, 10);
+
+          ctx.fillStyle = (castle.faction === 'neutral') ? '#d1d5db' : f.lightColor;
+          ctx.fillText(nameStr, cx, bannerY + 0.5);
+        }
+
+        // 🌟 6. 특수 상태 연출 (치안 수습기, 결사항전, 수성 태세)
+        if (castle.pacificationTimer > 0) {
+          // 치안 수습기: 황색 경고 연출
+          ctx.fillStyle = '#f59e0b';
+          ctx.font = 'bold 7px sans-serif';
+          ctx.fillText(`⚠️수습${Math.ceil(castle.pacificationTimer)}s`, cx, bannerY - 8);
+
+        }
+
+        // 7. 하단 정보 캡슐 (초슬림)
+        const hudY = cy + bh + 1.5;
+        const hudW = Math.max(22, bw * 1.5);
+        const hudH = 9;
+
+        ctx.fillStyle = 'rgba(15, 9, 6, 0.92)';
+        ctx.beginPath();
+        ctx.roundRect(cx - hudW / 2, hudY, hudW, hudH, 2);
+        ctx.fill();
+        ctx.strokeStyle = f.lightColor;
+        ctx.lineWidth = 0.7;
+        ctx.stroke();
+
+        // 성벽 바 (청색)
+        const wallRatio = Math.min(1.0, castle.wall / castle.maxWall);
+        ctx.fillStyle = '#3b82f6';
+        ctx.fillRect(cx - hudW / 2 + 1, hudY + 1, (hudW - 2) * wallRatio, 1.4);
+
+        // 주둔군 수치
+        ctx.fillStyle = '#ffffff';
+        ctx.font = 'bold 7px sans-serif';
+        ctx.fillText(Math.floor(castle.troops), cx, hudY + hudH / 2 + 0.8);
+
+        // 수용량 바 (세력 색상)
+        const troopRatio = Math.min(1.0, castle.troops / lvlData.maxTroops);
+        ctx.fillStyle = f.color;
+        ctx.fillRect(cx - hudW / 2 + 1, hudY + hudH - 1.4, (hudW - 2) * troopRatio, 1.0);
+
+        ctx.restore();
+      }
+
+      /* 🌟 병종별(보병·기병·궁병) 개성적인 진군 외형 렌더링 */
+      renderArmy(ctx, army) {
+        const faction = FACTIONS[army.faction];
+        const isPlayer = (army.faction === this.playerFaction);
+        const ang = army.headingAngle || 0;
+
+        ctx.save();
+        ctx.translate(army.x, army.y);
+
+        if (army.troopType === 'cavalry') {
+          // 🐎 1. 기병: 질주하는 군마 형태, 창날 및 돌격 깃발
+          ctx.rotate(ang);
+
+          // 군마 몸체
+          ctx.fillStyle = faction.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, 9, 5, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = isPlayer ? '#fde047' : faction.lightColor;
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // 말 머리/목
+          ctx.fillStyle = faction.darkColor || '#1c1917';
+          ctx.beginPath();
+          ctx.arc(6, -2, 3.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // 돌격 기창 (Lance)
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.moveTo(4, 0);
+          ctx.lineTo(15, 0);
+          ctx.stroke();
+
+          // 삼각 기병 깃발
+          ctx.fillStyle = faction.color;
+          ctx.beginPath();
+          ctx.moveTo(-5, 0);
+          ctx.lineTo(-12, -4);
+          ctx.lineTo(-7, 0);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.rotate(-ang); // 텍스트를 위해 회전 원복
+
+        } else if (army.troopType === 'archer') {
+          // 🏹 2. 궁병: 반월형 산개 대형, 활과 화살통
+          ctx.rotate(ang);
+
+          // 궁수 방열 원형
+          ctx.fillStyle = faction.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, 6, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = isPlayer ? '#fde047' : faction.lightColor;
+          ctx.lineWidth = 1.0;
+          ctx.stroke();
+
+          // 활 곡선
+          ctx.strokeStyle = '#b45309';
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(4, 0, 5, -Math.PI / 2, Math.PI / 2);
+          ctx.stroke();
+
+          // 시위
+          ctx.strokeStyle = '#ffffff';
+          ctx.lineWidth = 0.6;
+          ctx.beginPath();
+          ctx.moveTo(4, -5);
+          ctx.lineTo(4, 5);
+          ctx.stroke();
+
+          ctx.rotate(-ang);
+
+        } else {
+          // 🛡️ 3. 보병: 견고한 사각 방패벽 대열 & 직사각형 중갑
+          ctx.rotate(ang);
+
+          ctx.fillStyle = faction.color;
+          ctx.beginPath();
+          ctx.roundRect(-7, -5, 14, 10, 2);
+          ctx.fill();
+          ctx.strokeStyle = isPlayer ? '#fde047' : faction.lightColor;
+          ctx.lineWidth = 1.3;
+          ctx.stroke();
+
+          // 전방 2열 장창 창날
+          ctx.strokeStyle = '#e2e8f0';
+          ctx.lineWidth = 1.2;
+          ctx.beginPath();
+          ctx.moveTo(6, -3);
+          ctx.lineTo(12, -3);
+          ctx.moveTo(6, 3);
+          ctx.lineTo(12, 3);
+          ctx.stroke();
+
+          // 방패 십자 문양
+          ctx.strokeStyle = 'rgba(255,255,255,0.7)';
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          ctx.moveTo(-4, 0);
+          ctx.lineTo(4, 0);
+          ctx.stroke();
+
+          // 🌟 보병 4레벨 특수기: 🛡️ 철벽 방진 (전면 푸른 육각 에너지 방패막 전개)
+          if (this.getFactionTechLevel(army.faction, 'infantry') >= 4 && army.state === 'clashing') {
+            ctx.strokeStyle = '#60a5fa';
+            ctx.fillStyle = 'rgba(96, 165, 250, 0.28)';
+            ctx.lineWidth = 2.0;
+            ctx.shadowColor = '#3b82f6';
+            ctx.shadowBlur = 8;
+            ctx.beginPath();
+            ctx.arc(8, 0, 14, -Math.PI * 0.4, Math.PI * 0.4);
+            ctx.stroke();
+            ctx.fill();
+            ctx.shadowBlur = 0;
+          }
+
+          ctx.rotate(-ang);
+        }
+
+        // 병력 수치 배너 (배경 음영으로 명확한 가독성)
+        const troopStr = `${Math.floor(army.troops)}`;
+        ctx.font = 'bold 7.5px sans-serif';
+        const tw = ctx.measureText(troopStr).width;
+
+        ctx.fillStyle = 'rgba(15, 9, 6, 0.88)';
+        ctx.fillRect(-tw / 2 - 2, -14, tw + 4, 8.5);
+        ctx.strokeStyle = isPlayer ? '#fde047' : faction.lightColor;
+        ctx.lineWidth = 0.6;
+        ctx.strokeRect(-tw / 2 - 2, -14, tw + 4, 8.5);
+
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.fillText(troopStr, 0, -7.5);
+
+        ctx.restore();
+      }
+
+      renderArrows(ctx) {
+        ctx.save();
+        this.arrows.forEach(arr => {
+          if (arr.isFireArrow) {
+            // 🔥 타오르는 불화살 (주황-황금빛 화염 궤적 & 빛나는 불꽃 화살촉)
+            ctx.strokeStyle = '#f97316';
+            ctx.lineWidth = 3.2;
+            ctx.shadowColor = '#ea580c';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.moveTo(arr.x, arr.y);
+            ctx.lineTo(arr.x - arr.vx * 0.08, arr.y - arr.vy * 0.08);
+            ctx.stroke();
+
+            // 중심 백색/황금 코어
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 1.6;
+            ctx.beginPath();
+            ctx.moveTo(arr.x, arr.y);
+            ctx.lineTo(arr.x - arr.vx * 0.04, arr.y - arr.vy * 0.04);
+            ctx.stroke();
+
+            // 화살촉 불꽃 화구
+            ctx.fillStyle = '#fde047';
+            ctx.beginPath();
+            ctx.arc(arr.x, arr.y, 2.5, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 비행 중 화염 스파크 분출
+            if (Math.random() < 0.45) {
+              this.particles.push({
+                x: arr.x + (Math.random() - 0.5) * 4,
+                y: arr.y + (Math.random() - 0.5) * 4,
+                vx: -arr.vx * 0.08 + (Math.random() - 0.5) * 12,
+                vy: -arr.vy * 0.08 + (Math.random() - 0.5) * 12,
+                color: Math.random() < 0.5 ? '#f97316' : '#fde047',
+                life: 0.28,
+                size: 2.2
+              });
+            }
+          } else {
+            ctx.strokeStyle = '#fef08a';
+            ctx.lineWidth = 1.5;
+            ctx.shadowBlur = 0;
+            ctx.beginPath();
+            ctx.moveTo(arr.x, arr.y);
+            ctx.lineTo(arr.x - arr.vx * 0.05, arr.y - arr.vy * 0.05);
+            ctx.stroke();
+          }
+        });
+        ctx.restore();
+      }
+
+      renderWorldEffects(ctx) {
+        ctx.save();
+        // 충격파
+        this.shockwaves.forEach(sw => {
+          ctx.strokeStyle = sw.color;
+          ctx.globalAlpha = sw.alpha;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(sw.x, sw.y, sw.r, 0, Math.PI * 2);
+          ctx.stroke();
+        });
+
+        // 폭발 파티클
+        this.particles.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = Math.max(0, p.life * 2);
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+        // 월드 플로팅 텍스트
+        this.floatingTexts.filter(ft => !ft.isScreen).forEach(ft => {
+          ctx.fillStyle = ft.color;
+          ctx.globalAlpha = Math.min(1.0, ft.life);
+          ctx.font = 'bold 9.5px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(ft.text, ft.x, ft.y);
+        });
+        ctx.restore();
+      }
+
+      renderScreenEffects(ctx) {
+        ctx.save();
+        // 🌟 사계절 환경 날씨 파티클 렌더링
+        this.weatherParticles.forEach(wp => {
+          if (this.seasonIndex === 3) {
+            // 겨울: 함박눈
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+            ctx.beginPath();
+            ctx.arc(wp.x, wp.y, wp.size, 0, Math.PI * 2);
+            ctx.fill();
+          } else if (this.seasonIndex === 2) {
+            // 가을: 붉은 단풍잎
+            ctx.fillStyle = 'rgba(249, 115, 22, 0.65)';
+            ctx.fillRect(wp.x, wp.y, wp.size * 1.5, wp.size);
+          } else if (this.seasonIndex === 1) {
+            // 여름: 푸른 비
+            ctx.strokeStyle = 'rgba(147, 197, 253, 0.5)';
+            ctx.lineWidth = 1.2;
+            ctx.beginPath();
+            ctx.moveTo(wp.x, wp.y);
+            ctx.lineTo(wp.x - 2, wp.y + 6);
+            ctx.stroke();
+          } else {
+            // 봄: 분홍 벚꽃잎
+            ctx.fillStyle = 'rgba(244, 114, 182, 0.65)';
+            ctx.beginPath();
+            ctx.arc(wp.x, wp.y, wp.size, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        });
+
+        // 화면 공간 플로팅 공지 (줌과 상관없이 화면 중앙에 선명하게 유지)
+        this.floatingTexts.filter(ft => ft.isScreen).forEach(ft => {
+          ctx.fillStyle = ft.color;
+          ctx.globalAlpha = Math.min(1.0, ft.life);
+          ctx.font = 'bold 13px sans-serif';
+          ctx.textAlign = 'center';
+          ctx.fillText(ft.text, ft.x, ft.y);
+        });
+        ctx.restore();
+      }
+
+      /* -----------------------------------------------------------------------
+         터치 및 마우스 인터랙션 바인딩 (월드 좌표계 변환 + 핀치 줌 + 화면 이동)
+         ----------------------------------------------------------------------- */
+      setupInputs() {
+        const getScreenPos = (e) => {
+          const rect = this.canvas.getBoundingClientRect();
+          const t = (e.changedTouches && e.changedTouches.length > 0) ? e.changedTouches[0] : (e.touches && e.touches.length > 0 ? e.touches[0] : e);
+          return {
+            x: (t.clientX - rect.left),
+            y: (t.clientY - rect.top)
+          };
+        };
+
+        const findCastleAtWorld = (worldPos) => {
+          // 화면 확대 비율에 맞춰 터치 인식 반경 보정 (최소 26px 보장)
+          const touchMargin = Math.max(26, 32 / this.camera.zoom);
+          return this.castles.find(c => {
+            return Math.hypot(c.x - worldPos.x, c.y - worldPos.y) <= touchMargin;
+          });
+        };
+
+        let touchStartDist = 0;
+        let touchStartZoom = 1.0;
+
+        const onDown = (e) => {
+          sound.init();
+          const sPos = getScreenPos(e);
+          const wPos = this.screenToWorld(sPos.x, sPos.y);
+          const castle = findCastleAtWorld(wPos);
+
+          if (this.allOutMode && castle) {
+            this.dispatchAllOut(castle);
+            this.allOutMode = false;
+            document.getElementById('btn-all-out').classList.remove('active');
+            return;
+          }
+
+          if (castle && castle.faction === this.playerFaction) {
+            this.dragStartCastle = castle;
+            this.dragCurrentPos = wPos;
+            this.isPanning = false;
+          } else {
+            // 빈 공간 터치 -> 카메라 팬(화면 이동) 시작
+            this.isPanning = true;
+            this.panStart = {
+              x: sPos.x,
+              y: sPos.y,
+              camX: this.camera.x,
+              camY: this.camera.y
+            };
+          }
+        };
+
+        const onMove = (e) => {
+          const sPos = getScreenPos(e);
+          const wPos = this.screenToWorld(sPos.x, sPos.y);
+
+          if (this.dragStartCastle) {
+            this.dragCurrentPos = wPos;
+          } else if (this.isPanning) {
+            const dx = (sPos.x - this.panStart.x) / this.camera.zoom;
+            const dy = (sPos.y - this.panStart.y) / this.camera.zoom;
+            this.camera.x = this.panStart.camX - dx;
+            this.camera.y = this.panStart.camY - dy;
+            this.clampCamera();
+          }
+        };
+
+        const onUp = (e) => {
+          const sPos = getScreenPos(e);
+          const wPos = this.screenToWorld(sPos.x, sPos.y);
+          const targetCastle = findCastleAtWorld(wPos);
+
+          const movedFar = this.isPanning && Math.hypot(sPos.x - this.panStart.x, sPos.y - this.panStart.y) > 10;
+
+          if (this.dragStartCastle) {
+            if (targetCastle) {
+              if (targetCastle.id !== this.dragStartCastle.id) {
+                // 드래그 앤 드롭 출진!
+                this.dispatchArmy(this.dragStartCastle, targetCastle);
+              } else {
+                // 동일 성 터치 -> 상세 정보 패널 유지/갱신
+                this.showCityPanel(targetCastle);
+              }
+            }
+            this.dragStartCastle = null;
+            this.dragCurrentPos = null;
+          } else if (!movedFar && targetCastle) {
+            // 거점 터치 시 상세 정보 패널 열기 (줌을 해도 닫히지 않고 계속 유지!)
+            if (this.selectedCastles.size > 0) {
+              const [firstId] = this.selectedCastles;
+              const source = this.castles.find(c => c.id === firstId);
+              if (source && source.id !== targetCastle.id) {
+                this.dispatchArmy(source, targetCastle);
+                this.selectedCastles.clear();
+              } else {
+                this.showCityPanel(targetCastle);
+              }
+            } else {
+              if (targetCastle.faction === this.playerFaction) {
+                this.selectedCastles.add(targetCastle.id);
+              }
+              this.showCityPanel(targetCastle);
+            }
+          } else if (!movedFar && !targetCastle && !this.isPinching) {
+            // 빈 땅을 정적으로 가볍게 터치했을 때만 선택 해제 (화면 이동이나 줌인 중에는 절대 닫히지 않음!)
+            this.selectedCastles.clear();
+          }
+
+          this.isPanning = false;
+        };
+
+        // 마우스 휠 줌인/줌아웃
+        this.canvas.addEventListener('wheel', (e) => {
+          e.preventDefault();
+          const delta = e.deltaY < 0 ? 0.15 : -0.15;
+          this.zoomBy(delta);
+        }, { passive: false });
+
+        this.canvas.addEventListener('mousedown', onDown);
+        window.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+
+        // 모바일 터치 이벤트 (핀치 줌 & 팬)
+        this.canvas.addEventListener('touchstart', (e) => {
+          if (e.touches.length === 2) {
+            this.isPinching = true;
+            this.isPanning = false;
+            this.dragStartCastle = null;
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            touchStartDist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            touchStartZoom = this.camera.zoom;
+            return;
+          }
+          onDown(e);
+        }, { passive: true });
+
+        window.addEventListener('touchmove', (e) => {
+          if (e.touches.length === 2 && this.isPinching) {
+            const t1 = e.touches[0];
+            const t2 = e.touches[1];
+            const dist = Math.hypot(t1.clientX - t2.clientX, t1.clientY - t2.clientY);
+            if (touchStartDist > 0) {
+              const scale = dist / touchStartDist;
+              this.camera.zoom = Math.max(this.camera.minZoom, Math.min(this.camera.maxZoom, touchStartZoom * scale));
+            }
+            return;
+          }
+          onMove(e);
+        }, { passive: true });
+
+        window.addEventListener('touchend', (e) => {
+          if (this.isPinching && e.touches.length < 2) {
+            this.isPinching = false;
+            return;
+          }
+          onUp(e);
+        }, { passive: true });
+      }
+    }
+
+    /* -----------------------------------------------------------------------
+       DOM UI 이벤트 리스너 바인딩
+       ----------------------------------------------------------------------- */
+    let game = null;
+
+          // 모바일 브라우저의 기본 페이지 줌(화면 전체 확대) 방지하여 인게임 UI 고정 보장
+      document.addEventListener('gesturestart', (e) => e.preventDefault());
+      document.addEventListener('gesturechange', (e) => e.preventDefault());
+      document.addEventListener('gestureend', (e) => e.preventDefault());
+
+    window.addEventListener('DOMContentLoaded', () => {
+      game = new EastAsiaGrandConquestGameV10();
+      window.addEventListener('orientationchange', () => setTimeout(() => game.resize(), 150));
+      window.addEventListener('load', () => game.resize());
+
+      let selectedMap = 'east_asia';
+      let selectedFaction = 'goguryeo';
+
+      // 맵 선택
+      document.querySelectorAll('.map-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.map-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedMap = card.dataset.map;
+        });
+      });
+
+      // 군웅 선택
+      document.querySelectorAll('.faction-card').forEach(card => {
+        card.addEventListener('click', () => {
+          document.querySelectorAll('.faction-card').forEach(c => c.classList.remove('selected'));
+          card.classList.add('selected');
+          selectedFaction = card.dataset.faction;
+        });
+      });
+
+      // 게임 시작
+      document.getElementById('btn-start-game').addEventListener('click', () => {
+        const diff = document.getElementById('select-difficulty').value;
+        game.initBattlefield(selectedMap, selectedFaction, diff);
+        document.getElementById('start-modal').classList.remove('show');
+      });
+
+      // 상단 헤더 메뉴
+      document.getElementById('btn-menu').addEventListener('click', () => {
+        document.getElementById('start-modal').classList.add('show');
+      });
+
+      document.getElementById('btn-tech-tree').addEventListener('click', () => {
+        game.toggleTechDrawer();
+      });
+
+      document.getElementById('btn-close-tech').addEventListener('click', () => {
+        document.getElementById('tech-drawer').classList.remove('show');
+      });
+
+      // 역전 비책 버튼 및 모달
+      const btnComeback = document.getElementById('btn-comeback-stratagem');
+      if (btnComeback) {
+        btnComeback.addEventListener('click', () => game.openComebackModal());
+      }
+      document.getElementById('btn-close-comeback').addEventListener('click', () => {
+        document.getElementById('comeback-modal').classList.remove('show');
+      });
+
+      // 4대 역전 비책 발동 버튼들
+      document.querySelectorAll('.comeback-exec-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const st = e.target.dataset.stratagem;
+          game.executeComebackStratagem(st);
+        });
+      });
+
+      document.getElementById('btn-panel-upgrade').addEventListener('click', () => game.upgradeInspectedCity());
+      document.getElementById('btn-panel-repair').addEventListener('click', () => game.repairWall());
+      document.getElementById('btn-panel-close').addEventListener('click', () => game.hideCityPanel());
+
+      // 재시작
+      document.getElementById('btn-restart').addEventListener('click', () => {
+        document.getElementById('gameover-modal').classList.remove('show');
+        document.getElementById('start-modal').classList.add('show');
+      });
+    });
+  </script>
+</body>
+</html>
