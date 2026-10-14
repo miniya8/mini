@@ -32,12 +32,35 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 #dpk{display:none;gap:10px;justify-content:center;margin:6px 0}#dc #dpk button{font-size:16px;padding:12px 6px;flex:1;white-space:nowrap}
 #da{display:block;margin:6px auto;width:100%;max-width:340px;height:auto;aspect-ratio:320/200}
 .sh .card{padding:10px 12px}.sh .card h2{font-size:17px;margin-bottom:4px}.sh .code{font-size:38px;letter-spacing:6px;margin:2px 0}.sh .card p{margin:3px 0 6px;font-size:13px}.sh #da{width:auto;height:min(calc(var(--mh,100vh)*.3),140px);max-width:100%;margin:2px auto}.sh .card button,.sh #dc .card button{padding:8px 12px;font-size:15px}.sh #dres{min-height:22px;font-size:18px;margin:3px 0}.sh .op{padding:6px 12px!important;margin:5px 0!important}.sh .op b{font-size:16px}
+
+/* ===== 채팅 · 기권 · 한번쉼 패널 ===== */
+#xsp{position:absolute;z-index:3;display:flex;flex-direction:column;background:#0e1220f2;border:2px solid #b8893a;color:#fff}
+#xact{display:flex;gap:6px;padding:6px;flex:none}
+#xact button,#xsend{background:#3b2b17;color:#ffe9b0;border:1px solid #c9a24a;border-radius:8px;font-weight:700;cursor:pointer;white-space:nowrap}
+#xact button{flex:1;padding:8px 4px;font-size:14px}#xact button.xoff{opacity:.45}
+#xchat{flex:1;min-height:0;display:flex;flex-direction:column;border-top:1px solid #b8893a66}
+#xlog{flex:1;min-height:0;overflow-y:auto;touch-action:pan-y;padding:6px;display:flex;flex-direction:column;gap:4px;user-select:text;-webkit-user-select:text}
+.xm{max-width:90%;padding:5px 9px;border-radius:12px;font-size:13px;line-height:1.35;word-break:break-word;white-space:pre-wrap}
+.xa{align-self:flex-end;background:#2f6fd0;border-bottom-right-radius:4px}.xb{align-self:flex-start;background:#3a4160;border-bottom-left-radius:4px}
+.xs{align-self:center;color:#c9d3ee;font-size:12px;text-align:center;padding:2px 4px}
+#xrow{display:flex;gap:4px;padding:6px;flex:none;border-top:1px solid #b8893a66}
+#xin{flex:1;min-width:0;background:#111a2e;border:2px solid #5a6a90;border-radius:10px;color:#fff;outline:0;font-size:16px;padding:6px 8px;user-select:text;-webkit-user-select:text}
+#xsend{padding:0 12px;font-size:14px}
+@media (min-aspect-ratio:9/10){#g{--spw:clamp(190px,26vw,300px)}#g.xai{--spw:104px}
+#xsp{top:46px;right:0;bottom:0;width:var(--spw);border-right:0;border-bottom:0;padding:0 env(safe-area-inset-right,0px) env(safe-area-inset-bottom,0px) 0}
+#g.xai #xact{flex-direction:column}#g #cv{inset:0 auto 0 0;width:calc(100% - var(--spw));height:100%}}
+@media (max-aspect-ratio:9/10){#g{--sph:clamp(150px,24vh,210px)}#g.xai{--sph:calc(54px + env(safe-area-inset-bottom,0px))}
+#xsp{left:0;right:0;bottom:0;height:var(--sph);border-left:0;border-right:0;border-bottom:0;padding-bottom:env(safe-area-inset-bottom,0px)}
+#g #cv{inset:0 0 auto 0;width:100%;height:calc(100% - var(--sph))}}
+#xrl{max-height:40vh;overflow-y:auto;touch-action:pan-y;text-align:left;margin-bottom:6px}.xh{display:flex;justify-content:space-between;gap:8px;padding:5px 4px;border-bottom:1px solid #b8893a44;font-size:13px;color:#cdd7f3}.xh span:nth-child(2){flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.xw{color:#6fe3a5;font-weight:700}.xl{color:#ff8a7a;font-weight:700}
 </style></head><body>
 <div id="st"><div id="fr"></div></div>
-<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button></div></div></div>
+<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><div id="xsp"><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button></div><div id="xchat"><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button></div></div></div>
 <div class="mdl" id="rm"><div class="card"><h2>친구 초대</h2><div class="code" id="rc">----</div><p id="rs">친구를 기다리는 중…</p><button id="rsh">📨 카카오톡 등으로 초대</button><button id="rcp">코드·링크 복사</button><button id="rx">취소</button></div></div>
 <div class="mdl" id="md"><div class="card"><h2>포진(차림) 선택</h2><div id="sl"></div><button id="mx">닫기</button></div></div>
 <div class="mdl" id="dc" style="z-index:40"><div class="card"><h2>🎲 선공 정하기</h2><p id="dp"></p><canvas id="da" width="320" height="200"></canvas><div class="nm"><span id="dn1"></span><span id="dn2"></span></div><div id="dres"></div><div id="dpk"><button id="pf">⚔️ 선공 (초나라)</button><button id="pb">🛡️ 후공 (한나라)</button></div><button id="drb">🎲 주사위 굴리기</button><button id="drx">취소</button></div></div>
+<div class="mdl" id="xrd" style="z-index:45"><div class="card"><h2>📊 멀티 전적</h2><p id="xrs"></p><div id="xrl"></div><button id="xrc">닫기</button></div></div>
+<div class="mdl" id="xcf" style="z-index:45"><div class="card"><h2 id="xct"></h2><p id="xcm"></p><button id="xcy">확인</button><button id="xcn">취소</button></div></div>
 <div id="sa" style="position:fixed;left:0;top:0;visibility:hidden;padding-bottom:env(safe-area-inset-bottom,0px)"></div>
 <div id="tw"><div id="tt"></div></div>
 <script id="rules">const VAL={R:13,C:7,N:5,B:3,G:3,P:2,K:0};
@@ -178,7 +201,7 @@ c.on('close',()=>{if(c!==conn)return;
 if(inGame&&!over&&cfg.mode=='mp'){toast('상대 연결이 끊겼어요. 다시 연결을 기다리는 중…',4000);clearTimeout(dropT);dropT=setTimeout(()=>{if(inGame&&!over&&!(conn&&conn.open))end(me,'상대가 나가서 승리!')},60000);if(!isHost)setTimeout(()=>{if(inGame&&!over&&!(conn&&conn.open))doJoin(true)},1500);return}
 if(!inGame){$('rm').style.display='none';if($('dc').style.display=='flex'){dTok++;clearInterval(dTimer);$('dc').style.display='none';toast('상대가 나갔어요')}if(over){$('oa').style.display='none';$('os').textContent='상대가 나갔어요'}}})}
 let oppNick='상대';
-function onData(d){if(d.k=='start'){cfg.time=d.time;oppNick=d.nick;sid=d.sid||'';const mine=SETUPS[cfg.si][2];conn.send({k:'ready',nick:nick(),setup:mine});const[hd,gd]=d.dice;gs={mine,setup:d.setup,done:false,g:null};
+function onData(d){if(window.jgExtra&&jgExtra(d))return;if(d.k=='start'){cfg.time=d.time;oppNick=d.nick;sid=d.sid||'';const mine=SETUPS[cfg.si][2];conn.send({k:'ready',nick:nick(),setup:mine});const[hd,gd]=d.dice;gs={mine,setup:d.setup,done:false,g:null};
 diceShow(gd,hd,false,f=>{if(!gs)return;gs.done=true;if(f)pickFirst(first=>{if(!gs)return;gs.g=first?'c':'h';conn.send({k:'pick',hs:first?'h':'c'});guestGo()});else guestGo()})}
 else if(d.k=='ready'){oppNick=d.nick;if($('dc').style.display=='flex')$('dn2').textContent=oppNick;hostReady=d.setup;hostGo()}
 else if(d.k=='pick'){if(isHost){hostSide=d.hs;hostDice=true;hostGo()}else if(gs){gs.g=d.hs=='c'?'h':'c';guestGo()}}
@@ -262,9 +285,9 @@ if(/^#\d{4}$/.test(location.hash)){cI.value=location.hash.slice(1);setMode('mp')
 function startAI(){const o=SETUPS[Math.random()*4|0],mine=SETUPS[cfg.si][2];oppNick='COM('+cfg.lv+')';const[a,b]=dicePair();
 const go=first=>{const m=first?'c':'h';toast(`COM 포진: ${o[0]}`,2500);begin(m,m=='c'?mine:o[2],m=='h'?mine:o[2],'ai')};
 diceShow(a,b,true,f=>{if(f)pickFirst(go);else{const comFirst=Math.random()<.75;$('dres').textContent=`😮 COM이 이겨서 ${comFirst?'선공(초나라)':'후공(한나라)'}을 선택했어요`;setTimeout(()=>go(!comFirst),1700)}})}
-function begin(m,sc,sh,mode){mc=0;sfxLoad();dTok++;$('dc').style.display='none';rmS=rmO=false;$('oa').disabled=false;$('os').textContent='';cfg.mode=mode;me=m;flip=m=='h';init(sc,sh);turn='c';over=false;inGame=true;busy=false;sel=null;lm=null;anim=null;jang=null;aiId++;$('st').style.display='none';$('g').style.display='block';$('ov').style.display='none';fitScreen();
+function begin(m,sc,sh,mode){if(window.jgPanel)try{jgPanel(mode)}catch(e){}mc=0;sfxLoad();dTok++;$('dc').style.display='none';rmS=rmO=false;$('oa').disabled=false;$('os').textContent='';cfg.mode=mode;me=m;flip=m=='h';init(sc,sh);turn='c';over=false;inGame=true;busy=false;sel=null;lm=null;anim=null;jang=null;aiId++;$('st').style.display='none';$('g').style.display='block';$('ov').style.display='none';fitScreen();
 const n=nick();$('nc').textContent='초 '+(m=='c'?n:oppNick);$('nh').textContent='한 '+(m=='h'?n:oppNick);cv=$('cv');cx2=cv.getContext('2d');if(!wk&&mode=='ai')mkWorker();resize();setTurn('c');if(!looping){looping=true;requestAnimationFrame(loop)}}
-function resize(){if(!cv||!cv.offsetWidth)return;const d=Math.min(devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*d;cv.height=H*d;cx2.setTransform(d,0,0,d,0,0);cx2.imageSmoothingQuality='high';
+function resize(){if(!cv||!cv.offsetWidth)return;const d=Math.min(devicePixelRatio||1,2);W=cv.offsetWidth||innerWidth;H=cv.offsetHeight||innerHeight;cv.width=W*d;cv.height=H*d;cx2.setTransform(d,0,0,d,0,0);cx2.imageSmoothingQuality='high';
 const top=46,mx=Math.max(18,W*.055),aH=H-top-8-sab();let cx=(W-2*mx)/8,cy=aH/9.9;if(cy>cx*1.55)cy=cx*1.55;else if(cx>cy*1.25)cx=cy*1.25;
 CX=cx;CY=cy;C=Math.min(cx,cy);OX=(W-8*cx)/2;OY=top+(aH-9*cy)/2;bc=document.createElement('canvas');bc.width=W*d;bc.height=H*d;const g=bc.getContext('2d');g.setTransform(d,0,0,d,0,0);board(g)}addEventListener('resize',resize);
 const px=(x,y)=>{const[a,b]=flip?[8-x,9-y]:[x,y];return[OX+a*CX,OY+b*CY]};
@@ -337,4 +360,59 @@ if(g&&g.B&&(g.mode=='ai'||g.mode=='mp')){try{RESUMED=true;resumeGame(g)}catch(e)
 function wake(){if(peer&&peer.disconnected&&!peer.destroyed){try{peer.reconnect()}catch(e){}}if(inGame&&!over&&cfg.mode=='mp'&&!isHost&&!(conn&&conn.open)&&Date.now()-jLast>5000)doJoin(true)}
 document.addEventListener('visibilitychange',()=>{save();if(!document.hidden)wake()});addEventListener('online',wake);addEventListener('pageshow',wake);addEventListener('pagehide',save);addEventListener('resize',save);addEventListener('orientationchange',save);
 boot();setInterval(save,2000);
-</script></body></html>
+</script>
+<script id="xchatjs">(function(){
+const el=id=>document.getElementById(id),opp=()=>me=='c'?'h':'c',nm=s=>s=='c'?'초':'한',CH={key:null,log:[]};
+function chLoad(){try{const o=JSON.parse(sessionStorage.getItem('jg_chat')||'null');if(o&&o.key===code&&Array.isArray(o.log))return o.log.filter(m=>m&&(m.c=='xa'||m.c=='xb')).slice(-60)}catch(e){}return[]}
+function chSync(){if(CH.key!==code){CH.key=code;CH.log=chLoad()}}
+function chSave(){try{sessionStorage.setItem('jg_chat',JSON.stringify({key:code,log:CH.log.slice(-60)}))}catch(e){}}
+function chShow(c,t){const l=el('xlog'),d=document.createElement('div');d.className='xm '+c;d.textContent=t;l.appendChild(d);while(l.childNodes.length>120)l.removeChild(l.firstChild);l.scrollTop=l.scrollHeight}
+function chAdd(c,t){chSync();CH.log.push({c,t});chSave();chShow(c,t)}
+function ping(){try{if(!AC)return;if(AC.state=='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.frequency.value=880;g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.001,t+.12);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.14)}catch(e){}}
+window.jgPanel=function(mode){const mp=mode==='mp';el('g').classList.toggle('xai',!mp);el('xchat').style.display=mp?'flex':'none';el('xcf').style.display='none';
+if(mp){chSync();el('xlog').innerHTML='';chShow('xs','💬 '+oppNick+'님과의 1:1 채팅이에요. 상대에게만 보여요');CH.log.forEach(m=>chShow(m.c,m.t))}el('xin').value='';upd()};
+let lastS=0;
+function chSend(){const i=el('xin'),t=i.value.trim().slice(0,100);if(!t||Date.now()-lastS<400)return;
+if(!(conn&&conn.open)){toast('상대와 연결되지 않았어요',2000);return}
+try{conn.send({k:'chat',t})}catch(e){toast('전송에 실패했어요',2000);return}
+lastS=Date.now();chAdd('xa',t);i.value='';if(matchMedia('(pointer:coarse)').matches)i.blur()}
+el('xsend').onpointerdown=e=>e.preventDefault();el('xsend').onclick=chSend;
+el('xin').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();chSend()}};
+const idle=(f,n)=>{n=n||0;if(over||!inGame)return;if(anim||busy){if(n<60)setTimeout(()=>idle(f,n+1),100);return}f()};
+const canPass=()=>inGame&&!over&&!anim&&!busy&&turn===me&&!chk(me);
+function doPass(s){if(over||!inGame)return;mc++;lm=null;sel=null;toast(nm(s)+'나라가 한번 쉬었어요',2500);setTurn(s=='c'?'h':'c')}
+let cfy=null;
+function ask(t,m,y,f){el('xct').textContent=t;el('xcm').textContent=m;el('xcy').textContent=y;cfy=f;el('xcf').style.display='flex'}
+el('xcn').onclick=()=>{el('xcf').style.display='none';cfy=null};
+el('xcy').onclick=()=>{el('xcf').style.display='none';const f=cfy;cfy=null;if(f)f()};
+el('xpass').onclick=()=>{if(!inGame||over)return;
+if(turn!==me||anim||busy)return toast('내 차례에만 쉴 수 있어요',2000);
+if(chk(me))return toast('장군 상태에서는 쉴 수 없어요',2500);
+ask('⏸ 한번쉼','이번 차례를 쉬고 상대에게 넘길까요?','쉬기',()=>idle(()=>{
+if(!canPass())return toast('지금은 쉴 수 없어요',2000);
+if(cfg.mode=='mp'){if(!(conn&&conn.open))return toast('상대와 다시 연결하는 중이에요…',2500);try{conn.send({k:'pass'})}catch(e){return}}
+doPass(me)}))};
+el('xres').onclick=()=>{if(!inGame||over)return;
+ask('🏳 기권','정말 기권할까요? 이 판은 패배로 처리돼요.','기권하기',()=>idle(()=>{
+if(cfg.mode=='mp'){try{conn&&conn.open&&conn.send({k:'resign'})}catch(e){}}
+note='기권했어요';end(opp())}))};
+window.jgExtra=function(d){if(!d||typeof d!=='object')return false;
+if(d.k==='chat'){const t=String(d.t==null?'':d.t).slice(0,100).trim();if(t){chAdd('xb',t);ping()}return true}
+if(d.k==='pass'){idle(()=>{if(turn===opp())doPass(opp())});return true}
+if(d.k==='resign'){idle(()=>{note='상대가 기권했어요';end(me)});return true}
+return false};
+function upd(){if(el('g').style.display!=='block')return;let ok=false;try{ok=canPass()}catch(e){}el('xpass').classList.toggle('xoff',!ok);el('xres').classList.toggle('xoff',!(inGame&&!over))}
+
+const RK='jg_rec';let note='';
+function recLoad(){try{const o=JSON.parse(localStorage.getItem(RK)||'null');if(o&&typeof o==='object')return{w:+o.w||0,l:+o.l||0,d:+o.d||0,h:Array.isArray(o.h)?o.h.slice(0,50):[]}}catch(e){}return{w:0,l:0,d:0,h:[]}}
+function recAdd(r){const o=recLoad(),t=new Date(),p=n=>String(n).padStart(2,'0');o[r]++;o.h.unshift({t:p(t.getMonth()+1)+'/'+p(t.getDate())+' '+p(t.getHours())+':'+p(t.getMinutes()),n:String(oppNick).slice(0,12),r});o.h=o.h.slice(0,50);try{localStorage.setItem(RK,JSON.stringify(o))}catch(e){}return o}
+const recTxt=o=>'통산 '+o.w+'승 '+o.l+'패'+(o.d?' '+o.d+'무':'');
+const _end=end;end=function(w){const was=inGame&&!over&&cfg.mode==='mp';_end.apply(this,arguments);
+if(was){const o=recAdd(w==null?'d':(w===me?'w':'l'));el('os').textContent=(note?note+' · ':'')+recTxt(o)}else if(note)el('os').textContent=note;note=''};
+const _lobby=lobby;lobby=function(){if(inGame&&!over&&cfg.mode==='mp')recAdd('l');return _lobby.apply(this,arguments)};el('bl').onclick=lobby;
+el('xrec').onclick=()=>{const o=recLoad(),l=el('xrl');el('xrs').textContent=o.w+o.l+o.d?recTxt(o):'아직 기록이 없어요';l.innerHTML='';
+o.h.slice(0,30).forEach(h=>{const d=document.createElement('div'),a=document.createElement('span'),b=document.createElement('span'),c=document.createElement('span');d.className='xh';a.textContent=h.t;b.textContent='vs '+h.n;c.textContent=h.r=='w'?'승':h.r=='l'?'패':'무';c.className=h.r=='w'?'xw':h.r=='l'?'xl':'';d.append(a,b,c);l.appendChild(d)});el('xrd').style.display='flex'};
+el('xrc').onclick=()=>el('xrd').style.display='none';
+setInterval(upd,300);
+})();</script>
+</body></html>
