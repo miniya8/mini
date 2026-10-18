@@ -429,7 +429,7 @@ function chSave(){try{sset('jg_chat',JSON.stringify({key:code,log:CH.log.slice(-
 function chShow(c,t){const l=el('xlog'),d=document.createElement('div');d.className='xm '+c+(EM.has(t)?' xe':'');d.textContent=t;l.appendChild(d);while(l.childNodes.length>120)l.removeChild(l.firstChild);l.scrollTop=l.scrollHeight}
 function chAdd(c,t){chSync();CH.log.push({c,t});chSave();chShow(c,t);if((c==='xb'||c==='xs xr')&&sheetOn()&&!el('xsp').classList.contains('xo')){unread++;badge()}}
 function ping(){try{if(!AC)return;if(AC.state=='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.frequency.value=880;g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.001,t+.12);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.14)}catch(e){}}
-window.jgPanel=function(mode){const mp=mode==='mp';rzK='';{let x=null;try{x=JSON.parse(sget('jg_x')||'null')}catch(e){}const ok=x&&sid&&x.sid===sid;TO=ok&&x.TO?x.TO:{c:0,h:0};UH=ok&&Array.isArray(x.UH)?x.UH:[];GH=ok&&Array.isArray(x.GH)?x.GH:[];gMc=-1}if(oidCode!==code){oid='';oidCode=code}if(UQ)clearTimeout(UQ.timer);UQ=null;UI=null;lastOpen=null;byeSeen=false;el('g').classList.toggle('xai',!mp);el('xchat').style.display='';el('xsp').classList.remove('xo');unread=0;badge();el('xcf').style.display='none';
+window.jgPanel=function(mode){const mp=mode==='mp';rzK='';{let x=null;try{x=JSON.parse(sget('jg_x')||'null')}catch(e){}const ok=x&&sid&&x.sid===sid;TO=ok&&x.TO?x.TO:{c:0,h:0};UH=ok&&Array.isArray(x.UH)?x.UH:[];GH=ok&&Array.isArray(x.GH)?x.GH:[];gMc=-1}if(oidCode!==code){oid='';oidCode=code}if(UQ)clearTimeout(UQ.timer);UQ=null;UI=null;lastOpen=null;byeSeen=false;awaitAck=0;lastConn=null;lastRx=Date.now();el('g').classList.toggle('xai',!mp);el('xchat').style.display='';el('xsp').classList.remove('xo');unread=0;badge();el('xcf').style.display='none';
 if(mp){chSync();el('xlog').innerHTML='';chShow('xs','💬 '+oppNick+'님과의 1:1 채팅이에요. 상대에게만 보여요');CH.log.forEach(m=>chShow(m.c,m.t))}el('xin').value='';upd()};
 let lastS=0;
 function chSend(){const i=el('xin'),t=i.value.trim().slice(0,100);if(!t||Date.now()-lastS<400)return;
@@ -456,7 +456,7 @@ el('xres').onclick=()=>{if(!inGame||over)return;
 ask('🏳 기권','정말 기권할까요? 이 판은 패배로 처리돼요.','기권하기',()=>idle(()=>{
 if(cfg.mode=='mp'){try{conn&&conn.open&&conn.send({k:'resign'})}catch(e){}}
 note='기권했어요';end(opp())}))};
-window.jgExtra=function(d){if(!d||typeof d!=='object')return false;
+window.jgExtra=function(d){if(!d||typeof d!=='object')return false;lastRx=Date.now();if(awaitAck){awaitAck=0;sysLog('✅ 상대와 다시 연결됐어요','xs xg')}if(d.k==='hb')return true;
 if(d.k==='uq'||d.k==='ua'||d.k==='ux')return undoMsg(d);
 if(d.k==='bye'){byeSeen=true;if(cfg.mode==='mp'&&inGame&&!over){sysLog('🚪 상대가 게임을 나갔어요 (로비로 이동)','xs xr');ping();idle(()=>{if(inGame&&!over)end(me,'상대가 나가서 승리!')})}return true}
 if(d.k==='emo'){if(d.q!=null){const t=TA[d.q|0];if(t){chAdd('xb',t);ping()}return true}const e=String(d.e||'');if(EM.has(e)){chAdd('xb',e);ping();if(d.s)emoPop(e)}return true}
@@ -546,9 +546,11 @@ const sset=(k,v)=>{try{sessionStorage.setItem(k,v)}catch(e){}try{localStorage.se
 function xsave(){sset('jg_x',JSON.stringify({sid,UH,TO,GH}))}
 let lastOpen=null,byeSeen=false,leaving=false;
 function sysLog(t,c){const d=new Date(),p=n=>String(n).padStart(2,'0');chAdd(c||'xs','['+p(d.getHours())+':'+p(d.getMinutes())+'] '+t)}
-function netWatch(){if(cfg.mode!=='mp'||!inGame||over){lastOpen=null;return}const o=!!(conn&&conn.open);if(lastOpen===null){lastOpen=o;return}if(o===lastOpen)return;lastOpen=o;
+function netWatch(){if(cfg.mode!=='mp'||!inGame||over){lastOpen=null;lastConn=null;return}const o=!!(conn&&conn.open);if(lastOpen===null){lastOpen=o;lastConn=conn;return}
+if(o===lastOpen){if(o&&conn!==lastConn){lastConn=conn;awaitAck=Date.now();sysLog('🔌 새 연결로 바뀌었어요. 상대 응답을 확인하는 중…','xs')}return}
+lastOpen=o;lastConn=conn;
 if(!o){if(!byeSeen){sysLog(navigator.onLine===false?'⚠️ 내 인터넷 연결이 끊겼어요. 다시 연결 중…':'⚠️ 상대와의 연결이 끊겼어요 (튕김·화면 전환·네트워크 문제). 2분 안에 돌아오지 않으면 승리 처리돼요','xs xr');ping();try{navigator.vibrate&&navigator.vibrate(120)}catch(e){}}}
-else{byeSeen=false;sysLog('✅ 상대와 다시 연결됐어요','xs xg')}}
+else{byeSeen=false;awaitAck=Date.now();sysLog('🔌 접속됐어요. 상대 응답을 확인하는 중…','xs');snd2({k:'hb'})}}
 
 /* ---- 전황 게이지 · 그래프 ---- */
 let GH=[],gMc=-1;
@@ -582,11 +584,15 @@ el('xchb').onclick=()=>{const o=el('xsp').classList.toggle('xo');if(o){unread=0;
 {const fb=el('xfs'),de=document.documentElement,rq=de.requestFullscreen||de.webkitRequestFullscreen;
 if(!rq)fb.remove();else fb.onclick=e=>{e.stopPropagation();try{if(document.fullscreenElement||document.webkitFullscreenElement)(document.exitFullscreen||document.webkitExitFullscreen).call(document);else{const r=rq.call(de);if(r&&r.catch)r.catch(()=>toast('전체화면을 지원하지 않는 환경이에요',2000))}}catch(x){}}}
 /* ---- 재접속 감시: 끊긴 채 멈춰 있으면 다시 접속 시도 ---- */
-let wdT=0,wdN=0,errT={};
+let wdT=0,wdN=0,errT={},lastRx=Date.now(),rxConn=null,awaitAck=0,hbT=0,lastConn=null;document.addEventListener('visibilitychange',()=>{if(!document.hidden){lastRx=Date.now();if(awaitAck)awaitAck=Date.now()}});
 function netDog(){if(cfg.mode!=='mp'||!inGame||over||!window.Peer){wdN=0;return}
-if(conn&&conn.open){wdN=0;return}
+const t0=Date.now();if(rxConn!==conn){rxConn=conn;lastRx=t0}
+if(conn&&conn.open){if(t0-hbT>3000){hbT=t0;snd2({k:'hb'})}
+if(awaitAck&&t0-awaitAck>8000){awaitAck=0;sysLog('⚠️ 상대가 응답하지 않아요. 연결을 새로 잡아요…','xs xr');try{conn.close()}catch(e){}return}
+if(!document.hidden&&t0-lastRx>12000){sysLog('⚠️ 상대 신호가 12초째 없어요. 연결을 새로 잡아요…','xs xr');lastRx=t0;try{conn.close()}catch(e){}return}
+wdN=0;return}
 const now=Date.now();if(now-wdT<8000)return;wdT=now;wdN++;
-if(isHost){if(!peer||peer.destroyed||(!peer.open&&wdN>2)){sysLog('🔁 방을 다시 여는 중…','xs xr');try{mkRoom(code)}catch(e){}}else if(peer.disconnected){try{peer.reconnect()}catch(e){}}}
+if(isHost){if(!peer||peer.destroyed||(!peer.open&&wdN>2)||wdN%5===0){sysLog('🔁 방을 다시 여는 중…','xs xr');try{mkRoom(code)}catch(e){}}else if(peer.disconnected){try{peer.reconnect()}catch(e){}}}
 else if(now-jLast>15000){sysLog('🔁 상대에게 다시 접속하는 중…'+(wdN>1?' ('+wdN+')':''),'xs xr');try{doJoin(true)}catch(e){}}}
 {let n=0;const patch=()=>{if(!window.Peer||!Peer.prototype||Peer.__x)return !!(window.Peer&&Peer.__x);Peer.__x=1;const E=Peer.prototype.emit;
 Peer.prototype.emit=function(t){if((t==='error'||t==='disconnected')&&cfg.mode==='mp'&&inGame&&!over){const ty=t==='error'?(arguments[1]&&arguments[1].type||'?'):'서버 연결 끊김',k=Date.now();if(!(errT[ty]>k-10000)){errT[ty]=k;try{sysLog('⚠️ 연결 오류: '+ty,'xs xr')}catch(x){}}}return E.apply(this,arguments)};return true};
