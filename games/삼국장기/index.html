@@ -112,13 +112,24 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 #g:not(.xai) #xsp.xo #xchat{display:flex}
 #xemo{position:absolute;left:0;right:0;bottom:100%;background:#0e1220f0;border-top:2px solid #b8893a}
 #xsp.xo #xemo{bottom:calc(100% + min(46vh,340px))}}
+
+#xcb{position:absolute;z-index:4;display:none;pointer-events:none;box-sizing:border-box;padding:7px 12px;border-radius:12px;background:linear-gradient(90deg,#3a1d00ee,#7a3d00ee);border:2px solid #ffd54a;color:#fff6d0;font-weight:800;font-size:clamp(13px,3.2vmin,20px);line-height:1.3;text-align:center;box-shadow:0 4px 18px #000a}
+#xcb.xgo{animation:xcb 5s ease-out forwards}
+@keyframes xcb{0%{opacity:0;transform:translateY(-14px) scale(.96)}6%{opacity:1;transform:translateY(0) scale(1.03)}10%{transform:scale(1)}86%{opacity:1}100%{opacity:0;transform:translateY(-6px)}}
+.xs.xc{color:#ffe08a;font-weight:700;background:#ffffff12;border-radius:8px;padding:4px 8px;text-align:left;align-self:stretch}
+#xrpl{max-height:30vh;overflow-y:auto;touch-action:pan-y;text-align:left;margin:6px 0}
+.xrl{padding:5px 4px;border-bottom:1px solid #b8893a44;font-size:13px;color:#e6ecff;line-height:1.35}.xrl b{color:#ffd54a;margin-right:6px;font-weight:800}
+#xrph{text-align:left;font-size:13px;color:#ffe08a;line-height:1.4}#xrph .xrl{color:#fff6d0}
+#obr{flex-wrap:wrap;justify-content:center;gap:8px}
+#orp{background:#3b2b17;color:#ffe9b0;border:1px solid #c9a24a;border-radius:10px;padding:10px 16px;font-size:16px;font-weight:700;cursor:pointer}
 </style></head><body>
 <div id="st"><div id="fr"></div></div>
-<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><div id="xfl"></div><div id="xto"><b id="xtm"></b><i id="xts"></i></div><div id="xem"></div><div id="xsp"><div id="xg"><div id="xgm"><div id="xgb"><span id="xgf"></span><span id="xgl">초 50%</span><span id="xgr">50% 한</span></div><small id="xgn"></small></div><button id="xfs">⛶</button></div><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button><button id="xundo">↩ 무르기</button><button id="xchb">💬<i id="xbd"></i></button></div><div id="xemo"></div><div id="xchat"><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button></div></div></div>
+<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><div id="xfl"></div><div id="xto"><b id="xtm"></b><i id="xts"></i></div><div id="xem"></div><div id="xcb"></div><div id="xsp"><div id="xg"><div id="xgm"><div id="xgb"><span id="xgf"></span><span id="xgl">초 50%</span><span id="xgr">50% 한</span></div><small id="xgn"></small></div><button id="xfs">⛶</button></div><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button><button id="xundo">↩ 무르기</button><button id="xchb">💬<i id="xbd"></i></button></div><div id="xemo"></div><div id="xchat"><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button><button id="orp">🎙 해설 다시보기</button></div></div></div>
 <div class="mdl" id="rm"><div class="card"><h2>친구 초대</h2><div class="code" id="rc">----</div><p id="rs">친구를 기다리는 중…</p><button id="rsh">📨 카카오톡 등으로 초대</button><button id="rcp">코드·링크 복사</button><button id="rx">취소</button></div></div>
 <div class="mdl" id="md"><div class="card"><h2>포진(차림) 선택</h2><div id="sl"></div><button id="mx">닫기</button></div></div>
 <div class="mdl" id="dc" style="z-index:40"><div class="card"><h2>🎲 선공 정하기</h2><p id="dp"></p><canvas id="da" width="320" height="200"></canvas><div class="nm"><span id="dn1"></span><span id="dn2"></span></div><div id="dres"></div><div id="dpk"><button id="pf">⚔️ 선공 (초나라)</button><button id="pb">🛡️ 후공 (한나라)</button></div><button id="drb">🎲 주사위 굴리기</button><button id="drx">취소</button></div></div>
-<div class="mdl" id="xgd" style="z-index:45"><div class="card"><h2>📈 전황 그래프</h2><p id="xgs"></p><canvas id="xgcv" width="320" height="150" style="width:100%;border-radius:8px;display:block;margin:6px 0"></canvas><p style="font-size:12px;color:#c9d3ee">남은 말의 가치 + 말 위치 + 움직일 수 있는 수 + 한 덤(1.5점)을 합친 예상이에요. 실제 결과와 다를 수 있어요.</p><button id="xgc">닫기</button></div></div>
+<div class="mdl" id="xrp" style="z-index:46"><div class="card"><h2>🎙 경기 해설 다시보기</h2><p id="xrps"></p><canvas id="xrcv" width="320" height="130" style="width:100%;border-radius:8px;display:block;margin:6px 0"></canvas><div id="xrph"></div><div id="xrpl"></div><button id="xrpc">닫기</button></div></div>
+<div class="mdl" id="xgd" style="z-index:45"><div class="card"><h2>📈 전황 그래프</h2><p id="xgs"></p><canvas id="xgcv" width="320" height="150" style="width:100%;border-radius:8px;display:block;margin:6px 0"></canvas><p style="font-size:12px;color:#c9d3ee">남은 말의 가치 + 말 위치 + 움직일 수 있는 수 + 한 덤(1.5점)을 합친 예상이에요. 실제 결과와 다를 수 있어요.</p><button id="xgr2">🎙 해설 보기</button><button id="xgc">닫기</button></div></div>
 <div class="mdl" id="xrd" style="z-index:45"><div class="card"><h2>📊 멀티 전적</h2><p id="xrs"></p><div id="xrl"></div><button id="xrc">닫기</button></div></div>
 <div class="mdl" id="xcf" style="z-index:45"><div class="card"><h2 id="xct"></h2><p id="xcm"></p><button id="xcy">확인</button><button id="xcn">취소</button></div></div>
 <div id="sa" style="position:fixed;left:0;top:0;visibility:hidden;padding-bottom:env(safe-area-inset-bottom,0px)"></div>
@@ -423,13 +434,13 @@ boot();setInterval(save,2000);
 </script>
 <script id="xchatjs">(function(){
 const el=id=>document.getElementById(id),opp=()=>me=='c'?'h':'c',nm=s=>s=='c'?'초':'한',CH={key:null,log:[]};
-function chLoad(){try{const o=JSON.parse(sget('jg_chat')||'null');if(o&&o.key===code&&Array.isArray(o.log))return o.log.filter(m=>m&&(m.c=='xa'||m.c=='xb'||/^xs( x[rg])?$/.test(m.c))).slice(-60)}catch(e){}return[]}
+function chLoad(){try{const o=JSON.parse(sget('jg_chat')||'null');if(o&&o.key===code&&Array.isArray(o.log))return o.log.filter(m=>m&&(m.c=='xa'||m.c=='xb'||/^xs( x[rgc])?$/.test(m.c))).slice(-60)}catch(e){}return[]}
 function chSync(){if(CH.key!==code){CH.key=code;CH.log=chLoad()}}
 function chSave(){try{sset('jg_chat',JSON.stringify({key:code,log:CH.log.slice(-60)}))}catch(e){}}
 function chShow(c,t){const l=el('xlog'),d=document.createElement('div');d.className='xm '+c+(EM.has(t)?' xe':'');d.textContent=t;l.appendChild(d);while(l.childNodes.length>120)l.removeChild(l.firstChild);l.scrollTop=l.scrollHeight}
 function chAdd(c,t){chSync();CH.log.push({c,t});chSave();chShow(c,t);if((c==='xb'||c==='xs xr')&&sheetOn()&&!el('xsp').classList.contains('xo')){unread++;badge()}}
 function ping(){try{if(!AC)return;if(AC.state=='suspended')AC.resume();const o=AC.createOscillator(),g=AC.createGain(),t=AC.currentTime;o.frequency.value=880;g.gain.setValueAtTime(.05,t);g.gain.exponentialRampToValueAtTime(.001,t+.12);o.connect(g);g.connect(AC.destination);o.start(t);o.stop(t+.14)}catch(e){}}
-window.jgPanel=function(mode){const mp=mode==='mp';rzK='';{let x=null;try{x=JSON.parse(sget('jg_x')||'null')}catch(e){}const ok=x&&sid&&x.sid===sid;TO=ok&&x.TO?x.TO:{c:0,h:0};UH=ok&&Array.isArray(x.UH)?x.UH:[];GH=ok&&Array.isArray(x.GH)?x.GH:[];gMc=-1}if(oidCode!==code){oid='';oidCode=code}if(UQ)clearTimeout(UQ.timer);UQ=null;UI=null;lastOpen=null;byeSeen=false;awaitAck=0;lastConn=null;lastRx=Date.now();el('g').classList.toggle('xai',!mp);el('xchat').style.display='';el('xsp').classList.remove('xo');unread=0;badge();el('xcf').style.display='none';
+window.jgPanel=function(mode){const mp=mode==='mp';rzK='';{let x=null;try{x=JSON.parse(sget('jg_x')||'null')}catch(e){}const ok=x&&sid&&x.sid===sid;TO=ok&&x.TO?x.TO:{c:0,h:0};UH=ok&&Array.isArray(x.UH)?x.UH:[];GH=ok&&Array.isArray(x.GH)?x.GH:[];GD=ok&&Array.isArray(x.GD)?x.GD:[];CM=ok&&Array.isArray(x.CM)?x.CM:[];gMc=-1;lastMv=null}if(oidCode!==code){oid='';oidCode=code}if(UQ)clearTimeout(UQ.timer);UQ=null;UI=null;lastOpen=null;byeSeen=false;awaitAck=0;lastConn=null;lastRx=Date.now();el('g').classList.toggle('xai',!mp);el('xchat').style.display='';el('xsp').classList.remove('xo');unread=0;badge();el('xcf').style.display='none';
 if(mp){chSync();el('xlog').innerHTML='';chShow('xs','💬 '+oppNick+'님과의 1:1 채팅이에요. 상대에게만 보여요');CH.log.forEach(m=>chShow(m.c,m.t))}el('xin').value='';upd()};
 let lastS=0;
 function chSend(){const i=el('xin'),t=i.value.trim().slice(0,100);if(!t||Date.now()-lastS<400)return;
@@ -440,7 +451,7 @@ el('xsend').onpointerdown=e=>e.preventDefault();el('xsend').onclick=chSend;
 el('xin').onkeydown=e=>{if(e.key==='Enter'&&!e.isComposing&&e.keyCode!==229){e.preventDefault();chSend()}};
 const idle=(f,n)=>{n=n||0;if(over||!inGame)return;if(anim||busy){if(n<60)setTimeout(()=>idle(f,n+1),100);return}f()};
 const canPass=()=>inGame&&!over&&!anim&&!busy&&turn===me&&!chk(me);
-function doPass(s){if(over||!inGame)return;UH.push(snap(s));if(UH.length>40)UH.shift();xsave();mc++;lm=null;sel=null;toast(nm(s)+'나라가 한번 쉬었어요',2500);setTurn(s=='c'?'h':'c')}
+function doPass(s){if(over||!inGame)return;UH.push(snap(s));if(UH.length>40)UH.shift();xsave();lastMv={mc:mc+1,a:s,pass:1,fresh:1};mc++;lm=null;sel=null;toast(nm(s)+'나라가 한번 쉬었어요',2500);setTurn(s=='c'?'h':'c')}
 let cfy=null;
 let cfn=null;function ask(t,m,y,f,nl,n){el('xct').textContent=t;el('xcm').textContent=m;el('xcy').textContent=y;el('xcn').textContent=nl||'취소';cfy=f;cfn=n||null;el('xcf').style.display='flex'}
 el('xcn').onclick=()=>{el('xcf').style.display='none';cfy=null;const n=cfn;cfn=null;if(n)n()};
@@ -479,7 +490,7 @@ const q=o.p[pk]=Object.assign({n:'',w:0,l:0,d:0},o.p[pk]);q.n=nn;q[r]++;
 const ks=Object.keys(o.p);if(ks.length>100){const g=k=>o.p[k].w+o.p[k].l+o.p[k].d;ks.sort((x,y)=>g(x)-g(y)).slice(0,ks.length-100).forEach(k=>delete o.p[k])}
 try{localStorage.setItem(RK,JSON.stringify(o))}catch(e){}return{o,q}}
 const recTxt=o=>'통산 '+o.w+'승 '+o.l+'패'+(o.d?' '+o.d+'무':'');
-const _end=end;end=function(w,msg){const was=inGame&&!over&&cfg.mode==='mp';_end.apply(this,arguments);if(was&&msg)sysLog('🏁 '+msg,'xs xg');
+const _end=end;end=function(w,msg){const was=inGame&&!over&&cfg.mode==='mp',wg=inGame&&!over;_end.apply(this,arguments);if(wg){try{commEnd(w,msg)}catch(e){}}if(was&&msg)sysLog('🏁 '+msg,'xs xg');
 if(was){const x=recAdd(w==null?'d':(w===me?'w':'l'));el('os').textContent=(note?note+' · ':'')+recTxt(x.o)+' / 이 상대와 '+x.q.w+'승 '+x.q.l+'패'+(x.q.d?' '+x.q.d+'무':'')}else if(note)el('os').textContent=note;note=''};
 const _lobby=lobby;lobby=function(){const a=arguments,self=this;if(inGame&&!over&&cfg.mode==='mp'){if(leaving)return;leaving=true;recAdd('l');snd2({k:'bye'});setTimeout(()=>{leaving=false;_lobby.apply(self,a)},200);return}return _lobby.apply(this,a)};el('bl').onclick=lobby;
 el('xrec').onclick=()=>{const o=recLoad(),l=el('xrl'),tot=x=>(+x.w||0)+(+x.l||0)+(+x.d||0);el('xrs').textContent=tot(o)?recTxt(o):'아직 기록이 없어요';l.innerHTML='';
@@ -491,7 +502,7 @@ if(o.h.length){hd('최근 기록');o.h.slice(0,30).forEach(h=>row(String(h.t||''
 el('xrd').style.display='flex'};
 el('xrc').onclick=()=>el('xrd').style.display='none';
 const SW=['아 진짜 답답해 죽겠네!!','이 느림보야 빨리 둬라 ㅅㅂ!!','장기 두다 날 새겠다 ㅅㅂ!!','손이 없냐 발이 없냐!! 빨리 둬!!','야 ㅅㅂ 잠들었냐!! 빨리 둬라!!','아 뭐하냐고 진짜 ㅅㅂ!!'];
-window.jgTO=function(s){if(over||!inGame)return;if(cfg.mode!=='mp'&&s!==me)return;const n=++TO[s];xsave();const t=el('xto'),m=el('xtm'),f=el('xfl');
+window.jgTO=function(s){if(over||!inGame)return;if(cfg.mode!=='mp'&&s!==me)return;const n=++TO[s];xsave();try{commTO(s,n)}catch(e){}const t=el('xto'),m=el('xtm'),f=el('xfl');
 m.textContent=n==1?'⏰ 시간초과!!':SW[(n-2)%SW.length];m.className=n==1?'':'xsm';el('xts').textContent=nm(s)+'나라 시간초과 '+n+'회';
 try{const r=cv.getBoundingClientRect();t.style.left=(r.left+OX+4*CX)+'px';t.style.top=(r.top+OY+4.5*CY)+'px'}catch(e){}
 t.style.display='flex';[t,f].forEach(x=>{x.classList.remove('xgo');void x.offsetWidth;x.classList.add('xgo')});try{boom();snd('clash',3)}catch(e){}};
@@ -513,9 +524,9 @@ const q=Math.random()*TA.length|0;try{conn.send({k:'emo',q})}catch(x){return}las
 let UH=[],UQ=null,UI=null;
 const snap=w=>({B:JSON.parse(JSON.stringify(B)),mc,lm:lm?lm.slice():null,w});
 const lastIdx=s=>{for(let i=UH.length-1;i>=0;i--)if(UH[i].w===s)return i;return-1};
-const _dm=doMove;doMove=function(){if(!anim&&!over){UH.push(snap(turn));if(UH.length>40)UH.shift();xsave();if(UI){UI=null;el('xcf').style.display='none';toast('상대가 수를 두어 무르기 요청이 취소됐어요',2500)}}return _dm.apply(this,arguments)};
+const _dm=doMove;doMove=function(m){if(!anim&&!over){try{const pc=B[m[1]][m[0]],vc=B[m[3]][m[2]];lastMv={mc:mc+1,a:turn,p:pc?pc.t:'',v:vc?vc.t:null,fresh:1}}catch(e){}UH.push(snap(turn));if(UH.length>40)UH.shift();xsave();if(UI){UI=null;el('xcf').style.display='none';toast('상대가 수를 두어 무르기 요청이 취소됐어요',2500)}}return _dm.apply(this,arguments)};
 const _pl=play;play=function(){if(UQ){toast('무르기 응답을 기다리는 중이에요',2000);return}return _pl.apply(this,arguments)};
-function doUndo(to){const i=UH.findIndex(h=>h.mc===to);if(i<0||over||!inGame)return false;const h=UH[i];UH.length=i;xsave();B=JSON.parse(JSON.stringify(h.B));mc=h.mc;lm=h.lm?h.lm.slice():null;sel=null;anim=null;busy=false;jang=null;setTurn(h.w);return true}
+function doUndo(to){const i=UH.findIndex(h=>h.mc===to);if(i<0||over||!inGame)return false;const h=UH[i];UH.length=i;xsave();B=JSON.parse(JSON.stringify(h.B));mc=h.mc;lm=h.lm?h.lm.slice():null;sel=null;anim=null;busy=false;jang=null;setTurn(h.w);try{commUndo(h.w)}catch(e){}return true}
 const snd2=o=>{try{conn&&conn.open&&conn.send(o)}catch(e){}};
 el('xundo').onclick=()=>{if(cfg.mode!=='mp'||!inGame||over)return;
 if(UQ)return toast('상대의 응답을 기다리는 중이에요',2000);
@@ -543,7 +554,7 @@ return true}
 /* ---- 저장 도우미 · 접속 로그 ---- */
 const sget=k=>{try{return sessionStorage.getItem(k)||localStorage.getItem(k)}catch(e){return null}};
 const sset=(k,v)=>{try{sessionStorage.setItem(k,v)}catch(e){}try{localStorage.setItem(k,v)}catch(e){}};
-function xsave(){sset('jg_x',JSON.stringify({sid,UH,TO,GH}))}
+function xsave(){sset('jg_x',JSON.stringify({sid,UH,TO,GH,GD,CM}))}
 let lastOpen=null,byeSeen=false,leaving=false;
 function sysLog(t,c){const d=new Date(),p=n=>String(n).padStart(2,'0');chAdd(c||'xs','['+p(d.getHours())+':'+p(d.getMinutes())+'] '+t)}
 function netWatch(){if(cfg.mode!=='mp'||!inGame||over){lastOpen=null;lastConn=null;return}const o=!!(conn&&conn.open);if(lastOpen===null){lastOpen=o;lastConn=conn;return}
@@ -553,18 +564,81 @@ if(!o){if(!byeSeen){sysLog(navigator.onLine===false?'⚠️ 내 인터넷 연결
 else{byeSeen=false;awaitAck=Date.now();sysLog('🔌 접속됐어요. 상대 응답을 확인하는 중…','xs');snd2({k:'hb'})}}
 
 /* ---- 전황 게이지 · 그래프 ---- */
-let GH=[],gMc=-1;
+let GH=[],gMc=-1,GD=[],CM=[],lastMv=null;
 function gEval(){let a=0,b=1.5;for(let y=0;y<10;y++)for(let x=0;x<9;x++){const q=B[y][x];if(q){if(q.s==='c')a+=VAL[q.t];else b+=VAL[q.t]}}
-let d=(ev('c',1)-15)/10+(all('c').length-all('h').length)*.12;if(chk('h'))d+=1;if(chk('c'))d-=1;
-const p=Math.min(.99,Math.max(.01,1/(1+Math.exp(-d/4.5))));return{p,a,b}}
+const pos=Math.max(-1.5,Math.min(1.5,(ev('c',1)-ev('c',0))/10)),mob=Math.max(-1.5,Math.min(1.5,(all('c').length-all('h').length)*.05));
+let d=(a-b)+pos+mob;if(chk('h'))d+=.5;if(chk('c'))d-=.5;return{d,a,b}}
 function gTxt(){const p=GH.length?GH[GH.length-1]:null;if(p==null)return;const c=Math.round(p*100);el('xgs').textContent='초 '+c+'%  vs  한 '+(100-c)+'%'}
-function gUpd(){try{const e=gEval(),prev=GH.length?GH[GH.length-1]:null;GH.length=mc;GH[mc]=Math.round(e.p*1000)/1000;
-const c=Math.round(e.p*100);el('xgf').style.width=c+'%';el('xgl').textContent='초 '+c+'%';el('xgr').textContent=(100-c)+'% 한';
-el('xgn').textContent='전력 초 '+e.a.toFixed(1)+' : 한 '+e.b.toFixed(1);
-if(prev!=null&&Math.abs(e.p-prev)>=.12){const g=el('xgb');g.classList.remove('xp');void g.offsetWidth;g.classList.add('xp')}
+function gUpd(){try{const e=gEval();let pi=mc-1;while(pi>=0&&GD[pi]==null)pi--;
+const prevD=pi>=0?GD[pi]:null,prevP=pi>=0?GH[pi]:null,dS=prevD==null?e.d:prevD*.45+e.d*.55;
+let p=Math.min(.97,Math.max(.03,1/(1+Math.exp(-dS/7.5))));if(prevP!=null)p=Math.min(prevP+.15,Math.max(prevP-.15,p));p=Math.round(p*1000)/1000;
+GH.length=mc;GD.length=mc;GH[mc]=p;GD[mc]=Math.round(dS*100)/100;
+const c=Math.round(p*100);el('xgf').style.width=c+'%';el('xgl').textContent='초 '+c+'%';el('xgr').textContent=(100-c)+'% 한';el('xgn').textContent='전력 초 '+e.a.toFixed(1)+' : 한 '+e.b.toFixed(1);
+if(prevP!=null&&Math.abs(p-prevP)>=.08){const g=el('xgb');g.classList.remove('xp');void g.offsetWidth;g.classList.add('xp')}
+const l=lastMv&&lastMv.fresh&&lastMv.mc===mc?lastMv:null;
+if(l){l.fresh=0;try{commentate(l,prevP,p)}catch(x){}}else if(mc===0&&!CM.length){comm(fill(pick(CB.start,'s0'),{C:tag('c'),H:tag('h')}),'start',0)}
 gTxt();if(el('xgd').style.display==='flex')gDraw();if(cfg.mode==='mp')xsave()}catch(x){}}
+/* ---- 축구 해설 ---- */
+const PN={R:'차',C:'포',N:'마',B:'상',G:'사',P:'졸',K:'궁'},side2=s=>s==='c'?'h':'c';
+const pname=(t,s)=>t==='P'&&s==='h'?'병':(PN[t]||'말');
+const jo=(w,x,y)=>{const c=w.charCodeAt(w.length-1)-44032;return w+((c>=0&&c<11172&&c%28)?x:y)};
+const nmOf=s=>s===me?nick():(cfg.mode==='mp'?(oppNick||'상대'):'COM'),tag=s=>{const n=nmOf(s);return n==='COM'?n:n+'님'};
+const rnd=k=>{k=String(k);let h=1779033703^k.length;for(let i=0;i<k.length;i++){h=Math.imul(h^k.charCodeAt(i),3432918353);h=h<<13|h>>>19}h=Math.imul(h^h>>>16,2246822507);h=Math.imul(h^h>>>13,3266489909);return((h^h>>>16)>>>0)/4294967296};
+const rr=k=>rnd((sid||'x')+':'+mc+':'+k),pick=(a,k)=>a[Math.floor(rr(k)*a.length)];
+const fill=(t,c)=>t.replace(/\{(A|V|L|W|C|H)\}/g,(m,k)=>c[k]||'').replace(/\{P이\}/g,jo(c.P||'말','이','가')).replace(/\{Q을\}/g,jo(c.Q||'말','을','를')).replace(/\{Q\}/g,c.Q||'말').replace(/\{P\}/g,c.P||'말');
+const CB={
+start:['🎙 안녕하세요 시청자 여러분!! 오늘의 빅매치, 초나라 {C} 대 한나라 {H}!! 지금 첫 수를 둡니다, 킥오프!!','🎙 경기장이 후끈 달아올랐습니다!! 초나라 {C}, 한나라 {H}, 숨 막히는 한 판이 시작됩니다!!'],
+big:['🚨 이럴 수가!! {A}의 {P이} {V}의 차를 통째로 삼킵니다!! 판이 뒤집어집니다!!','💥 골~~~ 아니 차입니다!! {A}, 천금 같은 한 방으로 {V}의 차를 잡아냅니다!!','😱 {V}, 이건 뼈아픕니다!! 차를 내주고 말았어요! {A}의 기세가 무섭습니다!!'],
+maj:['🔥 {A}의 {P이} {V}의 포를 낚아챕니다!! 이건 큽니다 큽니다!!','⚡ 날카로운 침투!! {A}, {V}의 포를 그대로 가져갑니다!!','😮 {V}의 포가 사라졌습니다!! {A}, 아주 영리한 플레이!!'],
+mid:['⚔️ {A}의 {P이} {V}의 {Q을} 낚아챕니다! 분위기가 확 넘어옵니다!','🎯 정확합니다! {A}, {V}의 {Q을} 놓치지 않습니다!','👏 {A}, 깔끔하게 {Q} 하나 챙겨갑니다! {V}, 표정이 굳어요!'],
+sml:['🗡️ {A}, 졸 하나 슬쩍~ 야금야금 갑니다!','🐜 작지만 알찬 수확! {A}, {V}의 졸을 가져갑니다!','👀 {V}의 졸이 쓰러졌습니다. 작은 균열이 시작될까요?'],
+chk:['🚨 장군!!! {A}, {V}의 궁을 압박합니다! {V}, 식은땀이 주르륵!!','😤 {A}의 매서운 장군!! {V}, 어떻게 막아낼까요!!','🔔 장군입니다!! 관중석이 술렁입니다!! {V}, 침착해야 해요!!'],
+chk2:['게다가 장군까지!!','그것도 장군으로!! 이건 무섭습니다!!','거기에 장군!! {V}, 정신이 없어요!!'],
+rev:['🔥 역전!! 이제 {L}, 앞서갑니다!!','🌪️ 흐름이 완전히 바뀌었습니다!! {L}, 단숨에 앞서 나가요!!'],
+swing:['📈 {A}의 한 수, 분위기가 확 달라졌어요!','🧠 조용한 한 수였지만 효과는 폭발적!! {A}, 흐름을 가져옵니다!!'],
+blun:['😱 {A}, 이건 실수 같은데요?! {V}, 기회를 잡았습니다!!','🤔 {A}의 한 수, 글쎄요… {V}에게 유리해졌습니다!!'],
+pass:['😴 {A}, 한 수 쉬어갑니다. 여유일까요, 시간 끌기일까요?','🍵 {A}의 한수쉼!! 차 한잔 하자는 건가요? {V}, 당황한 기색!','🕊️ 쉬어가는 한 수! {A}, 이 정적… 뭔가 준비 중일지도 모릅니다!'],
+tense:['🔥 팽팽합니다 팽팽해요!! 한 치의 양보도 없는 접전!!','⚖️ 승부의 저울이 흔들리지 않습니다!! {A}와 {V}, 누가 먼저 무너질까요!!'],
+to:['⏰ 아~ {A}, 시간이 다 됐습니다!! 장고에 빠졌어요! {V}, 하품 중…'],
+to2:['🐢 {A}의 시계가 또 바닥났습니다!! 심판이 손목시계를 쳐다보네요!','😴 {V}, 기다리다 졸고 있어요!! {A}, 제발 한 수만 둬 주세요!!'],
+undo:['↩️ 무르기 성사!! {A}의 수가 없던 일이 됩니다!! 심판도 눈을 의심해요!!'],
+end:['🏁 경기 종료!! {W}, 승리!! {L}, 아쉽게 무너졌습니다. 정말 박진감 넘치는 한 판이었어요!!','🏆 끝났습니다!! {W}의 완벽한 마무리!! {L}, 고개를 떨굽니다!!'],
+res:['🏳️ {L}, 백기를 듭니다!! {W}, 승리를 거머쥡니다!!'],
+left:['🚪 {L}, 경기장을 떠납니다!! 부전승으로 {W} 승리!!'],
+draw:['🤝 무승부!! 승부를 가리지 못했습니다!! 박수를 보냅니다!!']};
+function banner(t){const b=el('xcb');b.textContent=t;try{const r=cv.getBoundingClientRect(),h=($('hud')&&$('hud').offsetHeight)||46;b.style.left=(r.left+6)+'px';b.style.width=(r.width-12)+'px';b.style.top=(r.top+h+6)+'px'}catch(e){}b.style.display='block';b.classList.remove('xgo');void b.offsetWidth;b.classList.add('xgo')}
+el('xcb').onanimationend=()=>{el('xcb').style.display='none'};
+function comm(t,k,sw,nb){CM.push({n:mc,t,k,sw:sw||0});if(CM.length>120)CM.shift();if(cfg.mode==='mp'){chAdd('xs xc',t);xsave()}if(!nb)banner(t)}
+function commentate(l,pp,p){const A=l.a,Vs=side2(A),c={A:tag(A),V:tag(Vs),P:pname(l.p,A),Q:l.v?pname(l.v,Vs):'',C:tag('c'),H:tag('h')};
+const dp=pp==null?0:p-pp,adv=A==='c'?dp:-dp,val=l.v?VAL[l.v]:0,lead=x=>x>=.5?'c':'h';
+const flip=pp!=null&&Math.abs(pp-.5)>=.04&&lead(pp)!==lead(p)&&Math.abs(p-.5)>=.03;c.L=tag(lead(p));
+let t=null,k='';
+if(l.pass){if(rr('p')<.8){t=pick(CB.pass,'p');k='pass'}}
+else if(val>=13){t=pick(CB.big,'b');k='cap'}else if(val>=7){t=pick(CB.maj,'m');k='cap'}else if(val>=3){t=pick(CB.mid,'d');k='cap'}
+else if(val>=1){if(Math.abs(dp)>=.03||rr('s')<.6){t=pick(CB.sml,'s');k='cap'}}
+const ck=!l.pass&&chk(Vs);
+if(t&&ck&&k==='cap')t+=' '+pick(CB.chk2,'c2');else if(!t&&ck){t=pick(CB.chk,'c');k='chk'}
+if(t&&flip&&k!=='pass')t+=' '+pick(CB.rev,'r');else if(!t&&flip){t=pick(CB.rev,'r');k='rev'}
+if(!t&&Math.abs(dp)>=.10){t=pick(adv>=0?CB.swing:CB.blun,'w');k='swing'}
+if(!t&&mc>=8&&mc%10===0&&Math.abs(p-.5)<.06){t=pick(CB.tense,'t');k='tense'}
+if(t)comm(fill(t,c),k,Math.max(Math.abs(dp),val/40))}
+function commTO(s,n){comm(fill(pick(n>1?CB.to2:CB.to,'t'+n),{A:tag(s),V:tag(side2(s))}),'to',0)}
+function commUndo(s){comm(fill(pick(CB.undo,'u'),{A:tag(s)}),'undo',0)}
+function commEnd(w,msg){const W=w?tag(w):'',L=w?tag(side2(w)):'',pf=GH.length?GH[GH.length-1]:.5;
+comm(fill(pick(w==null?CB.draw:/기권/.test(note)?CB.res:msg?CB.left:CB.end,'e'),{W,L}),'end',0);
+comm('📋 총 '+mc+'수 · 최종 전황 초 '+Math.round(pf*100)+'% : 한 '+(100-Math.round(pf*100))+'% · 🎙 해설 다시보기에서 명장면을 확인하세요!','sum',0,1)}
+function openRp(){const g=GH.filter(v=>v!=null),mx=g.length?Math.max(...g):.5,mn=g.length?Math.min(...g):.5;let fl=0,ls=null;
+g.forEach(v=>{if(Math.abs(v-.5)<.04)return;const s=v>=.5?'c':'h';if(ls&&s!==ls)fl++;ls=s});
+el('xrps').textContent='총 '+mc+'수 · 초 최고 '+Math.round(mx*100)+'% / 한 최고 '+Math.round((1-mn)*100)+'% · 역전 '+fl+'회';gDraw(el('xrcv'));
+const row=(n,t,box)=>{const d=document.createElement('div'),b=document.createElement('b');d.className='xrl';b.textContent=n;d.append(b,document.createTextNode(t));box.appendChild(d)};
+const H=el('xrph'),Lb=el('xrpl');H.innerHTML='';Lb.innerHTML='';
+const hl=CM.filter(m=>m.sw>=.05&&m.k!=='end'&&m.k!=='sum').sort((a,b)=>b.sw-a.sw).slice(0,3);
+if(hl.length){const h=document.createElement('div');h.textContent='🎬 하이라이트 TOP '+hl.length;h.style.cssText='font-weight:800;padding:4px 0';H.appendChild(h);hl.forEach((m,i)=>row(['🥇','🥈','🥉'][i]+' '+m.n+'수',m.t,H))}
+if(!CM.length){const d=document.createElement('div');d.className='xrl';d.textContent='아직 해설이 없어요';Lb.appendChild(d)}
+CM.forEach(m=>row(m.n+'수',m.t,Lb));el('xrp').style.display='flex';Lb.scrollTop=Lb.scrollHeight}
+el('orp').onclick=openRp;el('xgr2').onclick=()=>{el('xgd').style.display='none';openRp()};el('xrpc').onclick=()=>el('xrp').style.display='none';
 function gTick(){if(!inGame||over||anim||!B||gMc===mc)return;gMc=mc;gUpd()}
-function gDraw(){const c=el('xgcv'),g=c.getContext('2d'),w=c.width,h=c.height;g.clearRect(0,0,w,h);g.fillStyle='#0b1226';g.fillRect(0,0,w,h);
+function gDraw(c){c=c||el('xgcv');const g=c.getContext('2d'),w=c.width,h=c.height;g.clearRect(0,0,w,h);g.fillStyle='#0b1226';g.fillRect(0,0,w,h);
 const v=[];let last=.5;for(let i=0;i<GH.length;i++){if(GH[i]!=null)last=GH[i];v.push(last)}
 g.strokeStyle='#ffffff2a';g.lineWidth=1;[.25,.5,.75].forEach(q=>{g.setLineDash(q==.5?[]:[4,4]);g.beginPath();g.moveTo(0,h*(1-q));g.lineTo(w,h*(1-q));g.stroke()});g.setLineDash([]);
 g.font='bold 11px sans-serif';g.textAlign='left';g.fillStyle='#3fd9a0';g.fillText('초 우세',6,12);g.fillStyle='#ff6a5a';g.fillText('한 우세',6,h-4);
