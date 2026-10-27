@@ -19,42 +19,37 @@
       color-scheme: dark;
     }
     html {
-      background-color: #05020a !important;
-      background: #05020a !important;
+      background-color: #05020a;
       min-height: 100%;
-      overscroll-behavior: none;
       -webkit-tap-highlight-color: transparent;
     }
     body {
       margin: 0;
-      padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 12px);
-      width: 100%;
+      /* 상단 노치 + 하단 스마트폰 네비게이션 바(가상버튼/홈바) 여백 120px 이상 확보하여 가림 원천 방지 */
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-left: max(14px, env(safe-area-inset-left));
+      padding-right: max(14px, env(safe-area-inset-right));
+      padding-bottom: max(130px, calc(env(safe-area-inset-bottom, 30px) + 90px));
       min-height: 100vh;
-      min-height: -webkit-fill-available;
-      background-color: #05020a !important;
-      background: radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%) no-repeat fixed center top !important;
+      background-color: #05020a;
+      background: #05020a radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%) no-repeat fixed center top;
       color: #f3f4f6;
       font-family: 'Pretendard', sans-serif;
       overflow-x: hidden;
-      overflow-y: auto;
-      touch-action: pan-y; /* 수직 스크롤/드래그를 끊김 없이 100% 매끄럽게 보장 */
+      overflow-y: scroll; /* 모바일 네이티브 관성 스크롤 복구 (위아래 당김 100% 매끄러움) */
       -webkit-overflow-scrolling: touch;
-      overscroll-behavior-y: none; /* 상하 끝에서 흰색 바탕이 보이는 튕김 완벽 방지 */
     }
-    /* 사이드 여백 확보로 가장자리 시스템 제스처(뒤로가기 등) 방해 완전 차단 */
     .app-main-shell {
       width: 100%;
       max-width: 1152px;
       margin: 0 auto;
-      padding: 0 10px;
+      padding: 0 4px;
     }
     /* 가로 탭 바 및 표 영역 터치 스크롤 최적화 */
     #dashboard-tabs-container, .overflow-x-auto {
-      overscroll-behavior-x: contain;
-      touch-action: pan-x pan-y;
       -webkit-overflow-scrolling: touch;
     }
-    /* 셀렉트 및 인풋 폼 다크 테마 고정 (브라우저 자동완성 흰색 배경 원천 차단) */
+    /* 셀렉트 및 인풋 폼 다크 테마 고정 */
     select, input, textarea {
       color-scheme: dark;
     }
@@ -76,33 +71,33 @@
       letter-spacing: 0.05em;
     }
     .neon-border-pink {
-      box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), inset 0 0 15px rgba(236, 72, 153, 0.15);
+      box-shadow: 0 0 15px rgba(236, 72, 153, 0.25);
     }
     .neon-border-cyan {
-      box-shadow: 0 0 20px rgba(6, 182, 212, 0.3), inset 0 0 15px rgba(6, 182, 212, 0.15);
+      box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
     }
     .neon-btn-pink {
-      box-shadow: 0 0 25px rgba(236, 72, 153, 0.6);
-      transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+      transition: all 0.2s ease;
     }
     .neon-btn-pink:hover {
-      box-shadow: 0 0 35px rgba(236, 72, 153, 0.9);
-      transform: translateY(-2px) scale(1.01);
+      box-shadow: 0 0 30px rgba(236, 72, 153, 0.8);
+      transform: translateY(-2px);
     }
     .rank-1 {
-      background: linear-gradient(135deg, rgba(234, 179, 8, 0.28), rgba(161, 98, 7, 0.12));
+      background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(161, 98, 7, 0.12));
       border: 2px solid #facc15;
-      box-shadow: 0 0 35px rgba(234, 179, 8, 0.45);
+      box-shadow: 0 0 25px rgba(234, 179, 8, 0.35);
     }
     .rank-2 {
-      background: linear-gradient(135deg, rgba(203, 213, 225, 0.22), rgba(100, 116, 139, 0.12));
+      background: linear-gradient(135deg, rgba(203, 213, 225, 0.2), rgba(100, 116, 139, 0.12));
       border: 1.5px solid #cbd5e1;
-      box-shadow: 0 0 20px rgba(203, 213, 225, 0.25);
+      box-shadow: 0 0 15px rgba(203, 213, 225, 0.2);
     }
     .rank-3 {
-      background: linear-gradient(135deg, rgba(217, 119, 6, 0.22), rgba(180, 83, 9, 0.12));
+      background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(180, 83, 9, 0.12));
       border: 1.5px solid #d97706;
-      box-shadow: 0 0 20px rgba(217, 119, 6, 0.25);
+      box-shadow: 0 0 15px rgba(217, 119, 6, 0.2);
     }
     #fireworks-canvas {
       position: fixed;
@@ -113,8 +108,8 @@
       pointer-events: none;
       z-index: 9999;
     }
-    ::-webkit-scrollbar { width: 7px; height: 7px; }
-    ::-webkit-scrollbar-track { background: #0f091c; }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #0c0617; }
     ::-webkit-scrollbar-thumb { background: #3c2560; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #62369f; }
   </style>
@@ -124,7 +119,7 @@
 
   <!-- Floating Festival Toast Banner with Winner Name (Ultra-High Contrast & Radiant Gold) -->
   <div id="festival-banner" class="fixed top-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-[10000] opacity-0 transition-all duration-500 scale-75 text-center w-11/12 max-w-xl">
-    <div class="px-7 py-5 rounded-3xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-gray-950 border-4 border-white shadow-[0_0_60px_rgba(250,204,21,1),0_0_30px_rgba(255,255,255,0.8)] backdrop-blur-2xl">
+    <div class="px-7 py-5 rounded-3xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-gray-950 border-4 border-white shadow-[0_0_60px_rgba(250,204,21,1),0_0_30px_rgba(255,255,255,0.8)] bg-yellow-400">
       <div id="festival-banner-title" class="text-2xl md:text-4xl font-game tracking-wider text-gray-950 drop-shadow-sm flex items-center justify-center gap-2">
         👑 민수 님이 1등 독주 중! 👑
       </div>
@@ -182,7 +177,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         <!-- 새 모임 개설 카드 -->
-        <div class="bg-gray-900/85 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-pink-500/30 neon-border-pink flex flex-col justify-between relative overflow-hidden">
+        <div class="bg-gray-900/85 bg-gray-900/95 p-6 md:p-8 rounded-3xl border border-pink-500/30 neon-border-pink flex flex-col justify-between relative overflow-hidden">
           <div class="absolute -top-12 -right-12 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div>
             <div class="flex items-center gap-3 mb-4">
@@ -229,7 +224,7 @@
         </div>
 
         <!-- 모임 목록 카드 (진행 중 / 종료된 모임 2개 탭 분리) -->
-        <div class="bg-gray-900/85 backdrop-blur-xl p-6 md:p-8 rounded-3xl border border-cyan-500/30 neon-border-cyan flex flex-col justify-between relative overflow-hidden">
+        <div class="bg-gray-900/85 bg-gray-900/95 p-6 md:p-8 rounded-3xl border border-cyan-500/30 neon-border-cyan flex flex-col justify-between relative overflow-hidden">
           <div class="absolute -top-12 -right-12 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div>
             <div class="flex items-center gap-3 mb-4">
@@ -265,9 +260,26 @@
 
           </div>
 
-          <div class="pt-4 border-t border-gray-800 flex justify-between items-center text-xs text-gray-400">
-            <span class="flex items-center gap-1.5"><i data-lucide="hard-drive" class="w-3.5 h-3.5 text-emerald-400"></i> 브라우저 저장소 연동</span>
-            <button onclick="clearAllDataPrompt()" class="text-red-400 hover:text-red-300 hover:underline cursor-pointer">전체 데이터 초기화</button>
+          <div class="pt-4 border-t border-gray-800 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
+              <span class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+                <i data-lucide="shield-check" class="w-4 h-4 text-emerald-400"></i> 자동 저장 연동됨
+              </span>
+              <button onclick="clearAllDataPrompt()" class="text-red-400 hover:text-red-300 hover:underline cursor-pointer">전체 초기화</button>
+            </div>
+            <!-- 모임 데이터 영구 백업 / 복원 버튼 바 -->
+            <div class="grid grid-cols-2 gap-2 text-xs pt-1">
+              <button onclick="exportBackupFile()" class="py-2 px-3 bg-purple-900/60 hover:bg-purple-800/80 border border-purple-500/40 rounded-xl text-purple-200 font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-purple-400"></i> 데이터 백업 파일 저장
+              </button>
+              <label class="py-2 px-3 bg-cyan-900/60 hover:bg-cyan-800/80 border border-cyan-500/40 rounded-xl text-cyan-200 font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer text-center">
+                <i data-lucide="upload" class="w-3.5 h-3.5 text-cyan-400"></i> 백업 파일 복원
+                <input type="file" id="backup-file-input" accept=".json" onchange="importBackupFile(event)" class="hidden">
+              </label>
+            </div>
+            <p class="text-[11px] text-gray-400 text-center leading-tight">
+              💡 백업 파일을 저장해두면 다른 기기나 새 창에서도 언제든지 기록을 100% 복구할 수 있습니다.
+            </p>
           </div>
         </div>
 
@@ -278,7 +290,7 @@
     <section id="view-dashboard" class="hidden space-y-6">
       
       <!-- 상단 방 정보 & 호스트 권한 & 액션 바 -->
-      <div class="bg-gray-900/90 backdrop-blur-md p-4 md:p-6 rounded-2xl border border-gray-800 shadow-xl space-y-4">
+      <div class="bg-gray-900/90 bg-gray-900/95 p-4 md:p-6 rounded-2xl border border-gray-800 shadow-xl space-y-4">
         
         <div class="flex flex-wrap items-center justify-between gap-4">
           <div class="flex items-center gap-3">
@@ -303,9 +315,13 @@
 
           <div class="flex items-center gap-2 flex-wrap">
             <!-- 카카오톡/초대 링크 공유 버튼 -->
+            <button onclick="exportBackupFile()" 
+                    class="px-3 py-2.5 bg-purple-900/70 hover:bg-purple-800 border border-purple-500/50 text-purple-200 rounded-xl text-xs md:text-sm font-bold shadow active:scale-95 transition flex items-center gap-1.5 cursor-pointer" title="현재 모임 및 전체 데이터 백업">
+              <i data-lucide="download" class="w-4 h-4 text-purple-300"></i> 백업
+            </button>
             <button onclick="shareActiveRoom()" 
                     class="px-3.5 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-gray-950 rounded-xl text-sm font-bold shadow active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="share-2" class="w-4 h-4"></i> 카톡 초대 / 공유
+              <i data-lucide="share-2" class="w-4 h-4"></i> 카톡 공유
             </button>
 
             <!-- 랜덤 축제 이펙트 버튼 -->
@@ -384,7 +400,7 @@
         </div>
 
         <!-- 전체 랭킹 테이블 -->
-        <div class="bg-gray-900/85 backdrop-blur-md rounded-2xl border border-gray-800 p-4 md:p-6 shadow-lg">
+        <div class="bg-gray-900/85 bg-gray-900/95 rounded-2xl border border-gray-800 p-4 md:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-lg font-bold text-gray-200 flex items-center gap-2">
               <i data-lucide="medal" class="w-5 h-5 text-amber-400"></i> 참가자 종합 랭킹
@@ -417,7 +433,7 @@
       </div>
 
       <!-- 게임이 전혀 없을 때 빈 화면 가이드 -->
-      <div id="no-games-guide" class="hidden bg-gray-900/80 backdrop-blur-md rounded-2xl border border-dashed border-gray-700 p-10 text-center space-y-3">
+      <div id="no-games-guide" class="hidden bg-gray-900/80 bg-gray-900/95 rounded-2xl border border-dashed border-gray-700 p-10 text-center space-y-3">
         <div class="w-16 h-16 bg-pink-500/10 text-pink-400 rounded-2xl flex items-center justify-center mx-auto text-3xl">
           🎯
         </div>
@@ -435,7 +451,7 @@
   </div>
 
   <!-- MODAL 1: ADD GAME (호스트 전용) -->
-  <div id="modal-add-game" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
+  <div id="modal-add-game" class="fixed inset-0 bg-black/80 bg-gray-900/95 hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
     <div class="bg-gray-900 border border-purple-500/50 rounded-3xl max-w-xl w-full p-6 md:p-8 space-y-5 shadow-2xl my-8">
       
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
@@ -511,7 +527,7 @@
   </div>
 
   <!-- MODAL 2: GUEST SCORE REQUEST (초대 인원 점수 수정 요청 모달) -->
-  <div id="modal-score-request" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+  <div id="modal-score-request" class="fixed inset-0 bg-black/80 bg-gray-900/95 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-gray-900 border border-cyan-500/50 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -560,7 +576,7 @@
   </div>
 
   <!-- MODAL 3: HOST REQUEST REVIEW (호스트의 요청 검토 모달) -->
-  <div id="modal-host-review" class="fixed inset-0 bg-black/80 backdrop-blur-md hidden z-50 flex items-center justify-center p-4">
+  <div id="modal-host-review" class="fixed inset-0 bg-black/80 bg-gray-900/95 hidden z-50 flex items-center justify-center p-4">
     <div class="bg-gray-900 border border-purple-500/50 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
         <h3 class="text-lg font-bold text-white flex items-center gap-2">
@@ -1066,16 +1082,38 @@
       return list.indexOf(roomId) !== -1;
     }
 
-    // --- APP CORE INIT & URL SYNC ---
+    // --- DATA PERSISTENCE & MULTI-KEY AUTO RESTORE ---
+    var STORAGE_KEYS = [
+      'GAME_NIGHT_PRO_DATA_V5',
+      'GAME_NIGHT_PRO_DATA_V4',
+      'GAME_NIGHT_PRO_DATA_V3',
+      'GAME_NIGHT_PRO_DATA_V2',
+      'GAME_NIGHT_PRO_DATA_V1',
+      'GAME_NIGHT_DATA',
+      'GAME_NIGHT_BACKUP_MASTER'
+    ];
+
     function initApp() {
-      try {
-        var saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          appData = JSON.parse(saved);
+      // 1. 다중 키 검사 및 자동 마이그레이션 (이전 버전 데이터 유실 방지)
+      var loaded = false;
+      for (var k = 0; k < STORAGE_KEYS.length; k++) {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEYS[k]);
+          if (raw) {
+            var parsed = JSON.parse(raw);
+            if (parsed && parsed.rooms && parsed.rooms.length > 0) {
+              appData = parsed;
+              loaded = true;
+              break;
+            }
+          }
+        } catch (e) {
+          console.error("Storage load error from " + STORAGE_KEYS[k], e);
         }
-      } catch (e) {
-        console.error("Storage parse error", e);
       }
+
+      // 항상 최신 키 및 마스터 백업 키에 동시 저장 보장
+      saveData();
 
       var urlParams = new URLSearchParams(window.location.search);
       var sharedRoomId = urlParams.get('room');
@@ -1094,10 +1132,62 @@
 
     function saveData() {
       try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+        var serialized = JSON.stringify(appData);
+        localStorage.setItem(STORAGE_KEY, serialized);
+        localStorage.setItem('GAME_NIGHT_BACKUP_MASTER', serialized);
       } catch (e) {
         console.error("Storage save failed", e);
       }
+    }
+
+    // 파일로 내보내기 (백업 .json 다운로드)
+    function exportBackupFile() {
+      try {
+        var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
+        var now = new Date();
+        var dateStr = now.getFullYear() + String(now.getMonth()+1).padStart(2, '0') + String(now.getDate()).padStart(2, '0') + "_" + String(now.getHours()).padStart(2, '0') + String(now.getMinutes()).padStart(2, '0');
+        var dlAnchor = document.createElement('a');
+        dlAnchor.setAttribute("href", dataStr);
+        dlAnchor.setAttribute("download", "scoreboard_backup_" + dateStr + ".json");
+        document.body.appendChild(dlAnchor);
+        dlAnchor.click();
+        dlAnchor.remove();
+        alert('모임 데이터 백업 파일이 기기에 다운로드되었습니다!\n기기를 바꾸거나 브라우저 캐시가 삭제되어도 언제든지 이 파일로 100% 복구할 수 있습니다.');
+      } catch (e) {
+        alert('백업 파일 생성 중 오류가 발생했습니다: ' + e.message);
+      }
+    }
+
+    // 파일에서 불러오기 (백업 복원)
+    function importBackupFile(event) {
+      var file = event.target.files && event.target.files[0];
+      if (!file) return;
+
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          var imported = JSON.parse(e.target.result);
+          if (imported && Array.isArray(imported.rooms)) {
+            var confirmRestore = confirm('백업 파일을 불러오시겠습니까?\n저장된 모임 개수: ' + imported.rooms.length + '개\n(현재 점수판 데이터가 백업 내용으로 복원됩니다.)');
+            if (confirmRestore) {
+              appData = imported;
+              saveData();
+              renderLobbyRooms();
+              if (activeRoomId) {
+                renderAll();
+              }
+              alert('모임 데이터가 성공적으로 100% 복원되었습니다! 🏆');
+            }
+          } else {
+            alert('올바른 스코어보드 백업 파일 형식이 아닙니다.');
+          }
+        } catch (err) {
+          alert('파일을 읽는 중 오류가 발생했습니다: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+      // reset input
+      event.target.value = '';
     }
 
     function switchLobbyTab(tab) {
@@ -1158,7 +1248,7 @@
 
     function createRoomListItem(room, isCompleted) {
       var item = document.createElement('div');
-      item.className = "flex items-center justify-between p-3.5 bg-gray-800/80 hover:bg-gray-800 border " + (isCompleted ? 'border-amber-500/40 hover:border-amber-400' : 'border-gray-700 hover:border-cyan-500/50') + " rounded-xl cursor-pointer transition group";
+      item.className = "flex items-center justify-between p-3.5 bg-gray-800/90 hover:bg-gray-800 border " + (isCompleted ? 'border-amber-500/40 hover:border-amber-400' : 'border-gray-700 hover:border-cyan-500/50') + " rounded-xl cursor-pointer transition group";
       item.onclick = function() { enterRoom(room.id); };
 
       var dateStr = new Date(room.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
@@ -2088,7 +2178,7 @@
       }
 
       var card = document.createElement('div');
-      card.className = "bg-gray-900/90 backdrop-blur-md rounded-2xl border " + (isCompleted ? 'border-gray-800' : 'border-cyan-500/30') + " p-6 shadow-2xl space-y-5";
+      card.className = "bg-gray-900/90 bg-gray-900/95 rounded-2xl border " + (isCompleted ? 'border-gray-800' : 'border-cyan-500/30') + " p-6 shadow-2xl space-y-5";
 
       var typeBadge = '';
       if (game.type === 'points') typeBadge = '<span class="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold">🎯 점수 집계형</span>';
@@ -2380,7 +2470,7 @@
 
         var isWinner = (room.status === 'completed' && item.rank === 1);
 
-        card.className = rankClass + " p-5 rounded-2xl flex flex-col justify-between backdrop-blur-md relative overflow-hidden";
+        card.className = rankClass + " p-5 rounded-2xl flex flex-col justify-between bg-gray-900/95 relative overflow-hidden";
         card.innerHTML = 
           '<div class="flex items-center justify-between mb-3">' +
             '<span class="text-3xl">' + badge + '</span>' +
