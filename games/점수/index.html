@@ -1,12 +1,9 @@
 <!DOCTYPE html>
-<html lang="ko" class="bg-[#09090b]">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
   <!-- 모바일 뷰포트 설정: 부드러운 터치 및 스크롤 지원 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <!-- 모바일 브라우저 상단바/주소창 및 오버스크롤 배경색 검정 고정 -->
-  <meta name="theme-color" content="#09090b">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>✨ 세미니의 놀이터^^* 🎈</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -17,24 +14,39 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    /* 모바일 브라우저에서 배경이 하얗게 뜨는 문제 완전 방지 */
-    html, body {
+    html {
       width: 100%;
-      min-height: 100vh;
+      height: 100%;
+      overflow-x: hidden;
+      overflow-y: auto;
+    }
+
+    body {
+      width: 100%;
+      min-height: 100%;
       margin: 0;
       padding: 0;
       font-family: 'Noto Sans KR', sans-serif;
-      background-color: #09090b !important;
-      background-image: radial-gradient(circle at 50% 20%, #1e1b4b, #09090b) !important;
-      background-attachment: fixed !important;
-      background-size: cover !important;
-      color: #ffffff;
+      background-color: #09090b;
       user-select: none;
       -webkit-user-select: none;
+      /* 모바일 상하 스크롤이 매끄럽게 되도록 설정 */
       touch-action: auto;
       overflow-x: hidden;
-      overflow-y: auto;
+      overflow-y: visible;
       -webkit-overflow-scrolling: touch;
+    }
+
+    .bg-layer {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 50% 20%, #1e1b4b, #09090b);
+      z-index: -1;
+      pointer-events: none;
+      transform: translate3d(0, 0, 0);
     }
 
     .title-font { font-family: 'Black Han Sans', 'Jua', sans-serif; }
@@ -98,7 +110,8 @@
     }
   </style>
 </head>
-<body class="text-white flex flex-col items-center safe-container bg-[#09090b]">
+<body class="text-white flex flex-col items-center safe-container">
+  <div class="bg-layer"></div>
 
   <!-- 상단 헤더 & 통합 프로필 -->
   <header class="w-full max-w-6xl flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/90 border border-slate-700/80 rounded-3xl p-3.5 sm:p-4 shadow-2xl backdrop-blur-md flex-shrink-0">
