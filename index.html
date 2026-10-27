@@ -2,8 +2,15 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <!-- 모바일 및 폴더블 기기 뷰포트 설정 -->
+  <!-- 모바일 & 폴더블 최적화 뷰포트 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  
+  <!-- 모바일 웹앱 / 웹뷰 전체화면(풀스크린) 설정 (상단 브라우저 UI 및 기본 툴바 숨김 유도) -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#0d0926">
+
   <title>🎪 세미니의 페스티벌 놀이터 🎈</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
@@ -38,6 +45,16 @@
     input {
       user-select: text;
       -webkit-user-select: text;
+    }
+
+    /* 외부 앱이나 웹뷰 래퍼가 주입할 수 있는 사이드바/드로어/오프캔버스 요소 강제 차단 */
+    #sidebar, #drawer, .sidebar, .drawer, .side-menu, .nav-menu, [data-drawer], [class*="offcanvas"] {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      pointer-events: none !important;
+      width: 0 !important;
+      height: 0 !important;
     }
 
     /* 산뜻한 축제 오로라 배경 */
@@ -131,7 +148,7 @@
       padding-right: max(12px, env(safe-area-inset-right));
     }
 
-    /* 폴드 넓은 화면 좌우 사이드 데코 날개 (폭 768px 이상에서 아름답게 표시) */
+    /* 폴드 넓은 화면 좌우 장식 날개 */
     .side-decor {
       position: fixed;
       top: 50%;
@@ -172,7 +189,7 @@
     <div class="float-item-2 bg-emerald-900/40 p-2.5 rounded-2xl border border-emerald-400/30 backdrop-blur-sm shadow-lg text-2xl">🍬</div>
   </aside>
 
-  <!-- 상단 헤더: 일반 폰(max-w-md)부터 폴드 펼침/태블릿(sm:max-w-xl md:max-w-3xl)까지 꽉 차게 반응 -->
+  <!-- 상단 헤더 -->
   <header class="w-full max-w-md sm:max-w-xl md:max-w-3xl flex flex-col gap-3 bg-indigo-950/75 border border-purple-500/40 rounded-3xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgb(139,92,246,0.25)] backdrop-blur-xl flex-shrink-0 transition-all duration-300">
     
     <!-- 오너 세미니 하이라이트 배너 -->
@@ -190,7 +207,7 @@
       </div>
     </div>
 
-    <!-- 타이틀 영역 (폴드 화면에서는 시원하게 가로 정렬 지원) -->
+    <!-- 타이틀 영역 -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
       <div class="flex items-center gap-3">
         <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-pink-500/30 to-purple-500/30 border-2 border-amber-300/80 flex items-center justify-center text-2xl sm:text-3xl shadow-lg flex-shrink-0">
@@ -221,9 +238,7 @@
 
   </header>
 
-  <!-- 메인 게임 선택 카드 그리드
-       - 일반 바형 스마트폰: 2열 그리드
-       - 갤럭시 폴드(펼침) / 태블릿: 3열 그리드로 시원하고 꽉 차게 자동 전환! -->
+  <!-- 메인 게임 선택 카드 그리드 -->
   <main class="w-full max-w-md sm:max-w-xl md:max-w-3xl my-3.5 sm:my-5 flex-1 flex flex-col justify-start transition-all duration-300">
     <div class="text-center mb-3 sm:mb-4">
       <h2 class="text-lg sm:text-xl font-black text-white title-font flex items-center justify-center gap-1.5 drop-shadow">
@@ -232,7 +247,6 @@
       <p class="text-[11px] sm:text-xs text-purple-200/80 mt-0.5">터치 즉시 해당 게임장으로 직접 이동합니다 🥳</p>
     </div>
 
-    <!-- 폴더블 대화면 대응: sm:grid-cols-3 로 좌우 여백 없이 꽉 찬 카드 배열 -->
     <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
 
       <!-- 1. 세미니 삼국장기 -->
@@ -346,7 +360,7 @@
     </div>
   </main>
 
-  <!-- 하단 상태바: 폴드 넓은 화면에서도 안정적인 비례 -->
+  <!-- 하단 상태바 -->
   <footer class="w-full max-w-md sm:max-w-xl md:max-w-3xl bg-indigo-950/75 border border-purple-500/30 rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 flex items-center justify-between text-[10px] sm:text-xs text-purple-200/80 my-2 flex-shrink-0 transition-all duration-300">
     <div class="flex items-center gap-1.5">
       <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -356,7 +370,7 @@
   </footer>
 
   <script>
-    // 1. 모바일 & 폴더블 드래그/고스트 터치 방지
+    // 1. 모바일 & 웹뷰 드래그 방지
     document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; }, false);
     document.addEventListener('drop', function(e) { e.preventDefault(); return false; }, false);
 
