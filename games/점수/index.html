@@ -16,30 +16,30 @@
       padding: 0;
       width: 100vw;
       height: 100vh;
-      overflow: hidden; /* 최외곽 브라우저 튕김 및 스와이프 원천 차단 */
+      overflow: hidden; /* 모바일 브라우저 최외곽 바운스 및 튕김 원천 차단 */
       overscroll-behavior: none;
       background-color: #05020a;
       background: radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%);
       color: #f3f4f6;
       font-family: 'Pretendard', sans-serif;
-      touch-action: none; /* 브라우저 자체 제스처 차단 */
+      touch-action: none; /* 브라우저 시스템 스와이프 제스처 차단 */
     }
     /* 상하좌우 사이드 제스처 방해를 배제한 안전 인터랙션 전용 컨테이너 */
     #app-safe-viewport {
       position: fixed;
-      top: env(safe-area-inset-top, 16px);
-      bottom: env(safe-area-inset-bottom, 20px);
-      left: max(16px, env(safe-area-inset-left));
-      right: max(16px, env(safe-area-inset-right));
+      top: env(safe-area-inset-top, 14px);
+      bottom: env(safe-area-inset-bottom, 16px);
+      left: max(14px, env(safe-area-inset-left));
+      right: max(14px, env(safe-area-inset-right));
       overflow-y: auto;
       overflow-x: hidden;
       overscroll-behavior: contain;
-      touch-action: pan-y; /* 수직 스크롤/드래그만 허용 */
+      touch-action: pan-y; /* 수직 스크롤/터치 드래그만 정상 인식 */
       -webkit-overflow-scrolling: touch;
       border-radius: 24px;
       box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 40px rgba(0, 0, 0, 0.7);
     }
-    /* 가로 탭 바 및 표 영역 */
+    /* 가로 탭 바 및 테이블 영역 전용 */
     #dashboard-tabs-container, .overflow-x-auto {
       overscroll-behavior-x: contain;
       touch-action: pan-x pan-y;
@@ -551,7 +551,37 @@
       </div>
 
       <div id="host-review-list" class="space-y-3 overflow-y-auto flex-1 pr-1">
-        <!// --- ULTIMATE FESTIVAL MULTI-EFFECT ENGINE WITH WINNER CELEBRATION ---
+        <!-- JS 렌더링 -->
+      </div>
+
+      <div class="pt-2 border-t border-gray-800 flex justify-end">
+        <button onclick="closeRequestsModal()" class="px-5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-semibold transition cursor-pointer">
+          닫기
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="mt-12 text-center text-xs text-gray-500 pb-4">
+    Ultimate Game Night Scoreboard • Built for Gathering Hosts & Champions
+  </footer>
+  </div><!-- /#app-safe-viewport -->
+
+  <!-- SCRIPT -->
+  <script>
+    var STORAGE_KEY = 'GAME_NIGHT_PRO_DATA_V5';
+    var HOST_SESSION_KEY = 'GAME_NIGHT_HOST_ROOMS';
+
+    var appData = {
+      rooms: []
+    };
+    var activeRoomId = null;
+    var activeTab = 'leaderboard'; // 'leaderboard' or game.id
+    var isHost = false;
+    var currentLobbyTab = 'active'; // 'active' or 'completed'
+
+    // --- ULTIMATE FESTIVAL MULTI-EFFECT ENGINE WITH WINNER CELEBRATION ---
     var fwCanvas = document.getElementById('fireworks-canvas');
     var fwCtx = fwCanvas.getContext('2d');
     var particles = [];
@@ -566,6 +596,9 @@
       particles = [];
       laserBeams = [];
       isFiring = false;
+      if (fwCtx && fwCanvas) {
+        fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+      }
     }
 
     function resizeFwCanvas() {
@@ -792,7 +825,7 @@
       }, 2500);
     }
 
-    // EFFECT 1: FIREWORKS
+    // EFFECT 1: FIREWORKS (첫 클릭 즉시 발사 + 겹침 방지)
     function effectFireworks() {
       clearAllFestivalTimers();
       showFestivalBanner('🎆 MEGA FIREWORKS! 🎆', '밤하늘을 수놓는 대형 폭죽쇼!');
@@ -822,7 +855,6 @@
         }
       }
 
-      // 즉시 1차 발사
       spawnBurst(0);
 
       var count = 1;
@@ -876,7 +908,7 @@
       ensureCanvasLoop();
     }
 
-    // EFFECT 3: LASER SHOW
+    // EFFECT 3: LASER SHOW (첫 클릭 즉시 발사)
     function effectLaserShow() {
       clearAllFestivalTimers();
       showFestivalBanner('⚡ NEON LASER PARTY! ⚡', '사이버 네온 레이저 쇼!');
@@ -902,7 +934,6 @@
         }
       }
 
-      // 즉시 1차 발사
       spawnLasers();
 
       var shots = 1;
@@ -971,39 +1002,6 @@
       var t2 = setTimeout(effectLaserShow, 400);
       festivalTimers.push(t1);
       festivalTimers.push(t2);
-    }
-
-    var lastEffectIndex = -1;
-    function triggerRandomCelebration() {
-      var effectFunctions = [
-        effectFireworks,
-        effectConfettiStorm,
-        effectEmojiBomb,
-        effectLaserShow,
-        triggerGrandFiesta
-      ];
-
-      var nextIndex = Math.floor(Math.random() * effectFunctions.length);
-      if (nextIndex === lastEffectIndex) {
-        nextIndex = (nextIndex + 1) % effectFunctions.length;
-      }
-      lastEffectIndex = nextIndex;
-      effectFunctions[nextIndex]();
-    }
-
-           requestAnimationFrame(frame);
-          }
-        }());
-      }
-    }
-
-    // EFFECT 5: GRAND FIESTA (올인원 대축제)
-    function triggerGrandFiesta() {
-      showFestivalBanner('👑 GRAND CHAMPIONSHIP FIESTA! 🏆', '모든 축제 이펙트가 한 번에 몰아칩니다!');
-      effectFireworks();
-      effectEmojiBomb();
-      setTimeout(effectConfettiStorm, 200);
-      setTimeout(effectLaserShow, 400);
     }
 
     var lastEffectIndex = -1;
