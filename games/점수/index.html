@@ -14,6 +14,7 @@
     html {
       background-color: #05020a;
       min-height: 100%;
+      overscroll-behavior-x: none; /* 브라우저 좌우 스와이프 뒤로가기/제스처 차단 */
     }
     body {
       font-family: 'Pretendard', sans-serif;
@@ -23,6 +24,14 @@
       color: #f3f4f6;
       min-height: 100vh;
       overflow-x: hidden;
+      overscroll-behavior-x: none; /* 가로 스와이프 튕김 및 브라우저 제스처 차단 */
+      touch-action: pan-y; /* 좌우 스와이프로 인한 브라우저 제스처 간섭 방지 */
+    }
+    /* 가로 스크롤이 필요한 탭 바 및 테이블 영역 전용 터치 설정 */
+    #dashboard-tabs-container, .overflow-x-auto {
+      overscroll-behavior-x: contain;
+      touch-action: pan-x pan-y;
+      -webkit-overflow-scrolling: touch;
     }
     select option {
       background-color: #1f2937;
