@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#05020a">
+  <meta name="color-scheme" content="dark">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>🔥 얼티밋 미니게임 챔피언십 스코어보드 🏆</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
@@ -11,43 +15,61 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
   <style>
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100vw;
-      height: 100vh;
-      overflow: hidden; /* 모바일 브라우저 최외곽 바운스 및 튕김 원천 차단 */
+    :root {
+      color-scheme: dark;
+    }
+    html {
+      background-color: #05020a !important;
+      background: #05020a !important;
+      min-height: 100%;
       overscroll-behavior: none;
-      background-color: #05020a;
-      background: radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%);
+      -webkit-tap-highlight-color: transparent;
+    }
+    body {
+      margin: 0;
+      padding: env(safe-area-inset-top, 12px) env(safe-area-inset-right, 12px) env(safe-area-inset-bottom, 20px) env(safe-area-inset-left, 12px);
+      width: 100%;
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+      background-color: #05020a !important;
+      background: radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%) no-repeat fixed center top !important;
       color: #f3f4f6;
       font-family: 'Pretendard', sans-serif;
-      touch-action: none; /* 브라우저 시스템 스와이프 제스처 차단 */
-    }
-    /* 상하좌우 사이드 제스처 방해를 배제한 안전 인터랙션 전용 컨테이너 */
-    #app-safe-viewport {
-      position: fixed;
-      top: env(safe-area-inset-top, 14px);
-      bottom: env(safe-area-inset-bottom, 16px);
-      left: max(14px, env(safe-area-inset-left));
-      right: max(14px, env(safe-area-inset-right));
-      overflow-y: auto;
       overflow-x: hidden;
-      overscroll-behavior: contain;
-      touch-action: pan-y; /* 수직 스크롤/터치 드래그만 정상 인식 */
+      overflow-y: auto;
+      touch-action: pan-y; /* 수직 스크롤/드래그를 끊김 없이 100% 매끄럽게 보장 */
       -webkit-overflow-scrolling: touch;
-      border-radius: 24px;
-      box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 10px 40px rgba(0, 0, 0, 0.7);
+      overscroll-behavior-y: none; /* 상하 끝에서 흰색 바탕이 보이는 튕김 완벽 방지 */
     }
-    /* 가로 탭 바 및 테이블 영역 전용 */
+    /* 사이드 여백 확보로 가장자리 시스템 제스처(뒤로가기 등) 방해 완전 차단 */
+    .app-main-shell {
+      width: 100%;
+      max-width: 1152px;
+      margin: 0 auto;
+      padding: 0 10px;
+    }
+    /* 가로 탭 바 및 표 영역 터치 스크롤 최적화 */
     #dashboard-tabs-container, .overflow-x-auto {
       overscroll-behavior-x: contain;
       touch-action: pan-x pan-y;
       -webkit-overflow-scrolling: touch;
     }
+    /* 셀렉트 및 인풋 폼 다크 테마 고정 (브라우저 자동완성 흰색 배경 원천 차단) */
+    select, input, textarea {
+      color-scheme: dark;
+    }
     select option {
-      background-color: #1f2937;
-      color: #ffffff;
+      background-color: #1f2937 !important;
+      color: #ffffff !important;
+    }
+    input:-webkit-autofill,
+    input:-webkit-autofill:hover, 
+    input:-webkit-autofill:focus, 
+    textarea:-webkit-autofill,
+    select:-webkit-autofill {
+      -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+      -webkit-text-fill-color: #ffffff !important;
+      transition: background-color 5000s ease-in-out 0s;
     }
     .font-game {
       font-family: 'Black Han Sans', sans-serif;
@@ -98,8 +120,7 @@
   </style>
 </head>
 <body class="selection:bg-pink-500 selection:text-white">
-
-  <div id="app-safe-viewport" class="p-3 md:p-8 flex flex-col items-center">
+  <div class="app-main-shell flex flex-col items-center">
 
   <!-- Floating Festival Toast Banner with Winner Name (Ultra-High Contrast & Radiant Gold) -->
   <div id="festival-banner" class="fixed top-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-[10000] opacity-0 transition-all duration-500 scale-75 text-center w-11/12 max-w-xl">
@@ -566,7 +587,7 @@
   <footer class="mt-12 text-center text-xs text-gray-500 pb-4">
     Ultimate Game Night Scoreboard • Built for Gathering Hosts & Champions
   </footer>
-  </div><!-- /#app-safe-viewport -->
+  </div><!-- /.app-main-shell -->
 
   <!-- SCRIPT -->
   <script>
@@ -767,7 +788,7 @@
 
     function triggerScreenFlash(color) {
       var flash = document.getElementById('screen-flash');
-      flash.style.backgroundColor = color || '#ffffff';
+      flash.style.backgroundColor = color || '#ec4899';
       flash.classList.remove('opacity-0');
       flash.classList.add('opacity-40');
       setTimeout(function() {
