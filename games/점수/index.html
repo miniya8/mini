@@ -11,12 +11,22 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
   <style>
+    html {
+      background-color: #05020a;
+      min-height: 100%;
+    }
     body {
       font-family: 'Pretendard', sans-serif;
       background: radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%);
+      background-color: #05020a;
+      background-attachment: fixed;
       color: #f3f4f6;
       min-height: 100vh;
       overflow-x: hidden;
+    }
+    select option {
+      background-color: #1f2937;
+      color: #ffffff;
     }
     .font-game {
       font-family: 'Black Han Sans', sans-serif;
@@ -84,7 +94,7 @@
   <canvas id="fireworks-canvas"></canvas>
 
   <!-- Screen flash overlay for climax -->
-  <div id="screen-flash" class="fixed inset-0 bg-white opacity-0 pointer-events-none transition-opacity duration-300 z-50"></div>
+  <div id="screen-flash" class="fixed inset-0 bg-transparent opacity-0 pointer-events-none transition-opacity duration-300 z-50"></div>
 
   <!-- Main Container -->
   <div class="w-full max-w-6xl">
