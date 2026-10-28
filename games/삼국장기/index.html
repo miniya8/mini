@@ -766,6 +766,10 @@ const bgUnlock=()=>{if(bgWant&&bgOn&&au.paused){if(au.src&&bgCur>=0&&!au.ended){
 document.addEventListener('visibilitychange',()=>{if(document.hidden)au.pause();else bgUnlock()});
 el('xbg').onclick=()=>{bgOn=!bgOn;try{localStorage.setItem('jg_bgm',bgOn?'1':'0')}catch(e){}bgBtn();if(bgOn){if(bgWant)bgPlay()}else au.pause()};
 bgBtn();
+/* bgm7.mp3, bgm8.mp3 … 번호만 이어서 폴더에 넣으면 자동으로 목록에 추가 (연속 2개가 없으면 탐색 종료) */
+(async()=>{let miss=0;for(let n=7;n<=60&&miss<2;n++){const f='bgm'+n+'.mp3';
+const ok=await new Promise(r=>{const t=new Audio();let d=0;const fin=v=>{if(d)return;d=1;t.onerror=t.onloadedmetadata=null;try{t.removeAttribute('src');t.load()}catch(e){}r(v)};t.preload='metadata';t.onloadedmetadata=()=>fin(true);t.onerror=()=>fin(false);setTimeout(()=>fin(false),5000);t.src=f});
+if(ok){miss=0;BG.push(f);BN.push('BGM '+n);bgQ=[]}else miss++}})();
 setInterval(upd,300);
 if(inGame){try{jgPanel(cfg.mode);if(cfg.mode==='mp')sysLog('🔄 화면이 다시 불러와져서 대국을 이어갔어요','xs xg');resize()}catch(e){}}
 })();</script>
