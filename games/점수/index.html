@@ -1123,7 +1123,26 @@
         try {
           var decodedJson = decodeURIComponent(escape(atob(decodeURIComponent(sharedPayload))));
           var sharedObj = JSON.parse(decodedJson);
-          if (sharedObj && sharedObj.id) {
+          // 전체 모임 목록(진행 중 + 종료된 모임 모두) 병합 동기화
+          if (sharedObj && Array.isArray(sharedObj.rooms)) {
+            sharedObj.rooms.forEach(function(sr) {
+              if (!sr || !sr.id) return;
+              var eIdx = appData.rooms.findIndex(function(r) { return r.id === sr.id; });
+              if (eIdx !== -1) {
+                appData.rooms[eIdx] = sr;
+              } else {
+                appData.rooms.push(sr);
+              }
+            });
+            // 최신 생성일 순으로 정렬 유지
+            appData.rooms.sort(function(a, b) {
+              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+            });
+            saveData();
+            if (sharedObj.targetRoomId) {
+              sharedRoomId = sharedObj.targetRoomId;
+            }
+          } else if (sharedObj && sharedObj.id) {
             var existIdx = appData.rooms.findIndex(function(r) { return r.id === sharedObj.id; });
             if (existIdx !== -1) {
               appData.rooms[existIdx] = sharedObj;
@@ -1132,16 +1151,9 @@
             }
             saveData();
             sharedRoomId = sharedObj.id;
-          } else if (sharedObj && Array.isArray(sharedObj.rooms)) {
-            sharedObj.rooms.forEach(function(sr) {
-              var eIdx = appData.rooms.findIndex(function(r) { return r.id === sr.id; });
-              if (eIdx !== -1) appData.rooms[eIdx] = sr;
-              else appData.rooms.unshift(sr);
-            });
-            saveData();
           }
         } catch (err) {
-          console.error('Failed to decode shared room payload:', err);
+          console.error('Failed to decode shared payload:', err);
         }
       }
 
@@ -1424,6 +1436,9 @@
       activeRoomId = null;
       document.getElementById('view-dashboard').classList.add('hidden');
       document.getElementById('view-home').classList.remove('hidden');
+      try {
+        window.history.replaceState({}, document.title, window.location.pathname);
+      } catch (e) {}
       renderLobbyRooms();
     }
 
@@ -1551,12 +1566,16 @@
       }
     }
 
-    // SHARE VIA KAKAO OR LINK (전체 모임 아카이브 공유 지원)
+    // 메인 로비에서 전체 아카이브(진행 중인 모임 + 종료된 모임 전체) 공유
     function shareViaKakaoOrLink() {
       var baseUrl = window.location.origin + window.location.pathname;
-      var payload = (appData.rooms && appData.rooms.length > 0) ? ('#data=' + encodeSharePayload({ rooms: appData.rooms })) : '';
+      var payload = (appData.rooms && appData.rooms.length > 0) 
+        ? ('#data=' + encodeSharePayload({ rooms: appData.rooms })) 
+        : '';
       var targetUrl = baseUrl + payload;
-      var textToShare = "🎮 미니게임 챔피언십 스코어보드에 초대합니다!\n아래 링크를 열면 진행 중인 모임과 종료된 기록이 함께 공유됩니다!\n👉 " + targetUrl;
+      var activeCnt = (appData.rooms || []).filter(function(r) { return r.status !== 'completed'; }).length;
+      var compCnt = (appData.rooms || []).filter(function(r) { return r.status === 'completed'; }).length;
+      var textToShare = "🎮 미니게임 챔피언십 스코어보드 전체 공유!\n(진행 중 모임 " + activeCnt + "개 / 종료된 모임 " + compCnt + "개 포함)\n아래 링크로 접속하면 모든 모임과 명예의 전당 기록이 함께 동기화됩니다!\n👉 " + targetUrl;
 
       if (navigator.share) {
         navigator.share({
@@ -1571,14 +1590,19 @@
       }
     }
 
+    // 개별 방 안에서 공유할 때도 이전 진행 모임 및 종료된 모임 전체(appData.rooms)를 함께 패키징하여 전송!
     function shareActiveRoom() {
       var room = getActiveRoom();
       if (!room) return;
 
-      var encodedRoom = encodeSharePayload(room);
-      var targetUrl = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room.id) + '#data=' + encodedRoom;
+      var fullPackage = {
+        targetRoomId: room.id,
+        rooms: appData.rooms
+      };
+      var encodedData = encodeSharePayload(fullPackage);
+      var targetUrl = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room.id) + '#data=' + encodedData;
       var statusLabel = (room.status === 'completed') ? '🏆 최종 종료 (우승 확정)' : '🔥 실시간 진행 중';
-      var textToShare = "🏆 [" + room.name + "] 미니게임 챔피언십 스코어보드 (" + statusLabel + ")\n지금 접속해서 실시간 점수와 순위 기록을 확인하세요!\n참여자: " + room.members.join(', ') + "\n👉 " + targetUrl;
+      var textToShare = "🏆 [" + room.name + "] 미니게임 챔피언십 스코어보드 (" + statusLabel + ")\n지금 접속해서 실시간 점수와 전체 모임 아카이브(진행 중/종료된 모임)를 확인하세요!\n참여자: " + room.members.join(', ') + "\n👉 " + targetUrl;
 
       if (navigator.share) {
         navigator.share({
