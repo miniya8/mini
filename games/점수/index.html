@@ -1112,52 +1112,48 @@
         }
       }
 
-      // 항상 최신 키 및 마스터 백업 키에 동시 저장 보장
-      saveData();
-
       var urlParams = new URLSearchParams(window.location.search);
       var sharedRoomId = urlParams.get('room');
-      var sharedPayload = urlParams.get('data') || (window.location.hash.indexOf('#data=') === 0 ? window.location.hash.substring(6) : '');
+      var cloudSyncId = urlParams.get('c') || localStorage.getItem('GAME_NIGHT_CLOUD_ID') || '';
 
-      if (sharedPayload) {
+      // 2. 혹시 링크 뒤에 해시(#data=...)나 ?s= 데이터가 있다면 즉시 복원 후 주소창에서 해시 완전히 숨김!
+      var rawHashData = urlParams.get('s') || urlParams.get('data') || (window.location.hash.indexOf('#data=') === 0 ? window.location.hash.substring(6) : (window.location.hash.indexOf('#s=') === 0 ? window.location.hash.substring(3) : ''));
+      if (rawHashData) {
         try {
-          var decodedJson = decodeURIComponent(escape(atob(decodeURIComponent(sharedPayload))));
+          var decodedJson = decodeURIComponent(escape(atob(decodeURIComponent(rawHashData))));
           var sharedObj = JSON.parse(decodedJson);
-          // 전체 모임 목록(진행 중 + 종료된 모임 모두) 병합 동기화
-          if (sharedObj && Array.isArray(sharedObj.rooms)) {
-            sharedObj.rooms.forEach(function(sr) {
-              if (!sr || !sr.id) return;
-              var eIdx = appData.rooms.findIndex(function(r) { return r.id === sr.id; });
-              if (eIdx !== -1) {
-                appData.rooms[eIdx] = sr;
-              } else {
-                appData.rooms.push(sr);
-              }
-            });
-            // 최신 생성일 순으로 정렬 유지
-            appData.rooms.sort(function(a, b) {
-              return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-            });
-            saveData();
-            if (sharedObj.targetRoomId) {
-              sharedRoomId = sharedObj.targetRoomId;
-            }
-          } else if (sharedObj && sharedObj.id) {
-            var existIdx = appData.rooms.findIndex(function(r) { return r.id === sharedObj.id; });
-            if (existIdx !== -1) {
-              appData.rooms[existIdx] = sharedObj;
-            } else {
-              appData.rooms.unshift(sharedObj);
-            }
-            saveData();
-            sharedRoomId = sharedObj.id;
+          mergeIncomingData(sharedObj);
+          if (sharedObj && sharedObj.targetRoomId && !sharedRoomId) {
+            sharedRoomId = sharedObj.targetRoomId;
           }
         } catch (err) {
-          console.error('Failed to decode shared payload:', err);
+          console.error("Hash decode error:", err);
         }
+        // 주소창에서 지저분한 해시(#...) 즉시 제거하여 깔끔한 주소 유지!
+        try {
+          var cleanUrl = window.location.origin + window.location.pathname + (sharedRoomId ? ('?room=' + encodeURIComponent(sharedRoomId) + (cloudSyncId ? '&c=' + encodeURIComponent(cloudSyncId) : '')) : (cloudSyncId ? ('?c=' + encodeURIComponent(cloudSyncId)) : ''));
+          window.history.replaceState({}, document.title, cleanUrl);
+        } catch (e) {}
       }
 
+      saveData();
       renderLobbyRooms();
+
+      // 3. 클라우드 동기화 ID가 있으면 서버에서 모든 친구들의 진행 중/종료된 모임 목록을 실시간으로 불러와 병합
+      if (cloudSyncId) {
+        localStorage.setItem('GAME_NIGHT_CLOUD_ID', cloudSyncId);
+        pullCloudSync(cloudSyncId, function() {
+          renderLobbyRooms();
+          if (sharedRoomId) {
+            var f = appData.rooms.find(function(r) { return r.id === sharedRoomId; });
+            if (f && activeRoomId !== sharedRoomId) enterRoom(sharedRoomId);
+            else if (activeRoomId) renderAll();
+          }
+        });
+      } else {
+        // 최초 클라우드 허브 생성 시도
+        initCloudHub();
+      }
 
       if (sharedRoomId) {
         var found = appData.rooms.find(function(r) { return r.id === sharedRoomId; });
@@ -1166,14 +1162,107 @@
         }
       }
 
+      // 8초마다 클라우드에서 친구들이 만든 방이나 종료된 모임 자동 동기화
+      setInterval(function() {
+        var cid = localStorage.getItem('GAME_NIGHT_CLOUD_ID');
+        if (cid) {
+          pullCloudSync(cid, function() {
+            if (!activeRoomId) renderLobbyRooms();
+          });
+        }
+      }, 8000);
+
       if (window.lucide) lucide.createIcons();
+    }
+
+    function mergeIncomingData(sharedObj) {
+      if (!sharedObj) return;
+      if (sharedObj.cloudId && !localStorage.getItem('GAME_NIGHT_CLOUD_ID')) {
+        localStorage.setItem('GAME_NIGHT_CLOUD_ID', sharedObj.cloudId);
+      }
+      var incomingRooms = [];
+      if (Array.isArray(sharedObj.rooms)) {
+        incomingRooms = sharedObj.rooms;
+      } else if (sharedObj.id && sharedObj.members) {
+        incomingRooms = [sharedObj];
+      }
+      incomingRooms.forEach(function(sr) {
+        if (!sr || !sr.id) return;
+        var eIdx = appData.rooms.findIndex(function(r) { return r.id === sr.id; });
+        if (eIdx !== -1) {
+          // 더 최신 상태(종료됨 또는 게임 수가 많거나 최근 업데이트된 방)로 병합
+          var cur = appData.rooms[eIdx];
+          if (sr.status === 'completed' || (sr.updatedAt || 0) >= (cur.updatedAt || 0) || (sr.games && sr.games.length >= (cur.games ? cur.games.length : 0))) {
+            appData.rooms[eIdx] = sr;
+          }
+        } else {
+          appData.rooms.push(sr);
+        }
+      });
+      appData.rooms.sort(function(a, b) {
+        return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+      });
+    }
+
+    function initCloudHub() {
+      if (localStorage.getItem('GAME_NIGHT_CLOUD_ID')) return;
+      fetch('https://jsonblob.com/api/jsonBlob', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ rooms: appData.rooms || [] })
+      }).then(function(res) {
+        var loc = res.headers.get('Location') || res.headers.get('location') || '';
+        var cid = loc.split('/').pop();
+        if (cid) {
+          localStorage.setItem('GAME_NIGHT_CLOUD_ID', cid);
+        }
+      }).catch(function() {});
+    }
+
+    function pushCloudSync() {
+      var cid = localStorage.getItem('GAME_NIGHT_CLOUD_ID');
+      if (!cid) {
+        initCloudHub();
+        return;
+      }
+      fetch('https://jsonblob.com/api/jsonBlob/' + cid, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ rooms: appData.rooms || [], updatedAt: Date.now() })
+      }).catch(function() {});
+    }
+
+    function pullCloudSync(cid, callback) {
+      if (!cid) return;
+      fetch('https://jsonblob.com/api/jsonBlob/' + cid, {
+        method: 'GET',
+        headers: { 'Accept': 'application/json' }
+      }).then(function(res) {
+        if (!res.ok) throw new Error('Not ok');
+        return res.json();
+      }).then(function(data) {
+        if (data && Array.isArray(data.rooms)) {
+          mergeIncomingData(data);
+          var serialized = JSON.stringify(appData);
+          localStorage.setItem(STORAGE_KEY, serialized);
+          localStorage.setItem('GAME_NIGHT_BACKUP_MASTER', serialized);
+          if (callback) callback();
+        }
+      }).catch(function() {
+        if (callback) callback();
+      });
     }
 
     function saveData() {
       try {
+        if (activeRoomId) {
+          var r = getActiveRoom();
+          if (r) r.updatedAt = Date.now();
+        }
         var serialized = JSON.stringify(appData);
         localStorage.setItem(STORAGE_KEY, serialized);
         localStorage.setItem('GAME_NIGHT_BACKUP_MASTER', serialized);
+        pushCloudSync();
       } catch (e) {
         console.error("Storage save failed", e);
       }
@@ -1309,10 +1398,19 @@
             '<div class="text-xs text-gray-400">' + room.members.slice(0, 3).join(', ') + (room.members.length > 3 ? ' 외 ' + (room.members.length - 3) + '명' : '') + ' • ' + gameCount + '개 종목</div>' +
           '</div>' +
         '</div>' +
-        '<div class="flex items-center gap-2">' +
-          '<span class="text-xs text-gray-500 font-mono">' + dateStr + '</span>' +
+        '<div class="flex items-center gap-1.5">' +
+          '<span class="text-xs text-gray-500 font-mono mr-1">' + dateStr + '</span>' +
+          '<button type="button" class="btn-share-room-item px-2.5 py-1 bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-300 border border-yellow-400/40 rounded-lg text-xs font-bold transition cursor-pointer flex items-center gap-1" title="이 모임 공유하기">💌 공유</button>' +
           (!isCompleted ? '<button type="button" class="btn-del-room p-1 text-gray-500 hover:text-red-400 transition cursor-pointer" title="방 삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' : '') +
         '</div>';
+
+      var shareItemBtn = item.querySelector('.btn-share-room-item');
+      if (shareItemBtn) {
+        shareItemBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          shareSpecificRoom(room.id);
+        });
+      }
 
       var delBtn = item.querySelector('.btn-del-room');
       if (delBtn) {
@@ -1436,9 +1534,6 @@
       activeRoomId = null;
       document.getElementById('view-dashboard').classList.add('hidden');
       document.getElementById('view-home').classList.remove('hidden');
-      try {
-        window.history.replaceState({}, document.title, window.location.pathname);
-      } catch (e) {}
       renderLobbyRooms();
     }
 
@@ -1557,64 +1652,82 @@
       }
     }
 
-    function encodeSharePayload(obj) {
-      try {
-        var jsonStr = JSON.stringify(obj);
-        return encodeURIComponent(btoa(unescape(encodeURIComponent(jsonStr))));
-      } catch (e) {
-        return '';
-      }
+    // 귀엽고 심플한 초대 링크 & 메시지 생성기 (지저분한 긴 해시값 숨김!)
+    function buildCleanShareUrl(roomId) {
+      var baseUrl = window.location.origin + window.location.pathname;
+      var cid = localStorage.getItem('GAME_NIGHT_CLOUD_ID') || '';
+      pushCloudSync();
+      var params = [];
+      if (roomId) params.push('room=' + encodeURIComponent(roomId));
+      if (cid) params.push('c=' + encodeURIComponent(cid));
+      return baseUrl + (params.length > 0 ? ('?' + params.join('&')) : '');
     }
 
-    // 메인 로비에서 전체 아카이브(진행 중인 모임 + 종료된 모임 전체) 공유
     function shareViaKakaoOrLink() {
-      var baseUrl = window.location.origin + window.location.pathname;
-      var payload = (appData.rooms && appData.rooms.length > 0) 
-        ? ('#data=' + encodeSharePayload({ rooms: appData.rooms })) 
-        : '';
-      var targetUrl = baseUrl + payload;
+      var targetUrl = buildCleanShareUrl(null);
       var activeCnt = (appData.rooms || []).filter(function(r) { return r.status !== 'completed'; }).length;
       var compCnt = (appData.rooms || []).filter(function(r) { return r.status === 'completed'; }).length;
-      var textToShare = "🎮 미니게임 챔피언십 스코어보드 전체 공유!\n(진행 중 모임 " + activeCnt + "개 / 종료된 모임 " + compCnt + "개 포함)\n아래 링크로 접속하면 모든 모임과 명예의 전당 기록이 함께 동기화됩니다!\n👉 " + targetUrl;
+
+      var cuteMessage = 
+        "🎪✨ 삐빅! [세미니의 놀이터] 초대장이 도착했어요! 💌\n" +
+        "━━━━━━━━━━━━━━━━━━\n" +
+        "🎈 현재 진행 중인 모임: " + activeCnt + "개\n" +
+        "🏆 명예의 전당(종료): " + compCnt + "개\n" +
+        "━━━━━━━━━━━━━━━━━━\n" +
+        "친구들과 불꽃 튀는 미니게임 승부! 🔥\n" +
+        "과연 오늘의 최종 챔피언은 누구일까요? 👑\n\n" +
+        "👇 아래 링크를 터치해 지금 바로 구경하러 오세요! 🥳\n" +
+        targetUrl;
 
       if (navigator.share) {
         navigator.share({
-          title: '🎮 미니게임 챔피언십 스코어보드',
-          text: textToShare,
-          url: targetUrl
+          title: '🎪 세미니의 놀이터 스코어보드 💌',
+          text: cuteMessage
         }).catch(function() {
-          copyToClipboardFallback(textToShare);
+          copyToClipboardFallback(cuteMessage);
         });
       } else {
-        copyToClipboardFallback(textToShare);
+        copyToClipboardFallback(cuteMessage);
       }
     }
 
-    // 개별 방 안에서 공유할 때도 이전 진행 모임 및 종료된 모임 전체(appData.rooms)를 함께 패키징하여 전송!
-    function shareActiveRoom() {
-      var room = getActiveRoom();
+    function shareSpecificRoom(roomId) {
+      var room = (appData.rooms || []).find(function(r) { return r.id === roomId; });
       if (!room) return;
 
-      var fullPackage = {
-        targetRoomId: room.id,
-        rooms: appData.rooms
-      };
-      var encodedData = encodeSharePayload(fullPackage);
-      var targetUrl = window.location.origin + window.location.pathname + '?room=' + encodeURIComponent(room.id) + '#data=' + encodedData;
-      var statusLabel = (room.status === 'completed') ? '🏆 최종 종료 (우승 확정)' : '🔥 실시간 진행 중';
-      var textToShare = "🏆 [" + room.name + "] 미니게임 챔피언십 스코어보드 (" + statusLabel + ")\n지금 접속해서 실시간 점수와 전체 모임 아카이브(진행 중/종료된 모임)를 확인하세요!\n참여자: " + room.members.join(', ') + "\n👉 " + targetUrl;
+      var targetUrl = buildCleanShareUrl(room.id);
+      var isComp = (room.status === 'completed');
+      var leader = getCurrentLeader(room);
+      var leaderLine = (leader && leader.totalRP > 0) 
+        ? (isComp ? ("👑 최종 우승 챔피언: " + leader.member + "님 (" + leader.totalRP + " RP) 🎉\n") : ("🥇 현재 1위 선두: " + leader.member + "님 (" + leader.totalRP + " RP) 🔥\n"))
+        : "";
+
+      var cuteMessage = 
+        (isComp ? "🏆🎉 [" + room.name + "] 최종 결과 발표! 🎊\n" : "🎮🔥 [" + room.name + "] 실시간 대결 초대장! 💌\n") +
+        "━━━━━━━━━━━━━━━━━━\n" +
+        "👥 함께하는 멤버: " + room.members.join(', ') + "\n" +
+        leaderLine +
+        "━━━━━━━━━━━━━━━━━━\n" +
+        (isComp ? "우리들의 명승부 기록이 명예의 전당에 등록됐어요! ✨\n" : "두근두근 실시간 점수판이 열렸어요! 누가 1등할까? 🥳\n") +
+        "👇 아래 링크를 터치해서 바로 확인해보세요! 🎈\n" +
+        targetUrl;
 
       if (navigator.share) {
         navigator.share({
           title: '🏆 ' + room.name + ' 스코어보드',
-          text: textToShare,
-          url: targetUrl
+          text: cuteMessage
         }).catch(function() {
-          copyToClipboardFallback(textToShare);
+          copyToClipboardFallback(cuteMessage);
         });
       } else {
-        copyToClipboardFallback(textToShare);
+        copyToClipboardFallback(cuteMessage);
       }
+    }
+
+    function shareActiveRoom() {
+      var room = getActiveRoom();
+      if (!room) return;
+      shareSpecificRoom(room.id);
     }
 
     function copyToClipboardFallback(text) {
@@ -1757,22 +1870,18 @@
           '<p class="text-[11px] text-gray-400 mt-2">💡 생성된 개별 탭에서 [세트 추가]를 통해 1세트, 2세트, 3세트 점수를 연속해서 누적할 수 있습니다.</p>';
       } else if (type === 'winloss') {
         container.innerHTML = 
-          '<div class="text-xs text-pink-300 font-bold mb-1">⚔️ 승패형 / 격투 액션 리그 (철권, 가위바위보 등)</div>' +
-          '<div class="grid grid-cols-3 gap-2">' +
+          '<div class="text-xs text-pink-300 font-bold mb-1">⚔️ 승패형 / 1:1 격투 대진표 리그 (철권, 가위바위보 등 - 무승부 없음)</div>' +
+          '<div class="grid grid-cols-2 gap-3">' +
             '<div>' +
-              '<label class="block text-[11px] text-gray-300 mb-1">1세트 승리 승점</label>' +
+              '<label class="block text-[11px] text-gray-300 mb-1">🏆 승리(승) 승점</label>' +
               '<input id="sub-opt-win-pts" type="number" value="5" class="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-center text-xs font-bold">' +
             '</div>' +
             '<div>' +
-              '<label class="block text-[11px] text-gray-300 mb-1">무승부 승점</label>' +
-              '<input id="sub-opt-draw-pts" type="number" value="2" class="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-center text-xs font-bold">' +
-            '</div>' +
-            '<div>' +
-              '<label class="block text-[11px] text-gray-300 mb-1">패배 승점</label>' +
+              '<label class="block text-[11px] text-gray-300 mb-1">💀 패배(패) 승점</label>' +
               '<input id="sub-opt-loss-pts" type="number" value="0" class="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-center text-xs font-bold">' +
             '</div>' +
           '</div>' +
-          '<p class="text-[11px] text-gray-400 mt-2">💡 3판 2선승제나 다전제 리그를 위해 [세트/라운드 추가]를 통해 세트별 승패를 계속 누적할 수 있습니다.</p>';
+          '<p class="text-[11px] text-gray-400 mt-2">💡 무승부 없이 <b>승 / 패</b>로만 판정되며, 게임 탭에서 <b>[대진표 추가]</b> 및 <b>[대진표 섞기 🎲]</b> 기능을 사용할 수 있습니다!</p>';
       } else if (type === 'elimination') {
         container.innerHTML = 
           '<div class="text-xs text-amber-300 font-bold mb-1">🪵 생존 및 탈락 순위 설정 (젠가, 의자뺏기 등)</div>' +
@@ -1843,8 +1952,9 @@
         gameConfig.calcMethod = document.getElementById('sub-opt-points-calc').value;
       } else if (gameType === 'winloss') {
         gameConfig.winPts = Number(document.getElementById('sub-opt-win-pts').value) || 5;
-        gameConfig.drawPts = Number(document.getElementById('sub-opt-draw-pts').value) || 2;
+        gameConfig.drawPts = 0;
         gameConfig.lossPts = Number(document.getElementById('sub-opt-loss-pts').value) || 0;
+        gameConfig.brackets = generateRandomBracketPairs(room.members);
       } else if (gameType === 'time') {
         gameConfig.order = document.getElementById('sub-opt-time-order').value;
       }
@@ -1861,6 +1971,92 @@
       // 생성된 새 게임 탭으로 즉시 전환!
       activeTab = gameId;
       renderTabs();
+      renderAll();
+    }
+
+    function generateRandomBracketPairs(members) {
+      var pool = (members || []).slice();
+      for (var i = pool.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = pool[i];
+        pool[i] = pool[j];
+        pool[j] = temp;
+      }
+      var pairs = [];
+      for (var k = 0; k < pool.length; k += 2) {
+        if (k + 1 < pool.length) {
+          pairs.push({
+            id: 'm_' + Date.now() + '_' + k,
+            p1: pool[k],
+            p2: pool[k + 1],
+            winner: null,
+            isBye: false
+          });
+        } else {
+          pairs.push({
+            id: 'm_' + Date.now() + '_' + k,
+            p1: pool[k],
+            p2: null,
+            winner: 'p1',
+            isBye: true
+          });
+        }
+      }
+      return pairs;
+    }
+
+    function shuffleGameBrackets(gameId) {
+      var room = getActiveRoom();
+      if (!room || !isHost || room.status === 'completed') return;
+      var game = room.games.find(function(g) { return g.id === gameId; });
+      if (!game) return;
+      game.brackets = generateRandomBracketPairs(room.members);
+      saveData();
+      renderAll();
+    }
+
+    function addCustomBracketMatch(gameId) {
+      var room = getActiveRoom();
+      if (!room || !isHost || room.status === 'completed') return;
+      var game = room.games.find(function(g) { return g.id === gameId; });
+      if (!game) return;
+      if (!game.brackets) game.brackets = [];
+
+      var p1 = prompt('대진표 첫 번째 선수 이름을 입력하세요 (' + room.members.join(', ') + '):', room.members[0] || '');
+      if (!p1) return;
+      var p2 = prompt('상대할 두 번째 선수 이름을 입력하세요 (' + room.members.join(', ') + '):', room.members[1] || '');
+      if (!p2) return;
+
+      game.brackets.push({
+        id: 'm_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        p1: p1.trim(),
+        p2: p2.trim(),
+        winner: null,
+        isBye: false
+      });
+      saveData();
+      renderAll();
+    }
+
+    function setBracketWinner(gameId, matchId, winnerSide) {
+      var room = getActiveRoom();
+      if (!room || !isHost || room.status === 'completed') return;
+      var game = room.games.find(function(g) { return g.id === gameId; });
+      if (!game || !game.brackets) return;
+      var matchObj = game.brackets.find(function(m) { return m.id === matchId; });
+      if (!matchObj) return;
+      matchObj.winner = winnerSide;
+      saveData();
+      renderAll();
+    }
+
+    function deleteBracketMatch(gameId, matchId) {
+      var room = getActiveRoom();
+      if (!room || !isHost || room.status === 'completed') return;
+      var game = room.games.find(function(g) { return g.id === gameId; });
+      if (!game || !game.brackets) return;
+      game.brackets = game.brackets.filter(function(m) { return m.id !== matchId; });
+      saveData();
       renderAll();
     }
 
@@ -2121,25 +2317,39 @@
       } else if (game.type === 'winloss') {
         var memberRecords = room.members.map(function(m) {
           var wins = 0;
-          var draws = 0;
           var losses = 0;
           var hasAny = false;
           sets.forEach(function(s) {
             var st = gameScores[s.id] ? gameScores[s.id][m] : null;
             if (st === 'win') { wins++; hasAny = true; }
-            else if (st === 'draw') { draws++; hasAny = true; }
             else if (st === 'loss') { losses++; hasAny = true; }
           });
-          var matchPoints = (wins * (game.winPts || 5)) + (draws * (game.drawPts || 2)) + (losses * (game.lossPts || 0));
-          return { member: m, wins: wins, draws: draws, losses: losses, matchPoints: matchPoints, hasAny: hasAny };
+          // 대진표(brackets)에서 기록된 승패도 합산
+          if (game.brackets && Array.isArray(game.brackets)) {
+            game.brackets.forEach(function(b) {
+              if (!b.winner) return;
+              if (b.p1 === m) {
+                if (b.winner === 'p1') { wins++; hasAny = true; }
+                else if (b.winner === 'p2') { losses++; hasAny = true; }
+              } else if (b.p2 === m) {
+                if (b.winner === 'p2') { wins++; hasAny = true; }
+                else if (b.winner === 'p1') { losses++; hasAny = true; }
+              }
+            });
+          }
+          var matchPoints = (wins * (game.winPts || 5)) + (losses * (game.lossPts || 0));
+          return { member: m, wins: wins, losses: losses, matchPoints: matchPoints, hasAny: hasAny };
         });
 
         var validWL = memberRecords.filter(function(item) { return item.hasAny; });
-        validWL.sort(function(a, b) { return b.matchPoints - a.matchPoints; });
+        validWL.sort(function(a, b) {
+          if (b.matchPoints !== a.matchPoints) return b.matchPoints - a.matchPoints;
+          return b.wins - a.wins;
+        });
 
         var wlRank = 1;
         for (var w = 0; w < validWL.length; w++) {
-          if (w > 0 && validWL[w].matchPoints !== validWL[w-1].matchPoints) {
+          if (w > 0 && (validWL[w].matchPoints !== validWL[w-1].matchPoints || validWL[w].wins !== validWL[w-1].wins)) {
             wlRank = w + 1;
           }
           validWL[w].rank = wlRank;
@@ -2149,7 +2359,7 @@
         room.members.forEach(function(m) {
           var matchW = validWL.find(function(v) { return v.member === m; });
           if (matchW) {
-            results[m] = { rank: matchW.rank, earnedRP: matchW.earnedRP, displayVal: matchW.wins + '승 ' + matchW.draws + '무 ' + matchW.losses + '패' };
+            results[m] = { rank: matchW.rank, earnedRP: matchW.earnedRP, displayVal: matchW.wins + '승 ' + matchW.losses + '패' };
           } else {
             results[m] = { rank: '-', earnedRP: 0, displayVal: '-' };
           }
@@ -2296,6 +2506,126 @@
       topHeader.appendChild(rightActions);
       card.appendChild(topHeader);
 
+      // [격투/승패형 전용]: 1:1 대진표 매치업 & 대진표 섞기 / 대진 추가 섹션
+      if (game.type === 'winloss') {
+        if (!game.brackets) {
+          game.brackets = generateRandomBracketPairs(room.members);
+        }
+        var bracketSection = document.createElement('div');
+        bracketSection.className = "bg-gradient-to-br from-pink-950/30 via-gray-900 to-purple-950/30 border border-pink-500/40 rounded-2xl p-4 space-y-3 shadow-lg";
+
+        var bHeader = document.createElement('div');
+        bHeader.className = "flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-pink-500/20";
+        bHeader.innerHTML = 
+          '<div class="flex items-center gap-2">' +
+            '<span class="px-2.5 py-1 bg-pink-600 text-white rounded-lg text-xs font-black">⚔️ VS 대진표</span>' +
+            '<span class="text-xs md:text-sm font-bold text-pink-200">1:1 매치업 대진표 (승/패 클릭 시 자동 반영)</span>' +
+          '</div>';
+
+        if (isHost && !isCompleted) {
+          var bBtnGroup = document.createElement('div');
+          bBtnGroup.className = "flex items-center gap-2";
+
+          var btnShuffle = document.createElement('button');
+          btnShuffle.type = 'button';
+          btnShuffle.className = "px-3 py-1.5 bg-amber-500 hover:bg-amber-400 text-gray-950 rounded-xl text-xs font-black shadow transition flex items-center gap-1 cursor-pointer active:scale-95";
+          btnShuffle.innerHTML = '🎲 대진표 랜덤 섞기';
+          btnShuffle.addEventListener('click', function() {
+            shuffleGameBrackets(game.id);
+          });
+
+          var btnAddMatch = document.createElement('button');
+          btnAddMatch.type = 'button';
+          btnAddMatch.className = "px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-xs font-bold shadow transition flex items-center gap-1 cursor-pointer active:scale-95";
+          btnAddMatch.innerHTML = '➕ 대진 매치 추가';
+          btnAddMatch.addEventListener('click', function() {
+            addCustomBracketMatch(game.id);
+          });
+
+          bBtnGroup.appendChild(btnShuffle);
+          bBtnGroup.appendChild(btnAddMatch);
+          bHeader.appendChild(bBtnGroup);
+        }
+        bracketSection.appendChild(bHeader);
+
+        var bList = document.createElement('div');
+        bList.className = "grid grid-cols-1 md:grid-cols-2 gap-3";
+
+        game.brackets.forEach(function(matchObj, mIdx) {
+          var mCard = document.createElement('div');
+          mCard.className = "bg-gray-900/90 border border-gray-700/80 rounded-xl p-3 flex items-center justify-between gap-2 shadow";
+
+          if (matchObj.isBye) {
+            mCard.innerHTML = 
+              '<div class="flex items-center gap-2">' +
+                '<span class="text-xs font-mono text-amber-400 font-bold">MATCH ' + (mIdx + 1) + '</span>' +
+                '<span class="text-sm font-bold text-white">' + matchObj.p1 + '</span>' +
+              '</div>' +
+              '<span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-bold">🎉 부전승 통과</span>';
+          } else {
+            var p1Win = (matchObj.winner === 'p1');
+            var p2Win = (matchObj.winner === 'p2');
+
+            var leftSide = document.createElement('div');
+            leftSide.className = "flex-1 flex items-center justify-between gap-1 p-2 rounded-lg border transition " + (p1Win ? 'bg-pink-600/30 border-pink-400 text-white font-black' : (p2Win ? 'bg-gray-800/40 border-gray-800 text-gray-500' : 'bg-gray-800/80 border-gray-700 text-gray-200'));
+            
+            var p1Label = document.createElement('span');
+            p1Label.className = "text-xs md:text-sm truncate font-bold";
+            p1Label.innerText = matchObj.p1 + (p1Win ? ' 🏆승' : (p2Win ? ' 💀패' : ''));
+            leftSide.appendChild(p1Label);
+
+            if (isHost && !isCompleted) {
+              leftSide.classList.add('cursor-pointer', 'hover:border-pink-400');
+              leftSide.title = "클릭하여 " + matchObj.p1 + " 승리 선택";
+              leftSide.addEventListener('click', function() {
+                setBracketWinner(game.id, matchObj.id, p1Win ? null : 'p1');
+              });
+            }
+
+            var vsBadge = document.createElement('div');
+            vsBadge.className = "px-1.5 text-xs font-black text-amber-400 font-game";
+            vsBadge.innerText = "VS";
+
+            var rightSide = document.createElement('div');
+            rightSide.className = "flex-1 flex items-center justify-between gap-1 p-2 rounded-lg border transition " + (p2Win ? 'bg-pink-600/30 border-pink-400 text-white font-black' : (p1Win ? 'bg-gray-800/40 border-gray-800 text-gray-500' : 'bg-gray-800/80 border-gray-700 text-gray-200'));
+
+            var p2Label = document.createElement('span');
+            p2Label.className = "text-xs md:text-sm truncate font-bold";
+            p2Label.innerText = matchObj.p2 + (p2Win ? ' 🏆승' : (p1Win ? ' 💀패' : ''));
+            rightSide.appendChild(p2Label);
+
+            if (isHost && !isCompleted) {
+              rightSide.classList.add('cursor-pointer', 'hover:border-pink-400');
+              rightSide.title = "클릭하여 " + matchObj.p2 + " 승리 선택";
+              rightSide.addEventListener('click', function() {
+                setBracketWinner(game.id, matchObj.id, p2Win ? null : 'p2');
+              });
+            }
+
+            mCard.appendChild(leftSide);
+            mCard.appendChild(vsBadge);
+            mCard.appendChild(rightSide);
+
+            if (isHost && !isCompleted) {
+              var delMatchBtn = document.createElement('button');
+              delMatchBtn.type = 'button';
+              delMatchBtn.className = "text-gray-500 hover:text-red-400 text-xs px-1 cursor-pointer";
+              delMatchBtn.innerText = "✕";
+              delMatchBtn.title = "대진 삭제";
+              delMatchBtn.addEventListener('click', function() {
+                deleteBracketMatch(game.id, matchObj.id);
+              });
+              mCard.appendChild(delMatchBtn);
+            }
+          }
+
+          bList.appendChild(mCard);
+        });
+
+        bracketSection.appendChild(bList);
+        card.appendChild(bracketSection);
+      }
+
       // Sets Container
       var setsWrapper = document.createElement('div');
       setsWrapper.className = "space-y-4 pt-1";
@@ -2362,18 +2692,19 @@
               inputWidget.appendChild(unitSpan);
 
             } else if (game.type === 'winloss') {
-              inputWidget.className = "flex items-center gap-1 text-xs";
-              ['win', 'draw', 'loss'].forEach(function(st) {
+              inputWidget.className = "flex items-center gap-1.5 text-xs";
+              ['win', 'loss'].forEach(function(st) {
                 var stBtn = document.createElement('button');
                 stBtn.type = 'button';
-                stBtn.innerText = (st === 'win') ? '승' : (st === 'draw' ? '무' : '패');
+                stBtn.innerText = (st === 'win') ? '🏆 승' : '💀 패';
                 var isCur = (curVal === st);
                 var clr = isCur 
-                  ? (st === 'win' ? 'bg-pink-600 text-white font-bold shadow' : (st === 'draw' ? 'bg-amber-600 text-white font-bold shadow' : 'bg-purple-900 text-gray-200 font-bold'))
+                  ? (st === 'win' ? 'bg-pink-600 text-white font-bold shadow-[0_0_10px_rgba(236,72,153,0.6)]' : 'bg-slate-700 text-rose-300 border border-rose-500/40 font-bold')
                   : 'bg-gray-800 text-gray-400 hover:text-white';
-                stBtn.className = "px-2.5 py-1.5 rounded-lg transition cursor-pointer " + clr;
+                stBtn.className = "px-3 py-1.5 rounded-lg transition cursor-pointer " + clr;
                 stBtn.addEventListener('click', function() {
-                  updateSetScore(game.id, setObj.id, member, st);
+                  var nextState = (curVal === st) ? '' : st;
+                  updateSetScore(game.id, setObj.id, member, nextState);
                 });
                 inputWidget.appendChild(stBtn);
               });
