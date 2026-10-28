@@ -113,58 +113,84 @@
     ::-webkit-scrollbar-track { background: #0c0617; }
     ::-webkit-scrollbar-thumb { background: #3c2560; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #62369f; }
-    /* 토너먼트 사다리 트리 대진표 전용 CSS */
-    .bracket-tree-wrapper {
-      display: flex;
-      align-items: stretch;
-      gap: 28px;
-      overflow-x: auto;
-      padding: 16px 8px;
-      min-height: 220px;
-    }
-    .bracket-round-col {
+    /* 상하 방향(수직 피라미드/사다리) 토너먼트 트리 대진표 전용 CSS */
+    .bracket-vertical-wrapper {
       display: flex;
       flex-direction: column;
-      justify-content: space-around;
-      min-width: 210px;
+      align-items: center;
+      gap: 32px;
+      padding: 20px 8px;
+      width: 100%;
+      overflow-x: auto;
+    }
+    .bracket-vertical-tier {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      width: 100%;
       position: relative;
+      gap: 12px;
+    }
+    .bracket-vertical-tier::after {
+      content: '▲';
+      position: absolute;
+      top: -26px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #f472b6;
+      font-size: 16px;
+      text-shadow: 0 0 10px #ec4899;
+      animation: bounceUp 1.5s infinite;
+    }
+    .bracket-vertical-tier:first-child::after {
+      display: none;
+    }
+    @keyframes bounceUp {
+      0%, 100% { transform: translate(-50%, 0); opacity: 0.6; }
+      50% { transform: translate(-50%, -4px); opacity: 1; }
+    }
+    .bracket-round-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: stretch;
       gap: 16px;
+      width: 100%;
     }
     .bracket-round-title {
       text-align: center;
       font-size: 12px;
       font-weight: 900;
-      padding: 6px 12px;
-      border-radius: 10px;
+      padding: 5px 16px;
+      border-radius: 999px;
       background: rgba(236, 72, 153, 0.18);
       border: 1px solid rgba(236, 72, 153, 0.45);
       color: #f472b6;
-      margin-bottom: 6px;
       letter-spacing: 0.04em;
     }
     .bracket-match-box {
       background: rgba(17, 24, 39, 0.95);
       border: 1.5px solid #374151;
       border-radius: 14px;
-      padding: 8px;
+      padding: 10px;
       position: relative;
       box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
       display: flex;
       flex-direction: column;
       gap: 6px;
+      min-width: 210px;
+      max-width: 280px;
+      flex: 1 1 220px;
     }
-    .bracket-match-box::after {
+    .bracket-match-box::before {
       content: '';
       position: absolute;
-      right: -28px;
-      top: 50%;
-      width: 28px;
-      height: 2px;
-      background: linear-gradient(90deg, #ec4899, #06b6d4);
-      opacity: 0.6;
-    }
-    .bracket-round-col:last-child .bracket-match-box::after {
-      display: none;
+      top: -16px;
+      left: 50%;
+      width: 2px;
+      height: 16px;
+      background: linear-gradient(180deg, #facc15, #ec4899);
+      opacity: 0.7;
     }
     .bracket-slot {
       display: flex;
@@ -350,8 +376,9 @@
               <span id="global-sync-status" class="flex items-center gap-1.5 text-emerald-400 font-semibold">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 실시간 전체 기기 자동 공유 중
               </span>
-              <div class="flex items-center gap-3">
-                <button onclick="forceGlobalSync()" class="text-cyan-400 hover:text-cyan-300 font-bold cursor-pointer">🔄 새로고침 동기화</button>
+              <div class="flex items-center gap-2.5 flex-wrap">
+                <button id="btn-super-admin-lobby" onclick="promptSuperAdmin()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 font-bold cursor-pointer transition">🛡️ 슈퍼관리자</button>
+                <button onclick="forceGlobalSync()" class="text-cyan-400 hover:text-cyan-300 font-bold cursor-pointer">🔄 동기화</button>
                 <button onclick="clearAllDataPrompt()" class="text-red-400 hover:text-red-300 hover:underline cursor-pointer">전체 초기화</button>
               </div>
             </div>
@@ -1147,7 +1174,68 @@
       effectFunctions[nextIndex]();
     }
 
-    // --- HOST PERMISSION HELPERS ---
+    // --- SUPER ADMIN (PIN: 1826) & HOST PERMISSION HELPERS ---
+    var SUPER_ADMIN_KEY = 'GAME_NIGHT_SUPER_ADMIN_ACTIVE';
+    var SUPER_ADMIN_PIN = '1826';
+    var isSuperAdmin = false;
+
+    function checkIsSuperAdmin() {
+      try {
+        return localStorage.getItem(SUPER_ADMIN_KEY) === 'true';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function updateSuperAdminLobbyBtn() {
+      isSuperAdmin = checkIsSuperAdmin();
+      var btn = document.getElementById('btn-super-admin-lobby');
+      if (btn) {
+        if (isSuperAdmin) {
+          btn.className = "px-2.5 py-1 rounded-lg bg-gradient-to-r from-amber-400 to-yellow-500 text-gray-950 font-black shadow-[0_0_12px_rgba(250,204,21,0.6)] cursor-pointer transition";
+          btn.innerText = "⚡ 슈퍼관리자 ON";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 font-bold cursor-pointer transition";
+          btn.innerText = "🛡️ 슈퍼관리자";
+        }
+      }
+    }
+
+    function promptSuperAdmin() {
+      if (checkIsSuperAdmin()) {
+        if (confirm('현재 [⚡ 슈퍼관리자] 모드가 활성화되어 있습니다.\n슈퍼관리자 권한을 해제하시겠습니까?')) {
+          localStorage.removeItem(SUPER_ADMIN_KEY);
+          isSuperAdmin = false;
+          if (activeRoomId) isHost = checkIsHost(activeRoomId);
+          updateSuperAdminLobbyBtn();
+          renderLobbyRooms();
+          if (activeRoomId) {
+            updateRoleUI();
+            renderTabs();
+            renderAll();
+          }
+        }
+        return;
+      }
+      var pin = prompt('🛡️ 슈퍼관리자 비밀번호를 입력하세요:\n(슈퍼관리자는 호스트보다 상위 권한으로 즉시 삭제, 종료된 방 수정 등 모든 권한을 가집니다)', '');
+      if (pin === null) return;
+      if (pin.trim() === SUPER_ADMIN_PIN) {
+        localStorage.setItem(SUPER_ADMIN_KEY, 'true');
+        isSuperAdmin = true;
+        isHost = true;
+        updateSuperAdminLobbyBtn();
+        renderLobbyRooms();
+        if (activeRoomId) {
+          updateRoleUI();
+          renderTabs();
+          renderAll();
+        }
+        alert('⚡ 슈퍼관리자(SUPER ADMIN) 권한이 활성화되었습니다!\n- 모든 모임방 호스트 상위 권한 획득\n- 7일 대기 없이 모임 즉시 영구 삭제 가능\n- 종료된 모임 기록 수정 및 강제 제어 가능');
+      } else {
+        alert('슈퍼관리자 비밀번호가 일치하지 않습니다.');
+      }
+    }
+
     function getHostRooms() {
       try {
         var list = localStorage.getItem(HOST_SESSION_KEY);
@@ -1166,6 +1254,7 @@
     }
 
     function checkIsHost(roomId) {
+      if (checkIsSuperAdmin()) return true;
       var list = getHostRooms();
       return list.indexOf(roomId) !== -1;
     }
@@ -1496,7 +1585,35 @@
       renderLobbyRooms();
     }
 
+    var SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+    function getRemainingDeleteDays(room) {
+      if (!room || !room.deleteRequestedAt) return null;
+      var elapsed = Date.now() - Number(room.deleteRequestedAt);
+      var remainMs = SEVEN_DAYS_MS - elapsed;
+      if (remainMs <= 0) return 0;
+      return Math.ceil(remainMs / (24 * 60 * 60 * 1000));
+    }
+
+    function purgeExpiredPendingDeleteRooms() {
+      var now = Date.now();
+      var purged = false;
+      (appData.rooms || []).forEach(function(r) {
+        if (r && r.deleteRequestedAt && (now - Number(r.deleteRequestedAt) >= SEVEN_DAYS_MS)) {
+          markRoomDeleted(r.id);
+          purged = true;
+        }
+      });
+      if (purged) {
+        appData.rooms = (appData.rooms || []).filter(function(r) { return !deletedRoomIds[r.id]; });
+        saveLocalOnly();
+      }
+    }
+
     function renderLobbyRooms() {
+      updateSuperAdminLobbyBtn();
+      purgeExpiredPendingDeleteRooms();
+
       var activeContainer = document.getElementById('room-list-active');
       var compContainer = document.getElementById('room-list-completed');
       if (!activeContainer || !compContainer) return;
@@ -1508,7 +1625,7 @@
       var completedRooms = [];
 
       (appData.rooms || []).forEach(function(r) {
-        if (r.status === 'completed') completedRooms.push(r);
+        if (r.status === 'completed' || r.deleteRequestedAt) completedRooms.push(r);
         else activeRooms.push(r);
       });
 
@@ -1521,7 +1638,7 @@
       }
 
       if (completedRooms.length === 0) {
-        compContainer.innerHTML = '<div class="text-center py-10 text-gray-500 text-sm">종료된 모임 기록이 없습니다.<br>진행 중인 모임을 완료하면 이곳에 보관됩니다!</div>';
+        compContainer.innerHTML = '<div class="text-center py-10 text-gray-500 text-sm">종료된 모임 기록이 없습니다.<br>진행 중인 모임을 완료하거나 삭제 대기 중인 모임이 이곳에 보관됩니다!</div>';
       } else {
         completedRooms.forEach(function(room) {
           compContainer.appendChild(createRoomListItem(room, true));
@@ -1533,33 +1650,61 @@
 
     function createRoomListItem(room, isCompleted) {
       var item = document.createElement('div');
-      item.className = "flex items-center justify-between p-3.5 bg-gray-800/90 hover:bg-gray-800 border " + (isCompleted ? 'border-amber-500/40 hover:border-amber-400' : 'border-gray-700 hover:border-cyan-500/50') + " rounded-xl cursor-pointer transition group";
+      var isPendingDelete = Boolean(room.deleteRequestedAt);
+      var remainDays = isPendingDelete ? getRemainingDeleteDays(room) : null;
+
+      item.className = "flex items-center justify-between p-3.5 bg-gray-800/90 hover:bg-gray-800 border " + 
+        (isPendingDelete ? 'border-rose-500/50 hover:border-rose-400' : (isCompleted ? 'border-amber-500/40 hover:border-amber-400' : 'border-gray-700 hover:border-cyan-500/50')) + 
+        " rounded-xl cursor-pointer transition group";
       item.onclick = function() { enterRoom(room.id); };
 
       var dateStr = new Date(room.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
       var gameCount = room.games ? room.games.length : 0;
       var amHost = checkIsHost(room.id);
+      var amSuper = checkIsSuperAdmin();
 
-      var badgeText = isCompleted ? '🏆 확정' : (amHost ? '호스트' : '참여');
-      var badgeClass = isCompleted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : (amHost ? 'bg-pink-500/20 text-pink-400' : 'bg-cyan-500/10 text-cyan-400');
+      var badgeText = isPendingDelete ? ('⏳ D-' + remainDays) : (isCompleted ? '🏆 확정' : (amSuper ? '⚡슈퍼' : (amHost ? '호스트' : '참여')));
+      var badgeClass = isPendingDelete 
+        ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' 
+        : (isCompleted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : (amSuper ? 'bg-amber-400/20 text-amber-300 border border-amber-400/50' : (amHost ? 'bg-pink-500/20 text-pink-400' : 'bg-cyan-500/10 text-cyan-400')));
+
+      var statusTagHtml = '';
+      if (isPendingDelete) {
+        statusTagHtml = ' <span class="text-[11px] px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-500/40 font-bold">🗑️ 삭제 대기 (남은 일수: ' + remainDays + '일)</span>';
+      } else if (isCompleted) {
+        statusTagHtml = ' <span class="text-xs text-amber-400 font-normal">종료됨</span>';
+      }
 
       item.innerHTML = 
-        '<div class="flex items-center gap-3">' +
-          '<div class="w-12 h-10 rounded-lg ' + badgeClass + ' flex items-center justify-center font-bold text-xs">' +
+        '<div class="flex items-center gap-3 min-w-0">' +
+          '<div class="w-12 h-10 rounded-lg ' + badgeClass + ' flex items-center justify-center font-bold text-xs flex-shrink-0">' +
             badgeText +
           '</div>' +
-          '<div>' +
-            '<div class="font-semibold text-white group-hover:text-cyan-400 transition flex items-center gap-1.5">' +
-              room.name + (isCompleted ? ' <span class="text-xs text-amber-400 font-normal">종료됨</span>' : '') +
+          '<div class="min-w-0">' +
+            '<div class="font-semibold text-white group-hover:text-cyan-400 transition flex items-center gap-1.5 flex-wrap">' +
+              '<span class="truncate">' + room.name + '</span>' + statusTagHtml +
             '</div>' +
-            '<div class="text-xs text-gray-400">' + room.members.slice(0, 3).join(', ') + (room.members.length > 3 ? ' 외 ' + (room.members.length - 3) + '명' : '') + ' • ' + gameCount + '개 종목</div>' +
+            '<div class="text-xs text-gray-400 truncate">' + room.members.slice(0, 3).join(', ') + (room.members.length > 3 ? ' 외 ' + (room.members.length - 3) + '명' : '') + ' • ' + gameCount + '개 종목</div>' +
           '</div>' +
         '</div>' +
-        '<div class="flex items-center gap-1.5">' +
-          '<span class="text-xs text-gray-500 font-mono mr-1">' + dateStr + '</span>' +
+        '<div class="flex items-center gap-1.5 flex-shrink-0">' +
+          '<span class="text-xs text-gray-500 font-mono mr-1 hidden sm:inline">' + dateStr + '</span>' +
+          (isPendingDelete && (amHost || amSuper) ? '<button type="button" class="btn-restore-room px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[11px] font-bold transition cursor-pointer" title="삭제 취소 및 복구">♻️ 복구</button>' : '') +
           '<button type="button" class="btn-share-room-item px-2.5 py-1 bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-300 border border-yellow-400/40 rounded-lg text-xs font-bold transition cursor-pointer" title="이 모임 초대/공유">💌 공유</button>' +
-          '<button type="button" class="btn-del-room p-1 text-gray-500 hover:text-red-400 transition cursor-pointer" title="방 삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
+          '<button type="button" class="btn-del-room p-1 ' + (amSuper ? 'text-rose-400 hover:text-rose-300' : 'text-gray-500 hover:text-red-400') + ' transition cursor-pointer" title="' + (amSuper ? '슈퍼관리자 즉시 영구 삭제' : (isPendingDelete ? '삭제 대기 안내 / 슈퍼관리자 즉시 삭제' : '종료된 모임으로 이동 후 7일 삭제 대기')) + '"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
         '</div>';
+
+      var restoreBtn = item.querySelector('.btn-restore-room');
+      if (restoreBtn) {
+        restoreBtn.addEventListener('click', function(e) {
+          e.stopPropagation();
+          delete room.deleteRequestedAt;
+          room.status = 'active';
+          room.updatedAt = Date.now();
+          saveData();
+          switchLobbyTab('active');
+        });
+      }
 
       var shareItemBtn = item.querySelector('.btn-share-room-item');
       if (shareItemBtn) {
@@ -1644,11 +1789,47 @@
     }
 
     function deleteRoom(roomId) {
-      if (confirm('이 모임 방을 삭제하시겠습니까? 모든 기기에서 함께 삭제됩니다.')) {
-        markRoomDeleted(roomId);
-        appData.rooms = appData.rooms.filter(function(r) { return r.id !== roomId; });
+      var room = (appData.rooms || []).find(function(r) { return r.id === roomId; });
+      if (!room) return;
+
+      // 1) 슈퍼관리자(1826)인 경우: 대기 없이 즉시 영구 삭제 가능!
+      if (checkIsSuperAdmin()) {
+        if (confirm('⚡ [슈퍼관리자 권한] "' + room.name + '" 모임을 7일 대기 없이 즉시 영구 삭제하시겠습니까?')) {
+          markRoomDeleted(roomId);
+          appData.rooms = appData.rooms.filter(function(r) { return r.id !== roomId; });
+          saveData();
+          renderLobbyRooms();
+        }
+        return;
+      }
+
+      // 2) 이미 7일 삭제 대기 중인 모임인데 삭제 버튼을 또 누른 경우 -> 슈퍼관리자 비번(1826) 입력 시 즉시 삭제 지원
+      if (room.deleteRequestedAt) {
+        var rDays = getRemainingDeleteDays(room);
+        var pinInput = prompt('⏳ 현재 [삭제 대기 중 (남은 일수: ' + rDays + '일)]인 모임입니다.\n7일 후 자동으로 영구 삭제됩니다.\n\n⚡ 즉시 영구 삭제하려면 [슈퍼관리자 비밀번호]를 입력하세요:', '');
+        if (pinInput === null) return;
+        if (pinInput.trim() === SUPER_ADMIN_PIN) {
+          localStorage.setItem(SUPER_ADMIN_KEY, 'true');
+          isSuperAdmin = true;
+          markRoomDeleted(roomId);
+          appData.rooms = appData.rooms.filter(function(r) { return r.id !== roomId; });
+          saveData();
+          renderLobbyRooms();
+          alert('⚡ 슈퍼관리자 권한으로 모임이 즉시 영구 삭제되었습니다!');
+        } else if (pinInput.trim() !== '') {
+          alert('비밀번호가 일치하지 않습니다. (슈퍼관리자만 즉시 삭제 가능)');
+        }
+        return;
+      }
+
+      // 3) 일반/호스트 모임 삭제 시 -> [종료된 모임] 탭으로 이동하며 7일간의 삭제 대기 부여
+      if (confirm('"' + room.name + '" 모임을 삭제하시겠습니까?\n\n• 일반 삭제 시 [🏆 종료된 모임] 목록으로 이동하여 7일간 삭제 대기 상태(남은 일수 표시)로 보관된 후 자동 삭제됩니다.\n• 슈퍼관리자(비번 1826)는 즉시 영구 삭제가 가능합니다.')) {
+        room.status = 'completed';
+        room.deleteRequestedAt = Date.now();
+        room.updatedAt = Date.now();
         saveData();
-        renderLobbyRooms();
+        switchLobbyTab('completed');
+        alert('🗑️ 모임이 [종료된 모임] 탭으로 이동되었으며, 7일간의 삭제 대기(D-7)가 시작되었습니다.');
       }
     }
 
@@ -1728,11 +1909,21 @@
       }
     }
 
+    function canManageRoom(room) {
+      if (!room) return false;
+      if (checkIsSuperAdmin()) return true;
+      return isHost && room.status !== 'completed';
+    }
+
     function updateRoleUI() {
       var room = getActiveRoom();
       if (!room) return;
 
+      isSuperAdmin = checkIsSuperAdmin();
+      if (isSuperAdmin) isHost = true;
+
       var isCompleted = (room.status === 'completed');
+      var isPendingDel = Boolean(room.deleteRequestedAt);
       var statusBadge = document.getElementById('room-status-badge');
       var roleBadge = document.getElementById('role-badge');
       var btnAddGame = document.getElementById('btn-add-game-host');
@@ -1745,15 +1936,30 @@
       var pendingCount = (room && room.requests) ? room.requests.length : 0;
 
       if (isCompleted) {
-        statusBadge.className = "px-2.5 py-0.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full font-bold";
-        statusBadge.innerHTML = "🏆 모임 종료 (우승 확정됨)";
+        if (isPendingDel) {
+          var rDays = getRemainingDeleteDays(room);
+          statusBadge.className = "px-2.5 py-0.5 text-xs bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full font-bold";
+          statusBadge.innerHTML = "🗑️ 삭제 대기 중 (D-" + rDays + "일)";
+        } else {
+          statusBadge.className = "px-2.5 py-0.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full font-bold";
+          statusBadge.innerHTML = "🏆 모임 종료 (우승 확정됨)";
+        }
 
-        roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-bold bg-gray-800 text-gray-300 border border-gray-700";
-        roleBadge.innerText = isHost ? "호스트 (기록 열람)" : "게스트 (기록 열람)";
+        if (isSuperAdmin) {
+          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-black bg-gradient-to-r from-amber-400 to-yellow-500 text-gray-950 shadow";
+          roleBadge.innerText = "⚡ 슈퍼관리자 (모든 권한)";
+          btnAddGame.classList.remove('hidden');
+          btnFinishRoom.classList.add('hidden');
+          btnToggleHost.classList.add('hidden');
+        } else {
+          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-bold bg-gray-800 text-gray-300 border border-gray-700";
+          roleBadge.innerText = isHost ? "호스트 (기록 열람)" : "게스트 (기록 열람)";
+          btnAddGame.classList.add('hidden');
+          btnFinishRoom.classList.add('hidden');
+          btnToggleHost.classList.remove('hidden');
+          btnToggleHost.innerHTML = '<i data-lucide="shield" class="w-4 h-4"></i> 슈퍼관리자 인증';
+        }
 
-        btnAddGame.classList.add('hidden');
-        btnFinishRoom.classList.add('hidden');
-        btnToggleHost.classList.add('hidden');
         hostReqBar.classList.add('hidden');
         guestReqBar.classList.add('hidden');
         completedBar.classList.remove('hidden');
@@ -1763,21 +1969,22 @@
         statusBadge.className = "px-2.5 py-0.5 text-xs bg-pink-500/20 text-pink-400 border border-pink-500/40 rounded-full font-bold flex items-center gap-1";
         statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span> LIVE 진행 중';
 
-        if (isHost) {
+        if (isSuperAdmin) {
+          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-black bg-gradient-to-r from-amber-400 to-yellow-500 text-gray-950 shadow";
+          roleBadge.innerText = "⚡ 슈퍼관리자 (최고 권한)";
+          btnAddGame.classList.remove('hidden');
+          btnFinishRoom.classList.remove('hidden');
+          btnToggleHost.classList.add('hidden');
+          guestReqBar.classList.add('hidden');
+        } else if (isHost) {
           roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-bold bg-pink-500/20 text-pink-300 border border-pink-500/40";
           roleBadge.innerText = "👑 호스트 모드";
 
           btnAddGame.classList.remove('hidden');
           btnFinishRoom.classList.remove('hidden');
-          btnToggleHost.classList.add('hidden');
+          btnToggleHost.classList.remove('hidden');
+          btnToggleHost.innerHTML = '<i data-lucide="shield" class="w-4 h-4"></i> 슈퍼관리자 전환';
           guestReqBar.classList.add('hidden');
-
-          if (pendingCount > 0) {
-            hostReqBar.classList.remove('hidden');
-            document.getElementById('pending-requests-count-text').innerText = '초대 인원의 점수 수정 요청이 ' + pendingCount + '건 대기 중입니다.';
-          } else {
-            hostReqBar.classList.add('hidden');
-          }
         } else {
           roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
           roleBadge.innerText = "👀 초대 멤버(게스트)";
@@ -1785,8 +1992,16 @@
           btnAddGame.classList.add('hidden');
           btnFinishRoom.classList.add('hidden');
           btnToggleHost.classList.remove('hidden');
+          btnToggleHost.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> 호스트 / 슈퍼관리자 권한';
           hostReqBar.classList.add('hidden');
           guestReqBar.classList.remove('hidden');
+        }
+
+        if ((isHost || isSuperAdmin) && pendingCount > 0) {
+          hostReqBar.classList.remove('hidden');
+          document.getElementById('pending-requests-count-text').innerText = '초대 인원의 점수 수정 요청이 ' + pendingCount + '건 대기 중입니다.';
+        } else {
+          hostReqBar.classList.add('hidden');
         }
       }
     }
@@ -1795,13 +2010,23 @@
       var room = getActiveRoom();
       if (!room) return;
 
-      var pin = prompt('호스트 관리자 비밀번호를 입력해주세요:', '');
+      var pin = prompt('🔑 호스트 비밀번호 또는 ⚡ 슈퍼관리자 비밀번호를 입력해주세요:', '');
       if (pin === null) return;
 
-      if (pin === (room.hostPin || '1234') || pin === 'admin') {
+      if (pin.trim() === SUPER_ADMIN_PIN) {
+        localStorage.setItem(SUPER_ADMIN_KEY, 'true');
+        isSuperAdmin = true;
         setRoomHost(room.id);
         isHost = true;
-        alert('호스트 권한이 승인되었습니다! 게임 추가, 세트 관리 및 점수 수정이 가능합니다.');
+        updateSuperAdminLobbyBtn();
+        alert('⚡ 슈퍼관리자 최고 권한이 승인되었습니다! 모든 모임 제어 및 즉시 삭제가 가능합니다.');
+        updateRoleUI();
+        renderTabs();
+        renderAll();
+      } else if (pin === (room.hostPin || '1234') || pin === 'admin') {
+        setRoomHost(room.id);
+        isHost = true;
+        alert('👑 호스트 권한이 승인되었습니다! 게임 추가, 세트 관리 및 점수 수정이 가능합니다.');
         updateRoleUI();
         renderTabs();
         renderAll();
@@ -2063,7 +2288,7 @@
 
     function openAddGameModal() {
       var room = getActiveRoom();
-      if (!isHost || (room && room.status === 'completed')) {
+      if (!canManageRoom(room)) {
         alert('게임 추가는 모임이 진행 중일 때 호스트만 가능합니다.');
         return;
       }
@@ -2080,7 +2305,7 @@
 
     function submitNewGame() {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
 
       var nameInput = document.getElementById('modal-game-name');
       var gameName = (nameInput.value || '').trim();
@@ -2224,7 +2449,7 @@
 
     function selectTournamentWinner(gameId, roundIdx, matchIdx, winnerName) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game || !game.tournamentRounds) return;
 
@@ -2272,7 +2497,7 @@
 
     function shuffleBattleBracket(gameId) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game) return;
 
@@ -2300,7 +2525,7 @@
 
     function resetFullLeagueMatches(gameId) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game) return;
       game.leagueMatches = buildFullLeagueMatches(room.members);
@@ -2310,7 +2535,7 @@
 
     function addCustomLeagueMatch(gameId) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game) return;
       if (!game.leagueMatches) game.leagueMatches = [];
@@ -2332,7 +2557,7 @@
 
     function setLeagueMatchWinner(gameId, matchId, winnerSide) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game || !game.leagueMatches) return;
       var mt = game.leagueMatches.find(function(m) { return m.id === matchId; });
@@ -2344,7 +2569,7 @@
 
     function deleteLeagueMatch(gameId, matchId) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game || !game.leagueMatches) return;
       game.leagueMatches = game.leagueMatches.filter(function(m) { return m.id !== matchId; });
@@ -2354,7 +2579,7 @@
 
     function addNewSetToGame(gameId) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
 
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game) return;
@@ -2374,7 +2599,7 @@
 
     function deleteSetFromGame(gameId, setId) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
 
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game || !game.sets || game.sets.length <= 1) {
@@ -2393,7 +2618,7 @@
 
     function deleteGame(gameId) {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') {
+      if (!room || !canManageRoom(room)) {
         alert('게임 삭제는 모임 진행 중 호스트만 가능합니다.');
         return;
       }
@@ -2486,7 +2711,7 @@
 
     function openRequestsModal() {
       var room = getActiveRoom();
-      if (!room || !isHost || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
 
       var listContainer = document.getElementById('host-review-list');
       listContainer.innerHTML = '';
@@ -2755,6 +2980,102 @@
       if (window.lucide) lucide.createIcons();
     }
 
+    // --- 스톱워치 타이머 상태 (타임어택 전용) ---
+    var stopwatchInterval = null;
+    var stopwatchStartTime = 0;
+    var stopwatchElapsed = 0;
+    var stopwatchRunning = false;
+
+    function toggleStopwatch() {
+      var btn = document.getElementById('btn-sw-toggle');
+      if (!stopwatchRunning) {
+        stopwatchRunning = true;
+        stopwatchStartTime = Date.now() - stopwatchElapsed;
+        if (btn) {
+          btn.innerText = '⏸ 일시정지';
+          btn.className = 'px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
+        }
+        stopwatchInterval = setInterval(function() {
+          stopwatchElapsed = Date.now() - stopwatchStartTime;
+          var disp = document.getElementById('sw-display');
+          if (disp) disp.innerText = (stopwatchElapsed / 1000).toFixed(2) + '초';
+        }, 30);
+      } else {
+        stopwatchRunning = false;
+        clearInterval(stopwatchInterval);
+        if (btn) {
+          btn.innerText = '▶ 타이머 시작';
+          btn.className = 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
+        }
+      }
+    }
+
+    function resetStopwatch() {
+      stopwatchRunning = false;
+      clearInterval(stopwatchInterval);
+      stopwatchElapsed = 0;
+      var disp = document.getElementById('sw-display');
+      if (disp) disp.innerText = '0.00초';
+      var btn = document.getElementById('btn-sw-toggle');
+      if (btn) {
+        btn.innerText = '▶ 타이머 시작';
+        btn.className = 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
+      }
+    }
+
+    function applyStopwatchToMember(gameId, setId, member) {
+      var sec = Number((stopwatchElapsed / 1000).toFixed(2));
+      if (sec <= 0) {
+        alert('먼저 스톱워치 타이머를 측정해주세요!');
+        return;
+      }
+      updateSetScore(gameId, setId, member, sec);
+    }
+
+    // 생존/탈락형 원터치 탈락 순서 자동 배정
+    function triggerEliminationOut(gameId, setId, member) {
+      var room = getActiveRoom();
+      if (!room || !canManageRoom(room)) return;
+      if (!room.scores[gameId]) room.scores[gameId] = {};
+      if (!room.scores[gameId][setId]) room.scores[gameId][setId] = {};
+
+      var setScores = room.scores[gameId][setId];
+      // 이미 탈락 순위가 있으면 생존 상태로 복구
+      if (setScores[member]) {
+        delete setScores[member];
+        saveData();
+        renderAll();
+        return;
+      }
+
+      // 아직 순위가 정해지지 않은 인원 중 가장 낮은 등수(첫 탈락자 = 전체 인원수 등수)부터 자동 부여
+      var usedRanks = Object.keys(setScores).map(function(k) { return Number(setScores[k]); }).filter(function(n) { return !isNaN(n) && n > 0; });
+      var nextRank = room.members.length;
+      while (usedRanks.indexOf(nextRank) !== -1 && nextRank > 1) {
+        nextRank--;
+      }
+      setScores[member] = nextRank;
+
+      // 만약 남은 생존자가 딱 1명뿐이라면 그 1명에게 자동으로 1등(최종 생존) 부여!
+      var survivors = room.members.filter(function(m) { return !setScores[m]; });
+      if (survivors.length === 1) {
+        setScores[survivors[0]] = 1;
+      }
+
+      saveData();
+      renderAll();
+    }
+
+    function resetEliminationSet(gameId, setId) {
+      var room = getActiveRoom();
+      if (!room || !canManageRoom(room)) return;
+      if (room.scores && room.scores[gameId]) {
+        room.scores[gameId][setId] = {};
+        saveData();
+        renderAll();
+      }
+    }
+
     // RENDER ONLY THE CURRENTLY SELECTED GAME TAB
     function renderSingleGameTab(room) {
       var container = document.getElementById('tab-content-game');
@@ -2765,31 +3086,34 @@
 
       var game = (room.games || []).find(function(g) { return g.id === activeTab; });
       if (!game) {
-        // If the active game tab was deleted or not found, fallback to leaderboard
         switchTab('leaderboard');
         return;
       }
 
-      var isCompleted = (room.status === 'completed');
+      var editable = canManageRoom(room);
 
       if (!game.sets || game.sets.length === 0) {
         game.sets = [ { id: 's1', name: '1세트' } ];
       }
 
       var card = document.createElement('div');
-      card.className = "bg-gray-900/90 bg-gray-900/95 rounded-2xl border " + (isCompleted ? 'border-gray-800' : 'border-cyan-500/30') + " p-6 shadow-2xl space-y-5";
+      card.className = "bg-gray-900/95 rounded-2xl border " + (!editable ? 'border-gray-800' : 'border-cyan-500/30') + " p-5 md:p-6 shadow-2xl space-y-5";
 
       var typeBadge = '';
-      if (game.type === 'points') typeBadge = '<span class="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold">🎯 점수 집계형</span>';
-      else if (game.type === 'winloss') typeBadge = '<span class="px-2.5 py-1 bg-pink-500/20 text-pink-300 border border-pink-500/30 rounded-lg text-xs font-bold">⚔️ 승패/격투 배틀</span>';
-      else if (game.type === 'elimination') typeBadge = '<span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold">🪵 생존/탈락 순서</span>';
-      else if (game.type === 'time') typeBadge = '<span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-bold">⏱️ 타임어택</span>';
+      if (game.type === 'points') typeBadge = '<span class="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold">🎯 점수 집계형 (퀵 가감점 & MVP)</span>';
+      else if (game.type === 'winloss') typeBadge = '<span class="px-2.5 py-1 bg-pink-500/20 text-pink-300 border border-pink-500/30 rounded-lg text-xs font-bold">⚔️ 승패/격투 대진표</span>';
+      else if (game.type === 'elimination') typeBadge = '<span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold">🪵 생존/탈락 서바이벌</span>';
+      else if (game.type === 'time') typeBadge = '<span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-bold">⏱️ 타임어택 & 스톱워치</span>';
 
       var gameResult = calculateGamePoints(room, game);
 
       // Card Header
       var topHeader = document.createElement('div');
       topHeader.className = "flex flex-wrap items-center justify-between gap-3 border-b border-gray-800 pb-4";
+
+      var subDesc = (game.type === 'winloss') 
+        ? '상하 대진표 및 리그전 매치업으로 승패 자동 집계' 
+        : ('총 ' + game.sets.length + '개 세트/라운드 진행 중');
 
       var leftHeader = document.createElement('div');
       leftHeader.className = "flex items-center gap-3";
@@ -2798,24 +3122,26 @@
           '<i data-lucide="gamepad-2" class="w-5 h-5"></i>' +
         '</div>' +
         '<div>' +
-          '<h3 class="font-bold text-white text-xl flex items-center gap-2.5">' + game.name + ' ' + typeBadge + '</h3>' +
-          '<span class="text-xs text-gray-400">총 ' + game.sets.length + '개 세트/라운드 진행 중</span>' +
+          '<h3 class="font-bold text-white text-xl flex items-center gap-2.5 flex-wrap">' + game.name + ' ' + typeBadge + '</h3>' +
+          '<span class="text-xs text-gray-400">' + subDesc + '</span>' +
         '</div>';
       topHeader.appendChild(leftHeader);
 
       var rightActions = document.createElement('div');
       rightActions.className = "flex items-center gap-2";
 
-      // Add Set Button (Host Only, Active Only)
-      if (isHost && !isCompleted) {
-        var addSetBtn = document.createElement('button');
-        addSetBtn.type = 'button';
-        addSetBtn.className = "px-3.5 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer";
-        addSetBtn.innerHTML = '<i data-lucide="plus" class="w-4 h-4"></i> 세트/라운드 추가';
-        addSetBtn.addEventListener('click', function() {
-          addNewSetToGame(game.id);
-        });
-        rightActions.appendChild(addSetBtn);
+      if (editable) {
+        // 격투/승패형(winloss)은 대진표에서 바로 승패를 가르므로 불필요한 세트 추가 버튼을 숨김!
+        if (game.type !== 'winloss') {
+          var addSetBtn = document.createElement('button');
+          addSetBtn.type = 'button';
+          addSetBtn.className = "px-3.5 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer";
+          addSetBtn.innerHTML = '<i data-lucide="plus" class="w-4 h-4"></i> 세트/라운드 추가';
+          addSetBtn.addEventListener('click', function() {
+            addNewSetToGame(game.id);
+          });
+          rightActions.appendChild(addSetBtn);
+        }
 
         var delGameBtn = document.createElement('button');
         delGameBtn.type = 'button';
@@ -2831,7 +3157,9 @@
       topHeader.appendChild(rightActions);
       card.appendChild(topHeader);
 
-      // [격투/승패형 전용]: 🪜 토너먼트 사다리 대진표 & 🔄 풀리그전 대진표 시스템
+      // =========================================================================
+      // [특성화 요소 1]: ⚔️ 격투/승패형 (상하 방향 수직 사다리 토너먼트 & 풀리그전, 하단 세트 스코어 제거!)
+      // =========================================================================
       if (game.type === 'winloss') {
         if (!game.battleMode) game.battleMode = 'tournament';
         if (!game.tournamentRounds || game.tournamentRounds.length === 0) {
@@ -2844,7 +3172,6 @@
         var battleContainer = document.createElement('div');
         battleContainer.className = "bg-gradient-to-br from-pink-950/30 via-gray-900 to-purple-950/30 border border-pink-500/40 rounded-2xl p-4 md:p-5 space-y-4 shadow-xl";
 
-        // 상단 모드 전환 탭 (토너먼트 사다리 vs 리그전/풀리그전) + 대진표 섞기/추가 버튼
         var bTopBar = document.createElement('div');
         bTopBar.className = "flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pink-500/20";
 
@@ -2854,9 +3181,9 @@
         var btnModeTourney = document.createElement('button');
         btnModeTourney.type = 'button';
         btnModeTourney.className = "px-3 py-1.5 rounded-lg text-xs font-black transition cursor-pointer " + (game.battleMode === 'tournament' ? 'bg-pink-600 text-white shadow' : 'text-gray-400 hover:text-white');
-        btnModeTourney.innerHTML = '🪜 토너먼트 사다리';
+        btnModeTourney.innerHTML = '🪜 상하 토너먼트 대진표';
         btnModeTourney.addEventListener('click', function() {
-          if (isHost && !isCompleted) {
+          if (editable) {
             game.battleMode = 'tournament';
             saveData();
             renderAll();
@@ -2868,7 +3195,7 @@
         btnModeLeague.className = "px-3 py-1.5 rounded-lg text-xs font-black transition cursor-pointer " + (game.battleMode === 'league' ? 'bg-cyan-600 text-white shadow' : 'text-gray-400 hover:text-white');
         btnModeLeague.innerHTML = '🔄 리그전 / 풀리그';
         btnModeLeague.addEventListener('click', function() {
-          if (isHost && !isCompleted) {
+          if (editable) {
             game.battleMode = 'league';
             saveData();
             renderAll();
@@ -2879,7 +3206,7 @@
         modeSwitch.appendChild(btnModeLeague);
         bTopBar.appendChild(modeSwitch);
 
-        if (isHost && !isCompleted) {
+        if (editable) {
           var actionBtns = document.createElement('div');
           actionBtns.className = "flex items-center gap-2 flex-wrap";
 
@@ -2917,80 +3244,92 @@
 
         battleContainer.appendChild(bTopBar);
 
-        // MODE A: 🪜 토너먼트 사다리 트리 뷰
+        // MODE A: 🪜 상하 방향(수직 피라미드/사다리) 토너먼트 대진표 (하단 8강/4강 -> 상단 결승 & 최종 우승 챔피언!)
         if (game.battleMode === 'tournament') {
           var guideText = document.createElement('div');
-          guideText.className = "text-xs text-gray-300 flex items-center justify-between";
-          guideText.innerHTML = '<span>💡 선수 이름을 클릭하면 <b>승리(🏆)</b> 처리되며 다음 라운드 사다리로 자동 진출합니다!</span>';
+          guideText.className = "text-xs text-gray-300 text-center bg-gray-950/60 py-2 px-3 rounded-xl border border-gray-800";
+          guideText.innerHTML = '💡 <b>상하 방향 토너먼트 대진표</b>: 아래쪽 라운드에서 승리한 선수를 터치하면 위쪽 결승/우승 사다리로 자동 진출합니다!';
           battleContainer.appendChild(guideText);
 
           var ladderWrap = document.createElement('div');
-          ladderWrap.className = "bracket-tree-wrapper";
+          ladderWrap.className = "bracket-vertical-wrapper";
 
-          game.tournamentRounds.forEach(function(roundObj, rIdx) {
-            var col = document.createElement('div');
-            col.className = "bracket-round-col";
-
-            var rTitle = document.createElement('div');
-            rTitle.className = "bracket-round-title";
-            rTitle.innerText = roundObj.title;
-            col.appendChild(rTitle);
-
-            (roundObj.matches || []).forEach(function(mt, mIdx) {
-              var mBox = document.createElement('div');
-              mBox.className = "bracket-match-box";
-
-              var p1Name = mt.p1 || '대기 중';
-              var p2Name = mt.isBye ? '부전승 (BYE)' : (mt.p2 || '대기 중');
-              var p1Won = (mt.winner && mt.winner === mt.p1);
-              var p2Won = (!mt.isBye && mt.winner && mt.winner === mt.p2);
-
-              var slot1 = document.createElement('div');
-              slot1.className = "bracket-slot " + (!mt.p1 ? 'slot-empty' : (p1Won ? 'slot-win' : (p2Won ? 'slot-loss' : '')));
-              slot1.innerHTML = '<span class="truncate">' + p1Name + '</span><span>' + (p1Won ? '🏆 승' : (p2Won ? '💀 패' : '')) + '</span>';
-
-              if (isHost && !isCompleted && mt.p1 && !mt.isBye && mt.p2) {
-                slot1.classList.add('cursor-pointer', 'hover:border-pink-400');
-                slot1.addEventListener('click', function() {
-                  selectTournamentWinner(game.id, rIdx, mIdx, mt.p1);
-                });
-              }
-
-              var slot2 = document.createElement('div');
-              slot2.className = "bracket-slot " + (mt.isBye || !mt.p2 ? 'slot-empty' : (p2Won ? 'slot-win' : (p1Won ? 'slot-loss' : '')));
-              slot2.innerHTML = '<span class="truncate">' + p2Name + '</span><span>' + (mt.isBye ? '🎉 자동진출' : (p2Won ? '🏆 승' : (p1Won ? '💀 패' : ''))) + '</span>';
-
-              if (isHost && !isCompleted && !mt.isBye && mt.p1 && mt.p2) {
-                slot2.classList.add('cursor-pointer', 'hover:border-pink-400');
-                slot2.addEventListener('click', function() {
-                  selectTournamentWinner(game.id, rIdx, mIdx, mt.p2);
-                });
-              }
-
-              mBox.appendChild(slot1);
-              mBox.appendChild(slot2);
-              col.appendChild(mBox);
-            });
-
-            ladderWrap.appendChild(col);
-          });
-
-          // 최종 우승 챔피언 사다리 종착점 컬럼
+          // 1) 최상단: 👑 최종 우승 챔피언 왕좌 박스
           var lastRound = game.tournamentRounds[game.tournamentRounds.length - 1];
           var finalMatch = (lastRound && lastRound.matches && lastRound.matches[0]) ? lastRound.matches[0] : null;
-          var champName = (finalMatch && finalMatch.winner) ? finalMatch.winner : '미정';
+          var champName = (finalMatch && finalMatch.winner) ? finalMatch.winner : '결승 대기 중';
 
-          var champCol = document.createElement('div');
-          champCol.className = "bracket-round-col";
-          champCol.style.minWidth = "170px";
-          champCol.innerHTML = 
-            '<div class="bracket-round-title" style="background:rgba(234,179,8,0.2); border-color:#facc15; color:#fde047;">👑 최종 우승</div>' +
-            '<div class="p-4 rounded-2xl border-2 border-amber-400 bg-gradient-to-b from-amber-500/25 to-gray-900 text-center shadow-[0_0_25px_rgba(250,204,21,0.35)]">' +
-              '<div class="text-3xl mb-1">🏆</div>' +
-              '<div class="text-xs text-amber-200 font-bold">CHAMPION</div>' +
-              '<div class="text-lg font-black text-white mt-1 truncate">' + champName + '</div>' +
+          var champTier = document.createElement('div');
+          champTier.className = "bracket-vertical-tier";
+          champTier.innerHTML = 
+            '<div class="bracket-round-title" style="background:rgba(234,179,8,0.22); border-color:#facc15; color:#fde047;">👑 최종 우승 CHAMPION</div>' +
+            '<div class="px-8 py-4 rounded-2xl border-2 border-amber-400 bg-gradient-to-b from-amber-500/30 to-gray-900 text-center shadow-[0_0_30px_rgba(250,204,21,0.4)] min-w-[220px]">' +
+              '<div class="text-4xl mb-1 animate-bounce">🏆</div>' +
+              '<div class="text-[11px] text-amber-200 font-extrabold tracking-widest">TOURNAMENT WINNER</div>' +
+              '<div class="text-xl font-black text-white mt-1 truncate">' + champName + '</div>' +
             '</div>';
-          ladderWrap.appendChild(champCol);
+          ladderWrap.appendChild(champTier);
+
+          // 2) 결승전부터 1라운드(8강/4강)까지 위에서 아래(상하 피라미드 방향)로 배치
+          for (var rIdx = game.tournamentRounds.length - 1; rIdx >= 0; rIdx--) {
+            (function(roundIndex) {
+              var roundObj = game.tournamentRounds[roundIndex];
+              var tier = document.createElement('div');
+              tier.className = "bracket-vertical-tier";
+
+              var rTitle = document.createElement('div');
+              rTitle.className = "bracket-round-title";
+              rTitle.innerText = roundObj.title + ' (승자 위쪽 진출 ▲)';
+              tier.appendChild(rTitle);
+
+              var row = document.createElement('div');
+              row.className = "bracket-round-row";
+
+              (roundObj.matches || []).forEach(function(mt, mIdx) {
+                var mBox = document.createElement('div');
+                mBox.className = "bracket-match-box";
+
+                var p1Name = mt.p1 || '진출자 대기';
+                var p2Name = mt.isBye ? '부전승 (BYE)' : (mt.p2 || '진출자 대기');
+                var p1Won = (mt.winner && mt.winner === mt.p1);
+                var p2Won = (!mt.isBye && mt.winner && mt.winner === mt.p2);
+
+                var slot1 = document.createElement('div');
+                slot1.className = "bracket-slot " + (!mt.p1 ? 'slot-empty' : (p1Won ? 'slot-win' : (p2Won ? 'slot-loss' : '')));
+                slot1.innerHTML = '<span class="truncate">' + p1Name + '</span><span>' + (p1Won ? '🏆 승' : (p2Won ? '💀 패' : '')) + '</span>';
+
+                if (editable && mt.p1 && !mt.isBye && mt.p2) {
+                  slot1.classList.add('cursor-pointer', 'hover:border-pink-400');
+                  slot1.addEventListener('click', function() {
+                    selectTournamentWinner(game.id, roundIndex, mIdx, mt.p1);
+                  });
+                }
+
+                var vsDivider = document.createElement('div');
+                vsDivider.className = "text-[10px] text-center font-black text-amber-400/80 tracking-widest";
+                vsDivider.innerText = "⚡ VS ⚡";
+
+                var slot2 = document.createElement('div');
+                slot2.className = "bracket-slot " + (mt.isBye || !mt.p2 ? 'slot-empty' : (p2Won ? 'slot-win' : (p1Won ? 'slot-loss' : '')));
+                slot2.innerHTML = '<span class="truncate">' + p2Name + '</span><span>' + (mt.isBye ? '🎉 부전승 통과' : (p2Won ? '🏆 승' : (p1Won ? '💀 패' : ''))) + '</span>';
+
+                if (editable && !mt.isBye && mt.p1 && mt.p2) {
+                  slot2.classList.add('cursor-pointer', 'hover:border-pink-400');
+                  slot2.addEventListener('click', function() {
+                    selectTournamentWinner(game.id, roundIndex, mIdx, mt.p2);
+                  });
+                }
+
+                mBox.appendChild(slot1);
+                mBox.appendChild(vsDivider);
+                mBox.appendChild(slot2);
+                row.appendChild(mBox);
+              });
+
+              tier.appendChild(row);
+              ladderWrap.appendChild(tier);
+            })(rIdx);
+          }
 
           battleContainer.appendChild(ladderWrap);
         } else {
@@ -3003,7 +3342,7 @@
           var lGrid = document.createElement('div');
           lGrid.className = "grid grid-cols-1 md:grid-cols-2 gap-3";
 
-          (game.leagueMatches || []).forEach(function(mt, mIdx) {
+          (game.leagueMatches || []).forEach(function(mt) {
             var mCard = document.createElement('div');
             mCard.className = "bg-gray-900/90 border border-gray-700/80 rounded-xl p-3 flex items-center justify-between gap-2 shadow";
 
@@ -3011,14 +3350,14 @@
             var p2Win = (mt.winner === 'p2');
 
             var leftBtn = document.createElement('div');
-            leftBtn.className = "flex-1 flex items-center justify-between p-2 rounded-lg border text-xs md:text-sm font-bold transition " + (p1Win ? 'bg-pink-600/30 border-pink-400 text-white font-black shadow' : (p2Win ? 'bg-gray-800/40 border-gray-800 text-gray-500 line-through' : 'bg-gray-800 border-gray-700 text-gray-200'));
+            leftBtn.className = "flex-1 flex items-center justify-between p-2.5 rounded-lg border text-xs md:text-sm font-bold transition " + (p1Win ? 'bg-pink-600/30 border-pink-400 text-white font-black shadow' : (p2Win ? 'bg-gray-800/40 border-gray-800 text-gray-500 line-through' : 'bg-gray-800 border-gray-700 text-gray-200'));
             leftBtn.innerHTML = '<span class="truncate">' + mt.p1 + '</span><span>' + (p1Win ? '🏆 승' : (p2Win ? '💀 패' : '')) + '</span>';
 
             var rightBtn = document.createElement('div');
-            rightBtn.className = "flex-1 flex items-center justify-between p-2 rounded-lg border text-xs md:text-sm font-bold transition " + (p2Win ? 'bg-pink-600/30 border-pink-400 text-white font-black shadow' : (p1Win ? 'bg-gray-800/40 border-gray-800 text-gray-500 line-through' : 'bg-gray-800 border-gray-700 text-gray-200'));
+            rightBtn.className = "flex-1 flex items-center justify-between p-2.5 rounded-lg border text-xs md:text-sm font-bold transition " + (p2Win ? 'bg-pink-600/30 border-pink-400 text-white font-black shadow' : (p1Win ? 'bg-gray-800/40 border-gray-800 text-gray-500 line-through' : 'bg-gray-800 border-gray-700 text-gray-200'));
             rightBtn.innerHTML = '<span class="truncate">' + mt.p2 + '</span><span>' + (p2Win ? '🏆 승' : (p1Win ? '💀 패' : '')) + '</span>';
 
-            if (isHost && !isCompleted) {
+            if (editable) {
               leftBtn.classList.add('cursor-pointer', 'hover:border-pink-400');
               leftBtn.addEventListener('click', function() {
                 setLeagueMatchWinner(game.id, mt.id, p1Win ? null : 'p1');
@@ -3037,7 +3376,7 @@
             mCard.appendChild(vsSpan);
             mCard.appendChild(rightBtn);
 
-            if (isHost && !isCompleted) {
+            if (editable) {
               var delM = document.createElement('button');
               delM.type = 'button';
               delM.className = "text-gray-500 hover:text-red-400 text-xs px-1 cursor-pointer";
@@ -3057,150 +3396,233 @@
         card.appendChild(battleContainer);
       }
 
-      // Sets Container
-      var setsWrapper = document.createElement('div');
-      setsWrapper.className = "space-y-4 pt-1";
-
-      game.sets.forEach(function(setObj, sIndex) {
-        var setBox = document.createElement('div');
-        setBox.className = "bg-gray-800/60 border border-gray-700/70 rounded-2xl p-4 space-y-3 shadow";
-
-        var setHeader = document.createElement('div');
-        setHeader.className = "flex items-center justify-between text-xs font-bold text-gray-300 pb-2 border-b border-gray-700/60";
-        setHeader.innerHTML = 
+      // =========================================================================
+      // [특성화 요소 2]: ⏱️ 타임어택 전용 실시간 디지털 스톱워치 위젯
+      // =========================================================================
+      if (game.type === 'time' && editable) {
+        var swBanner = document.createElement('div');
+        swBanner.className = "bg-gradient-to-r from-emerald-950/50 via-gray-900 to-teal-950/50 border border-emerald-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg";
+        swBanner.innerHTML = 
+          '<div class="flex items-center gap-3">' +
+            '<div class="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-2xl">⏱️</div>' +
+            '<div>' +
+              '<div class="text-xs font-bold text-emerald-300">타임어택 실시간 스톱워치 측정기</div>' +
+              '<div id="sw-display" class="text-2xl md:text-3xl font-black font-mono text-white tracking-wider">' + (stopwatchElapsed / 1000).toFixed(2) + '초</div>' +
+            '</div>' +
+          '</div>' +
           '<div class="flex items-center gap-2">' +
-            '<span class="px-2.5 py-1 bg-gray-700 rounded-lg text-pink-300 font-mono font-bold">' + (sIndex + 1) + ' SET</span>' +
-            '<span class="text-white text-sm">' + setObj.name + ' 기록</span>' +
+            '<button id="btn-sw-toggle" type="button" onclick="toggleStopwatch()" class="px-4 py-2 ' + (stopwatchRunning ? 'bg-rose-600' : 'bg-emerald-600 hover:bg-emerald-500') + ' text-white rounded-xl text-xs font-black shadow cursor-pointer">' + (stopwatchRunning ? '⏸ 일시정지' : '▶ 타이머 시작') + '</button>' +
+            '<button type="button" onclick="resetStopwatch()" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-bold border border-gray-700 cursor-pointer">🔄 리셋</button>' +
           '</div>';
+        card.appendChild(swBanner);
+      }
 
-        if (isHost && !isCompleted && game.sets.length > 1) {
-          var delSetBtn = document.createElement('button');
-          delSetBtn.type = 'button';
-          delSetBtn.className = "text-gray-500 hover:text-red-400 text-xs cursor-pointer";
-          delSetBtn.innerText = "이 세트 삭제";
-          delSetBtn.addEventListener('click', function() {
-            deleteSetFromGame(game.id, setObj.id);
-          });
-          setHeader.appendChild(delSetBtn);
-        }
+      // =========================================================================
+      // [세트/라운드 컨테이너]: 격투/승패형(winloss)이 아닐 때만 표시!
+      // =========================================================================
+      if (game.type !== 'winloss') {
+        var setsWrapper = document.createElement('div');
+        setsWrapper.className = "space-y-4 pt-1";
 
-        setBox.appendChild(setHeader);
+        game.sets.forEach(function(setObj, sIndex) {
+          var setBox = document.createElement('div');
+          setBox.className = "bg-gray-800/60 border border-gray-700/70 rounded-2xl p-4 space-y-3 shadow";
 
-        // Members grid in this set
-        var setGrid = document.createElement('div');
-        setGrid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3";
-
-        room.members.forEach(function(member) {
           var setScores = (room.scores[game.id] && room.scores[game.id][setObj.id]) ? room.scores[game.id][setObj.id] : {};
-          var curVal = setScores[member] !== undefined ? setScores[member] : '';
 
-          var memItem = document.createElement('div');
-          memItem.className = "bg-gray-900/80 border border-gray-700/70 rounded-xl p-3 flex items-center justify-between gap-2 shadow";
-
-          var nameSpan = document.createElement('span');
-          nameSpan.className = "text-sm font-bold text-gray-200 truncate";
-          nameSpan.innerText = member;
-          memItem.appendChild(nameSpan);
-
-          var inputWidget = document.createElement('div');
-
-          if (isHost && !isCompleted) {
-            // HOST EDITABLE
-            if (game.type === 'points') {
-              inputWidget.className = "flex items-center gap-1.5";
-              var inPts = document.createElement('input');
-              inPts.type = 'number';
-              inPts.value = curVal;
-              inPts.placeholder = '점수';
-              inPts.className = "w-20 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm text-center font-bold font-mono focus:border-pink-500 focus:outline-none";
-              inPts.addEventListener('change', function() {
-                updateSetScore(game.id, setObj.id, member, this.value);
-              });
-              inputWidget.appendChild(inPts);
-              var unitSpan = document.createElement('span');
-              unitSpan.className = "text-xs text-gray-400";
-              unitSpan.innerText = "점";
-              inputWidget.appendChild(unitSpan);
-
-            } else if (game.type === 'winloss') {
-              inputWidget.className = "flex items-center gap-1.5 text-xs";
-              ['win', 'loss'].forEach(function(st) {
-                var stBtn = document.createElement('button');
-                stBtn.type = 'button';
-                stBtn.innerText = (st === 'win') ? '🏆 승' : '💀 패';
-                var isCur = (curVal === st);
-                var clr = isCur 
-                  ? (st === 'win' ? 'bg-pink-600 text-white font-bold shadow-[0_0_10px_rgba(236,72,153,0.6)]' : 'bg-slate-700 text-rose-300 border border-rose-500/40 font-bold')
-                  : 'bg-gray-800 text-gray-400 hover:text-white';
-                stBtn.className = "px-3 py-1.5 rounded-lg transition cursor-pointer " + clr;
-                stBtn.addEventListener('click', function() {
-                  var nextSt = (curVal === st) ? '' : st;
-                  updateSetScore(game.id, setObj.id, member, nextSt);
-                });
-                inputWidget.appendChild(stBtn);
-              });
-
-            } else if (game.type === 'elimination') {
-              var selEl = document.createElement('select');
-              selEl.className = "px-2.5 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs focus:outline-none cursor-pointer";
-              var opt0 = document.createElement('option');
-              opt0.value = '';
-              opt0.innerText = '순위 선택';
-              selEl.appendChild(opt0);
-              for (var el = 1; el <= room.members.length; el++) {
-                var o = document.createElement('option');
-                o.value = el;
-                o.innerText = (el === 1) ? '1등 👑' : (el + '등');
-                if (String(curVal) === String(el)) o.selected = true;
-                selEl.appendChild(o);
+          // 점수 집계형일 때 현재 세트 최고 득점자(MVP) 계산
+          var maxSetPts = null;
+          if (game.type === 'points') {
+            room.members.forEach(function(m) {
+              var v = (setScores[m] !== undefined && setScores[m] !== '') ? Number(setScores[m]) : null;
+              if (v !== null && !isNaN(v)) {
+                if (maxSetPts === null || (game.order === 'asc' ? v < maxSetPts : v > maxSetPts)) {
+                  maxSetPts = v;
+                }
               }
-              selEl.addEventListener('change', function() {
-                updateSetScore(game.id, setObj.id, member, this.value);
-              });
-              inputWidget.appendChild(selEl);
-
-            } else if (game.type === 'time') {
-              inputWidget.className = "flex items-center gap-1.5";
-              var inTime = document.createElement('input');
-              inTime.type = 'number';
-              inTime.step = '0.1';
-              inTime.value = curVal;
-              inTime.placeholder = '초';
-              inTime.className = "w-20 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-sm text-center font-bold font-mono focus:border-emerald-500 focus:outline-none";
-              inTime.addEventListener('change', function() {
-                updateSetScore(game.id, setObj.id, member, this.value);
-              });
-              inputWidget.appendChild(inTime);
-              var unitSec = document.createElement('span');
-              unitSec.className = "text-xs text-gray-400";
-              unitSec.innerText = "초";
-              inputWidget.appendChild(unitSec);
-            }
-
-          } else {
-            // READ ONLY
-            var valDisplay = '-';
-            if (curVal !== undefined && curVal !== '') {
-              if (curVal === 'win') valDisplay = '승리 🏆';
-              else if (curVal === 'draw') valDisplay = '무승부 🤝';
-              else if (curVal === 'loss') valDisplay = '패배 💀';
-              else if (game.type === 'points') valDisplay = curVal + '점';
-              else if (game.type === 'elimination') valDisplay = curVal + '위';
-              else if (game.type === 'time') valDisplay = curVal + '초';
-            }
-            inputWidget.className = "text-sm font-mono font-bold text-cyan-300";
-            inputWidget.innerText = valDisplay;
+            });
           }
 
-          memItem.appendChild(inputWidget);
-          setGrid.appendChild(memItem);
+          var setHeader = document.createElement('div');
+          setHeader.className = "flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-gray-300 pb-2 border-b border-gray-700/60";
+          setHeader.innerHTML = 
+            '<div class="flex items-center gap-2">' +
+              '<span class="px-2.5 py-1 bg-gray-700 rounded-lg text-pink-300 font-mono font-bold">' + (sIndex + 1) + ' SET</span>' +
+              '<span class="text-white text-sm">' + setObj.name + (game.type === 'elimination' ? ' (탈락한 순서대로 터치하면 순위 자동 부여!)' : '') + '</span>' +
+            '</div>';
+
+          var setRightBtns = document.createElement('div');
+          setRightBtns.className = "flex items-center gap-2";
+
+          if (editable && game.type === 'elimination') {
+            var resetElimBtn = document.createElement('button');
+            resetElimBtn.type = 'button';
+            resetElimBtn.className = "px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-bold cursor-pointer";
+            resetElimBtn.innerText = "🔄 전원 생존으로 리셋";
+            resetElimBtn.addEventListener('click', function() {
+              resetEliminationSet(game.id, setObj.id);
+            });
+            setRightBtns.appendChild(resetElimBtn);
+          }
+
+          if (editable && game.sets.length > 1) {
+            var delSetBtn = document.createElement('button');
+            delSetBtn.type = 'button';
+            delSetBtn.className = "text-gray-500 hover:text-red-400 text-xs cursor-pointer";
+            delSetBtn.innerText = "세트 삭제";
+            delSetBtn.addEventListener('click', function() {
+              deleteSetFromGame(game.id, setObj.id);
+            });
+            setRightBtns.appendChild(delSetBtn);
+          }
+
+          setHeader.appendChild(setRightBtns);
+          setBox.appendChild(setHeader);
+
+          var setGrid = document.createElement('div');
+          setGrid.className = "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3";
+
+          room.members.forEach(function(member) {
+            var curVal = setScores[member] !== undefined ? setScores[member] : '';
+            var isMvp = (game.type === 'points' && maxSetPts !== null && curVal !== '' && Number(curVal) === maxSetPts && maxSetPts > 0);
+
+            var memItem = document.createElement('div');
+            memItem.className = "bg-gray-900/90 border " + (isMvp ? 'border-amber-400 shadow-[0_0_15px_rgba(250,204,21,0.25)]' : 'border-gray-700/70') + " rounded-xl p-3 flex flex-col justify-between gap-2.5 shadow";
+
+            var topRow = document.createElement('div');
+            topRow.className = "flex items-center justify-between gap-2";
+
+            var nameSpan = document.createElement('span');
+            nameSpan.className = "text-sm font-bold text-white truncate flex items-center gap-1.5";
+            nameSpan.innerHTML = member + (isMvp ? ' <span class="text-[10px] px-1.5 py-0.5 bg-amber-400 text-gray-950 rounded font-black">🔥 최고기록</span>' : '');
+            topRow.appendChild(nameSpan);
+
+            var inputWidget = document.createElement('div');
+
+            if (editable) {
+              if (game.type === 'points') {
+                // 점수 집계형: 직접 입력 + 원터치 퀵 가감점 버튼 바
+                inputWidget.className = "flex items-center gap-1";
+                var inPts = document.createElement('input');
+                inPts.type = 'number';
+                inPts.value = curVal;
+                inPts.placeholder = '0';
+                inPts.className = "w-20 px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-amber-300 text-sm text-center font-black font-mono focus:border-pink-500 focus:outline-none";
+                inPts.addEventListener('change', function() {
+                  updateSetScore(game.id, setObj.id, member, this.value);
+                });
+                inputWidget.appendChild(inPts);
+                var unitSpan = document.createElement('span');
+                unitSpan.className = "text-xs text-gray-400 font-bold";
+                unitSpan.innerText = "점";
+                inputWidget.appendChild(unitSpan);
+                topRow.appendChild(inputWidget);
+                memItem.appendChild(topRow);
+
+                // 퀵 가감점 버튼 바 (+1, +5, +10, +50, -5)
+                var quickBar = document.createElement('div');
+                quickBar.className = "grid grid-cols-5 gap-1 pt-1 border-t border-gray-800";
+                [-5, -1, 1, 5, 10].forEach(function(delta) {
+                  var qBtn = document.createElement('button');
+                  qBtn.type = 'button';
+                  qBtn.className = "py-1 rounded-md text-[11px] font-extrabold transition cursor-pointer active:scale-95 " + 
+                    (delta > 0 ? 'bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/30' : 'bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/30');
+                  qBtn.innerText = (delta > 0 ? '+' + delta : delta);
+                  qBtn.addEventListener('click', function() {
+                    var base = (curVal !== '' && !isNaN(Number(curVal))) ? Number(curVal) : 0;
+                    updateSetScore(game.id, setObj.id, member, base + delta);
+                  });
+                  quickBar.appendChild(qBtn);
+                });
+                memItem.appendChild(quickBar);
+
+              } else if (game.type === 'elimination') {
+                // 생존/탈락형: 원터치 생존/탈락 버튼 + 순위 직접 선택
+                var isOut = (curVal !== '' && curVal !== undefined);
+                var isWinner1 = (Number(curVal) === 1);
+
+                var selEl = document.createElement('select');
+                selEl.className = "px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs font-bold focus:outline-none cursor-pointer";
+                var opt0 = document.createElement('option');
+                opt0.value = '';
+                opt0.innerText = '🟢 생존 중';
+                selEl.appendChild(opt0);
+                for (var el = 1; el <= room.members.length; el++) {
+                  var o = document.createElement('option');
+                  o.value = el;
+                  o.innerText = (el === 1) ? '👑 1등 (최종생존)' : ('💀 ' + el + '등');
+                  if (String(curVal) === String(el)) o.selected = true;
+                  selEl.appendChild(o);
+                }
+                selEl.addEventListener('change', function() {
+                  updateSetScore(game.id, setObj.id, member, this.value);
+                });
+                topRow.appendChild(selEl);
+                memItem.appendChild(topRow);
+
+                var outBtn = document.createElement('button');
+                outBtn.type = 'button';
+                outBtn.className = "w-full py-1.5 rounded-lg text-xs font-black transition cursor-pointer active:scale-95 " + 
+                  (isWinner1 ? 'bg-amber-500 text-gray-950 shadow' : (isOut ? 'bg-gray-800 text-rose-400 border border-rose-500/40' : 'bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow'));
+                outBtn.innerText = isWinner1 ? '👑 최종 생존 1위! (클릭 시 해제)' : (isOut ? ('💀 ' + curVal + '위 기록됨 (클릭 시 복구)') : '🪵 탈락(OUT) 터치! (순위 자동부여)');
+                outBtn.addEventListener('click', function() {
+                  triggerEliminationOut(game.id, setObj.id, member);
+                });
+                memItem.appendChild(outBtn);
+
+              } else if (game.type === 'time') {
+                // 타임어택형: 초 입력 + 스톱워치 측정값 원터치 적용 버튼
+                inputWidget.className = "flex items-center gap-1";
+                var inTime = document.createElement('input');
+                inTime.type = 'number';
+                inTime.step = '0.01';
+                inTime.value = curVal;
+                inTime.placeholder = '0.00';
+                inTime.className = "w-20 px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-emerald-300 text-sm text-center font-black font-mono focus:border-emerald-500 focus:outline-none";
+                inTime.addEventListener('change', function() {
+                  updateSetScore(game.id, setObj.id, member, this.value);
+                });
+                inputWidget.appendChild(inTime);
+                var unitSec = document.createElement('span');
+                unitSec.className = "text-xs text-gray-400";
+                unitSec.innerText = "초";
+                inputWidget.appendChild(unitSec);
+                topRow.appendChild(inputWidget);
+                memItem.appendChild(topRow);
+
+                var applySwBtn = document.createElement('button');
+                applySwBtn.type = 'button';
+                applySwBtn.className = "w-full py-1.5 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 rounded-lg text-[11px] font-bold transition cursor-pointer active:scale-95";
+                applySwBtn.innerText = "⏱️ 현재 스톱워치 초 가져오기";
+                applySwBtn.addEventListener('click', function() {
+                  applyStopwatchToMember(game.id, setObj.id, member);
+                });
+                memItem.appendChild(applySwBtn);
+              }
+
+            } else {
+              // READ ONLY
+              var valDisplay = '-';
+              if (curVal !== undefined && curVal !== '') {
+                if (game.type === 'points') valDisplay = curVal + '점';
+                else if (game.type === 'elimination') valDisplay = (Number(curVal) === 1 ? '👑 1위 (생존)' : curVal + '위');
+                else if (game.type === 'time') valDisplay = curVal + '초';
+              }
+              inputWidget.className = "text-sm font-mono font-bold text-cyan-300";
+              inputWidget.innerText = valDisplay;
+              topRow.appendChild(inputWidget);
+              memItem.appendChild(topRow);
+            }
+
+            setGrid.appendChild(memItem);
+          });
+
+          setBox.appendChild(setGrid);
+          setsWrapper.appendChild(setBox);
         });
 
-        setBox.appendChild(setGrid);
-        setsWrapper.appendChild(setBox);
-      });
-
-      card.appendChild(setsWrapper);
+        card.appendChild(setsWrapper);
+      }
 
       // Game Total Standings & Earned RP for this specific game
       var summaryRow = document.createElement('div');
@@ -3234,9 +3656,8 @@
     }
 
     function updateSetScore(gameId, setId, member, value) {
-      if (!isHost) return;
       var room = getActiveRoom();
-      if (!room || room.status === 'completed') return;
+      if (!room || !canManageRoom(room)) return;
 
       if (!room.scores[gameId]) room.scores[gameId] = {};
       if (!room.scores[gameId][setId]) room.scores[gameId][setId] = {};
