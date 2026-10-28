@@ -27,10 +27,11 @@
     body {
       margin: 0;
       /* 상단 노치 + 하단 스마트폰 네비게이션 바(가상버튼/홈바) 여백 120px 이상 확보하여 가림 원천 방지 */
-      padding-top: max(16px, env(safe-area-inset-top));
-      padding-left: max(14px, env(safe-area-inset-left));
-      padding-right: max(14px, env(safe-area-inset-right));
-      padding-bottom: max(130px, calc(env(safe-area-inset-bottom, 30px) + 90px));
+      padding-top: max(12px, env(safe-area-inset-top));
+      padding-left: max(10px, env(safe-area-inset-left));
+      padding-right: max(10px, env(safe-area-inset-right));
+      padding-bottom: max(100px, calc(env(safe-area-inset-bottom, 20px) + 70px));
+      word-break: keep-all;
       min-height: 100vh;
       background-color: #05020a;
       background: #05020a radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%) no-repeat fixed center top;
@@ -118,10 +119,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 32px;
-      padding: 20px 8px;
+      gap: 24px;
+      padding: 12px 2px;
       width: 100%;
-      overflow-x: auto;
     }
     .bracket-vertical-tier {
       display: flex;
@@ -129,16 +129,16 @@
       align-items: center;
       width: 100%;
       position: relative;
-      gap: 12px;
+      gap: 10px;
     }
     .bracket-vertical-tier::after {
       content: '▲';
       position: absolute;
-      top: -26px;
+      top: -22px;
       left: 50%;
       transform: translateX(-50%);
       color: #f472b6;
-      font-size: 16px;
+      font-size: 14px;
       text-shadow: 0 0 10px #ec4899;
       animation: bounceUp 1.5s infinite;
     }
@@ -147,40 +147,36 @@
     }
     @keyframes bounceUp {
       0%, 100% { transform: translate(-50%, 0); opacity: 0.6; }
-      50% { transform: translate(-50%, -4px); opacity: 1; }
+      50% { transform: translate(-50%, -3px); opacity: 1; }
     }
     .bracket-round-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: stretch;
-      gap: 16px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
       width: 100%;
     }
     .bracket-round-title {
       text-align: center;
-      font-size: 12px;
+      font-size: 11px;
       font-weight: 900;
-      padding: 5px 16px;
+      padding: 4px 14px;
       border-radius: 999px;
       background: rgba(236, 72, 153, 0.18);
       border: 1px solid rgba(236, 72, 153, 0.45);
       color: #f472b6;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.03em;
     }
     .bracket-match-box {
       background: rgba(17, 24, 39, 0.95);
       border: 1.5px solid #374151;
-      border-radius: 14px;
-      padding: 10px;
+      border-radius: 12px;
+      padding: 8px;
       position: relative;
-      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
       display: flex;
       flex-direction: column;
-      gap: 6px;
-      min-width: 210px;
-      max-width: 280px;
-      flex: 1 1 220px;
+      gap: 5px;
+      width: 100%;
     }
     .bracket-match-box::before {
       content: '';
@@ -249,55 +245,55 @@
   <!-- Main Container -->
   <div class="w-full max-w-6xl">
 
-    <!-- HEADER / LOGO -->
-    <header class="text-center mb-6 relative pt-2">
-      <div class="inline-block relative">
-        <span class="absolute -top-7 -left-8 text-4xl animate-bounce">👑</span>
-        <h1 class="text-3xl md:text-6xl font-game tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-pink-500 to-cyan-400 drop-shadow-xl">
-          GAME NIGHT CHAMPIONSHIP
+    <!-- HEADER / LOGO (일반 스마트폰 화면 최적화) -->
+    <header class="text-center mb-4 md:mb-6 relative pt-1">
+      <div class="inline-flex items-center justify-center gap-1.5 sm:gap-3">
+        <span class="text-2xl sm:text-4xl animate-bounce">👑</span>
+        <h1 class="text-2xl sm:text-4xl md:text-6xl font-game tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-pink-500 to-cyan-400 drop-shadow-xl leading-tight">
+          GAME NIGHT
         </h1>
-        <span class="absolute -top-7 -right-8 text-4xl animate-bounce" style="animation-delay: 0.25s;">🔥</span>
+        <span class="text-2xl sm:text-4xl animate-bounce" style="animation-delay: 0.25s;">🔥</span>
       </div>
-      <p class="text-gray-400 mt-2 text-sm md:text-base font-medium flex items-center justify-center gap-2">
-        <i data-lucide="sparkles" class="w-4 h-4 text-pink-400"></i>
-        종목별 개별 탭 & 우승자 전용 축제 이펙트 스코어보드
-        <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400"></i>
+      <p class="text-gray-400 mt-1 text-xs sm:text-sm md:text-base font-medium flex items-center justify-center gap-1.5">
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-pink-400 flex-shrink-0"></i>
+        <span>실시간 미니게임 챔피언십 스코어보드</span>
+        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0"></i>
       </p>
     </header>
 
     <!-- VIEW 1: HOME (LOBBY & ROOM SELECTION) -->
     <section id="view-home" class="space-y-8">
       
-      <!-- 상단 카카오톡 초대 및 공유 빠른 안내 바 -->
-      <div class="bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-amber-500/20 border border-yellow-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-xl bg-yellow-400 text-gray-950 flex items-center justify-center font-bold text-xl shadow">
+      <!-- 상단 카카오톡 초대 및 공유 빠른 안내 바 (모바일 최적화) -->
+      <div class="bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-amber-500/20 border border-yellow-500/40 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-lg">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-yellow-400 text-gray-950 flex items-center justify-center font-bold text-lg shadow flex-shrink-0">
             💬
           </div>
           <div>
-            <h3 class="text-sm font-bold text-yellow-300">카카오톡 & 링크로 친구 초대하기</h3>
-            <p class="text-xs text-gray-300">모임 링크를 단톡방에 공유하면 친구들이 접속해 실시간 순위와 기록을 볼 수 있습니다!</p>
+            <h3 class="text-xs sm:text-sm font-bold text-yellow-300">카카오톡 & 링크로 친구 초대하기</h3>
+            <p class="text-[11px] sm:text-xs text-gray-300 leading-snug">링크를 단톡방에 공유하면 친구들도 실시간 순위와 기록을 함께 볼 수 있어요!</p>
           </div>
         </div>
         <button onclick="shareViaKakaoOrLink()" 
-                class="px-4 py-2.5 bg-yellow-400 hover:bg-yellow-300 active:scale-95 text-gray-950 rounded-xl font-bold text-sm shadow flex items-center gap-2 transition cursor-pointer">
-          <i data-lucide="share-2" class="w-4 h-4"></i> 친구 초대 링크 복사 / 공유
+                class="w-full sm:w-auto justify-center px-3.5 py-2 bg-yellow-400 hover:bg-yellow-300 active:scale-95 text-gray-950 rounded-xl font-extrabold text-xs sm:text-sm shadow flex items-center gap-1.5 transition cursor-pointer flex-shrink-0">
+          <i data-lucide="share-2" class="w-4 h-4"></i> 친구 초대 링크 공유
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         
         <!-- 새 모임 개설 카드 -->
-        <div class="bg-gray-900/85 bg-gray-900/95 p-6 md:p-8 rounded-3xl border border-pink-500/30 neon-border-pink flex flex-col justify-between relative overflow-hidden">
+        <div class="bg-gray-900/95 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-pink-500/30 neon-border-pink flex flex-col justify-between relative overflow-hidden">
           <div class="absolute -top-12 -right-12 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div>
-            <div class="flex items-center gap-3 mb-4">
-              <div class="p-3 bg-pink-500/20 text-pink-400 rounded-2xl">
-                <i data-lucide="crown" class="w-7 h-7"></i>
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="p-2.5 bg-pink-500/20 text-pink-400 rounded-xl">
+                <i data-lucide="crown" class="w-5 h-5 sm:w-7 sm:h-7"></i>
               </div>
               <div>
-                <h2 class="text-2xl font-bold text-white">새 모임 개설하기 (호스트)</h2>
-                <p class="text-sm text-gray-400">모임을 만든 사용자가 관리자(호스트)가 됩니다</p>
+                <h2 class="text-lg sm:text-2xl font-bold text-white">새 모임 개설하기</h2>
+                <p class="text-xs sm:text-sm text-gray-400">모임을 만든 사람이 호스트가 됩니다</p>
               </div>
             </div>
 
@@ -335,16 +331,16 @@
         </div>
 
         <!-- 모임 목록 카드 (진행 중 / 종료된 모임 2개 탭 분리) -->
-        <div class="bg-gray-900/85 bg-gray-900/95 p-6 md:p-8 rounded-3xl border border-cyan-500/30 neon-border-cyan flex flex-col justify-between relative overflow-hidden">
+        <div class="bg-gray-900/95 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-cyan-500/30 neon-border-cyan flex flex-col justify-between relative overflow-hidden">
           <div class="absolute -top-12 -right-12 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div>
-            <div class="flex items-center gap-3 mb-4">
-              <div class="p-3 bg-cyan-500/20 text-cyan-400 rounded-2xl">
-                <i data-lucide="history" class="w-7 h-7"></i>
+            <div class="flex items-center gap-2.5 mb-3">
+              <div class="p-2.5 bg-cyan-500/20 text-cyan-400 rounded-xl">
+                <i data-lucide="history" class="w-5 h-5 sm:w-7 sm:h-7"></i>
               </div>
               <div>
-                <h2 class="text-2xl font-bold text-white">모임 아카이브</h2>
-                <p class="text-sm text-gray-400">진행 중인 모임과 종료된 명예의 전당을 확인하세요</p>
+                <h2 class="text-lg sm:text-2xl font-bold text-white">모임 아카이브</h2>
+                <p class="text-xs sm:text-sm text-gray-400">진행 중 모임과 명예의 전당 기록</p>
               </div>
             </div>
 
@@ -404,64 +400,55 @@
     <!-- VIEW 2: GAME DASHBOARD -->
     <section id="view-dashboard" class="hidden space-y-6">
       
-      <!-- 상단 방 정보 & 호스트 권한 & 액션 바 -->
-      <div class="bg-gray-900/90 bg-gray-900/95 p-4 md:p-6 rounded-2xl border border-gray-800 shadow-xl space-y-4">
+      <!-- 상단 방 정보 & 호스트 권한 & 액션 바 (일반 스마트폰 컴팩트 레이아웃) -->
+      <div class="bg-gray-900/95 p-3.5 sm:p-5 rounded-2xl border border-gray-800 shadow-xl space-y-3">
         
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <div class="flex items-center gap-3">
-            <button onclick="goHome()" class="p-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl transition flex items-center gap-1 cursor-pointer" title="메인으로 나가기">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-start gap-2.5 min-w-0">
+            <button onclick="goHome()" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl transition flex items-center justify-center cursor-pointer flex-shrink-0 mt-0.5" title="메인으로 나가기">
               <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </button>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span id="room-status-badge" class="px-2.5 py-0.5 text-xs rounded-full font-bold flex items-center gap-1"></span>
-                <span id="role-badge" class="px-2.5 py-0.5 text-xs rounded-full font-bold"></span>
-                <h2 id="active-room-title" class="text-xl md:text-2xl font-bold text-white">모임 이름</h2>
+            <div class="min-w-0 flex-1">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span id="room-status-badge" class="px-2 py-0.5 text-[11px] rounded-full font-bold flex items-center gap-1"></span>
+                <span id="role-badge" class="px-2 py-0.5 text-[11px] rounded-full font-bold"></span>
               </div>
-              <div class="flex items-center gap-2 text-xs text-gray-400 mt-1 flex-wrap font-medium">
-                <span id="active-room-members-count">참여자 0명</span>
+              <h2 id="active-room-title" class="text-lg sm:text-2xl font-black text-white truncate mt-1">모임 이름</h2>
+              <div class="flex items-center gap-1.5 text-[11px] text-gray-400 mt-0.5 flex-wrap font-medium">
+                <span id="active-room-members-count" class="truncate max-w-[230px] sm:max-w-none">참여자 0명</span>
                 <span class="text-gray-600">•</span>
                 <span id="active-room-created-at" class="text-amber-300 font-mono flex items-center gap-1">
-                  <i data-lucide="calendar" class="w-3.5 h-3.5 text-amber-400"></i> 개설일: -
+                  개설일: -
                 </span>
               </div>
             </div>
           </div>
 
-          <div class="flex items-center gap-2 flex-wrap">
-            <!-- 카카오톡/초대 링크 공유 버튼 -->
-            <button onclick="exportBackupFile()" 
-                    class="px-3 py-2.5 bg-purple-900/70 hover:bg-purple-800 border border-purple-500/50 text-purple-200 rounded-xl text-xs md:text-sm font-bold shadow active:scale-95 transition flex items-center gap-1.5 cursor-pointer" title="현재 모임 및 전체 데이터 백업">
-              <i data-lucide="download" class="w-4 h-4 text-purple-300"></i> 백업
-            </button>
+          <!-- 모바일에서 한눈에 들어오는 정렬형 액션 버튼 바 -->
+          <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 flex-wrap pt-2 sm:pt-0 border-t border-gray-800/80 sm:border-none">
             <button onclick="shareActiveRoom()" 
-                    class="px-3.5 py-2.5 bg-yellow-400 hover:bg-yellow-300 text-gray-950 rounded-xl text-sm font-bold shadow active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="share-2" class="w-4 h-4"></i> 카톡 공유
+                    class="px-3 py-2 bg-yellow-400 hover:bg-yellow-300 text-gray-950 rounded-xl text-xs font-extrabold shadow active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+              <i data-lucide="share-2" class="w-3.5 h-3.5"></i> 카톡 초대/공유
             </button>
 
-            <!-- 랜덤 축제 이펙트 버튼 -->
             <button onclick="triggerRandomCelebration()" 
-                    class="px-4 py-2.5 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white rounded-xl text-sm font-black shadow-lg hover:brightness-110 active:scale-95 transition flex items-center gap-2 group cursor-pointer">
-              <i data-lucide="sparkles" class="w-4 h-4 text-amber-200 group-hover:rotate-45 transition transform"></i>
-              <span>축제 이펙트 쇼! 🎪</span>
+                    class="px-3 py-2 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white rounded-xl text-xs font-black shadow-lg hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+              <span>🎪 축제 쇼!</span>
             </button>
 
-            <!-- 호스트 전용: 새 게임 추가 버튼 (진행 중일 때만 표시) -->
             <button id="btn-add-game-host" onclick="openAddGameModal()" 
-                    class="px-3.5 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-bold shadow hover:opacity-90 active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="plus-circle" class="w-4 h-4"></i> 새 게임 추가
+                    class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shadow hover:opacity-90 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+              <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> 게임 추가
             </button>
 
-            <!-- 호스트 전용: [모임 종료 및 우승자 확정] 버튼 (진행 중일 때만 표시) -->
             <button id="btn-finish-room-host" onclick="finishRoomPrompt()" 
-                    class="px-3.5 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-sm font-black shadow hover:brightness-110 active:scale-95 transition flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="flag" class="w-4 h-4"></i> 모임 종료 (우승자 확정) 🏁
+                    class="px-3 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-xs font-black shadow hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+              <i data-lucide="flag" class="w-3.5 h-3.5"></i> 모임 종료 🏁
             </button>
 
-            <!-- 게스트용: 호스트 전환 버튼 (진행 중일 때만) -->
             <button id="btn-toggle-host-role" onclick="promptSwitchToHost()" 
-                    class="hidden px-3.5 py-2.5 bg-gray-800 hover:bg-gray-700 text-amber-300 border border-amber-500/40 rounded-xl text-sm font-bold transition flex items-center gap-1.5 cursor-pointer">
-              <i data-lucide="key" class="w-4 h-4"></i> 호스트 권한 획득
+                    class="hidden col-span-2 sm:col-span-1 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer">
+              <i data-lucide="key" class="w-3.5 h-3.5"></i> 권한 전환
             </button>
           </div>
         </div>
@@ -506,31 +493,31 @@
         </div>
       </div>
 
-      <!-- TAB 1: 실시간 종합 순위표 콘텐츠 -->
-      <div id="tab-content-leaderboard" class="space-y-6">
+      <!-- TAB 1: 실시간 종합 순위표 콘텐츠 (모바일 한눈에 보기 최적화) -->
+      <div id="tab-content-leaderboard" class="space-y-4 sm:space-y-6">
         
-        <!-- 포디움 (상위 1, 2, 3등) -->
-        <div id="podium-container" class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+        <!-- 포디움 (모바일에서도 3명이 한 줄에 한눈에 들어오는 3열 포디움!) -->
+        <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 pt-1">
           <!-- JS 렌더링 -->
         </div>
 
-        <!-- 전체 랭킹 테이블 -->
-        <div class="bg-gray-900/85 bg-gray-900/95 rounded-2xl border border-gray-800 p-4 md:p-6 shadow-lg">
-          <div class="flex items-center justify-between mb-4">
-            <h3 class="text-lg font-bold text-gray-200 flex items-center gap-2">
-              <i data-lucide="medal" class="w-5 h-5 text-amber-400"></i> 참가자 종합 랭킹
+        <!-- 전체 랭킹 테이블 (가로 스크롤 없이 한 화면에 쏙 들어오는 반응형 테이블) -->
+        <div class="bg-gray-900/95 rounded-2xl border border-gray-800 p-3.5 sm:p-6 shadow-lg">
+          <div class="flex items-center justify-between mb-3">
+            <h3 class="text-sm sm:text-lg font-bold text-gray-200 flex items-center gap-1.5">
+              <i data-lucide="medal" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-400"></i> 참가자 종합 랭킹
             </h3>
-            <span class="text-xs text-gray-400">각 게임에서 획득한 총 승점(RP) 합산 기준</span>
+            <span class="text-[11px] text-gray-400">총 승점(RP) 기준</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left">
               <thead>
-                <tr class="text-gray-400 border-b border-gray-800 text-xs md:text-sm">
-                  <th class="py-3 px-4">순위</th>
-                  <th class="py-3 px-4">참여자</th>
-                  <th class="py-3 px-4">종합 승점(RP)</th>
-                  <th class="py-3 px-4">진행 현황</th>
-                  <th class="py-3 px-4">레이스 상황</th>
+                <tr class="text-gray-400 border-b border-gray-800 text-[11px] sm:text-sm">
+                  <th class="py-2.5 px-2 sm:px-4">순위</th>
+                  <th class="py-2.5 px-2 sm:px-4">참여자</th>
+                  <th class="py-2.5 px-2 sm:px-4 text-right sm:text-left">종합 승점</th>
+                  <th class="py-2.5 px-3 hidden sm:table-cell">진행 현황</th>
+                  <th class="py-2.5 px-2 sm:px-4 text-right sm:text-left">상태</th>
                 </tr>
               </thead>
               <tbody id="leaderboard-table-body" class="divide-y divide-gray-800/70 font-medium">
@@ -1676,22 +1663,21 @@
       }
 
       item.innerHTML = 
-        '<div class="flex items-center gap-3 min-w-0">' +
-          '<div class="w-12 h-10 rounded-lg ' + badgeClass + ' flex items-center justify-center font-bold text-xs flex-shrink-0">' +
+        '<div class="flex items-center gap-2.5 min-w-0 flex-1">' +
+          '<div class="px-2 py-1.5 rounded-lg ' + badgeClass + ' flex items-center justify-center font-bold text-[11px] flex-shrink-0">' +
             badgeText +
           '</div>' +
-          '<div class="min-w-0">' +
-            '<div class="font-semibold text-white group-hover:text-cyan-400 transition flex items-center gap-1.5 flex-wrap">' +
-              '<span class="truncate">' + room.name + '</span>' + statusTagHtml +
+          '<div class="min-w-0 flex-1">' +
+            '<div class="font-bold text-sm sm:text-base text-white group-hover:text-cyan-400 transition flex items-center gap-1.5 flex-wrap">' +
+              '<span class="truncate max-w-[140px] sm:max-w-[220px]">' + room.name + '</span>' + statusTagHtml +
             '</div>' +
-            '<div class="text-xs text-gray-400 truncate">' + room.members.slice(0, 3).join(', ') + (room.members.length > 3 ? ' 외 ' + (room.members.length - 3) + '명' : '') + ' • ' + gameCount + '개 종목</div>' +
+            '<div class="text-[11px] text-gray-400 truncate mt-0.5">' + room.members.slice(0, 3).join(', ') + (room.members.length > 3 ? ' 외 ' + (room.members.length - 3) + '명' : '') + ' • ' + gameCount + '종목</div>' +
           '</div>' +
         '</div>' +
-        '<div class="flex items-center gap-1.5 flex-shrink-0">' +
-          '<span class="text-xs text-gray-500 font-mono mr-1 hidden sm:inline">' + dateStr + '</span>' +
-          (isPendingDelete && (amHost || amSuper) ? '<button type="button" class="btn-restore-room px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[11px] font-bold transition cursor-pointer" title="삭제 취소 및 복구">♻️ 복구</button>' : '') +
-          '<button type="button" class="btn-share-room-item px-2.5 py-1 bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-300 border border-yellow-400/40 rounded-lg text-xs font-bold transition cursor-pointer" title="이 모임 초대/공유">💌 공유</button>' +
-          '<button type="button" class="btn-del-room p-1 ' + (amSuper ? 'text-rose-400 hover:text-rose-300' : 'text-gray-500 hover:text-red-400') + ' transition cursor-pointer" title="' + (amSuper ? '슈퍼관리자 즉시 영구 삭제' : (isPendingDelete ? '삭제 대기 안내 / 슈퍼관리자 즉시 삭제' : '종료된 모임으로 이동 후 7일 삭제 대기')) + '"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
+        '<div class="flex items-center gap-1 flex-shrink-0 ml-1">' +
+          (isPendingDelete && (amHost || amSuper) ? '<button type="button" class="btn-restore-room px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[11px] font-bold transition cursor-pointer" title="삭제 취소 및 복구">복구</button>' : '') +
+          '<button type="button" class="btn-share-room-item px-2 py-1 bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-300 border border-yellow-400/40 rounded-lg text-[11px] font-bold transition cursor-pointer" title="이 모임 초대/공유">💌</button>' +
+          '<button type="button" class="btn-del-room p-1.5 ' + (amSuper ? 'text-rose-400 hover:text-rose-300' : 'text-gray-500 hover:text-red-400') + ' transition cursor-pointer" title="삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
         '</div>';
 
       var restoreBtn = item.querySelector('.btn-restore-room');
@@ -2152,13 +2138,14 @@
           var setCount = (game.sets && game.sets.length > 0) ? game.sets.length : 1;
 
           var gameTabBtn = document.createElement('button');
-          gameTabBtn.className = "pb-2.5 px-4 rounded-xl transition flex items-center gap-2 whitespace-nowrap cursor-pointer " + 
+          gameTabBtn.className = "py-2 px-3 sm:px-4 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer text-xs sm:text-sm " + 
             (isGameActive 
               ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
               : 'text-gray-400 hover:text-gray-200 border border-transparent hover:border-gray-700 bg-gray-900/60');
+          var badgeSub = (game.type === 'winloss') ? '대진표' : (setCount + '세트');
           gameTabBtn.innerHTML = 
             '<span>' + typePrefix + game.name + '</span>' +
-            '<span class="text-[11px] px-1.5 py-0.5 rounded-md font-mono ' + (isGameActive ? 'bg-cyan-500/30 text-cyan-200' : 'bg-gray-800 text-gray-400') + '">' + setCount + '세트</span>';
+            '<span class="text-[10px] px-1.5 py-0.5 rounded-md font-mono ' + (isGameActive ? 'bg-cyan-500/30 text-cyan-200' : 'bg-gray-800 text-gray-400') + '">' + badgeSub + '</span>';
 
           gameTabBtn.addEventListener('click', function() {
             switchTab(game.id);
@@ -3695,7 +3682,7 @@
         totalStats[i].rank = rank;
       }
 
-      // Podium
+      // Podium (모바일 3열 한눈에 보기 최적화)
       var podium = document.getElementById('podium-container');
       podium.innerHTML = '';
 
@@ -3717,26 +3704,26 @@
 
         var isWinner = (room.status === 'completed' && item.rank === 1);
 
-        card.className = rankClass + " p-5 rounded-2xl flex flex-col justify-between bg-gray-900/95 relative overflow-hidden";
+        card.className = rankClass + " p-2.5 sm:p-5 rounded-xl sm:rounded-2xl flex flex-col justify-between bg-gray-900/95 relative overflow-hidden text-center sm:text-left";
         card.innerHTML = 
-          '<div class="flex items-center justify-between mb-3">' +
-            '<span class="text-3xl">' + badge + '</span>' +
-            '<span class="text-xs uppercase font-extrabold tracking-wider px-2.5 py-1 bg-black/40 rounded-lg text-gray-200">' + 
-              (isWinner ? '🏆 최종 챔피언 우승' : item.rank + '위') + 
+          '<div class="flex flex-col sm:flex-row items-center justify-between mb-1.5 sm:mb-3 gap-1">' +
+            '<span class="text-2xl sm:text-3xl leading-none">' + badge + '</span>' +
+            '<span class="text-[10px] sm:text-xs uppercase font-extrabold px-1.5 py-0.5 bg-black/40 rounded-md text-gray-200 truncate max-w-full">' + 
+              (isWinner ? '🏆 우승' : item.rank + '위') + 
             '</span>' +
           '</div>' +
           '<div>' +
-            '<div class="text-2xl font-black text-white truncate">' + item.member + '</div>' +
-            '<div class="text-xs text-gray-300 mt-1">' + item.gamesPlayed + '개 종목 승점 획득</div>' +
+            '<div class="text-sm sm:text-2xl font-black text-white truncate">' + item.member + '</div>' +
+            '<div class="text-[10px] sm:text-xs text-gray-400 mt-0.5 hidden sm:block">' + item.gamesPlayed + '개 종목 승점 획득</div>' +
           '</div>' +
-          '<div class="mt-4 pt-3 border-t border-white/10 flex items-baseline justify-between">' +
-            '<span class="text-xs text-gray-300">종합 승점</span>' +
-            '<span class="text-3xl font-game ' + rankColor + '">' + item.totalRP + ' <span class="text-xs font-sans text-gray-300">RP</span></span>' +
+          '<div class="mt-2 sm:mt-4 pt-1.5 sm:pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center sm:items-baseline justify-between">' +
+            '<span class="text-[10px] sm:text-xs text-gray-400 hidden sm:inline">종합 승점</span>' +
+            '<span class="text-lg sm:text-3xl font-game ' + rankColor + ' leading-tight">' + item.totalRP + ' <span class="text-[10px] sm:text-xs font-sans text-gray-300">RP</span></span>' +
           '</div>';
         podium.appendChild(card);
       });
 
-      // Leaderboard Table
+      // Leaderboard Table (모바일 가로 스크롤 제거 & 컴팩트 행)
       var tbody = document.getElementById('leaderboard-table-body');
       tbody.innerHTML = '';
 
@@ -3744,26 +3731,26 @@
         var row = document.createElement('tr');
         row.className = "hover:bg-white/5 transition";
 
-        var badgeHtml = '<span class="font-bold text-gray-400">' + item.rank + '등</span>';
-        if (item.rank === 1) badgeHtml = '<span class="px-2.5 py-0.5 bg-amber-500/25 text-amber-300 border border-amber-500/40 rounded-md font-bold">1등 👑</span>';
-        else if (item.rank === 2) badgeHtml = '<span class="px-2.5 py-0.5 bg-slate-400/25 text-slate-300 border border-slate-400/40 rounded-md font-bold">2등 🥈</span>';
-        else if (item.rank === 3) badgeHtml = '<span class="px-2.5 py-0.5 bg-amber-700/25 text-amber-500 border border-amber-700/40 rounded-md font-bold">3등 🥉</span>';
+        var badgeHtml = '<span class="font-bold text-gray-400 text-xs sm:text-sm">' + item.rank + '등</span>';
+        if (item.rank === 1) badgeHtml = '<span class="px-1.5 sm:px-2.5 py-0.5 bg-amber-500/25 text-amber-300 border border-amber-500/40 rounded-md font-bold text-xs sm:text-sm">1등 👑</span>';
+        else if (item.rank === 2) badgeHtml = '<span class="px-1.5 sm:px-2.5 py-0.5 bg-slate-400/25 text-slate-300 border border-slate-400/40 rounded-md font-bold text-xs sm:text-sm">2등 🥈</span>';
+        else if (item.rank === 3) badgeHtml = '<span class="px-1.5 sm:px-2.5 py-0.5 bg-amber-700/25 text-amber-500 border border-amber-700/40 rounded-md font-bold text-xs sm:text-sm">3등 🥉</span>';
 
-        var status = '<span class="text-gray-400">치열한 추격전 🔥</span>';
+        var status = '<span class="text-gray-400">추격중 🔥</span>';
         if (room.status === 'completed') {
-          status = (item.rank === 1) ? '<span class="text-amber-400 font-bold">🏆 최종 우승 챔피언</span>' : '<span class="text-gray-400">대회 완주</span>';
+          status = (item.rank === 1) ? '<span class="text-amber-400 font-bold">🏆 우승</span>' : '<span class="text-gray-400">완주</span>';
         } else if (item.rank === 1 && item.totalRP > 0) {
-          status = '<span class="text-amber-400 font-bold">단독 선두 질주 🚀</span>';
+          status = '<span class="text-amber-400 font-bold">선두 🚀</span>';
         } else if (item.rank === totalStats.length && totalStats.length > 2) {
-          status = '<span class="text-rose-400 font-medium">꼴찌 벌칙 위기 💀</span>';
+          status = '<span class="text-rose-400 font-medium">벌칙위기 💀</span>';
         }
 
         row.innerHTML = 
-          '<td class="py-3.5 px-4">' + badgeHtml + '</td>' +
-          '<td class="py-3.5 px-4 font-bold text-white text-base">' + item.member + '</td>' +
-          '<td class="py-3.5 px-4 text-pink-400 font-game text-2xl">' + item.totalRP + ' <span class="text-xs font-sans text-gray-400">RP</span></td>' +
-          '<td class="py-3.5 px-4 text-gray-400 text-sm">' + item.gamesPlayed + ' / ' + (room.games ? room.games.length : 0) + ' 종목 완료</td>' +
-          '<td class="py-3.5 px-4 text-xs font-medium">' + status + '</td>';
+          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 whitespace-nowrap">' + badgeHtml + '</td>' +
+          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 font-bold text-white text-sm sm:text-base truncate max-w-[100px] sm:max-w-none">' + item.member + '</td>' +
+          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 text-pink-400 font-game text-lg sm:text-2xl text-right sm:text-left whitespace-nowrap">' + item.totalRP + ' <span class="text-[10px] sm:text-xs font-sans text-gray-400">RP</span></td>' +
+          '<td class="py-2.5 sm:py-3.5 px-3 text-gray-400 text-xs sm:text-sm hidden sm:table-cell">' + item.gamesPlayed + ' / ' + (room.games ? room.games.length : 0) + ' 종목</td>' +
+          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 text-[11px] sm:text-xs font-medium text-right sm:text-left whitespace-nowrap">' + status + '</td>';
 
         tbody.appendChild(row);
       });
