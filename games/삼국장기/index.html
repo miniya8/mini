@@ -143,8 +143,16 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 #g.xai #xemo .xta{display:none}
 #xemo button.xnuke.meteor{background:linear-gradient(180deg,#ff9800,#bf360c);border-color:#ffd180;box-shadow:0 0 10px #ff9100aa}
 #xemo button.xnuke.alien{background:linear-gradient(180deg,#00c853,#1b5e20);border-color:#b9f6ca;box-shadow:0 0 10px #00e676aa}
-#xpbar{display:none;gap:6px;padding:6px;flex:none;align-items:center;justify-content:center;border-top:1px solid #ff525288;background:linear-gradient(90deg,#3a0d0dee,#5a1818ee)}
-#xpbar button{width:100%;padding:9px 12px;font-size:14px;font-weight:900;color:#fff;background:linear-gradient(180deg,#ff5252,#b71c1c);border:2px solid #ffd54a;border-radius:10px;cursor:pointer;box-shadow:0 0 14px #ff1744aa;animation:xpb .8s ease-in-out infinite alternate}
+#xpbar{display:none;flex-direction:column;gap:5px;padding:6px 8px;flex:none;align-items:stretch;justify-content:center;border-top:2px solid #ff5252aa;background:linear-gradient(90deg,#2b0808f2,#4e1212f2);animation:xpb .9s ease-in-out infinite alternate}
+#xptitle{font-size:12px;font-weight:900;color:#ffee58;text-align:center;letter-spacing:-.2px;text-shadow:0 1px 3px #000}
+#xpbtns{display:grid;grid-template-columns:repeat(4,1fr);gap:5px}
+#xpbtns button{padding:7px 4px;font-size:12px;font-weight:900;color:#fff;border:1.5px solid #ffd54a;border-radius:8px;cursor:pointer;box-shadow:0 0 10px #ff174488;white-space:nowrap;text-shadow:0 1px 2px #000;transition:transform .1s}
+#xpbtns button:active{transform:scale(.94)}
+#xp_nuke{background:linear-gradient(180deg,#ff5252,#b71c1c)}
+#xp_meteor{background:linear-gradient(180deg,#ff9100,#e65100)}
+#xp_alien{background:linear-gradient(180deg,#00e676,#00695c)}
+#xp_kame{background:linear-gradient(180deg,#00b0ff,#0d47a1)}
+#rcbadge{display:none;margin-left:4px;padding:3px 8px;border-radius:99px;background:linear-gradient(180deg,#ffd54a,#ff8f00);color:#1b0c02;font-size:12px;font-weight:900;cursor:pointer;box-shadow:0 0 10px #ffd54a88;white-space:nowrap;border:1.5px solid #fff}
 @keyframes xpb{0%{transform:scale(1)}100%{transform:scale(1.03);box-shadow:0 0 22px #ffd54a}}
 #g.xspec #xpass,#g.xspec #xres,#g.xspec #xundo,#g.xspec #xvoid{display:none}
 #xspecbar{display:none;gap:4px;padding:5px 6px;flex:none;align-items:center;flex-wrap:wrap;border-top:1px solid #b8893a66;background:#141b2ee6}
@@ -156,7 +164,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 #xspecinfo{font-size:11px;color:#8de8b4;font-weight:700;margin-left:auto;white-space:nowrap}
 </style></head><body>
 <div id="st"><div id="fr"></div></div>
-<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><div id="xfl"></div><div id="xto"><b id="xtm"></b><i id="xts"></i></div><div id="xem"></div><div id="xcb"></div><div id="xsp"><div id="xg"><div id="xgm"><div id="xgb"><span id="xgf"></span><span id="xgl">초 50%</span><span id="xgr">50% 한</span></div><small id="xgn"></small></div><button id="xbg">🎵</button><button id="xfs">⛶</button></div><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button><button id="xundo">↩ 무르기</button><button id="xvoid">🤝 무효판</button><button id="xchb">💬<i id="xbd"></i></button></div><div id="xpbar"><button id="xpbtn">🎯 상대 시간초과 응징 발동! (핵/메테오/외계인/에네르기파 랜덤)</button></div><div id="xspecbar"><span style="font-size:12px;font-weight:800;color:#ffd54a">👁️ 훈수펜</span><button id="xsp_pen" class="xon">✏️ 자유펜</button><button id="xsp_arr">↗️ 경로화살표</button><button id="xsp_c0" class="xspdot xon" style="background:#ff3b30"></button><button id="xsp_c1" class="xspdot" style="background:#ffd60a"></button><button id="xsp_c2" class="xspdot" style="background:#30d158"></button><button id="xsp_c3" class="xspdot" style="background:#5ac8fa"></button><button id="xsp_clr">🗑️ 지우기</button><span id="xspecinfo">관전 모드</span></div><div id="xemo"></div><div id="xchat" class="tc"><div id="xtabs"><button id="xtc" class="xon">💬 채팅<i id="xtcb"></i></button><button id="xtm">🎙 해설<i id="xtmb"></i></button></div><div id="xcom"></div><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button><button id="orp">🎙 해설 다시보기</button></div></div></div>
+<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="rcbadge" title="클릭하여 방 초대코드 복사"></span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><div id="xfl"></div><div id="xto"><b id="xtm"></b><i id="xts"></i></div><div id="xem"></div><div id="xcb"></div><div id="xsp"><div id="xg"><div id="xgm"><div id="xgb"><span id="xgf"></span><span id="xgl">초 50%</span><span id="xgr">50% 한</span></div><small id="xgn"></small></div><button id="xbg">🎵</button><button id="xfs">⛶</button></div><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button><button id="xundo">↩ 무르기</button><button id="xvoid">🤝 무효판</button><button id="xchb">💬<i id="xbd"></i></button></div><div id="xpbar"><div id="xptitle">🎯 응징 스킬 선택 발동! <span id="xpcnt">×1</span></div><div id="xpbtns"><button id="xp_nuke" data-sk="nuke">☢️ 핵폭탄</button><button id="xp_meteor" data-sk="meteor">☄️ 메테오</button><button id="xp_alien" data-sk="alien">👽 외계인</button><button id="xp_kame" data-sk="kame">🐉 에네르기파</button></div></div><div id="xspecbar"><span style="font-size:12px;font-weight:800;color:#ffd54a">👁️ 훈수펜</span><button id="xsp_pen" class="xon">✏️ 자유펜</button><button id="xsp_arr">↗️ 경로화살표</button><button id="xsp_c0" class="xspdot xon" style="background:#ff3b30"></button><button id="xsp_c1" class="xspdot" style="background:#ffd60a"></button><button id="xsp_c2" class="xspdot" style="background:#30d158"></button><button id="xsp_c3" class="xspdot" style="background:#5ac8fa"></button><button id="xsp_clr">🗑️ 지우기</button><span id="xspecinfo">관전 모드</span></div><div id="xemo"></div><div id="xchat" class="tc"><div id="xtabs"><button id="xtc" class="xon">💬 채팅<i id="xtcb"></i></button><button id="xtm">🎙 해설<i id="xtmb"></i></button></div><div id="xcom"></div><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button><button id="orp">🎙 해설 다시보기</button></div></div></div>
 <div class="mdl" id="rm"><div class="card"><h2>친구 초대</h2><div class="code" id="rc">----</div><p id="rs">친구를 기다리는 중…</p><button id="rsh">📨 카카오톡 등으로 초대</button><button id="rcp">코드·링크 복사</button><button id="rx">취소</button></div></div>
 <div class="mdl" id="md"><div class="card"><h2>포진(차림) 선택</h2><div id="sl"></div><button id="mx">닫기</button></div></div>
 <div class="mdl" id="dc" style="z-index:40"><div class="card"><h2>🎲 선공 정하기</h2><p id="dp"></p><canvas id="da" width="320" height="200"></canvas><div class="nm"><span id="dn1"></span><span id="dn2"></span></div><div id="dres"></div><div id="dpk"><button id="pf">⚔️ 선공 (초나라)</button><button id="pb">🛡️ 후공 (한나라)</button></div><button id="drb">🎲 주사위 굴리기</button><button id="drx">취소</button></div></div>
@@ -310,7 +318,7 @@ pr.on('open',()=>{if(tok==jTok)go()});
 pr.on('error',e=>{if(tok!=jTok)return;if(e.type=='peer-unavailable'){const max=resume?25:7;if(++tries<max){if(!resume)toast(`방을 찾는 중… (${tries}/${max-1})`,1800);setTimeout(()=>{if(tok==jTok&&!(conn&&conn.open))go()},2000)}else toast('방을 찾지 못했어요. 코드를 확인하고, 방을 만든 친구 화면이 켜져 있는지 확인하세요',5000)}else toast('연결 오류: '+e.type)})}
 function joinRoom(c,asSpec){if(!lib())return;if(!/^\d{4}$/.test(c||''))return toast('받은 코드 4자리를 입력하세요');closeNet();isHost=false;wantSpec=!!asSpec;isSpec=!!asSpec;code=c;toast(asSpec?'관전자로 접속 중…':'접속 중…',4000);doJoin(false)}
 function sendSync(){try{const msg={k:'sync',mc,B,turn:anim?anim.o:turn,lm,over,DMG:window.DMG||{c:0,h:0},cNick:me=='c'?nick():oppNick,hNick:me=='h'?nick():oppNick};bcast(msg)}catch(e){}}
-function onSync(d){clearTimeout(dropT);if(d.cNick)cNick=d.cNick;if(d.hNick)hNick=d.hNick;if(isSpec){if(!inGame){beginSpec(d)}else{B=d.B;mc=d.mc;lm=d.lm;if(d.DMG)window.DMG={c:+d.DMG.c||0,h:+d.DMG.h||0};$('nc').textContent='초 '+cNick;$('nh').textContent='한 '+hNick;rzK='';try{resize()}catch(e){}setTurn(d.turn);if(d.over&&!over)end(null,'대국 종료');else if(!d.over&&over){over=false;$('ov').style.display='none'}}return}if(d.DMG){window.DMG={c:+d.DMG.c||0,h:+d.DMG.h||0};rzK='';try{resize()}catch(e){}}if(!inGame||over)return;if(d.mc>mc){anim=null;busy=false;jang=null;sel=null;B=d.B;mc=d.mc;lm=d.lm;setTurn(d.turn);toast('상대와 다시 연결됐어요',2500)}else if(d.mc<mc)sendSync();else toast('상대와 다시 연결됐어요',2500)}
+function onSync(d){clearTimeout(dropT);if(d.cNick)cNick=d.cNick;if(d.hNick)hNick=d.hNick;if(isSpec){if(!inGame){beginSpec(d)}else{B=d.B;mc=d.mc;lm=d.lm;if(d.DMG)window.DMG={c:+d.DMG.c||0,h:+d.DMG.h||0};updHudNames(cNick,hNick);rzK='';try{resize()}catch(e){}setTurn(d.turn);if(d.over&&!over)end(null,'대국 종료');else if(!d.over&&over){over=false;$('ov').style.display='none'}}return}if(d.DMG){window.DMG={c:+d.DMG.c||0,h:+d.DMG.h||0};rzK='';try{resize()}catch(e){}}if(!inGame||over)return;if(d.mc>mc){anim=null;busy=false;jang=null;sel=null;B=d.B;mc=d.mc;lm=d.lm;setTurn(d.turn);toast('상대와 다시 연결됐어요',2500)}else if(d.mc<mc)sendSync();else toast('상대와 다시 연결됐어요',2500)}
 function addSpec(c,n){c._isSpec=true;c._handled=true;if(conn===c)conn=null;specs=specs.filter(s=>s.c&&s.c.open&&s.c!==c);if(specs.length>=4){try{c.send({k:'spec_full'});setTimeout(()=>c.close(),400)}catch(e){}return}const sn=String(n||'관전자').slice(0,12);specs.push({c,nick:sn});const cn=me=='c'?nick():oppNick,hn=me=='h'?nick():oppNick;try{c.send({k:'spec_ok',mc,B,turn:anim?anim.o:turn,lm,over,DMG:window.DMG||{c:0,h:0},time:cfg.time,sid,cNick:cn,hNick:hn,scnt:specs.length})}catch(e){}bcast({k:'spec_join',nick:sn,scnt:specs.length});if(window.jgSpecNotice)window.jgSpecNotice(sn,specs.length,true)}
 function netEvents(c){c.on('data',d=>{c._handled=true;if(c._isSpec){onSpecData(c,d);return}if(d&&d.k=='join_spec'){addSpec(c,d.nick);return}if(c!==conn){if(d&&d.k=='hello_p'&&conn&&conn.open){addSpec(c,d.nick);return}if(d&&d.k=='hello'&&d.sid&&d.sid==sid){const o=conn;conn=c;try{o&&o.close()}catch(e){}clearTimeout(dropT);sendSync()}else if(d&&d.k=='hello_p'&&!(conn&&conn.open)){conn=c;clearTimeout(dropT);if(inGame&&!over&&cfg.mode=='mp')sendSync();else{isHost=true;oppNick=d.nick||'상대';hostStart()}}else{addSpec(c,d&&d.nick);return}return}onData(d)});
 c.on('close',()=>{if(c._isSpec){const idx=specs.findIndex(s=>s.c===c);if(idx>=0){const sn=specs[idx].nick;specs.splice(idx,1);bcast({k:'spec_left',nick:sn,scnt:specs.length});if(window.jgSpecNotice)window.jgSpecNotice(sn,specs.length,false)}return}if(c!==conn)return;
@@ -326,7 +334,7 @@ window.DMG=d.DMG&&typeof d.DMG==='object'?{c:+d.DMG.c||0,h:+d.DMG.h||0}:{c:0,h:0
 mc=d.mc||0;lm=d.lm||null;turn=d.turn||'c';over=!!d.over;inGame=true;busy=false;sel=null;anim=null;jang=null;
 sfxLoad();dTok++;$('dc').style.display='none';$('rm').style.display='none';$('st').style.display='none';$('g').style.display='block';$('ov').style.display='none';
 $('g').classList.add('xspec');fitScreen();
-$('nc').textContent='초 '+cNick;$('nh').textContent='한 '+hNick;cv=$('cv');cx2=cv.getContext('2d');rzK='';resize();setTurn(turn);
+updHudNames(cNick,hNick);cv=$('cv');cx2=cv.getContext('2d');rzK='';resize();setTurn(turn);
 if(!looping){looping=true;requestAnimationFrame(loop)}
 toast('👁️ 관전자로 입장했어요! 우측/하단 훈수펜으로 판 위에 경로·낙서를 그릴 수 있어요',4000)}
 function onData(d){if(d&&d.k=='join_spec'&&isHost){addSpec(conn,d.nick);return}
@@ -419,7 +427,24 @@ function startAI(){const o=SETUPS[Math.random()*4|0],mine=SETUPS[cfg.si][2];oppN
 const go=first=>{const m=first?'c':'h';toast(`COM 포진: ${o[0]}`,2500);begin(m,m=='c'?mine:o[2],m=='h'?mine:o[2],'ai')};
 diceShow(a,b,true,f=>{if(f)pickFirst(go);else{const comFirst=Math.random()<.75;$('dres').textContent=`😮 COM이 이겨서 ${comFirst?'선공(초나라)':'후공(한나라)'}을 선택했어요`;setTimeout(()=>go(!comFirst),1700)}})}
 function begin(m,sc,sh,mode){isSpec=false;$('g').classList.remove('xspec');if(window.jgPanel)try{jgPanel(mode)}catch(e){}mc=0;sfxLoad();dTok++;$('dc').style.display='none';rmS=rmO=false;$('oa').disabled=false;$('os').textContent='';cfg.mode=mode;me=m;flip=m=='h';init(sc,sh);turn='c';over=false;inGame=true;busy=false;sel=null;lm=null;anim=null;jang=null;aiId++;$('st').style.display='none';$('g').style.display='block';$('ov').style.display='none';fitScreen();
-const n=nick();$('nc').textContent='초 '+(m=='c'?n:oppNick);$('nh').textContent='한 '+(m=='h'?n:oppNick);cv=$('cv');cx2=cv.getContext('2d');if(!wk&&mode=='ai')mkWorker();resize();setTurn('c');if(!looping){looping=true;requestAnimationFrame(loop)}}
+function updHudNames(cn,hn){
+  const showCode=(cfg.mode==='mp'&&code);
+  const cTag=showCode&&(me==='c'||isSpec)?` [코드:${code}]`:'';
+  const hTag=showCode&&(me==='h')?` [코드:${code}]`:'';
+  $('nc').textContent='초 '+cn+cTag;
+  $('nh').textContent='한 '+hn+hTag;
+  const rb=$('rcbadge');
+  if(rb){
+    if(showCode){
+      rb.style.display='inline-block';
+      rb.textContent='🔑 방코드: '+code;
+      rb.onclick=()=>{try{navigator.clipboard.writeText(code);toast('방 초대코드 ['+code+'] 복사 완료!',2000)}catch(e){toast('방 초대코드: '+code,3000)}};
+    }else{
+      rb.style.display='none';
+    }
+  }
+}
+const n=nick();updHudNames(m=='c'?n:oppNick,m=='h'?n:oppNick);cv=$('cv');cx2=cv.getContext('2d');if(!wk&&mode=='ai')mkWorker();resize();setTurn('c');if(!looping){looping=true;requestAnimationFrame(loop)}}
 let rzK='';function resize(){if(!cv||!cv.offsetWidth)return;const k=cv.offsetWidth+'x'+cv.offsetHeight+'@'+(devicePixelRatio||1)+(flip?'f':'n')+sab()+'h'+($('hud')?$('hud').offsetHeight:0);if(k===rzK&&bc)return;rzK=k;const d=Math.min(devicePixelRatio||1,2);W=cv.offsetWidth||innerWidth;H=cv.offsetHeight||innerHeight;cv.width=W*d;cv.height=H*d;cx2.setTransform(d,0,0,d,0,0);cx2.imageSmoothingQuality='high';
 const top=($('hud')&&$('hud').offsetHeight)||46,mx=Math.max(18,W*.055),aH=H-top-(innerHeight<560?3:8)-sab();let cx=(W-2*mx)/8,cy=aH/9.9;if(cy>cx*1.55)cy=cx*1.55;else if(cx>cy*1.25)cx=cy*1.25;
 CX=cx;CY=cy;C=Math.min(cx,cy);OX=(W-8*cx)/2;OY=top+(aH-9*cy)/2;bc=document.createElement('canvas');bc.width=W*d;bc.height=H*d;const g=bc.getContext('2d');g.setTransform(d,0,0,d,0,0);board(g)}addEventListener('resize',resize);
@@ -588,7 +613,7 @@ el('xrd').style.display='flex'};
 el('xrc').onclick=()=>el('xrd').style.display='none';
 const SW=['아 진짜 답답해 죽겠네!!','이 느림보야 빨리 둬라 ㅅㅂ!!','장기 두다 날 새겠다 ㅅㅂ!!','손이 없냐 발이 없냐!! 빨리 둬!!','야 ㅅㅂ 잠들었냐!! 빨리 둬라!!','아 뭐하냐고 진짜 ㅅㅂ!!'];
 let punishCnt=0;
-function updPunishBtn(){const pb=el('xpbar'),bt=el('xpbtn');if(!pb||!bt)return;if(inGame&&!over&&!isSpec&&punishCnt>0){pb.style.display='flex';bt.textContent='🎯 상대 시간초과 응징 발동! (핵/메테오/외계인/에네르기파 랜덤) ×'+punishCnt}else{pb.style.display='none'}}
+function updPunishBtn(){const pb=el('xpbar'),ct=el('xpcnt');if(!pb)return;if(inGame&&!over&&!isSpec&&punishCnt>0){pb.style.display='flex';if(ct)ct.textContent='(보유: '+punishCnt+'회)'}else{pb.style.display='none'}}
 window.jgTO=function(s){if(over||!inGame)return;if(cfg.mode!=='mp'&&s!==me)return;const n=++TO[s];xsave();try{commTO(s,n)}catch(e){}const t=el('xto'),m=el('xtm'),f=el('xfl');
 m.textContent=n==1?'⏰ 시간초과!!':SW[(n-2)%SW.length];m.className=n==1?'':'xsm';el('xts').textContent=nm(s)+'나라 시간초과 '+n+'회';
 try{const r=cv.getBoundingClientRect();t.style.left=(r.left+OX+4*CX)+'px';t.style.top=(r.top+OY+4.5*CY)+'px'}catch(e){}
@@ -611,7 +636,17 @@ const TA=['아직도 생각 중이야? 😴','해 뜨겠다 빨리 둬 ㅋㅋ','
 let UH=[],UQ=null,UI=null;
 const snap=w=>({B:JSON.parse(JSON.stringify(B)),mc,lm:lm?lm.slice():null,w});
 const lastIdx=s=>{for(let i=UH.length-1;i>=0;i--)if(UH[i].w===s)return i;return-1};
-const _dm=doMove;doMove=function(m){if(!anim&&!over){try{const pc=B[m[1]][m[0]],vc=B[m[3]][m[2]];lastMv={mc:mc+1,a:turn,p:pc?pc.t:'',v:vc?vc.t:null,m:[m[0],m[1],m[2],m[3]],fresh:1};MV.push(lastMv);if(MV.length>8)MV.shift()}catch(e){}UH.push(snap(turn));if(UH.length>40)UH.shift();xsave();if(UI){UI=null;el('xcf').style.display='none';toast('상대가 수를 두어 무르기 요청이 취소됐어요',2500)}}return _dm.apply(this,arguments)};
+const _dm=doMove;doMove=function(m){if(!anim&&!over){try{const pc=B[m[1]][m[0]],vc=B[m[3]][m[2]];lastMv={mc:mc+1,a:turn,p:pc?pc.t:'',v:vc?vc.t:null,m:[m[0],m[1],m[2],m[3]],fresh:1};MV.push(lastMv);if(MV.length>8)MV.shift();
+if(vc&&vc.t==='R'&&pc&&pc.s!==vc.s){
+  if(!isSpec&&pc.s===me){
+    punishCnt++;updPunishBtn();
+    sysLog('🔥 상대 차(車) 포획! [응징 파괴 스킬 +1 충전] (보유: '+punishCnt+'회)','xs xg');
+    toast('🔥 상대 차(車)를 잡았습니다! 응징 파괴 스킬 1회 충전!',3200);
+  }else if(cfg.mode==='ai'&&pc.s!==me){
+    sysLog('😱 AI가 내 차(車)를 포획하여 응징 스킬을 발동합니다!','xs xr');
+    setTimeout(()=>{if(!inGame||over)return;const sk=['nuke','meteor','alien','kame'][Math.random()*4|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else kameFire(side2(me))},900);
+  }
+}}catch(e){}UH.push(snap(turn));if(UH.length>40)UH.shift();xsave();if(UI){UI=null;el('xcf').style.display='none';toast('상대가 수를 두어 무르기 요청이 취소됐어요',2500)}}return _dm.apply(this,arguments)};
 const _pl=play;play=function(){if(UQ){toast('무르기 응답을 기다리는 중이에요',2000);return}return _pl.apply(this,arguments)};
 function doUndo(to){const i=UH.findIndex(h=>h.mc===to);if(i<0||over||!inGame)return false;const h=UH[i];UH.length=i;xsave();B=JSON.parse(JSON.stringify(h.B));mc=h.mc;lm=h.lm?h.lm.slice():null;sel=null;anim=null;busy=false;jang=null;setTurn(h.w);try{commUndo(h.w)}catch(e){}return true}
 const snd2=o=>{try{bcast(o)}catch(e){}};
@@ -1312,20 +1347,23 @@ const frame=now=>{
 requestAnimationFrame(frame)}
 function kameFire(A){try{comm(fill(pick(CB.kame,'k'+Date.now()%97),{A:tag(A),V:tag(side2(A))}),'nuke',.3)}catch(e){}kame(A)}
 
-/* ---- 상대 시간초과 시 랜덤 응징 스킬(핵폭탄 / 메테오 / 외계인 / 에네르기파) 발동 버튼 ---- */
-el('xpbtn').onpointerdown=ev=>ev.preventDefault();
-el('xpbtn').onclick=()=>{
-  if(!inGame||over||isSpec)return;
-  if(punishCnt<=0)return toast('상대가 시간초과했을 때 사용할 수 있어요!',2000);
-  if(nkBusy)return toast('이미 공격 이펙트가 진행 중이에요!',1500);
-  punishCnt--;updPunishBtn();
-  const skills=['nuke','meteor','alien','kame'],sk=skills[Math.random()*skills.length|0];
-  if(cfg.mode==='mp')snd2({k:sk,by:me});
-  if(sk==='nuke')nukeFire(me);
-  else if(sk==='meteor')meteorFire(me);
-  else if(sk==='alien')alienFire(me);
-  else kameFire(me);
-};
+/* ---- 응징 스킬(핵폭탄 / 메테오 / 외계인 / 에네르기파) 직접 선택 발동 버튼 ---- */
+['xp_nuke','xp_meteor','xp_alien','xp_kame'].forEach(id=>{
+  const b=el(id);if(!b)return;
+  b.onpointerdown=ev=>ev.preventDefault();
+  b.onclick=()=>{
+    if(!inGame||over||isSpec)return;
+    if(punishCnt<=0)return toast('상대 시간초과 또는 상대 차(車)를 잡으면 충전됩니다!',2200);
+    if(nkBusy)return toast('이미 공격 이펙트가 진행 중이에요!',1500);
+    const sk=b.getAttribute('data-sk');
+    punishCnt--;updPunishBtn();
+    if(cfg.mode==='mp')snd2({k:sk,by:me});
+    if(sk==='nuke')nukeFire(me);
+    else if(sk==='meteor')meteorFire(me);
+    else if(sk==='alien')alienFire(me);
+    else kameFire(me);
+  };
+});
 
 /* ---- 관전자 전용: 실시간 훈수 펜 & 경로 화살표 그리기 (포인터 캡처 및 터치/마우스 완벽 검증) ---- */
 let specStrokes=[],specMode='pen',specCol='#ff3b30',curStroke=null;
