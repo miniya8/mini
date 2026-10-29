@@ -86,9 +86,18 @@
       transition: transform 0.15s ease-out, border-color 0.2s, box-shadow 0.2s;
       touch-action: pan-y;
       -webkit-user-drag: none;
+      min-width: 0;
+      word-break: keep-all;
+      overflow-wrap: break-word;
     }
     .festival-card:active {
       transform: scale(0.96);
+    }
+
+    /* 개발중 카드 전용 스타일 */
+    .festival-card-dev {
+      background: rgba(15, 20, 38, 0.85);
+      border-style: dashed;
     }
 
     /* 세미니 강조 골드 네온 뱃지 */
@@ -142,13 +151,39 @@
 
     /* 모바일 세이프 에어리어 대응 */
     .safe-container {
-      padding-top: max(14px, env(safe-area-inset-top));
+      padding-top: max(12px, env(safe-area-inset-top));
       padding-bottom: max(16px, env(safe-area-inset-bottom));
-      padding-left: max(12px, env(safe-area-inset-left));
-      padding-right: max(12px, env(safe-area-inset-right));
+      padding-left: max(10px, env(safe-area-inset-left));
+      padding-right: max(10px, env(safe-area-inset-right));
     }
 
-    /* 폴드 넓은 화면 좌우 장식 날개 */
+    /* 폴드 커버 화면 등 초소형 디스플레이(폭 340px 이하) 깨짐 방지 최적화 */
+    @media (max-width: 340px) {
+      .safe-container {
+        padding-left: 8px;
+        padding-right: 8px;
+      }
+      .card-grid {
+        gap: 6px !important;
+      }
+      .festival-card {
+        padding: 8px !important;
+        border-radius: 14px !important;
+      }
+      .card-title {
+        font-size: 12px !important;
+        line-height: 1.25 !important;
+      }
+      .card-badge {
+        font-size: 8px !important;
+        padding: 1px 4px !important;
+      }
+      .card-icon {
+        font-size: 18px !important;
+      }
+    }
+
+    /* 데스크톱 넓은 화면 좌우 장식 날개 (폴드 내부 화면에서 카드와 겹치지 않도록 1100px 이상에서만 표시) */
     .side-decor {
       position: fixed;
       top: 50%;
@@ -157,7 +192,7 @@
       z-index: -1;
       display: none;
     }
-    @media (min-width: 640px) {
+    @media (min-width: 1100px) {
       .side-decor {
         display: flex;
         flex-direction: column;
@@ -171,8 +206,8 @@
   <!-- 축제 배경 -->
   <div class="bg-festival"></div>
 
-  <!-- 폴드/태블릿 넓은 화면 좌측 장식 날개 -->
-  <aside class="side-decor left-4 lg:left-10 text-3xl select-none">
+  <!-- 데스크톱 넓은 화면 좌측 장식 날개 -->
+  <aside class="side-decor left-4 xl:left-10 text-3xl select-none">
     <div class="float-item-1 bg-purple-900/40 p-2.5 rounded-2xl border border-purple-400/30 backdrop-blur-sm shadow-lg text-2xl">🎪</div>
     <div class="twinkle-star text-amber-300 text-xl">✨</div>
     <div class="float-item-2 bg-pink-900/40 p-2.5 rounded-2xl border border-pink-400/30 backdrop-blur-sm shadow-lg text-2xl">🎠</div>
@@ -180,8 +215,8 @@
     <div class="float-item-1 bg-indigo-900/40 p-2.5 rounded-2xl border border-indigo-400/30 backdrop-blur-sm shadow-lg text-2xl">🎡</div>
   </aside>
 
-  <!-- 폴드/태블릿 넓은 화면 우측 장식 날개 -->
-  <aside class="side-decor right-4 lg:right-10 text-3xl select-none">
+  <!-- 데스크톱 넓은 화면 우측 장식 날개 -->
+  <aside class="side-decor right-4 xl:right-10 text-3xl select-none">
     <div class="float-item-2 bg-pink-900/40 p-2.5 rounded-2xl border border-pink-400/30 backdrop-blur-sm shadow-lg text-2xl">🍭</div>
     <div class="twinkle-star text-amber-300 text-xl">⭐</div>
     <div class="float-item-1 bg-amber-900/40 p-2.5 rounded-2xl border border-amber-400/30 backdrop-blur-sm shadow-lg text-2xl">🍿</div>
@@ -190,35 +225,35 @@
   </aside>
 
   <!-- 상단 헤더 -->
-  <header class="w-full max-w-md sm:max-w-xl md:max-w-3xl flex flex-col gap-3 bg-indigo-950/75 border border-purple-500/40 rounded-3xl p-3.5 sm:p-4 shadow-[0_8px_30px_rgb(139,92,246,0.25)] backdrop-blur-xl flex-shrink-0 transition-all duration-300">
+  <header class="w-full max-w-md sm:max-w-2xl md:max-w-4xl flex flex-col gap-2.5 sm:gap-3 bg-indigo-950/75 border border-purple-500/40 rounded-3xl p-3 sm:p-4 shadow-[0_8px_30px_rgb(139,92,246,0.25)] backdrop-blur-xl flex-shrink-0 transition-all duration-300">
     
     <!-- 오너 세미니 하이라이트 배너 -->
-    <div class="flex items-center justify-between bg-purple-900/40 border border-purple-400/30 rounded-2xl px-3 py-1.5 sm:px-4">
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <span class="text-base sm:text-lg wiggle">👑</span>
-        <span class="text-xs sm:text-sm font-black text-amber-300 tracking-tight">FESTIVAL OWNER</span>
-        <span class="owner-badge text-slate-950 text-[11px] sm:text-xs font-black px-2.5 py-0.5 rounded-full ml-1">세미니</span>
+    <div class="flex items-center justify-between bg-purple-900/40 border border-purple-400/30 rounded-2xl px-2.5 py-1.5 sm:px-4">
+      <div class="flex items-center gap-1 sm:gap-2 min-w-0">
+        <span class="text-sm sm:text-lg wiggle flex-shrink-0">👑</span>
+        <span class="text-[11px] sm:text-sm font-black text-amber-300 tracking-tight truncate">FESTIVAL OWNER</span>
+        <span class="owner-badge text-slate-950 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full ml-0.5 flex-shrink-0">세미니</span>
       </div>
-      <div class="flex items-center gap-1.5">
+      <div class="flex items-center gap-1 flex-shrink-0">
         <span class="text-[10px] sm:text-xs text-pink-300 font-bold flex items-center gap-1">
           <span class="w-1.5 h-1.5 rounded-full bg-pink-400 animate-ping"></span>
-          FESTIVAL OPEN! 🎉
+          OPEN! 🎉
         </span>
       </div>
     </div>
 
     <!-- 타이틀 영역 -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-      <div class="flex items-center gap-3">
-        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-pink-500/30 to-purple-500/30 border-2 border-amber-300/80 flex items-center justify-center text-2xl sm:text-3xl shadow-lg flex-shrink-0">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3">
+      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-pink-500/30 to-purple-500/30 border-2 border-amber-300/80 flex items-center justify-center text-xl sm:text-3xl shadow-lg flex-shrink-0">
           <span class="wiggle">🎪</span>
         </div>
-        <div>
-          <h1 class="text-xl sm:text-2xl font-black title-font tracking-wide flex items-center gap-1.5">
-            <span class="sparkle-text">세미니의 페스티벌</span>
-            <span class="text-lg sm:text-xl">🎈</span>
+        <div class="min-w-0">
+          <h1 class="text-lg sm:text-2xl font-black title-font tracking-wide flex items-center gap-1.5 truncate">
+            <span class="sparkle-text truncate">세미니의 페스티벌</span>
+            <span class="text-base sm:text-xl flex-shrink-0">🎈</span>
           </h1>
-          <p class="text-[11px] sm:text-xs text-purple-200/90 flex items-center gap-1 mt-0.5 font-medium">
+          <p class="text-[10px] sm:text-xs text-purple-200/90 flex items-center gap-1 mt-0.5 font-medium truncate">
             <span>🎡 매일매일 펼쳐지는 짜릿한 게임 파티 🍭</span>
           </p>
         </div>
@@ -226,11 +261,11 @@
 
       <!-- 통합 닉네임 설정 바 -->
       <div class="flex items-center justify-between sm:justify-end gap-2 bg-slate-950/80 px-3 py-2 rounded-2xl border border-indigo-500/30 flex-shrink-0">
-        <div class="flex items-center gap-1.5">
-          <span class="text-xs font-bold text-amber-300">내 닉네임:</span>
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="text-[11px] sm:text-xs font-bold text-amber-300 flex-shrink-0">내 닉네임:</span>
           <input id="hub-nickname-input" type="text" maxlength="8" oninput="saveNickname(this.value)" onchange="saveNickname(this.value)" class="bg-transparent border-b border-amber-400/60 text-xs font-bold text-white focus:outline-none focus:border-amber-400 w-24 sm:w-28 px-1">
         </div>
-        <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1">
+        <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 flex-shrink-0">
           <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>영구저장
         </span>
       </div>
@@ -238,122 +273,230 @@
 
   </header>
 
-  <!-- 메인 게임 선택 카드 그리드 -->
-  <main class="w-full max-w-md sm:max-w-xl md:max-w-3xl my-3.5 sm:my-5 flex-1 flex flex-col justify-start transition-all duration-300">
-    <div class="text-center mb-3 sm:mb-4">
-      <h2 class="text-lg sm:text-xl font-black text-white title-font flex items-center justify-center gap-1.5 drop-shadow">
+  <!-- 메인 게임 선택 카드 그리드 (모바일/폴드커버: 2열 [메뉴+개발중 쌍], 폴드 펼침/태블릿: 4열 [2쌍 나란히]) -->
+  <main class="w-full max-w-md sm:max-w-2xl md:max-w-4xl my-3 sm:my-5 flex-1 flex flex-col justify-start transition-all duration-300">
+    <div class="text-center mb-2.5 sm:mb-4">
+      <h2 class="text-base sm:text-xl font-black text-white title-font flex items-center justify-center gap-1.5 drop-shadow">
         <span class="text-amber-300 twinkle-star">⭐</span> 입장할 게임을 터치하세요! <span class="text-pink-300">🎉</span>
       </h2>
-      <p class="text-[11px] sm:text-xs text-purple-200/80 mt-0.5">터치 즉시 해당 게임장으로 직접 이동합니다 🥳</p>
+      <p class="text-[10px] sm:text-xs text-purple-200/80 mt-0.5">각 게임 우측에서 🛠️ 개발중 테스트 버전으로도 바로 입장할 수 있습니다</p>
     </div>
 
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3.5">
+    <div class="card-grid grid grid-cols-2 md:grid-cols-4 gap-2 sm:gap-3">
 
-      <!-- 1. 세미니 삼국장기 -->
-      <a href="games/삼국장기/index.html" target="_self" draggable="false" class="festival-card border-2 border-rose-500/80 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_20px_rgba(244,63,94,0.25)]">
+      <!-- 1-A. 세미니 삼국장기 -->
+      <a href="games/삼국장기/index.html" target="_self" draggable="false" class="festival-card border-2 border-rose-500/80 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_16px_rgba(244,63,94,0.22)]">
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-2xl sm:text-3xl drop-shadow">🏮</span>
-            <span class="px-1.5 py-0.5 bg-rose-950/90 border border-rose-400 text-rose-200 text-[9px] sm:text-[10px] font-black rounded-md">👑 세미니 추천</span>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🏮</span>
+            <span class="card-badge px-1.5 py-0.5 bg-rose-950/90 border border-rose-400 text-rose-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">👑 추천</span>
           </div>
-          <h3 class="text-sm sm:text-base font-black text-rose-300 title-font">세미니 삼국장기</h3>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-rose-300 title-font leading-tight">세미니 삼국장기</h3>
           <p class="text-[10px] sm:text-[11px] text-slate-200 mt-1 leading-snug line-clamp-2">
             삼국지의 호걸들과 펼치는 전략 대결!
           </p>
         </div>
         <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-rose-300 pt-1.5 border-t border-rose-500/30">
-          <span>대국실 입장</span>
-          <span>👉</span>
+          <span class="truncate">대국실 입장</span>
+          <span class="flex-shrink-0">👉</span>
         </div>
       </a>
 
-      <!-- 2. 전설장기 1 -->
-      <a href="games/janggi/index.html" target="_self" draggable="false" class="festival-card border-2 border-emerald-400/80 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_20px_rgba(52,211,153,0.2)]">
+      <!-- 1-B. 세미니 삼국장기 개발중 -->
+      <a href="games/삼국장기개발/index.html" target="_self" draggable="false" class="festival-card festival-card-dev border-2 border-rose-400/50 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_14px_rgba(244,63,94,0.12)]">
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-2xl sm:text-3xl drop-shadow">⚔️</span>
-            <span class="px-1.5 py-0.5 bg-emerald-950/90 border border-emerald-400 text-emerald-200 text-[9px] sm:text-[10px] font-black rounded-md">온라인 P2P</span>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🛠️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🚧 개발중</span>
           </div>
-          <h3 class="text-sm sm:text-base font-black text-emerald-300 title-font">전설장기 1</h3>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-rose-200/90 title-font leading-tight">세미니 삼국장기 개발중</h3>
+          <p class="text-[10px] sm:text-[11px] text-slate-300/80 mt-1 leading-snug line-clamp-2">
+            삼국장기 신규 기능 및 테스트 서버
+          </p>
+        </div>
+        <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-amber-300 pt-1.5 border-t border-rose-500/20">
+          <span class="truncate">개발서버 입장</span>
+          <span class="flex-shrink-0">⚙️</span>
+        </div>
+      </a>
+
+      <!-- 2-A. 전설장기 1 -->
+      <a href="games/janggi/index.html" target="_self" draggable="false" class="festival-card border-2 border-emerald-400/80 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_16px_rgba(52,211,153,0.18)]">
+        <div>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">⚔️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-emerald-950/90 border border-emerald-400 text-emerald-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">온라인 P2P</span>
+          </div>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-emerald-300 title-font leading-tight">전설장기 1</h3>
           <p class="text-[10px] sm:text-[11px] text-slate-200 mt-1 leading-snug line-clamp-2">
             탱크 돌진, 곡사 포격 모션 및 킬 이펙트 탑재!
           </p>
         </div>
         <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-emerald-300 pt-1.5 border-t border-emerald-500/30">
-          <span>대국실 입장</span>
-          <span>👉</span>
+          <span class="truncate">대국실 입장</span>
+          <span class="flex-shrink-0">👉</span>
         </div>
       </a>
 
-      <!-- 3. 미니삼국 땅따먹기 -->
-      <a href="games/미니삼국 땅따먹기/index.html" target="_self" draggable="false" class="festival-card border-2 border-cyan-400/80 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_20px_rgba(34,211,238,0.2)]">
+      <!-- 2-B. 전설장기 1 개발중 -->
+      <a href="games/janggi개발/index.html" target="_self" draggable="false" class="festival-card festival-card-dev border-2 border-emerald-400/50 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_14px_rgba(52,211,153,0.1)]">
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-2xl sm:text-3xl drop-shadow">🗺️</span>
-            <span class="px-1.5 py-0.5 bg-cyan-950/90 border border-cyan-400 text-cyan-200 text-[9px] sm:text-[10px] font-black rounded-md">🔥 신규 전장</span>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🛠️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🚧 개발중</span>
           </div>
-          <h3 class="text-sm sm:text-base font-black text-cyan-300 title-font">미니삼국 땅따먹기</h3>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-emerald-200/90 title-font leading-tight">전설장기 1 개발중</h3>
+          <p class="text-[10px] sm:text-[11px] text-slate-300/80 mt-1 leading-snug line-clamp-2">
+            전설장기 1 신규 기능 및 테스트 서버
+          </p>
+        </div>
+        <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-amber-300 pt-1.5 border-t border-emerald-500/20">
+          <span class="truncate">개발서버 입장</span>
+          <span class="flex-shrink-0">⚙️</span>
+        </div>
+      </a>
+
+      <!-- 3-A. 미니삼국 땅따먹기 -->
+      <a href="games/미니삼국 땅따먹기/index.html" target="_self" draggable="false" class="festival-card border-2 border-cyan-400/80 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_16px_rgba(34,211,238,0.18)]">
+        <div>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🗺️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-cyan-950/90 border border-cyan-400 text-cyan-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🔥 신규 전장</span>
+          </div>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-cyan-300 title-font leading-tight">미니삼국 땅따먹기</h3>
           <p class="text-[10px] sm:text-[11px] text-slate-200 mt-1 leading-snug line-clamp-2">
             영토 점령과 긴장감 넘치는 전략 땅따먹기 대결.
           </p>
         </div>
         <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-cyan-300 pt-1.5 border-t border-cyan-500/30">
-          <span>전장 입장</span>
-          <span>👉</span>
+          <span class="truncate">전장 입장</span>
+          <span class="flex-shrink-0">👉</span>
         </div>
       </a>
 
-      <!-- 4. 미니 스코어보드 -->
-      <a href="games/점수/index.html" target="_self" draggable="false" class="festival-card border-2 border-amber-400/80 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_20px_rgba(251,191,36,0.2)]">
+      <!-- 3-B. 미니삼국 땅따먹기 개발중 -->
+      <a href="games/미니삼국 땅따먹기개발/index.html" target="_self" draggable="false" class="festival-card festival-card-dev border-2 border-cyan-400/50 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_14px_rgba(34,211,238,0.1)]">
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-2xl sm:text-3xl drop-shadow">🏆</span>
-            <span class="px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md">👑 파티 랭킹</span>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🛠️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🚧 개발중</span>
           </div>
-          <h3 class="text-sm sm:text-base font-black text-amber-300 title-font">미니 스코어보드</h3>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-cyan-200/90 title-font leading-tight">미니삼국 땅따먹기 개발중</h3>
+          <p class="text-[10px] sm:text-[11px] text-slate-300/80 mt-1 leading-snug line-clamp-2">
+            땅따먹기 신규 기능 및 테스트 서버
+          </p>
+        </div>
+        <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-amber-300 pt-1.5 border-t border-cyan-500/20">
+          <span class="truncate">개발서버 입장</span>
+          <span class="flex-shrink-0">⚙️</span>
+        </div>
+      </a>
+
+      <!-- 4-A. 미니 스코어보드 -->
+      <a href="games/점수/index.html" target="_self" draggable="false" class="festival-card border-2 border-amber-400/80 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_16px_rgba(251,191,36,0.18)]">
+        <div>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🏆</span>
+            <span class="card-badge px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">👑 랭킹</span>
+          </div>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-amber-300 title-font leading-tight">미니 스코어보드</h3>
           <p class="text-[10px] sm:text-[11px] text-slate-200 mt-1 leading-snug line-clamp-2">
             점수 계산과 승패 기록을 한눈에 간편하게!
           </p>
         </div>
         <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-amber-300 pt-1.5 border-t border-amber-500/30">
-          <span>스코어보드</span>
-          <span>👉</span>
+          <span class="truncate">스코어보드</span>
+          <span class="flex-shrink-0">👉</span>
         </div>
       </a>
 
-      <!-- 5. 복불복 핀볼 -->
-      <a href="games/pinball/index.html" target="_self" draggable="false" class="festival-card border-2 border-fuchsia-400/80 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_20px_rgba(217,70,239,0.2)]">
+      <!-- 4-B. 미니 스코어보드 개발중 -->
+      <a href="games/점수개발/index.html" target="_self" draggable="false" class="festival-card festival-card-dev border-2 border-amber-400/50 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_14px_rgba(251,191,36,0.1)]">
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-2xl sm:text-3xl drop-shadow">🎰</span>
-            <span class="px-1.5 py-0.5 bg-fuchsia-950/90 border border-fuchsia-400 text-fuchsia-200 text-[9px] sm:text-[10px] font-black rounded-md">내기/추첨</span>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🛠️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🚧 개발중</span>
           </div>
-          <h3 class="text-sm sm:text-base font-black text-fuchsia-300 title-font">복불복 핀볼</h3>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-amber-200/90 title-font leading-tight">미니 스코어보드 개발중</h3>
+          <p class="text-[10px] sm:text-[11px] text-slate-300/80 mt-1 leading-snug line-clamp-2">
+            스코어보드 신규 기능 및 테스트 서버
+          </p>
+        </div>
+        <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-amber-300 pt-1.5 border-t border-amber-500/20">
+          <span class="truncate">개발서버 입장</span>
+          <span class="flex-shrink-0">⚙️</span>
+        </div>
+      </a>
+
+      <!-- 5-A. 복불복 핀볼 -->
+      <a href="games/pinball/index.html" target="_self" draggable="false" class="festival-card border-2 border-fuchsia-400/80 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_16px_rgba(217,70,239,0.18)]">
+        <div>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🎰</span>
+            <span class="card-badge px-1.5 py-0.5 bg-fuchsia-950/90 border border-fuchsia-400 text-fuchsia-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">내기/추첨</span>
+          </div>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-fuchsia-300 title-font leading-tight">복불복 핀볼</h3>
           <p class="text-[10px] sm:text-[11px] text-slate-200 mt-1 leading-snug line-clamp-2">
             구슬 낙하 핀볼로 즐기는 심장 쫄깃 추첨!
           </p>
         </div>
         <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-fuchsia-300 pt-1.5 border-t border-fuchsia-500/30">
-          <span>추첨장 입장</span>
-          <span>👉</span>
+          <span class="truncate">추첨장 입장</span>
+          <span class="flex-shrink-0">👉</span>
         </div>
       </a>
 
-      <!-- 6. 미니멀티디펜스 -->
-      <a href="games/미니디펜스/index.html" target="_self" draggable="false" class="festival-card border-2 border-violet-400/80 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_20px_rgba(139,92,246,0.2)]">
+      <!-- 5-B. 복불복 핀볼 개발중 -->
+      <a href="games/pinball개발/index.html" target="_self" draggable="false" class="festival-card festival-card-dev border-2 border-fuchsia-400/50 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_14px_rgba(217,70,239,0.1)]">
         <div>
-          <div class="flex items-center justify-between mb-1.5">
-            <span class="text-2xl sm:text-3xl drop-shadow">🏰</span>
-            <span class="px-1.5 py-0.5 bg-violet-950/90 border border-violet-400 text-violet-200 text-[9px] sm:text-[10px] font-black rounded-md">🔥 협동 방어</span>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🛠️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🚧 개발중</span>
           </div>
-          <h3 class="text-sm sm:text-base font-black text-violet-300 title-font">미니멀티디펜스</h3>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-fuchsia-200/90 title-font leading-tight">복불복 핀볼 개발중</h3>
+          <p class="text-[10px] sm:text-[11px] text-slate-300/80 mt-1 leading-snug line-clamp-2">
+            복불복 핀볼 신규 기능 및 테스트 서버
+          </p>
+        </div>
+        <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-amber-300 pt-1.5 border-t border-fuchsia-500/20">
+          <span class="truncate">개발서버 입장</span>
+          <span class="flex-shrink-0">⚙️</span>
+        </div>
+      </a>
+
+      <!-- 6-A. 미니멀티디펜스 -->
+      <a href="games/미니디펜스/index.html" target="_self" draggable="false" class="festival-card border-2 border-violet-400/80 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_16px_rgba(139,92,246,0.18)]">
+        <div>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🏰</span>
+            <span class="card-badge px-1.5 py-0.5 bg-violet-950/90 border border-violet-400 text-violet-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🔥 협동 방어</span>
+          </div>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-violet-300 title-font leading-tight">미니멀티디펜스</h3>
           <p class="text-[10px] sm:text-[11px] text-slate-200 mt-1 leading-snug line-clamp-2">
             적들의 공세를 막아내고 기지를 지켜라!
           </p>
         </div>
         <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-violet-300 pt-1.5 border-t border-violet-500/30">
-          <span>방어선 입장</span>
-          <span>👉</span>
+          <span class="truncate">방어선 입장</span>
+          <span class="flex-shrink-0">👉</span>
+        </div>
+      </a>
+
+      <!-- 6-B. 미니멀티디펜스 개발중 -->
+      <a href="games/미니디펜스개발/index.html" target="_self" draggable="false" class="festival-card festival-card-dev border-2 border-violet-400/50 rounded-2xl p-2.5 sm:p-3.5 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_4px_14px_rgba(139,92,246,0.1)]">
+        <div>
+          <div class="flex items-center justify-between gap-1 mb-1.5">
+            <span class="card-icon text-xl sm:text-2xl drop-shadow flex-shrink-0">🛠️</span>
+            <span class="card-badge px-1.5 py-0.5 bg-amber-950/90 border border-amber-400 text-amber-200 text-[9px] sm:text-[10px] font-black rounded-md truncate">🚧 개발중</span>
+          </div>
+          <h3 class="card-title text-[13px] sm:text-base font-black text-violet-200/90 title-font leading-tight">미니멀티디펜스 개발중</h3>
+          <p class="text-[10px] sm:text-[11px] text-slate-300/80 mt-1 leading-snug line-clamp-2">
+            미니디펜스 신규 기능 및 테스트 서버
+          </p>
+        </div>
+        <div class="mt-2.5 flex items-center justify-between text-[10px] sm:text-xs font-black text-amber-300 pt-1.5 border-t border-violet-500/20">
+          <span class="truncate">개발서버 입장</span>
+          <span class="flex-shrink-0">⚙️</span>
         </div>
       </a>
 
@@ -361,12 +504,12 @@
   </main>
 
   <!-- 하단 상태바 -->
-  <footer class="w-full max-w-md sm:max-w-xl md:max-w-3xl bg-indigo-950/75 border border-purple-500/30 rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 flex items-center justify-between text-[10px] sm:text-xs text-purple-200/80 my-2 flex-shrink-0 transition-all duration-300">
-    <div class="flex items-center gap-1.5">
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-      <span class="font-bold text-amber-200">👑 세미니 놀이터 축제 성황 중! ✨</span>
+  <footer class="w-full max-w-md sm:max-w-2xl md:max-w-4xl bg-indigo-950/75 border border-purple-500/30 rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 flex items-center justify-between text-[10px] sm:text-xs text-purple-200/80 my-2 flex-shrink-0 transition-all duration-300">
+    <div class="flex items-center gap-1.5 min-w-0">
+      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
+      <span class="font-bold text-amber-200 truncate">👑 세미니 놀이터 축제 성황 중! ✨</span>
     </div>
-    <span class="font-medium text-purple-300">© 세미니의 놀이터</span>
+    <span class="font-medium text-purple-300 flex-shrink-0 ml-2">© 세미니의 놀이터</span>
   </footer>
 
   <script>
