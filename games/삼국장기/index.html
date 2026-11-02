@@ -14,7 +14,12 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 #hud button,.mdl button{background:#3b2b17;color:#ffe9b0;border:1px solid #c9a24a;border-radius:8px;padding:6px 12px;font-size:15px;font-weight:700;cursor:pointer}#cv{position:absolute;inset:0;width:100%;height:100%;touch-action:none}
 .sd{padding:3px 8px;border-radius:8px;font-size:14px;white-space:nowrap;overflow:hidden;max-width:30vw;text-overflow:ellipsis}.sc{background:#1f8f6a}.sh{background:#b53226}.on{box-shadow:0 0 0 3px #fff8,0 0 12px #fff}
 #tt{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#000d;border:1px solid #ffd54a;padding:10px 16px;border-radius:12px;z-index:50;display:none;max-width:90%;text-align:center}#tw{position:fixed;inset:0;pointer-events:none;z-index:60}
-#ov{position:absolute;inset:0;background:#000b;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;font-size:32px;font-weight:900;color:#ffd54a;z-index:5;text-align:center}
+#ov{position:absolute;inset:0;background:radial-gradient(circle at 50% 38%,#1a120be6,#05070ef5);display:none;align-items:center;justify-content:flex-end;flex-direction:column;gap:8px;padding:18px 14px calc(22px + env(safe-area-inset-bottom,0px));font-size:28px;font-weight:900;color:#ffd54a;z-index:35;text-align:center;overflow:hidden}
+#ovcv{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+#ovcard{position:relative;z-index:2;display:flex;flex-direction:column;align-items:center;gap:6px;background:linear-gradient(180deg,rgba(20,14,8,0.82),rgba(10,12,22,0.92));border:2px solid #ffd54acc;border-radius:18px;padding:12px 20px;box-shadow:0 10px 35px rgba(0,0,0,0.85),0 0 25px rgba(255,213,74,0.35);backdrop-filter:blur(6px);max-width:92vw}
+#ovbadge{font-size:12px;font-weight:900;letter-spacing:2px;padding:3px 12px;border-radius:99px;background:linear-gradient(90deg,#ffd54a,#ff8f00);color:#1b0c02;box-shadow:0 0 12px #ffd54a88}
+#ovwin{font-size:clamp(22px,5.2vmin,36px);font-weight:900;color:#fff;text-shadow:0 2px 10px #000,0 0 18px #ffab00;line-height:1.15}
+#ot{font-size:clamp(16px,3.6vmin,22px);color:#ffe082;text-shadow:0 2px 6px #000}
 .mdl{position:fixed;inset:0 0 auto 0;height:var(--vh,100%);background:#000b;display:none;align-items:center;justify-content:center;z-index:30;padding:12px}.card{background:#141b2e;border:2px solid #c9a24a;border-radius:16px;padding:18px;width:min(calc(var(--mw,100vw)*.92),520px);max-height:calc(var(--mh,var(--vh,100vh)) - 24px);overflow:auto;text-align:center}
 .card h2{color:#ffd54a;margin-bottom:10px}.code{font-size:56px;font-weight:900;letter-spacing:10px;color:#fff;text-shadow:0 0 14px #ffb300;margin:6px 0}.card p{color:#cdd7f3;margin:6px 0 10px;font-size:14px}.card button{margin:4px}
 .op{display:block;width:100%;text-align:left;margin:8px 0!important;padding:10px 14px!important}.op b{font-size:18px;color:#fff}.op span{display:block;font-size:12px;color:#c9d3ee;font-weight:400;margin-top:3px}.op.on{border-color:#52c3ff!important;box-shadow:0 0 10px #2aa9ff}
@@ -168,7 +173,7 @@ html,body{width:100%;height:100%;height:100dvh;overflow:hidden;position:fixed;in
 #xspecinfo{font-size:11px;color:#8de8b4;font-weight:700;margin-left:auto;white-space:nowrap}
 </style></head><body>
 <div id="st"><div id="fr"></div></div>
-<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="rcbadge" title="클릭하여 방 초대코드 복사"></span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><canvas id="scv"></canvas><div id="xfl"></div><div id="xto"><b id="xtm"></b><i id="xts"></i></div><div id="xem"></div><div id="xcb"></div><div id="xsp"><div id="xg"><div id="xgm"><div id="xgb"><span id="xgf"></span><span id="xgl">초 50%</span><span id="xgr">50% 한</span></div><small id="xgn"></small></div><button id="xbg">🎵</button><button id="xfs">⛶</button></div><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button><button id="xundo">↩ 무르기</button><button id="xvoid">🤝 무효판</button><button id="xchb">💬<i id="xbd"></i></button></div><div id="xpbar"><div id="xptitle">🎯 응징 스킬 선택 발동! <span id="xpcnt">×1</span></div><div id="xpbtns"><button id="xp_nuke" data-sk="nuke">☢️ 핵폭탄</button><button id="xp_meteor" data-sk="meteor">☄️ 메테오</button><button id="xp_alien" data-sk="alien">👽 외계인</button><button id="xp_kame" data-sk="kame">🐉 에네르기파</button><button id="xp_fist" data-sk="fist">👊 주먹</button><button id="xp_hammer" data-sk="hammer">🔨 망치</button><button id="xp_gun" data-sk="gun">🔫 총격</button></div></div><div id="xspecbar"><span style="font-size:12px;font-weight:800;color:#ffd54a">👁️ 훈수펜</span><button id="xsp_pen" class="xon">✏️ 자유펜</button><button id="xsp_arr">↗️ 경로화살표</button><button id="xsp_c0" class="xspdot xon" style="background:#ff3b30"></button><button id="xsp_c1" class="xspdot" style="background:#ffd60a"></button><button id="xsp_c2" class="xspdot" style="background:#30d158"></button><button id="xsp_c3" class="xspdot" style="background:#5ac8fa"></button><button id="xsp_clr">🗑️ 지우기</button><span id="xspecinfo">관전 모드</span></div><div id="xemo"></div><div id="xchat" class="tc"><div id="xtabs"><button id="xtc" class="xon">💬 채팅<i id="xtcb"></i></button><button id="xtm">🎙 해설<i id="xtmb"></i></button></div><div id="xcom"></div><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button><button id="orp">🎙 해설 다시보기</button></div></div></div>
+<div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="rcbadge" title="클릭하여 방 초대코드 복사"></span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><canvas id="scv"></canvas><div id="xfl"></div><div id="xto"><b id="xtm"></b><i id="xts"></i></div><div id="xem"></div><div id="xcb"></div><div id="xsp"><div id="xg"><div id="xgm"><div id="xgb"><span id="xgf"></span><span id="xgl">초 50%</span><span id="xgr">50% 한</span></div><small id="xgn"></small></div><button id="xbg">🎵</button><button id="xfs">⛶</button></div><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button><button id="xundo">↩ 무르기</button><button id="xvoid">🤝 무효판</button><button id="xchb">💬<i id="xbd"></i></button></div><div id="xpbar"><div id="xptitle">🎯 응징 스킬 선택 발동! <span id="xpcnt">×1</span></div><div id="xpbtns"><button id="xp_nuke" data-sk="nuke">☢️ 핵폭탄</button><button id="xp_meteor" data-sk="meteor">☄️ 메테오</button><button id="xp_alien" data-sk="alien">👽 외계인</button><button id="xp_kame" data-sk="kame">🐉 에네르기파</button><button id="xp_fist" data-sk="fist">👊 주먹</button><button id="xp_hammer" data-sk="hammer">🔨 망치</button><button id="xp_gun" data-sk="gun">🔫 총격</button></div></div><div id="xspecbar"><span style="font-size:12px;font-weight:800;color:#ffd54a">👁️ 훈수펜</span><button id="xsp_pen" class="xon">✏️ 자유펜</button><button id="xsp_arr">↗️ 경로화살표</button><button id="xsp_c0" class="xspdot xon" style="background:#ff3b30"></button><button id="xsp_c1" class="xspdot" style="background:#ffd60a"></button><button id="xsp_c2" class="xspdot" style="background:#30d158"></button><button id="xsp_c3" class="xspdot" style="background:#5ac8fa"></button><button id="xsp_clr">🗑️ 지우기</button><span id="xspecinfo">관전 모드</span></div><div id="xemo"></div><div id="xchat" class="tc"><div id="xtabs"><button id="xtc" class="xon">💬 채팅<i id="xtcb"></i></button><button id="xtm">🎙 해설<i id="xtmb"></i></button></div><div id="xcom"></div><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><canvas id="ovcv"></canvas><div id="ovcard"><div id="ovbadge">👑 SMASH VICTORY</div><div id="ovwin"></div><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="ob">🏠 로비로</button><button id="orp">🎙 해설 다시보기</button></div></div></div></div>
 <div class="mdl" id="rm"><div class="card"><h2>친구 초대</h2><div class="code" id="rc">----</div><p id="rs">친구를 기다리는 중…</p><button id="rsh">📨 카카오톡 등으로 초대</button><button id="rcp">코드·링크 복사</button><button id="rx">취소</button></div></div>
 <div class="mdl" id="md"><div class="card"><h2>포진(차림) 선택</h2><div id="sl"></div><button id="mx">닫기</button></div></div>
 <div class="mdl" id="dc" style="z-index:40"><div class="card"><h2>🎲 선공 정하기</h2><p id="dp"></p><canvas id="da" width="320" height="200"></canvas><div class="nm"><span id="dn1"></span><span id="dn2"></span></div><div id="dres"></div><div id="dpk"><button id="pf">⚔️ 선공 (초나라)</button><button id="pb">🛡️ 후공 (한나라)</button></div><button id="drb">🎲 주사위 굴리기</button><button id="drx">취소</button></div></div>
@@ -448,7 +453,7 @@ function updHudNames(cn,hn){
     }
   }
 }
-const n=nick();updHudNames(m=='c'?n:oppNick,m=='h'?n:oppNick);cv=$('cv');cx2=cv.getContext('2d');if(!wk&&mode=='ai')mkWorker();resize();setTurn('c');if(!looping){looping=true;requestAnimationFrame(loop)}}
+const n=nick();updHudNames(m=='c'?n:oppNick,m=='h'?n:oppNick);cv=$('cv');cx2=cv.getContext('2d');if(!wk&&mode=='ai')mkWorker();resize();setTurn('c');if(!looping){looping=true;requestAnimationFrame(loop)}if(window.jgStartOrbit&&!RESUMED){try{window.jgStartOrbit()}catch(e){}}RESUMED=false}
 let rzK='';function resize(){if(!cv||!cv.offsetWidth)return;const k=cv.offsetWidth+'x'+cv.offsetHeight+'@'+(devicePixelRatio||1)+(flip?'f':'n')+sab()+'h'+($('hud')?$('hud').offsetHeight:0);if(k===rzK&&bc)return;rzK=k;const d=Math.min(devicePixelRatio||1,2);W=cv.offsetWidth||innerWidth;H=cv.offsetHeight||innerHeight;cv.width=W*d;cv.height=H*d;cx2.setTransform(d,0,0,d,0,0);cx2.imageSmoothingQuality='high';
 const top=($('hud')&&$('hud').offsetHeight)||46,mx=Math.max(18,W*.055),aH=H-top-(innerHeight<560?3:8)-sab();let cx=(W-2*mx)/8,cy=aH/9.9;if(cy>cx*1.55)cy=cx*1.55;else if(cx>cy*1.25)cx=cy*1.25;
 CX=cx;CY=cy;C=Math.min(cx,cy);OX=(W-8*cx)/2;OY=top+(aH-9*cy)/2;bc=document.createElement('canvas');bc.width=W*d;bc.height=H*d;const g=bc.getContext('2d');g.setTransform(d,0,0,d,0,0);board(g);if(window.drawScreenDamage)try{window.drawScreenDamage()}catch(e){}}addEventListener('resize',resize);
@@ -608,7 +613,7 @@ const q=o.p[pk]=Object.assign({n:'',w:0,l:0,d:0},o.p[pk]);q.n=nn;q[r]++;
 const ks=Object.keys(o.p);if(ks.length>100){const g=k=>o.p[k].w+o.p[k].l+o.p[k].d;ks.sort((x,y)=>g(x)-g(y)).slice(0,ks.length-100).forEach(k=>delete o.p[k])}
 try{localStorage.setItem(RK,JSON.stringify(o))}catch(e){}return{o,q}}
 const recTxt=o=>'통산 '+o.w+'승 '+o.l+'패'+(o.d?' '+o.d+'무':'');
-const _end=end;end=function(w,msg){const was=inGame&&!over&&cfg.mode==='mp',wg=inGame&&!over;_end.apply(this,arguments);if(wg){try{commEnd(w,msg)}catch(e){}bgStop(true)}if(was&&msg)sysLog('🏁 '+msg,'xs xg');
+const _end=end;end=function(w,msg){const was=inGame&&!over&&cfg.mode==='mp',wg=inGame&&!over;_end.apply(this,arguments);if(wg){try{commEnd(w,msg)}catch(e){}bgStop(true)}if(was&&msg)sysLog('🏁 '+msg,'xs xg');if(window.jgSmashEnd)try{window.jgSmashEnd(w,msg)}catch(e){};
 if(voidG){el('os').textContent='🤝 무효판 · 전적에 기록되지 않아요'}else if(was){const x=recAdd(w==null?'d':(w===me?'w':'l'));el('os').textContent=(note?note+' · ':'')+recTxt(x.o)+' / 이 상대와 '+x.q.w+'승 '+x.q.l+'패'+(x.q.d?' '+x.q.d+'무':'')}else if(note)el('os').textContent=note;note='';voidG=false};
 const _lobby=lobby;lobby=function(){bgStop(true);const a=arguments,self=this;if(inGame&&!over&&cfg.mode==='mp'){if(leaving)return;leaving=true;recAdd('l');snd2({k:'bye'});setTimeout(()=>{leaving=false;_lobby.apply(self,a)},200);return}return _lobby.apply(this,a)};el('bl').onclick=lobby;
 el('xrec').onclick=()=>{const o=recLoad(),l=el('xrl'),tot=x=>(+x.w||0)+(+x.l||0)+(+x.d||0);el('xrs').textContent=tot(o)?recTxt(o):'아직 기록이 없어요';l.innerHTML='';
@@ -2195,6 +2200,534 @@ window.jgDrawBoardDebris=function(g){
   drawCampDamage(g,'c',window.jgDmg('c'),true);
   drawCampDamage(g,'h',window.jgDmg('h'),true);
 };
+
+
+/* ==== 1. 게임 시작 시 3D 오빗(Orbit) 카메라 장기판 생성 및 기물 낙하 연출 ==== */
+let orbCanvas=null,orbRaf=0;
+function orbitIntroSound(){
+  try{
+    const a=AC||(AC=new(window.AudioContext||window.webkitAudioContext)());
+    if(a.state==='suspended')a.resume();
+    const t=a.currentTime;
+    // 웅장한 오빗 카메라 회전 스윕 사운드
+    const len=Math.floor(a.sampleRate*2.1),buf=a.createBuffer(1,len,a.sampleRate),ch=buf.getChannelData(0);
+    for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.sin(i/len*Math.PI);
+    const n=a.createBufferSource();n.buffer=buf;
+    const bp=a.createBiquadFilter();bp.type='bandpass';bp.Q.value=2.2;
+    bp.frequency.setValueAtTime(180,t);bp.frequency.exponentialRampToValueAtTime(1400,t+1.4);bp.frequency.exponentialRampToValueAtTime(320,t+2.05);
+    const ng=a.createGain();ng.gain.setValueAtTime(.01,t);ng.gain.linearRampToValueAtTime(.28,t+.9);ng.gain.exponentialRampToValueAtTime(.001,t+2.1);
+    n.connect(bp);bp.connect(ng);ng.connect(a.destination);n.start(t);
+
+    // 장기알 연속 착지 타격음 (다다다닥!)
+    for(let i=0;i<10;i++){
+      const ti=t+.55+i*.095,o=a.createOscillator(),og=a.createGain();
+      o.type='triangle';o.frequency.setValueAtTime(220+i*18,ti);o.frequency.exponentialRampToValueAtTime(55,ti+.07);
+      og.gain.setValueAtTime(.18,ti);og.gain.exponentialRampToValueAtTime(.001,ti+.08);
+      o.connect(og);og.connect(a.destination);o.start(ti);o.stop(ti+.09);
+    }
+    // 카메라 고정 임팩트 북소리 (t+1.75s)
+    const td=t+1.72,bo=a.createOscillator(),bg=a.createGain();
+    bo.type='sine';bo.frequency.setValueAtTime(135,td);bo.frequency.exponentialRampToValueAtTime(28,td+.55);
+    bg.gain.setValueAtTime(.7,td);bg.gain.exponentialRampToValueAtTime(.001,td+.6);
+    bo.connect(bg);bg.connect(a.destination);bo.start(td);bo.stop(td+.62);
+  }catch(e){}
+}
+
+window.jgStartOrbit=function(){
+  if(!cv||!B)return;
+  if(orbRaf)cancelAnimationFrame(orbRaf);
+  if(orbCanvas){try{orbCanvas.remove()}catch(e){}orbCanvas=null}
+  busy=true;
+  orbitIntroSound();
+  try{navigator.vibrate&&navigator.vibrate([30,60,30,60,120])}catch(e){}
+
+  const c=orbCanvas=document.createElement('canvas');
+  c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:26;pointer-events:none';
+  document.body.appendChild(c);
+  const g=c.getContext('2d');
+  cv.style.opacity='0';
+
+  // 기물 목록 수집 (궁 -> 대물 -> 졸/병 순으로 낙하 타이밍 배정)
+  const pieces=[];
+  const orderWeight={K:0,R:1,C:2,N:3,B:4,G:5,P:6};
+  for(let y=0;y<10;y++){
+    for(let x=0;x<9;x++){
+      const p=B[y][x];
+      if(p){
+        const gx=flip?8-x:x,gy=flip?9-y:y;
+        const w=orderWeight[p.t]??5;
+        const tDrop=0.48+w*0.11+(Math.abs(gx-4)*0.025)+(p.s==='c'?0:0.04);
+        pieces.push({p,x,y,gx,gy,t0:tDrop,dur:0.42});
+      }
+    }
+  }
+
+  // 오빗 주변 황금 입자
+  const orbs=[];
+  for(let i=0;i<45;i++){
+    orbs.push({ang:Math.random()*6.28,rad:0.35+Math.random()*0.55,z:(Math.random()-.5)*180,sp:1.2+Math.random()*1.8,sz:2+Math.random()*3.5,col:i%2?'#ffd54a':'#40c4ff'});
+  }
+
+  const DUR=2.25,LOCK=1.75,tStart=performance.now();
+  const finish=()=>{
+    if(orbRaf){cancelAnimationFrame(orbRaf);orbRaf=0}
+    if(orbCanvas){try{orbCanvas.remove()}catch(e){}orbCanvas=null}
+    cv.style.opacity='1';
+    if(inGame&&!over){busy=false;setTurn(turn)}
+  };
+
+  const step=now=>{
+    if(!inGame||over){finish();return}
+    const t=Math.max(0,(now-tStart)/1000);
+    const W0=innerWidth,H0=innerHeight,d=Math.min(devicePixelRatio||1,2.2);
+    if(c.width!==Math.round(W0*d)||c.height!==Math.round(H0*d)){c.width=Math.round(W0*d);c.height=Math.round(H0*d)}
+    g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,W0,H0);
+
+    let rc={left:0,top:0,width:W0,height:H0};
+    try{const r=cv.getBoundingClientRect();if(r&&r.width>0)rc=r}catch(e){}
+    const bx=rc.left+OX+4*CX,by=rc.top+OY+4.5*CY,S=Math.min(W0,H0);
+
+    // 오빗 카메라 파라미터: u=0 -> 1 동안 3D 회전(yaw) + 기울기(pitch) + 줌(zoom)이 완벽한 2D 정면 뷰로 수렴
+    const u=Math.min(1,t/LOCK);
+    // 부드러운 3차 이징 (easeInOutCubic / easeOutBack)
+    const ease=u<.5?4*u*u*u:1-Math.pow(-2*u+2,3)/2;
+    const easeOut=1-Math.pow(1-u,3.2);
+    const yaw=(1-easeOut)*(-1.32*Math.PI); // 약 -238도 회전하며 정위치 안착
+    const pitch=(1-ease)*1.12;             // 64도 입체 틸트에서 0도 정면으로 수렴
+    const zoom=u<0.75?(0.52+0.56*(u/0.75)):(1.08-0.08*((u-0.75)/0.25));
+    const fov=Math.max(W0,H0)*1.35;
+
+    const cyaw=Math.cos(yaw),syaw=Math.sin(yaw),cpit=Math.cos(pitch),spit=Math.sin(pitch);
+    const proj=(lx,ly,lz)=>{
+      const rx=lx*cyaw-ly*syaw,ry=lx*syaw+ly*cyaw,rz=lz;
+      const px3=rx,py3=ry*cpit-rz*spit,pz3=ry*spit+rz*cpit;
+      const k=(fov/(fov+pz3))*zoom;
+      return [bx+px3*k,by+py3*k,k,pz3];
+    };
+
+    // 배경 암전 (착지 후 자연스럽게 투명해지며 실제 보드 노출)
+    const bgAl=t<LOCK?0.88:0.88*(1-sm(LOCK,DUR,t));
+    if(bgAl>0.01){
+      const bgGr=g.createRadialGradient(bx,by,S*.08,bx,by,Math.max(W0,H0)*.75);
+      bgGr.addColorStop(0,`rgba(28,20,12,${bgAl*0.85})`);
+      bgGr.addColorStop(1,`rgba(6,8,16,${bgAl})`);
+      g.fillStyle=bgGr;g.fillRect(0,0,W0,H0);
+    }
+    if(t>=LOCK){cv.style.opacity=String(sm(LOCK,LOCK+0.25,t))}
+
+    // 오빗 궤도 링 & 입자
+    if(t<DUR){
+      const ringAl=sm(0,.25,t)*(1-sm(LOCK-.2,LOCK+.2,t));
+      if(ringAl>0.01){
+        g.save();g.globalCompositeOperation='lighter';
+        [4.8*CX,5.6*CX].forEach((rad,ri)=>{
+          g.beginPath();
+          for(let i=0;i<=64;i++){
+            const a=(i/64)*Math.PI*2+t*(ri?1.5:-2.0);
+            const[sx,sy]=proj(Math.cos(a)*rad,Math.sin(a)*rad,0);
+            i===0?g.moveTo(sx,sy):g.lineTo(sx,sy);
+          }
+          g.strokeStyle=ri?`rgba(64,196,255,${ringAl*.45})`:`rgba(255,213,74,${ringAl*.6})`;
+          g.lineWidth=2.2;g.stroke();
+        });
+        orbs.forEach(o=>{
+          const a=o.ang+t*o.sp,r=o.rad*Math.max(8*CX,9*CY)*0.65;
+          const[sx,sy,k]=proj(Math.cos(a)*r,Math.sin(a)*r,o.z*(1-easeOut));
+          g.globalAlpha=ringAl*0.8;g.fillStyle=o.col;
+          g.beginPath();g.arc(sx,sy,Math.max(1,o.sz*k),0,7);g.fill();
+        });
+        g.restore();
+      }
+    }
+
+    // 3D 장기판 나무 슬랩 렌더링 (두께감 있는 3D 육면체 + 상판)
+    const boardFade=t<LOCK?sm(0,.25,t):(1-sm(LOCK+.05,DUR,t));
+    if(boardFade>0.01){
+      g.save();g.globalAlpha=boardFade;
+      const hw=4*CX+CX*.45,hh=4.5*CY+CY*.42,th=Math.max(18,C*.42)*(1-ease*0.7);
+      const topCorners=[[-hw,-hh,0],[hw,-hh,0],[hw,hh,0],[-hw,hh,0]].map(p=>proj(p[0],p[1],p[2]));
+      const botCorners=[[-hw,-hh,-th],[hw,-hh,-th],[hw,hh,-th],[-hw,hh,-th]].map(p=>proj(p[0],p[1],p[2]));
+
+      // 장기판 하단 그림자
+      const shCorners=[[-hw*1.04,-hh*1.04,-th*1.6],[hw*1.04,-hh*1.04,-th*1.6],[hw*1.04,hh*1.04,-th*1.6],[-hw*1.04,hh*1.04,-th*1.6]].map(p=>proj(p[0],p[1],p[2]));
+      g.fillStyle='rgba(0,0,0,0.55)';
+      g.beginPath();shCorners.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();
+
+      // 4개 옆면(두께) 깊이 정렬 후 그리기
+      const faces=[0,1,2,3].map(i=>{
+        const j=(i+1)%4;
+        const zAvg=(topCorners[i][3]+topCorners[j][3]+botCorners[i][3]+botCorners[j][3])/4;
+        return {i,j,zAvg};
+      }).sort((a,b)=>b.zAvg-a.zAvg);
+
+      faces.forEach((f,fi)=>{
+        const {i,j}=f;
+        g.fillStyle=i%2===0?'#7a491d':'#5c3411';
+        g.strokeStyle='#3b1f08';g.lineWidth=1.2;
+        g.beginPath();
+        g.moveTo(topCorners[i][0],topCorners[i][1]);
+        g.lineTo(topCorners[j][0],topCorners[j][1]);
+        g.lineTo(botCorners[j][0],botCorners[j][1]);
+        g.lineTo(botCorners[i][0],botCorners[i][1]);
+        g.closePath();g.fill();g.stroke();
+      });
+
+      // 장기판 상판 (금빛 목재 그라데이션)
+      const gr=g.createLinearGradient(topCorners[0][0],topCorners[0][1],topCorners[2][0],topCorners[2][1]);
+      gr.addColorStop(0,'#f2cf88');gr.addColorStop(0.5,'#e2b468');gr.addColorStop(1,'#c78d3e');
+      g.fillStyle=gr;
+      g.beginPath();topCorners.forEach((p,i)=>i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]));g.closePath();g.fill();
+      g.strokeStyle='#ffd54a';g.lineWidth=2.2*(1-ease*.5);g.stroke();
+
+      // 격자선이 오빗 회전 중 레이저처럼 그려지는 연출
+      const lineProg=sm(0.1,1.05,t);
+      if(lineProg>0){
+        g.strokeStyle='#2b1405';g.lineWidth=Math.max(1.4,C*.048*zoom);g.lineCap='round';
+        g.beginPath();
+        // 가로선 10개
+        for(let r=0;r<10;r++){
+          const p=Math.min(1,Math.max(0,(lineProg*1.3-r*0.03)));
+          if(p<=0)continue;
+          const ly=(r-4.5)*CY,lx0=-4*CX,lx1=-4*CX+8*CX*p;
+          const[x0,y0]=proj(lx0,ly,0),[x1,y1]=proj(lx1,ly,0);
+          g.moveTo(x0,y0);g.lineTo(x1,y1);
+        }
+        // 세로선 9개
+        for(let col=0;col<9;col++){
+          const p=Math.min(1,Math.max(0,(lineProg*1.3-col*0.03)));
+          if(p<=0)continue;
+          const lx=(col-4)*CX,ly0=-4.5*CY,ly1=-4.5*CY+9*CY*p;
+          const[x0,y0]=proj(lx,ly0,0),[x1,y1]=proj(lx,ly1,0);
+          g.moveTo(x0,y0);g.lineTo(x1,y1);
+        }
+        // 궁성 대각선
+        if(lineProg>0.5){
+          for(const py0 of[0,7]){
+            const[a0,b0]=proj(-1*CX,(py0-4.5)*CY,0),[a1,b1]=proj(1*CX,(py0+2-4.5)*CY,0);
+            const[a2,b2]=proj(1*CX,(py0-4.5)*CY,0),[a3,b3]=proj(-1*CX,(py0+2-4.5)*CY,0);
+            g.moveTo(a0,b0);g.lineTo(a1,b1);g.moveTo(a2,b2);g.lineTo(a3,b3);
+          }
+        }
+        g.stroke();
+      }
+
+      // 32개 장기알 3D 공중 낙하 및 착지 충격파
+      const activePieces=[];
+      pieces.forEach(item=>{
+        const dt=t-item.t0;if(dt<0)return;
+        const pu=Math.min(1,dt/item.dur);
+        const dropEase=1-Math.pow(1-pu,3);
+        const lz=(1-dropEase)*S*0.55;
+        const lx=(item.gx-4)*CX,ly=(item.gy-4.5)*CY;
+        const[sx,sy,k,pz3]=proj(lx,ly,lz);
+        const[shx,shy,shk]=proj(lx,ly,0);
+        activePieces.push({item,pu,dt,sx,sy,k,pz3,shx,shy,shk});
+      });
+      // 카메라 먼 쪽부터 깊이 정렬
+      activePieces.sort((a,b)=>b.pz3-a.pz3);
+      activePieces.forEach(({item,pu,dt,sx,sy,k,shx,shy,shk})=>{
+        const {p}=item;
+        // 보드 위 그림자
+        g.fillStyle=`rgba(0,0,0,${0.35*pu})`;
+        g.beginPath();g.ellipse(shx,shy+2,C*.28*shk*(0.5+0.5*pu),C*.22*shk*(0.5+0.5*pu),0,0,7);g.fill();
+        // 착지 순간 황금/청록 파동 링
+        if(pu>=1&&dt<item.dur+0.28){
+          const ru=(dt-item.dur)/0.28;
+          g.strokeStyle=p.s==='c'?`rgba(64,255,190,${1-ru})`:`rgba(255,100,64,${1-ru})`;
+          g.lineWidth=2.2*(1-ru);
+          g.beginPath();g.arc(shx,shy,C*(0.35+0.45*ru)*shk,0,7);g.stroke();
+        }
+        // 기물 토큰 스프라이트 렌더링
+        const arr=SP[p.s]&&SP[p.s][p.t]&&SP[p.s][p.t].token;
+        const f=arr&&arr[0];
+        if(f&&f.im&&f.im.complete){
+          const sz=C*(p.t==='P'||p.t==='G'?.64:p.t==='K'?.88:.76)/Math.max(f.w,f.h)*k*(pu<1?1.18-0.18*pu:1+0.12*Math.exp(-(dt-item.dur)*18));
+          const pw=f.w*sz,ph=f.h*sz;
+          g.save();g.globalAlpha=Math.min(1,pu*2)*boardFade;
+          g.drawImage(f.im,sx-pw/2,sy-ph/2,pw,ph);
+          g.restore();
+        }
+      });
+      g.restore();
+    }
+
+    // 카메라 락인 순간 골드 플래시 & "⚔️ 대국 개시!" 타이틀 연출
+    if(t>=LOCK-0.08){
+      const dt=t-LOCK;
+      if(dt>=0&&dt<0.32){
+        const fl=1-dt/0.32;
+        g.fillStyle=`rgba(255,245,200,${0.48*fl*fl})`;
+        g.fillRect(0,0,W0,H0);
+      }
+      const bannerAl=sm(LOCK-0.08,LOCK+0.06,t)*(1-sm(DUR-0.28,DUR,t));
+      if(bannerAl>0.01){
+        const pop=1+0.32*Math.exp(-Math.max(0,dt)*9);
+        g.save();g.globalAlpha=bannerAl;
+        g.translate(bx,by);g.scale(pop,pop);
+        g.fillStyle='rgba(10,12,20,0.82)';
+        g.strokeStyle='#ffd54a';g.lineWidth=2.5;
+        const bw2=Math.min(W0*.82,340),bh2=S*.15;
+        g.beginPath();g.roundRect(-bw2/2,-bh2/2,bw2,bh2,14);g.fill();g.stroke();
+        g.font=`900 ${Math.round(S*.075)}px 'Malgun Gothic',sans-serif`;
+        g.textAlign='center';g.textBaseline='middle';
+        g.lineWidth=S*.012;g.strokeStyle='#2b1100';g.fillStyle='#ffd54a';
+        g.strokeText('⚔️ 대국 개시!!',0,0);g.fillText('⚔️ 대국 개시!!',0,0);
+        g.restore();
+      }
+    }
+
+    if(t<DUR)orbRaf=requestAnimationFrame(step);
+    else finish();
+  };
+  orbRaf=requestAnimationFrame(step);
+};
+
+/* ==== 2. 승패 결정 시 스매시 컷(Smash Cut) 전환 및 승리자(Winner) 하이라이트 연출 ==== */
+let smashRaf=0,ovRaf=0,smashCanvas=null;
+function smashCutSound(isWin,isDraw){
+  try{
+    const a=AC||(AC=new(window.AudioContext||window.webkitAudioContext)());
+    if(a.state==='suspended')a.resume();
+    const t=a.currentTime;
+    // 1) 스매시 컷 묵직한 하드 컷 슬래시 & 서브베이스 드롭 (0.0s)
+    const sub=a.createOscillator(),sg=a.createGain();
+    sub.type='sine';sub.frequency.setValueAtTime(160,t);sub.frequency.exponentialRampToValueAtTime(24,t+.45);
+    sg.gain.setValueAtTime(.95,t);sg.gain.exponentialRampToValueAtTime(.001,t+.48);
+    sub.connect(sg);sg.connect(a.destination);sub.start(t);sub.stop(t+.5);
+
+    const len=Math.floor(a.sampleRate*.28),buf=a.createBuffer(1,len,a.sampleRate),ch=buf.getChannelData(0);
+    for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2.2);
+    const n=a.createBufferSource();n.buffer=buf;
+    const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=1200;
+    const ng=a.createGain();ng.gain.setValueAtTime(.85,t);ng.gain.exponentialRampToValueAtTime(.001,t+.26);
+    n.connect(hp);hp.connect(ng);ng.connect(a.destination);n.start(t);
+
+    // 2) 승리 도장 쾅! 타격음 & 팡파르 화음 (t+0.32s)
+    const ts=t+.32,st=a.createOscillator(),stg=a.createGain();
+    st.type='triangle';st.frequency.setValueAtTime(190,ts);st.frequency.exponentialRampToValueAtTime(32,ts+.35);
+    stg.gain.setValueAtTime(.85,ts);stg.gain.exponentialRampToValueAtTime(.001,ts+.38);
+    st.connect(stg);stg.connect(a.destination);st.start(ts);st.stop(ts+.4);
+
+    const chords=isDraw?[392,494,587]:isWin?[523.25,659.25,783.99,1046.5]:[392,466.16,587.33,783.99];
+    chords.forEach((f,i)=>{
+      const ti=t+.18+i*.06,o=a.createOscillator(),og=a.createGain();
+      o.type='triangle';o.frequency.setValueAtTime(f,ti);
+      og.gain.setValueAtTime(.22,ti);og.gain.exponentialRampToValueAtTime(.001,ti+1.1);
+      o.connect(og);og.connect(a.destination);o.start(ti);o.stop(ti+1.15);
+    });
+  }catch(e){}
+}
+
+window.jgSmashEnd=function(w,msg){
+  if(orbRaf){cancelAnimationFrame(orbRaf);orbRaf=0}
+  if(orbCanvas){try{orbCanvas.remove()}catch(e){}orbCanvas=null}
+  if(smashRaf){cancelAnimationFrame(smashRaf);smashRaf=0}
+  if(ovRaf){cancelAnimationFrame(ovRaf);ovRaf=0}
+  if(smashCanvas){try{smashCanvas.remove()}catch(e){}smashCanvas=null}
+  cv.style.opacity='1';
+
+  const gEl=el('g')||document.body,ovEl=el('ov'),ovCard=el('ovcard'),ovWin=el('ovwin'),ovBadge=el('ovbadge');
+  const winnerNick=w?(w===me?nick():(cfg.mode==='mp'?(isSpec?(w==='c'?cNick:hNick):oppNick):'COM('+cfg.lv+')')):'';
+  const factionTxt=w==='c'?'초(楚)나라':w==='h'?'한(漢)나라':'무승부';
+  const isMyWin=w&&w===me;
+
+  if(ovBadge){
+    ovBadge.textContent=w?(isSpec?'👑 SMASH CUT · 대국 결착':(isMyWin?'👑 VICTORY · 천하통일':'⚡ SMASH CUT · 대국 종료')):'🤝 SMASH CUT · 무승부';
+    ovBadge.style.background=w==='c'?'linear-gradient(90deg,#00e676,#00897b)':w==='h'?'linear-gradient(90deg,#ff5252,#c62828)':'linear-gradient(90deg,#ffd54a,#ff8f00)';
+    ovBadge.style.color='#fff';
+  }
+  if(ovWin){
+    ovWin.textContent=w?`🏆 ${factionTxt} [${winnerNick}] 승리!!`:'🤝 호각지세 · 무승부!';
+  }
+
+  smashCutSound(isMyWin,!w);
+  try{navigator.vibrate&&navigator.vibrate([90,40,180,50,350])}catch(e){}
+
+  // PHASE 1: 스매시 컷 전체화면 임팩트 캔버스 (흑백 반전 프리즈 프레임 + 대각선 섬광 슬래시 + 셔터 슬램)
+  if(ovEl)ovEl.style.display='none';
+  const sc=smashCanvas=document.createElement('canvas');
+  sc.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:42;pointer-events:none';
+  document.body.appendChild(sc);
+  const sg=sc.getContext('2d');
+  const t0=performance.now(),SMASH_DUR=0.62;
+
+  const smashFrame=now=>{
+    const t=Math.max(0,(now-t0)/1000);
+    const W0=innerWidth,H0=innerHeight,d=Math.min(devicePixelRatio||1,2.2),S=Math.min(W0,H0);
+    if(sc.width!==Math.round(W0*d)||sc.height!==Math.round(H0*d)){sc.width=Math.round(W0*d);sc.height=Math.round(H0*d)}
+    sg.setTransform(d,0,0,d,0,0);sg.clearRect(0,0,W0,H0);
+
+    if(t<0.15){
+      // 1) 만화/액션 영화식 흑백 반전 하드 컷 + 카메라 줌 스냅
+      const inv=t<0.075;
+      gEl.style.filter=inv?'contrast(2.6) saturate(0) invert(1)':'contrast(2.2) grayscale(1) brightness(1.15)';
+      gEl.style.transform=`scale(${1.14-t*0.4}) rotate(${inv?-2.2:1.8}deg)`;
+      // 강렬한 방사형 스매시 집중선
+      sg.save();
+      sg.strokeStyle=inv?'#000':'#fff';
+      for(let i=0;i<72;i++){
+        const a=(i/72)*Math.PI*2+t*8;
+        const r0=S*(0.18+(i%3)*0.05),r1=Math.max(W0,H0)*0.95;
+        sg.lineWidth=1.5+(i%4)*1.8;
+        sg.beginPath();sg.moveTo(W0/2+Math.cos(a)*r0,H0/2+Math.sin(a)*r0);
+        sg.lineTo(W0/2+Math.cos(a)*r1,H0/2+Math.sin(a)*r1);sg.stroke();
+      }
+      // 대각선 스매시 슬래시 섬광
+      sg.strokeStyle='#ffd54a';sg.lineWidth=S*0.045;
+      sg.beginPath();sg.moveTo(0,H0*0.82);sg.lineTo(W0,H0*0.18);sg.stroke();
+      sg.strokeStyle='#fff';sg.lineWidth=S*0.018;sg.stroke();
+      sg.restore();
+    }else{
+      gEl.style.filter='';
+      const shk=Math.max(0,1-(t-0.15)/0.35)*S*0.035;
+      gEl.style.transform=shk>0?`translate(${(Math.random()-.5)*shk}px,${(Math.random()-.5)*shk}px)`:'';
+      if(ovEl&&ovEl.style.display!=='flex'){
+        ovEl.style.display='flex';
+        startWinnerCanvas(w,winnerNick,factionTxt);
+      }
+      // 대각선 스매시 셔터가 양쪽으로 갈라지며 승리자 화면 노출
+      const u=Math.min(1,(t-0.15)/(SMASH_DUR-0.15));
+      const slide=Math.pow(u,2.2)*Math.max(W0,H0)*1.1;
+      sg.save();
+      sg.fillStyle=w==='c'?'#041f18':w==='h'?'#260505':'#0b1020';
+      sg.strokeStyle='#ffd54a';sg.lineWidth=6;
+      // 상단 슬래시 패널
+      sg.beginPath();
+      sg.moveTo(-slide,H0*0.82-slide);sg.lineTo(W0-slide,H0*0.18-slide);
+      sg.lineTo(W0-slide,-H0);sg.lineTo(-slide,-H0);sg.closePath();sg.fill();sg.stroke();
+      // 하단 슬래시 패널
+      sg.beginPath();
+      sg.moveTo(slide,H0*0.82+slide);sg.lineTo(W0+slide,H0*0.18+slide);
+      sg.lineTo(W0+slide,H0*2);sg.lineTo(slide,H0*2);sg.closePath();sg.fill();sg.stroke();
+      sg.restore();
+    }
+
+    if(t<SMASH_DUR)smashRaf=requestAnimationFrame(smashFrame);
+    else{
+      gEl.style.filter='';gEl.style.transform='';
+      if(smashCanvas){try{smashCanvas.remove()}catch(e){}smashCanvas=null}
+    }
+  };
+  smashRaf=requestAnimationFrame(smashFrame);
+};
+
+function startWinnerCanvas(w,winnerNick,factionTxt){
+  const c=el('ovcv'),ovEl=el('ov'),ovCard=el('ovcard');
+  if(!c||!ovEl)return;
+  const g=c.getContext('2d');
+  const colMain=w==='c'?'#00e676':w==='h'?'#ff5252':'#ffd54a';
+  const colSub=w==='c'?'#00bfa5':w==='h'?'#ff8a65':'#90caf9';
+  const colRgb=w==='c'?'0,230,118':w==='h'?'255,82,82':'255,213,74';
+
+  const confetti=[];
+  for(let i=0;i<75;i++){
+    confetti.push({
+      x:Math.random(),y:Math.random()*1.2-0.2,
+      vx:(Math.random()-.5)*0.12,vy:0.18+Math.random()*0.32,
+      w:6+Math.random()*8,h:3+Math.random()*5,
+      rot:Math.random()*6.28,vr:(Math.random()-.5)*8,
+      c:['#ffd54a',colMain,'#ffffff',colSub][i%4]
+    });
+  }
+
+  const t0=performance.now();let last=t0;
+  const drawOv=now=>{
+    if(!ovEl||ovEl.style.display==='none'){ovRaf=0;return}
+    const t=Math.max(0,(now-t0)/1000),dt=Math.min(.05,Math.max(0,(now-last)/1000));last=now;
+    const W0=ovEl.clientWidth||innerWidth,H0=ovEl.clientHeight||innerHeight,d=Math.min(devicePixelRatio||1,2),S=Math.min(W0,H0);
+    if(c.width!==Math.round(W0*d)||c.height!==Math.round(H0*d)){c.width=Math.round(W0*d);c.height=Math.round(H0*d)}
+    g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,W0,H0);
+
+    // 카드 상단 여유 공간 중심 계산
+    const cardH=(ovCard&&ovCard.offsetHeight)||190;
+    const cx=W0/2,cy=Math.max(S*0.28,(H0-cardH)*0.46);
+
+    // 1) 스매시 컷 배경 방사형 집중선 & 진영 컬러 오라
+    const gr=g.createRadialGradient(cx,cy,S*0.04,cx,cy,Math.max(W0,H0)*0.7);
+    gr.addColorStop(0,`rgba(${colRgb},0.42)`);
+    gr.addColorStop(0.45,`rgba(${colRgb},0.12)`);
+    gr.addColorStop(1,'rgba(0,0,0,0)');
+    g.fillStyle=gr;g.fillRect(0,0,W0,H0);
+
+    g.save();g.translate(cx,cy);g.rotate(t*0.35);
+    for(let i=0;i<36;i++){
+      const a=(i/36)*Math.PI*2;
+      g.fillStyle=i%2?`rgba(${colRgb},0.09)`:'rgba(255,213,74,0.05)';
+      g.beginPath();g.moveTo(0,0);
+      g.arc(0,0,Math.max(W0,H0),a,a+Math.PI/36);g.closePath();g.fill();
+    }
+    g.restore();
+
+    // 2) 승리 진영 대장군(궁/차/포) 캐릭터 일러스트 스매시 슬램 등장
+    const side=w||'c';
+    const uHero=Math.min(1,t/0.26);
+    const heroScale=uHero<1?(2.1-1.1*e3(uHero)):(1+0.03*Math.sin(t*3.5));
+
+    const drawHero=(pType,ox,oy,scMul,al)=>{
+      const arr=SP[side]&&SP[side][pType]&&(SP[side][pType].atk||SP[side][pType].token);
+      const f=arr&&arr[0];
+      if(!f||!f.im||!f.im.complete)return;
+      const k=Math.min(W0*0.62/f.w,S*0.52/f.h)*scMul*heroScale;
+      g.save();g.globalAlpha=al*Math.min(1,t*6);
+      g.shadowColor=colMain;g.shadowBlur=22;
+      g.drawImage(f.im,cx+ox-f.w*k/2,cy+oy-f.h*k/2,f.w*k,f.h*k);
+      g.restore();
+    };
+
+    if(w){
+      // 좌우 호위 대장(차/포) + 중앙 국왕(궁) 승리 포메이션
+      drawHero('R',-S*0.26,S*0.03,0.72,0.78);
+      drawHero('C',S*0.26,S*0.03,0.72,0.78);
+      drawHero('K',0,-S*0.02,1.08,1.0);
+    }else{
+      // 무승부일 경우 초·한 국왕 대치 연출
+      const fC=SP.c&&SP.c.K&&SP.c.K.atk&&SP.c.K.atk[0];
+      const fH=SP.h&&SP.h.K&&SP.h.K.atk&&SP.h.K.atk[0];
+      if(fC&&fC.im.complete){
+        const k=Math.min(W0*0.45/fC.w,S*0.42/fC.h)*heroScale;
+        g.drawImage(fC.im,cx-S*0.2-fC.w*k/2,cy-fC.h*k/2,fC.w*k,fC.h*k);
+      }
+      if(fH&&fH.im.complete){
+        const k=Math.min(W0*0.45/fH.w,S*0.42/fH.h)*heroScale;
+        g.drawImage(fH.im,cx+S*0.2-fH.w*k/2,cy-fH.h*k/2,fH.w*k,fH.h*k);
+      }
+    }
+
+    // 3) 스매시 컷 대형 낙관(도장) "천하통일 / 勝" 쾅 찍히는 연출 (t >= 0.24s)
+    if(t>=0.24){
+      const dtStamp=t-0.24,su=Math.min(1,dtStamp/0.16);
+      const stScale=su<1?(2.8-1.8*Math.pow(su,0.5)):(1+0.12*Math.exp(-(dtStamp-0.16)*14));
+      const sx=cx+S*0.26,sy=cy-S*0.16,sr=S*0.115;
+      g.save();
+      g.translate(sx,sy);g.rotate(-0.22);g.scale(stScale,stScale);
+      g.fillStyle='rgba(185,18,18,0.92)';
+      g.strokeStyle='#ffd54a';g.lineWidth=3.5;
+      g.shadowColor='#000';g.shadowBlur=14;
+      g.beginPath();g.roundRect(-sr,-sr,sr*2,sr*2,10);g.fill();g.stroke();
+      g.strokeStyle='rgba(255,235,180,0.7)';g.lineWidth=1.5;
+      g.strokeRect(-sr*0.84,-sr*0.84,sr*1.68,sr*1.68);
+      g.fillStyle='#fff6d0';g.textAlign='center';g.textBaseline='middle';
+      g.font=`900 ${Math.round(sr*1.05)}px serif`;
+      g.fillText(w?(w==='c'?'楚勝':'漢勝'):'和局',0,-sr*0.12);
+      g.font=`900 ${Math.round(sr*0.36)}px sans-serif`;
+      g.fillText(w?'천하통일':'무승부',0,sr*0.58);
+      g.restore();
+    }
+
+    // 4) 상단 스매시 컷 레터박스 슬래시 바 & 금빛 꽃가루(Confetti)
+    confetti.forEach(p=>{
+      p.x+=p.vx*dt;p.y+=p.vy*dt;p.rot+=p.vr*dt;
+      if(p.y>1.1){p.y=-0.1;p.x=Math.random()}
+      g.save();g.translate(p.x*W0,p.y*H0);g.rotate(p.rot);
+      g.fillStyle=p.c;g.globalAlpha=0.85;
+      g.fillRect(-p.w/2,-p.h/2,p.w,p.h);
+      g.restore();
+    });
+
+    ovRaf=requestAnimationFrame(drawOv);
+  };
+  ovRaf=requestAnimationFrame(drawOv);
+}
 
 setInterval(upd,300);
 if(inGame){try{jgPanel(cfg.mode);if(cfg.mode==='mp')sysLog('🔄 화면이 다시 불러와져서 대국을 이어갔어요','xs xg');resize()}catch(e){}}
