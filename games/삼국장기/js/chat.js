@@ -1993,7 +1993,13 @@ window.jgTriggerBoardSplit=function(side,sk){
       col:i%3===0?cols[0]:i%3===1?'#a17449':'#5c3818'
     });
   }
-  window.jgSplitAnim[side]={t0:performance.now(),sk:sk||'nuke',cols,rocks,lv:(window.DMG&&window.DMG[side])||1};
+  const hitList=ensureDmgSk()[side]||[],hit=hitList[hitList.length-1]||{fx:0.5,fy:0.5};
+  const slabs=[];
+  for(let i=0;i<9;i++){
+    const a=i/9*Math.PI*2+(Math.random()-.5)*.5,spreadX=.045+Math.random()*.17,spreadY=.035+Math.random()*.13,speed=.48+Math.random()*.95;
+    slabs.push({fx:Math.max(.025,Math.min(.975,hit.fx+Math.cos(a)*spreadX)),fy:Math.max(.025,Math.min(.975,hit.fy+Math.sin(a)*spreadY)),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed-.72,w:.24+Math.random()*.38,h:.13+Math.random()*.23,depth:.055+Math.random()*.075,rot:a,vr:(Math.random()-.5)*7,grain:Math.random()});
+  }
+  window.jgSplitAnim[side]={t0:performance.now(),sk:sk||'nuke',cols,rocks,slabs,lv:(window.DMG&&window.DMG[side])||1};
 };
 
 // 정교한 지각 단층 및 보조 균열 트리 생성기
@@ -2517,6 +2523,13 @@ window.jgDrawBoardDebris=function(g){
   drawCampDamage(g,'h',window.jgDmg('h'),true);
 };
 
+const BOARD_CHUNK_PALETTE=[
+  ['#d9b277','#a8753d','#694321','#3b2412'],
+  ['#f2fbff','#acd9e9','#5e8797','#263b49'],
+  ['#c9a06a','#8a603b','#58402a','#2c2418'],
+  ['#827684','#544758','#302838','#14121a'],
+  ['#e0b66f','#a5723d','#704722','#392315']
+];
 /* ==== 실시간 갈라진 장기판 단층 심연 광맥 호흡 & 분열 쇼크웨이브 ==== */
 window.jgDrawBoardLiveCracks=function(g,now){
   const t=now*0.001;
@@ -2579,9 +2592,33 @@ window.jgDrawBoardLiveCracks=function(g,now){
         g.closePath();g.fill();g.stroke();
         g.restore();
       });
+      (spAnim.slabs||[]).forEach((slab,index)=>{
+        const sx=xMin+bw*slab.fx+slab.vx*C*2.4*dt;
+        const sy=yEdge+dir*bh*slab.fy+(slab.vy*dt+0.84*dt*dt)*C*2.2-Math.sin(Math.min(1,dt/.24)*Math.PI*.5)*C*.18;
+        const w=C*slab.w*(1+Math.min(dt,.3)*.18),h=C*slab.h*(1+Math.min(dt,.25)*.12),dep=C*slab.depth,alpha=Math.max(0,fade*(dt<.16?dt/.16:1));
+        const shade=(BOARD_CHUNK_PALETTE[window.curBoardIdx||0]||BOARD_CHUNK_PALETTE[0])[index%4];
+        g.save();g.globalCompositeOperation='source-over';g.globalAlpha=alpha;
+        // 접지 그림자와 떠오르는 나무판 조각의 두께를 따로 그려 입체감을 줍니다.
+        g.fillStyle='rgba(16,8,3,'+(.28*alpha)+')';g.beginPath();g.ellipse(sx+dep*1.5,sy+dep*2,w*.58,h*.44,slab.rot,0,Math.PI*2);g.fill();
+        g.translate(sx,sy);g.rotate(slab.rot+slab.vr*dt);
+        const pts=[[-w*.52,-h*.12],[-w*.28,-h*.48],[w*.22,-h*.42],[w*.52,-h*.08],[w*.33,h*.38],[-w*.32,h*.48]];
+        const wood=g.createLinearGradient(-w*.45,-h*.4,w*.42,h*.4);wood.addColorStop(0,'#c5985f');wood.addColorStop(.32,shade);wood.addColorStop(.72,'#7b542e');wood.addColorStop(1,'#3b2412');
+        // 옆면: 떠 있는 판 조각의 두께와 어두운 깨진 단면
+        g.fillStyle='rgba(28,14,6,.98)';g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x+dep*.18,y+dep):g.moveTo(x+dep*.18,y+dep));for(let i=pts.length-1;i>=0;i--)g.lineTo(pts[i][0],pts[i][1]);g.closePath();g.fill();
+        g.fillStyle=wood;g.strokeStyle='rgba(28,13,5,.95)';g.lineWidth=Math.max(1,C*.018);
+        g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();g.stroke();
+        // 나뭇결과 밝은 깨진 단면 하이라이트
+        g.strokeStyle='rgba(238,197,132,.42)';g.lineWidth=Math.max(.7,C*.009);
+        for(let k=0;k<2;k++){const yy=(k-.5)*h*.22;g.beginPath();g.moveTo(-w*.28,yy);g.quadraticCurveTo(-w*.02,yy-h*.08,w*.28,yy+h*.015);g.stroke()}
+        g.strokeStyle='rgba(255,226,174,.8)';g.lineWidth=Math.max(1,C*.014);g.beginPath();g.moveTo(pts[0][0],pts[0][1]);g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.stroke();
+        g.restore();
+      });
+
       g.restore();
     }
   });
+  // 파편과 충격광 위에 원래 격자선을 다시 그려 게임판 선을 항상 선명하게 유지합니다.
+  if(typeof window.jgDrawCrispGridOverlay==='function')try{g.save();window.jgDrawCrispGridOverlay(g);g.restore()}catch(e){}
 };
 
 /* ==== 5종 장기판 테마별 은은한 환경 파티클 (장기판 중앙 그림/파문 제거) ==== */
