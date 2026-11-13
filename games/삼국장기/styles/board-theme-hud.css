@@ -1,0 +1,25 @@
+
+#bd_theme_btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 11.5px;
+  font-weight: 900;
+  color: #fff8e1;
+  background: linear-gradient(180deg, rgba(45, 32, 18, 0.92), rgba(20, 14, 8, 0.96));
+  border: 1.5px solid #ffd54a;
+  box-shadow: 0 0 10px rgba(255, 213, 74, 0.45);
+  cursor: pointer;
+  white-space: nowrap;
+  user-select: none;
+  transition: transform 0.12s, box-shadow 0.15s;
+}
+#bd_theme_btn:hover {
+  transform: scale(1.04);
+  box-shadow: 0 0 14px rgba(255, 213, 74, 0.85);
+}
+#bd_theme_btn:active {
+  transform: scale(0.95);
+}

@@ -1,17 +1,6 @@
-<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>세미니의 멀티센터 전설장기1</title>
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>세미니의 멀티센터 전설장기1</title>
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js" onerror="var s=document.createElement('script');s.src='https://cdn.jsdelivr.net/npm/peerjs@1.5.4/dist/peerjs.min.js';document.head.appendChild(s)"></script>
-
-<!-- 스타일시트 (수정 포인트별 분리) -->
-<link rel="stylesheet" href="css/core.css">
-<link rel="stylesheet" href="css/hud_chat.css">
-<link rel="stylesheet" href="css/lobby.css">
-</head>
-<body>
+<link rel="stylesheet" href="styles/main.css"></head><body>
 <div id="st"><div id="fr"></div></div>
 <div id="g"><div id="hud"><button id="bl">로비</button><span class="sd sh" id="nh">한</span><b id="tm">0:30</b><span class="sd sc on" id="nc">초</span><span id="rcbadge" title="클릭하여 방 초대코드 복사"></span><span id="tn" style="font-size:12px;min-width:48px;text-align:right"></span></div><canvas id="cv"></canvas><canvas id="scv"></canvas><div id="xfl"></div><div id="xto"><b id="xtm"></b><i id="xts"></i></div><div id="xem"></div><div id="xcb"></div><div id="xsp"><div id="xg"><div id="xgm"><div id="xgb"><span id="xgf"></span><span id="xgl">초 50%</span><span id="xgr">50% 한</span></div><small id="xgn"></small></div><button id="xbg">🎵</button><button id="xfs">⛶</button></div><div id="xact"><button id="xpass">⏸ 한번쉼</button><button id="xres">🏳 기권</button><button id="xrec">📊 전적</button><button id="xundo">↩ 무르기</button><button id="xvoid">🤝 무효판</button><button id="xchb">💬<i id="xbd"></i></button></div><div id="xpbar"><div id="xptitle">🎯 응징 스킬 선택 발동! <span id="xpcnt">×1</span></div><div id="xpbtns"><button id="xp_nuke" data-sk="nuke">☢️ 핵폭탄</button><button id="xp_meteor" data-sk="meteor">☄️ 메테오</button><button id="xp_alien" data-sk="alien">👽 외계인</button><button id="xp_kame" data-sk="kame">🐉 에네르기파</button><button id="xp_kame2" data-sk="kame2">💥 에네르기파 2</button><button id="xp_fist" data-sk="fist">👊 주먹</button><button id="xp_hammer" data-sk="hammer">🔨 망치</button><button id="xp_gun" data-sk="gun">🔫 총격</button></div></div><div id="xcoach_bar"><div style="display:flex;align-items:center;justify-content:space-between;gap:6px"><b style="color:#ffd54a">🎓 AI 실시간 훈수 코칭</b><div style="display:flex;gap:4px"><button id="xch_hint" style="padding:3px 8px;font-size:11px;background:#1b5e20;border:1px solid #81c784;border-radius:6px;color:#fff;font-weight:800;cursor:pointer">💡 최선수 힌트</button><button id="xch_auto" style="padding:3px 8px;font-size:11px;background:#0d47a1;border:1px solid #64b5f6;border-radius:6px;color:#fff;font-weight:800;cursor:pointer">⚡ 추천수 두기</button></div></div><div id="xch_msg" style="font-size:11.5px;color:#b3e5fc;line-height:1.3">내 차례에 AI가 장기판 위에 황금색(1순위)·하늘색(2순위) 화살표로 최선수를 훈수합니다.</div></div><div id="xspecbar"><span style="font-size:12px;font-weight:800;color:#ffd54a">👁️ 훈수펜</span><button id="xsp_pen" class="xon">✏️ 자유펜</button><button id="xsp_arr">↗️ 경로화살표</button><button id="xsp_c0" class="xspdot xon" style="background:#ff3b30"></button><button id="xsp_c1" class="xspdot" style="background:#ffd60a"></button><button id="xsp_c2" class="xspdot" style="background:#30d158"></button><button id="xsp_c3" class="xspdot" style="background:#5ac8fa"></button><button id="xsp_clr">🗑️ 지우기</button><span id="xspecinfo">관전 모드</span></div><div id="xrbar"><div id="xrbar_top"><span id="xr_title">🎬 리플레이 모드</span><span id="xr_step">0 / 0수</span></div><input type="range" id="xrslider" min="0" max="0" value="0"><div id="xrbar_btns"><button id="xr_first">⏮ 처음</button><button id="xr_prev">⏪ 이전</button><button id="xr_play">▶️ 재생</button><button id="xr_next">⏩ 다음</button><button id="xr_last">⏭ 끝</button><button id="xr_spd">⚡ 1x</button><button id="xr_flip">🔄 시점</button><button id="xr_list">📋 목록</button><button id="xr_com">🎙 해설</button><button id="xr_exit">🏠 로비</button></div></div><div id="xemo"></div><div id="xchat" class="tc"><div id="xtabs"><button id="xtc" class="xon">💬 채팅<i id="xtcb"></i></button><button id="xtm">🎙 해설<i id="xtmb"></i></button></div><div id="xcom"></div><div id="xlog"></div><div id="xrow"><input id="xin" maxlength="100" placeholder="상대에게 메시지" enterkeyhint="send" autocomplete="off" autocapitalize="off"><button id="xsend">전송</button></div></div></div><div id="ov"><canvas id="ovcv"></canvas><div id="ovcard"><div id="ovbadge">👑 SMASH VICTORY</div><div id="ovwin"></div><div id="ot"></div><div id="os"></div><div id="obr"><button id="oa">🔄 다시하기</button><button id="od" style="display:none;background:#7f0000;border-color:#ff8a80;color:#fff">❌ 초대 거절</button><button id="ob">🏠 로비로</button><button id="ov_rp">🎬 리플레이</button><button id="orp">🎙 해설 요약</button></div></div></div></div>
 <div class="mdl" id="rm"><div class="card"><h2>초대 코드</h2><div class="code" id="rc">----</div><p id="rs">상대 입장 대기 중…</p><div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap"><button id="rsh">📨 초대 공유</button><button id="rcp">📋 초대장 복사</button><button id="rco">🔢 코드만 복사</button><button id="rx">닫기</button></div></div></div>
@@ -24,29 +13,20 @@
 <div class="mdl" id="xcf" style="z-index:45"><div class="card"><h2 id="xct"></h2><p id="xcm"></p><button id="xcy">확인</button><button id="xcn">취소</button></div></div>
 <div id="sa" style="position:fixed;left:0;top:0;visibility:hidden;padding-bottom:env(safe-area-inset-bottom,0px)"></div>
 <div id="tw"><div id="tt"></div></div>
+<script id="rules" src="js/rules.js"></script>
+<script src="js/piece-animation.js"></script>
+<script id="xchatjs" src="js/chat.js"></script>
+
+<link rel="stylesheet" href="styles/samgukji-lobby.css">
+
+<script src="js/three-kingdoms-main-screen.js"></script>
 
 
-<!-- 대용량 리소스 데이터 (스프라이트 / 효과음 / 전장 배경 / 스킬 이펙트) -->
-<script src="assets/piece_sprites.js"></script>
-<script src="assets/sfx_data.js"></script>
-<script src="assets/board_themes.js"></script>
-<script src="assets/skills_media.js"></script>
+<link rel="stylesheet" href="styles/board-theme-hud.css">
+<script src="js/board-theme-hud.js"></script>
 
-<!-- 기능별 모듈 스크립트 (각 수정 포인트별 분리) -->
-<script id="rules" src="js/rules_ai.js"></script>
-<script src="js/lobby_ui.js"></script>
-<script src="js/p2p_network.js"></script>
-<script src="js/duel.js"></script>
-<script src="js/game_core.js"></script>
-<script src="js/board_render.js"></script>
-<script src="js/chat_commentary.js"></script>
-<script src="js/punish_skills.js"></script>
-<script src="js/spectator_damage.js"></script>
-<script src="js/orbit_replay.js"></script>
-<script src="js/coach_kibo.js"></script>
-<script src="js/lobby_fx.js"></script>
-<script src="js/board_theme_hud.js"></script>
-<script src="js/remaster_patch.js"></script>
-<script src="js/board_weather_env.js"></script>
-</body>
-</html>
+<script src="js/remaster-v1.js"></script>
+<script src="js/remaster-v2.js"></script>
+<script src="js/board-effects-v4.js"></script>
+
+</body></html>
