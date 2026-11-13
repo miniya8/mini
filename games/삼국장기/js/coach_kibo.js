@@ -350,4 +350,3 @@ renderKiboList();
 
 setInterval(upd,300);
 if(inGame){try{jgPanel(cfg.mode);if(cfg.mode==='mp')sysLog('🔄 화면이 다시 불러와져서 대국을 이어갔어요','xs xg');resize()}catch(e){}}
-})();

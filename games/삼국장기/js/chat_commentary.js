@@ -1,4 +1,3 @@
-(function(){
 const el=id=>document.getElementById(id),opp=()=>me=='c'?'h':'c',nm=s=>s=='c'?'초':'한',CH={key:null,log:[]};
 function chLoad(){try{const o=JSON.parse(sget('jg_chat')||'null');if(o&&o.key===code&&Array.isArray(o.log))return o.log.filter(m=>m&&(m.c=='xa'||m.c=='xb'||/^xs( x[rg])?$/.test(m.c))).slice(-60)}catch(e){}return[]}
 function chSync(){if(CH.key!==code){CH.key=code;CH.log=chLoad()}}

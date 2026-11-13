@@ -25,7 +25,7 @@
 - `js/board_weather_env.js` (49.9 KB) : 5대 전장별 날씨·상시 환경 이펙트(모래폭풍, 눈보라, 번개 등)
 - `js/chat_commentary.js` (54.2 KB) : 실시간 채팅, 조롱 이모티콘, 무르기, 무효판, 전황 그래프, AI 축구식 해설, BGM
 - `js/punish_skills.js` (83.1 KB) : 응징 스킬 8종(핵폭탄, 메테오, 외계인, 에네르기파 1·2, 주먹, 망치, 총격) 및 화면 파손 연출
-- `js/spectator_damage.js` (34.3 KB) : 관전자 전용 실시간 훈수펜/화살표 및 4단계 장기판 파괴 렌더링
+- `js/spectator_damage.js` (38.9 KB) : 관전자 전용 실시간 훈수펜/화살표 및 5대 전장 재질별 4단계 리얼 장기판 파괴 렌더링
 - `js/orbit_replay.js` (36.6 KB) : 대국 시작 3D 오빗 카메라 기물 낙하 연출 및 기보 리플레이 재생기
 - `js/coach_kibo.js` (17.4 KB) : AI 실시간 훈수·교육 모드 및 명국 기보 도서관
 - `js/remaster_patch.js` (106.9 KB) : 일기토·스킬·장기판 환경 통합 리마스터 패치 모듈
