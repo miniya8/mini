@@ -358,7 +358,7 @@ const o=a.createOscillator(),g=a.createGain();o.type='sawtooth';o.frequency.setV
 const b=a.createOscillator(),bg=a.createGain();b.type='sine';b.frequency.setValueAtTime(90,ti);b.frequency.exponentialRampToValueAtTime(22,ti+2.2);bg.gain.setValueAtTime(.7,ti);bg.gain.exponentialRampToValueAtTime(.001,ti+2.6);b.connect(bg);bg.connect(a.destination);b.start(ti);b.stop(ti+2.7);
 const len=Math.floor(a.sampleRate*3),buf=a.createBuffer(1,len,a.sampleRate),ch=buf.getChannelData(0);for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,2);
 const n=a.createBufferSource();n.buffer=buf;const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(2400,ti);lp.frequency.exponentialRampToValueAtTime(120,ti+2.6);const ng=a.createGain();ng.gain.value=.7;n.connect(lp);lp.connect(ng);ng.connect(a.destination);n.start(ti)}catch(e){}}
-function nuke(A){if(nkBusy)return;nkBusy=true;
+function nuke(A){if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('nuke',side2(A))}catch(e){}
 const W=innerWidth,H=innerHeight;let d=Math.min(devicePixelRatio||1,3);while(W*d*H*d>7e6&&d>1)d-=.25;
 const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:9;pointer-events:none';document.body.appendChild(c);const g=c.getContext('2d');
 let rc={left:0,top:0};try{rc=cv.getBoundingClientRect()}catch(e){}
@@ -434,7 +434,7 @@ const w=a.createBufferSource();w.buffer=nb(T+.2,0);const bp=a.createBiquadFilter
 ms.forEach(m=>{const ti=t+m.t1,o=a.createOscillator(),g=a.createGain(),L=m.main?2.2:.45;o.type='sine';o.frequency.setValueAtTime(m.main?85:130,ti);o.frequency.exponentialRampToValueAtTime(m.main?25:50,ti+L*.8);g.gain.setValueAtTime(m.main?.7:.2,ti);g.gain.exponentialRampToValueAtTime(.001,ti+L);o.connect(g);g.connect(a.destination);o.start(ti);o.stop(ti+L+.05)});
 const ti=t+T,n=a.createBufferSource();n.buffer=nb(2.6,2);const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(2200,ti);lp.frequency.exponentialRampToValueAtTime(150,ti+2.4);const ng=a.createGain();ng.gain.value=.55;n.connect(lp);lp.connect(ng);ng.connect(a.destination);n.start(ti);
 const cr=a.createBufferSource();cr.buffer=nb(END-T,0);const hp=a.createBiquadFilter();hp.type='highpass';hp.frequency.value=1400;const cg=a.createGain();cg.gain.setValueAtTime(0,ti);for(let s=ti+.2;s<t+END-1;s+=.06+Math.random()*.1)cg.gain.linearRampToValueAtTime(Math.random()*.15,s);cg.gain.linearRampToValueAtTime(0,t+END);cr.connect(hp);hp.connect(cg);cg.connect(a.destination);cr.start(ti)}catch(e){}}
-function meteor(A){if(nkBusy)return;nkBusy=true;
+function meteor(A){if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('meteor',side2(A))}catch(e){}
 const W=innerWidth,H=innerHeight;let d=Math.min(devicePixelRatio||1,3);while(W*d*H*d>7e6&&d>1)d-=.25;
 const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:9;pointer-events:none';document.body.appendChild(c);const g=c.getContext('2d');
 let rc={left:0,top:0};try{rc=cv.getBoundingClientRect()}catch(e){}
@@ -526,7 +526,7 @@ for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,1.6);
 const n=a.createBufferSource();n.buffer=buf;const bp=a.createBiquadFilter();bp.type='bandpass';bp.frequency.setValueAtTime(900,ti);bp.frequency.exponentialRampToValueAtTime(180,ti+2.4);
 const ng=a.createGain();ng.gain.value=.65;n.connect(bp);bp.connect(ng);ng.connect(a.destination);n.start(ti)}catch(e){}}
 
-function alien(A){if(nkBusy)return;nkBusy=true;
+function alien(A){if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('alien',side2(A))}catch(e){}
 const W=innerWidth,H=innerHeight;let d=Math.min(devicePixelRatio||1,3);while(W*d*H*d>7e6&&d>1)d-=.25;
 const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:9;pointer-events:none';document.body.appendChild(c);const g=c.getContext('2d');
 let rc={left:0,top:0};try{rc=cv.getBoundingClientRect()}catch(e){}
@@ -668,7 +668,7 @@ for(let i=0;i<len;i++)ch[i]=(Math.random()*2-1)*Math.pow(1-i/len,1.4);
 const n=a.createBufferSource();n.buffer=buf;const lp=a.createBiquadFilter();lp.type='lowpass';lp.frequency.setValueAtTime(2800,ti);lp.frequency.exponentialRampToValueAtTime(130,ti+2.2);
 const ng=a.createGain();ng.gain.value=.75;n.connect(lp);lp.connect(ng);ng.connect(a.destination);n.start(ti)}catch(e){}}
 
-function kame(A){if(nkBusy)return;nkBusy=true;
+function kame(A){if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('kame',side2(A))}catch(e){}
 const W=innerWidth,H=innerHeight;let d=Math.min(devicePixelRatio||1,3);while(W*d*H*d>7e6&&d>1)d-=.25;
 const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:9;pointer-events:none';document.body.appendChild(c);const g=c.getContext('2d');
 let rc={left:0,top:0};try{rc=cv.getBoundingClientRect()}catch(e){}
@@ -1109,7 +1109,7 @@ function drawCrystallineShard(g, p, fadeOut){
 
 /* ---- 1) 👊 주먹(Fist): 지저분한 파편/글리치를 걷어내고 묵직하고 매끄러운 3D 주먹 충격파 & 리얼 강화유리 파열 ---- */
 function fist(A,seed){
-  if(nkBusy)return;nkBusy=true;
+  if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('fist',side2(A))}catch(e){}
   const W=innerWidth,H=innerHeight,d=Math.min(devicePixelRatio||1,2.2),S=Math.min(W,H);
   const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);
   c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:24;pointer-events:none';
@@ -1264,7 +1264,7 @@ function hammerSound(t1,t2){
 }
 
 function hammer(A,seed){
-  if(nkBusy)return;nkBusy=true;
+  if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('hammer',side2(A))}catch(e){}
   const W=innerWidth,H=innerHeight,d=Math.min(devicePixelRatio||1,2.2),S=Math.min(W,H);
   const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);
   c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:24;pointer-events:none';
@@ -1419,7 +1419,7 @@ function gunShotSound(shots){
 }
 
 function gun(A,seed){
-  if(nkBusy)return;nkBusy=true;
+  if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('gun',side2(A))}catch(e){}
   const W=innerWidth,H=innerHeight,d=Math.min(devicePixelRatio||1,2.2),S=Math.min(W,H);
   const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);
   c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:24;pointer-events:none';
@@ -1558,7 +1558,7 @@ function gunFire(A,sd){try{comm(fill(pick(CB.gun,'g'+Date.now()%97),{A:tag(A),V:
 
 /* ---- 4) 💥 에네르기파 2(Kamehameha 2): 이질적인 사각형 외부 GIF 박스를 완전히 제거하고, 인게임 삼국지 대장군 각성 모션 + 초고밀도 창룡 플라즈마 나선 파동포로 전장과 완벽히 조화되도록 리마스터 ---- */
 function kame2(A,seed){
-  if(nkBusy)return;nkBusy=true;
+  if(nkBusy)return;nkBusy=true;try{window.jgSkillFx&&window.jgSkillFx.start('kame2',side2(A))}catch(e){}
   const W=innerWidth,H=innerHeight;let d=Math.min(devicePixelRatio||1,2.2);while(W*d*H*d>7e6&&d>1)d-=.25;
   const c=document.createElement('canvas');c.width=Math.round(W*d);c.height=Math.round(H*d);
   c.style.cssText='position:fixed;left:0;top:0;width:100%;height:100%;z-index:24;pointer-events:none';
