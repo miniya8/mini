@@ -917,11 +917,13 @@ function drawMountedGeneral(g, gen, x, y, dir, state, phase, weapAng, recoil, fa
   g.save();
   g.translate(x, y);
 
-  // 지면 입체 그림자
+  // 지면 입체 그림자 (피격 연출 시에는 따로 그림)
+  if(!window.__duelNoShadow){
   g.fillStyle = 'rgba(10, 16, 8, 0.52)';
   g.beginPath();
   g.ellipse(0, 26, 38, 8.5, 0, 0, Math.PI * 2);
   g.fill();
+  }
 
   let horsePitch = 0, bobY = 0;
   if(state === 'run'){
@@ -1104,10 +1106,18 @@ function drawMountedGeneral(g, gen, x, y, dir, state, phase, weapAng, recoil, fa
   // 장수 머리 & 투구
   g.save();
   g.translate(1, -26);
+  g.rotate(-(window.__duelHurt || 0) * 0.45);
   g.fillStyle = '#f5c6a5'; g.strokeStyle = '#1a0f08'; g.lineWidth = 1.8;
   g.beginPath(); g.arc(0, 0, 7.3, 0, 7); g.fill(); g.stroke();
   g.fillStyle = '#111'; g.fillRect(2, -2, 3, 2);
   g.beginPath(); g.moveTo(1, -3.6); g.lineTo(6, -2); g.stroke();
+  if((window.__duelHurt || 0) > 0.35){
+    /* 맞았을 때 표정: 찡그린 X자 눈 + 벌어진 입 */
+    g.fillStyle = '#f5c6a5'; g.fillRect(1.6, -3, 5, 4.5);
+    g.strokeStyle = '#111'; g.lineWidth = 1.5;
+    g.beginPath(); g.moveTo(2, -2.8); g.lineTo(5.6, 0.8); g.moveTo(5.6, -2.8); g.lineTo(2, 0.8); g.stroke();
+    g.fillStyle = '#7a1010'; g.beginPath(); g.ellipse(3.2, 4.6, 2.1, 2.7, 0, 0, 7); g.fill();
+  }
 
   if(gen.beard === 1){
     g.fillStyle = '#18181b';
@@ -1338,24 +1348,55 @@ function arena(a, b, tok, done){
   const f = a > b, wi = f ? 0 : 1, lo = 1 - wi;
   const T0 = performance.now();
   // 8차례의 초고밀도 칼날 격돌 타임라인 (챙! -> 챙챙!! -> 채앵!! -> 카앙! -> 챙!챙! -> 콰아앙!! -> 번쩍!! -> 필살일섬!!)
-  const CL = [0.38, 0.53, 0.70, 1.18, 1.34, 1.52, 1.98, 2.22];
-  const TX = ['챙!', '챙챙!!', '채앵!!', '카앙!', '챙! 챙!', '콰아앙!!', '번쩍!!', '필살일섬!!'];
-  const SHT = 2.38;
+  /* 일기토 안무: 돌격 → 칼날 맞부딪힘(패링) ↔ 서로 주고받는 타격(맞는 모션) → 필살 일섬 & 낙마 */
+  const SHT = 4.62;
+  const BT = [
+    {t: .46, k: 'clash', w: '챙!'},
+    {t: .96, k: 'hit', atk: lo, vic: wi, pow: .9,  w: '쾅!',   rw: '윽!'},
+    {t: 1.46, k: 'clash', w: '카앙!'},
+    {t: 1.96, k: 'hit', atk: wi, vic: lo, pow: 1.0, w: '베기!', rw: '크윽!'},
+    {t: 2.44, k: 'clash', w: '챙챙!!'},
+    {t: 2.92, k: 'hit', atk: lo, vic: wi, pow: 1.35, w: '일격!', rw: '컥!'},
+    {t: 3.38, k: 'clash', w: '채앵!!'},
+    {t: 3.84, k: 'hit', atk: wi, vic: lo, pow: 1.5, w: '콰앙!!', rw: '으아악!'},
+    {t: SHT, k: 'final', atk: wi, vic: lo, pow: 2.2, w: '필살일섬!!', rw: '낙마!'}
+  ];
+  /* 각 비트 직후 체력 [승자, 패자] */
+  const HPT = [[96,96],[78,96],[76,93],[75,70],[72,67],[48,66],[46,63],[44,32],[42,0]];
   const ez = u => u < 0 ? 0 : u > 1 ? 1 : u * u * (3 - 2 * u);
   const lp = (p, q, u) => p + (q - p) * u;
+  const clamp01 = u => u < 0 ? 0 : u > 1 ? 1 : u;
   const COL = ['#ffffff', '#fff59d', '#ffca28', '#ff6d00', '#38f2c8'];
 
   let sp = [], dust = [], slashes = [], bladeGlints = [], popWords = [], rg = [], fired = [0,0,0,0,0,0,0,0];
   let shake = 0, flash = 0, last = 0, hoofT = 0, shat = 0, s2 = 0, fin = 0;
   let hp = [100, 100], targetHp = [100, 100];
   let flyWeap = null;
+  /* 맞는 모션/히트스톱 상태 */
+  let hs = [-99, -99], as_ = [-99, -99], hitPow = [0, 0], cs = -99, cShift = 0, push = 0, lastHitT = -99;
+  let frozen = 0, frzUntil = 0, frzStart = 0, holdT = 0, lastBeat = -1;
+  const OW = 240, OH = 200, ocv = document.createElement('canvas'); ocv.width = OW * d; ocv.height = OH * d; const og = ocv.getContext('2d');
+  const hitMsg = [
+    '🐎 전속력 기마 돌격!',
+    `⚔️ 칼날이 맞부딪힙니다! 첫 합(合)!`,
+    `💥 [${genL.name === '' ? '' : (lo === 0 ? genL.name : genR.name)}] 선제 일격! [${wi === 0 ? genL.name : genR.name}] 장수가 휘청입니다!`,
+    `⚔️ 불꽃 튀는 정면 공방!`,
+    `🔥 [${wi === 0 ? genL.name : genR.name}] 반격! [${lo === 0 ? genL.name : genR.name}] 장수가 말 위에서 흔들립니다!`,
+    `⚡ 서로 한 치도 물러서지 않는 격전!`,
+    `😖 [${lo === 0 ? genL.name : genR.name}] 회심의 일격에 [${wi === 0 ? genL.name : genR.name}] 장수가 말과 함께 크게 밀려납니다!`,
+    `🌪️ 숨 돌릴 틈 없는 연속 공방!`,
+    `💢 [${wi === 0 ? genL.name : genR.name}] 강타 적중! [${lo === 0 ? genL.name : genR.name}] 장수 위태롭습니다!`
+  ];
 
   snd('neigh');
 
   function frame(now){
     if(tok != dTok) return;
-    const t = (now - T0) / 1000, dt = Math.min(0.05, Math.max(0.001, t - last));
-    last = t;
+    let rt = (now - T0 - frozen) / 1000;
+    if(frzUntil > now){ rt = holdT; }
+    else if(frzUntil){ frozen += frzUntil - frzStart; frzUntil = 0; rt = (now - T0 - frozen) / 1000; }
+    const t = rt, dt = Math.min(0.05, Math.max(0.001, t - last));
+    last = Math.max(last, t);
     genL.name = nick();
     genR.name = oppNick || '상대';
 
@@ -1367,160 +1408,112 @@ function arena(a, b, tok, done){
       snd('hoof', (t * 10 | 0) & 1);
     }
 
-    // 8번의 리얼 칼날 격돌 이벤트
-    CL.forEach((tc, i) => {
-      if(t >= tc && !fired[i]){
-        fired[i] = 1;
-        const isFin = (i === 7);
-        const cxHit = DW/2 + ((i % 2 === 0) ? -8 : 8);
-        const cyHit = 128 + ((i % 3) - 1) * 7;
-
-        // 1) 단조 강철 불똥 스파크 (지면 탄성 바운스 포함)
-        const nSp = 28 + i * 8;
-        for(let k = 0; k < nSp; k++){
-          const an = Math.random() * 6.283, v = 110 + Math.random() * 240 + (isFin ? 90 : i * 18);
-          sp.push({
-            x: cxHit, y: cyHit,
-            vx: Math.cos(an)*v, vy: Math.sin(an)*v - 55,
-            l: 0.42 + Math.random()*0.38, m: 0.78,
-            c: COL[k % 5], w: 1.5 + (k % 3) * 0.9
-          });
+    /* ---------- 새 안무 : 비트 사이의 후퇴·돌격 사이클 ---------- */
+    const cx0 = DW / 2;
+    let X = [cx0 - 32, cx0 + 32], dir = [1, -1], st = ['run', 'run'], wAng = [-0.4, -0.4], rec = [0, 0], fall = [0, 0], swV = [0, 0];
+    let camX = Math.sin(t * 2.5) * 16, camZoom = 1.0, speedAmt = 0.7;
+    let dlg = hitMsg[0];
+    const hurtAmt = [0, 0], hfl = [0, 0], dz = [0, 0];
+    const nameOf = i => i === 0 ? genL.name : genR.name;
+    if(t < SHT){
+      let nb = BT.findIndex(bt => t < bt.t); if(nb < 0) nb = BT.length - 1;
+      const pb = nb - 1, tp = pb >= 0 ? BT[pb].t : 0, tn = BT[nb].t, uRaw = clamp01((t - tp) / (tn - tp)), uE = ez(uRaw);
+      const nbB = BT[nb], pbB = pb >= 0 ? BT[pb] : null;
+      /* 두 장수 사이 간격: 첫 돌격은 멀리서 달려들고, 이후엔 물러났다 다시 부딪히는 사이클 */
+      const amp = nbB.k === 'final' ? 2.5 : (nbB.k === 'hit' ? 1.0 : .55);
+      const gap = pb < 0 ? lp(DW - 136, 50, uE) : 50 + 62 * amp * Math.pow(Math.sin(Math.PI * uE), 1.15);
+      cShift += (push - cShift) * Math.min(1, dt * 5);
+      X[0] = cx0 + cShift - gap / 2; X[1] = cx0 + cShift + gap / 2;
+      const swingStart = nbB.k === 'final' ? .8 : .62;
+      for(let i = 0; i < 2; i++){
+        const rk = t - hs[i], ak = t - as_[i], ck = t - cs, hit = hs[i] > -90, atkNext = nbB.k === 'clash' || nbB.atk === i;
+        /* 피격 넉백 · 공격 후 쏠림 · 떨림 */
+        const kb = hit ? hitPow[i] * 15 * (1 - Math.exp(-rk * 20)) * Math.exp(-rk * 2.4) : 0;
+        const lunge = as_[i] > -90 ? 9 * Math.exp(-ak * 7) : 0;
+        const trem = (hit && rk < .32) ? Math.sin(rk * 70) * Math.exp(-rk * 9) * 3 * hitPow[i] : 0;
+        X[i] += -dir[i] * kb + dir[i] * lunge + trem;
+        rec[i] = Math.min(1.3, (hit ? hitPow[i] * .9 * Math.exp(-rk * 4.2) : 0) + (cs > -90 ? .45 * Math.exp(-ck * 6) : 0));
+        /* 무기: 후속 동작 → 치켜들기 → 휘두르기 / 방어 자세 */
+        const prevEnd = pbB ? (pbB.k === 'clash' ? -0.15 : (pbB.atk === i ? 0.48 : -0.55)) : -0.4;
+        if(atkNext){
+          if(uRaw < .2) wAng[i] = lp(prevEnd, -0.7, ez(uRaw / .2));
+          else if(uRaw < swingStart) wAng[i] = lp(-0.7, nbB.k === 'final' ? -1.9 : -1.65, ez((uRaw - .2) / (swingStart - .2)));
+          else wAng[i] = lp(nbB.k === 'final' ? -1.9 : -1.65, nbB.k === 'clash' ? -0.15 : 0.48, ez(Math.min(1, (uRaw - swingStart) / .3)));
+          swV[i] = (uRaw > swingStart && uRaw < swingStart + .3) ? 1.4 : 0;
+        } else {
+          wAng[i] = -0.55 + Math.sin(t * 9 + i) * 0.08; swV[i] = 0;
         }
-
-        // 2) 예리한 초승달 칼날 검기 아크 (다중 교차 베기)
-        const baseAng = (i % 2 === 0 ? -0.55 : 0.55) + (i * 0.25);
-        slashes.push({
-          x: cxHit, y: cyHit,
-          ang: baseAng,
-          col: isFin ? (wi === 0 ? genL.atkCol : genR.atkCol) : (i % 2 === 0 ? '#38f2c8' : '#ffab00'),
-          t0: t, big: isFin
-        });
-        // 교차 패링 검기 추가
-        slashes.push({
-          x: cxHit, y: cyHit,
-          ang: -baseAng + 0.4,
-          col: '#ffffff',
-          t0: t, big: false
-        });
-
-        // 3) 칼날 맞부딪힘 십자 섬광(Blade Lock Cross-Glint) & 예리한 강철 직선 참격선
-        bladeGlints.push({
-          x: cxHit, y: cyHit,
-          ang: (i * 0.65) % 3.14,
-          t0: t,
-          sc: isFin ? 1.85 : (0.95 + (i % 3) * 0.22)
-        });
-
-        // 4) 충격파 링 & 칼날 의성어 팝업 (챙! 챙챙! 채앵! 카앙!)
-        rg.push({t0: t, r: i, x: cxHit, y: cyHit});
-        popWords.push({
-          s: TX[i], t0: t,
-          x: DW/2 + ((i % 2 === 0) ? -42 : 42) + (i === 7 ? (wi===0?-28:28) : 0),
-          y: 58 + (i % 3) * 12,
-          rot: (i % 2 === 0 ? -0.10 : 0.10),
-          big: isFin || i === 5
-        });
-
-        shake = 5.5 + i * 2.2;
-        flash = 0.24 + i * 0.06;
-        snd('clash', isFin ? 3 : (i >= 4 ? 2 : 1));
-
-        // 체력 게이지 단계적 감소
-        const hpSteps = [
-          [88, 89], [76, 75], [64, 62], [51, 53],
-          [39, 38], [28, 25], [25, 14], [24, 0]
-        ];
-        targetHp[wi] = hpSteps[i][0];
-        targetHp[lo] = hpSteps[i][1];
-        if(isFin){ shake = 19; flash = 0.88; }
+        if(hit) wAng[i] += -0.6 * hitPow[i] * Math.exp(-rk * 6);
+        /* 말 자세 */
+        st[i] = (hit && hitPow[i] >= 1.3 && rk < .34) ? 'rear' : ((hit && rk < .26) ? 'hit' : 'run');
+        hurtAmt[i] = hit ? Math.min(1, hitPow[i] * Math.exp(-rk * 3.2)) : 0;
+        hfl[i] = (hit && rk < .18) ? Math.pow(1 - rk / .18, 2) : 0;
+        dz[i] = (hit && hitPow[i] >= 1.3 && rk > .2 && rk < 1.4) ? 1 : 0;
       }
-    });
-
-    hp[0] += (targetHp[0] - hp[0]) * Math.min(1, dt * 15);
-    hp[1] += (targetHp[1] - hp[1]) * Math.min(1, dt * 15);
-
-    let X = [90, DW - 90], dir = [1, -1], wAng = [-1.45, -0.55], st = ['run', 'run'], rec = [0, 0], fall = [0, 0], swV = [0, 0];
-    let camX = Math.sin(t * 2.5) * 26, camZoom = 1.0, speedAmt = 0.6;
-    let dlg = `⚔️ [${genL.name}] vs [${genR.name}] — 불꽃 튀는 창검 일기토 격돌!`;
-
-    if(t < 0.38){
-      const u = ez(t / 0.38);
-      X[0] = lp(68, DW/2 - 32, u);
-      X[1] = lp(DW - 68, DW/2 + 32, u);
-      wAng[0] = lp(-1.58, -0.10, u * u);
-      wAng[1] = lp(-0.72, -0.08, u * u);
-      swV[0] = swV[1] = u * 1.1;
-      speedAmt = 0.88;
-      dlg = `🐎 [${genL.name}] "내 칼을 받아라!" vs [${genR.name}] — 전속력 기마 돌격!`;
-    } else if(t < 0.84){
-      // 제 1·2·3합 초고속 챙! 챙챙!! 채앵!! 칼날 교차
-      const sub = (t - 0.38) / 0.46;
-      const bounce = Math.sin(sub * Math.PI * 3) * 15;
-      X[0] = DW/2 - 30 - Math.abs(bounce);
-      X[1] = DW/2 + 30 + Math.abs(bounce);
-      wAng[0] = -0.25 + Math.sin(t * 42) * 0.78;
-      wAng[1] = -0.25 + Math.cos(t * 42) * 0.78;
-      swV[0] = Math.cos(t * 42); swV[1] = -Math.sin(t * 42);
-      rec[0] = rec[1] = Math.exp(-((t - 0.38) % 0.16) * 14) * 0.65;
-      camZoom = 1.05;
-      dlg = `⚔️ 챙! 챙챙!! 채앵!! — 눈에 보이지 않는 초고속 칼날 공방!`;
-    } else if(t < 1.14){
-      // 교차 돌파 후 회마(回馬)
-      const u = ez((t - 0.84) / 0.30);
-      X[0] = lp(DW/2 - 26, DW - 76, u);
-      X[1] = lp(DW/2 + 26, 76, u);
-      dir[0] = u > 0.76 ? -1 : 1;
-      dir[1] = u > 0.76 ? 1 : -1;
-      st[0] = st[1] = u > 0.70 ? 'rear' : 'run';
-      wAng[0] = -1.25; wAng[1] = -1.15;
-      camX += (u - 0.5) * 65;
-      speedAmt = 0.92;
-      dlg = `🌪️ 스쳐 지나가며 말머리를 돌리는 회마(回馬) 창술!`;
-    } else if(t < 1.72){
-      // 좌우 진영 교체 후 제 4·5·6합 카앙! 챙!챙! 콰아앙!! 맹공
-      const u = ez(Math.min(1, (t - 1.14) / 0.14));
-      const eb = t > 1.18 ? Math.abs(Math.sin((t - 1.18) * 16)) * 15 : 0;
-      X[0] = lp(DW - 76, DW/2 + 30, u) + eb;
-      X[1] = lp(76, DW/2 - 30, u) - eb;
-      dir[0] = -1; dir[1] = 1;
-      wAng[0] = -0.18 + Math.sin(t * 46) * 0.82;
-      wAng[1] = -0.18 + Math.cos(t * 46) * 0.82;
-      swV[0] = Math.cos(t * 46); swV[1] = -Math.sin(t * 46);
-      rec[0] = rec[1] = t > 1.18 ? 0.55 : 0;
-      camZoom = 1.07;
-      dlg = `⚡ 카앙! 챙! 챙! 콰아앙!! — 검기가 전장 하늘을 가릅니다!`;
-    } else if(t < 1.94){
-      const u = ez((t - 1.72) / 0.22);
-      X[0] = lp(DW/2 + 28, 80, u);
-      X[1] = lp(DW/2 - 28, DW - 80, u);
-      dir[0] = u > 0.62 ? 1 : -1;
-      dir[1] = u > 0.62 ? -1 : 1;
-      wAng[0] = -1.55; wAng[1] = -1.55;
-      dlg = `🔥 [${wi === 0 ? genL.name : genR.name}] "이 한 칼에 승부를 내겠다! 천하무쌍 일섬!!"`;
-    } else if(t < SHT){
-      const u = ez(Math.min(1, (t - 1.94) / 0.16));
-      X[0] = lp(80, DW/2 - 24, u);
-      X[1] = lp(DW - 80, DW/2 + 24, u);
-      dir[0] = 1; dir[1] = -1;
-      wAng[wi] = t < 2.22 ? -1.65 : 0.34;
-      wAng[lo] = t < 2.22 ? -0.45 : -0.95;
-      swV[wi] = 1.5;
-      rec[lo] = t >= 2.22 ? 1.25 : 0;
-      camZoom = 1.10;
-      speedAmt = 1.0;
-      dlg = `💥 필살일섬(必殺一閃)!! 승패가 갈립니다!!`;
+      camZoom = 1.03 + .05 * Math.sin(Math.PI * uE) + (lastHitT > -90 ? .06 * Math.exp(-(t - lastHitT) * 5) : 0);
+      camX += cShift * .5;
+      speedAmt = .55 + .35 * Math.sin(Math.PI * uRaw);
+      dlg = lastBeat >= 0 ? hitMsg[Math.min(lastBeat + 1, hitMsg.length - 1)] : hitMsg[0];
+      if(nbB.k === 'final' && uRaw > .35) dlg = `🔥 [${nameOf(wi)}] "이 한 칼에 승부를 내겠다! 천하무쌍 일섬!!"`;
+      /* 필살 일섬 기 모으기: 승자 주변에 빛나는 기운 */
+      if(nbB.k === 'final' && uRaw > .25 && Math.random() < .8){
+        const wg = wi === 0 ? genL : genR;
+        for(let q = 0; q < 2; q++) sp.push({x: X[wi] + (Math.random() - .5) * 46, y: 150 - Math.random() * 56, vx: (Math.random() - .5) * 30, vy: -50 - Math.random() * 90, l: .5 + Math.random() * .4, m: .8, c: wg.atkCol || '#38f2c8', w: 2.2});
+      }
     } else {
-      const u = ez((t - SHT) / 0.55);
-      X[wi] = lp(wi === 0 ? DW/2 - 24 : DW/2 + 24, DW/2 + (wi === 0 ? -16 : 16), u);
-      X[lo] = lp(lo === 0 ? DW/2 - 24 : DW/2 + 24, lo === 0 ? 50 : DW - 50, u);
+      const u = ez((t - SHT) / 0.55), sx0 = cx0 + cShift;
+      X[wi] = lp(wi === 0 ? sx0 - 25 : sx0 + 25, DW / 2 + (wi === 0 ? -16 : 16), u);
+      X[lo] = lp(lo === 0 ? sx0 - 25 : sx0 + 25, lo === 0 ? 50 : DW - 50, u);
       dir[0] = 1; dir[1] = -1;
       st[wi] = 'rear'; st[lo] = 'hit';
       wAng[wi] = -1.35 + Math.sin(t * 8) * 0.12;
       wAng[lo] = 0.5;
       fall[lo] = Math.min(1.2, (t - SHT) * 1.9);
+      hurtAmt[lo] = 1; hfl[lo] = (t - SHT) < .2 ? Math.pow(1 - (t - SHT) / .2, 2) : 0;
       speedAmt = 0;
-      dlg = `🏆 [${wi === 0 ? genL.name : genR.name}] 일기토 승리! 선공 선택권을 차지합니다!`;
+      camZoom = 1.10 + .04 * Math.exp(-(t - SHT) * 3);
+      dlg = `🏆 [${nameOf(wi)}] 일기토 승리! 선공 선택권을 차지합니다!`;
     }
+
+    /* ---------- 비트 발생: 칼날 부딪힘 / 타격 적중 ---------- */
+    BT.forEach((bt, i) => {
+      if(t < bt.t || bt.fired) return;
+      bt.fired = 1; lastBeat = i;
+      const isHit = bt.k !== 'clash', isFin = bt.k === 'final';
+      const vic = bt.vic, atk = bt.atk;
+      const cxHit = isHit ? X[vic] - dir[vic] * 14 : (X[0] + X[1]) / 2, cyHit = isHit ? 132 : 128 + ((i % 3) - 1) * 7;
+      const pw = isHit ? bt.pow : .7, atkCol = isHit ? ((atk === 0 ? genL : genR).atkCol || '#ffab00') : (i % 4 === 0 ? '#38f2c8' : '#ffab00');
+      /* 1) 불똥 : 타격은 맞은 방향으로 크게 튀어나감 */
+      const nSp = 26 + Math.round(pw * 16) + i * 2;
+      for(let k = 0; k < nSp; k++){
+        const bias = isHit ? (dir[atk] > 0 ? 0 : Math.PI) + (Math.random() - .5) * 2.4 : Math.random() * 6.283;
+        const v = 110 + Math.random() * 230 + pw * 60;
+        sp.push({x: cxHit, y: cyHit, vx: Math.cos(bias) * v, vy: Math.sin(bias) * v - 55, l: .42 + Math.random() * .4, m: .78, c: COL[k % 5], w: 1.5 + (k % 3) * .9});
+      }
+      /* 2) 검기 아크 + 십자 섬광 */
+      const baseAng = isHit ? (dir[atk] > 0 ? -.7 : .7) : ((i % 2 === 0 ? -.55 : .55) + i * .12);
+      slashes.push({x: cxHit, y: cyHit, ang: baseAng, col: atkCol, t0: t, big: isFin || pw >= 1.35});
+      slashes.push({x: cxHit, y: cyHit, ang: -baseAng + .4, col: '#ffffff', t0: t, big: false});
+      bladeGlints.push({x: cxHit, y: cyHit, ang: (i * .65) % 3.14, t0: t, sc: isFin ? 1.85 : (.9 + pw * .35)});
+      rg.push({t0: t, r: i % 7, x: cxHit, y: cyHit});
+      /* 3) 의성어 + 피격 비명 */
+      popWords.push({s: bt.w, t0: t, x: cxHit + (isHit ? (dir[atk] > 0 ? -6 : 6) : 0), y: isFin ? 44 : 66 + (i % 3) * 10, rot: (i % 2 === 0 ? -.10 : .10), big: isFin || pw >= 1.35});
+      if(isHit && !isFin) popWords.push({s: bt.rw, t0: t + .12, x: X[vic] + (vic === 0 ? -14 : 14), y: 92, rot: vic === 0 ? -.2 : .2, big: pw >= 1.35});
+      shake = isHit ? 7 + pw * 7 : 5 + i * 1.2; flash = isHit ? .24 + pw * .1 : .2;
+      /* 4) 히트스톱 : 맞는 순간 화면이 잠깐 멈칫 */
+      const fz = isFin ? 150 : isHit ? 55 + pw * 32 : 36;
+      frzStart = now; frzUntil = now + fz; holdT = t;
+      snd('clash', isFin ? 3 : (isHit ? (pw >= 1.3 ? 3 : 2) : 1));
+      if(isHit){
+        hs[vic] = t; hitPow[vic] = pw; as_[atk] = t; lastHitT = t;
+        push += (vic === 0 ? -1 : 1) * 6;
+        if(pw >= 1.3 && !isFin) snd('neigh');
+      } else { cs = t; as_[0] = as_[1] = t; }
+      targetHp[wi] = HPT[i][0]; targetHp[lo] = HPT[i][1];
+      if(isFin){ shake = 19; flash = .88; }
+    });
+    hp[0] += (targetHp[0] - hp[0]) * Math.min(1, dt * 15);
+    hp[1] += (targetHp[1] - hp[1]) * Math.min(1, dt * 15);
 
     if(t < SHT && Math.random() < 0.7){
       for(let i = 0; i < 2; i++){
@@ -1544,7 +1537,7 @@ function arena(a, b, tok, done){
         sp.push({x: lx, y: ly, vx: Math.cos(an)*v, vy: Math.sin(an)*v - 55, l: 0.55 + Math.random()*0.4, m: 0.88, c: COL[k % 5], w: 2.2});
       }
       rg.push({t0: t, r: 6, x: lx, y: ly});
-      popWords.push({s: '낙마(落馬)!!', t0: t, x: DW/2, y: 64, rot: -0.05, big: true});
+      popWords.push({s: '낙마(落馬)!!', t0: t, x: DW/2, y: 80, rot: -0.05, big: true});
       shake = 22; flash = 0.88;
       snd('clash', 3);
     }
@@ -1586,8 +1579,35 @@ function arena(a, b, tok, done){
 
     // 4) 두 기마 무장 (머리 위 닉네임 배지 & 칼날 모션 블러 포함)
     const phase = t * 18.5;
-    drawMountedGeneral(g, genL, X[0], 156, dir[0], st[0], phase, wAng[0], rec[0], fall[0], swV[0]);
-    drawMountedGeneral(g, genR, X[1], 156, dir[1], st[1], phase + 1.4, wAng[1], rec[1], fall[1], swV[1]);
+    const drawGen = (i, ph) => {
+      const gen = i === 0 ? genL : genR, need = hfl[i] > .02 || hurtAmt[i] > .05;
+      /* 접지 그림자는 따로 그려 섬광에 물들지 않게 */
+      g.fillStyle = 'rgba(10,16,8,0.52)'; g.beginPath(); g.ellipse(X[i], 156 + 26, 38, 8.5, 0, 0, 7); g.fill();
+      window.__duelNoShadow = 1; window.__duelHurt = hurtAmt[i];
+      if(!need){
+        drawMountedGeneral(g, gen, X[i], 156, dir[i], st[i], ph, wAng[i], rec[i], fall[i], swV[i]);
+      } else {
+        og.setTransform(d, 0, 0, d, 0, 0); og.clearRect(0, 0, OW, OH);
+        drawMountedGeneral(og, gen, OW / 2, 146, dir[i], st[i], ph, wAng[i], rec[i], fall[i], swV[i]);
+        og.save(); og.globalCompositeOperation = 'source-atop';
+        og.fillStyle = 'rgba(255,255,255,' + (hfl[i] * .85) + ')'; og.fillRect(0, 0, OW, OH);
+        og.fillStyle = 'rgba(255,50,30,' + Math.min(.26, hurtAmt[i] * .26) + ')'; og.fillRect(0, 0, OW, OH);
+        og.restore();
+        g.drawImage(ocv, X[i] - OW / 2, 156 - 146, OW, OH);
+      }
+      window.__duelNoShadow = 0; window.__duelHurt = 0;
+      /* 맞아서 어질어질 : 머리 위 별 */
+      if(dz[i] && fall[i] <= 0){
+        g.save(); g.fillStyle = '#ffe14a'; g.strokeStyle = '#8a5a00'; g.lineWidth = 1;
+        for(let q = 0; q < 3; q++){
+          const an = t * 9 + q * 2.094, sx = X[i] + Math.cos(an) * 14, sy = 108 + Math.sin(an) * 4.5, rs = 3.4;
+          g.beginPath(); for(let k = 0; k < 10; k++){ const r2 = k % 2 ? rs * .45 : rs, a2 = k * Math.PI / 5 - Math.PI / 2; g.lineTo(sx + Math.cos(a2) * r2, sy + Math.sin(a2) * r2); } g.closePath(); g.fill(); g.stroke();
+        }
+        g.restore();
+      }
+    };
+    drawGen(0, phase);
+    drawGen(1, phase + 1.4);
 
     // 5) 날아가는 패배자의 무기
     if(flyWeap){
@@ -1699,6 +1719,7 @@ function arena(a, b, tok, done){
     popWords = popWords.filter(pw => t - pw.t0 < 0.44);
     for(const pw of popWords){
       const u = (t - pw.t0) / 0.44;
+      if(u < 0) continue;
       const pop = 1 + 0.58 * Math.exp(-u * 10);
       g.save();
       g.translate(pw.x, pw.y - u * 10);
@@ -1732,8 +1753,8 @@ function arena(a, b, tok, done){
     // 8) 상단 일기토 체력바 & 하단 실황 대사 (카메라 줌 밖에서 고정 표시)
     drawDuelHUD(g, genL, genR, hp[0], hp[1], dlg);
 
-    if(t >= 2.75 && !fin){ fin = 1; done(); }
-    if(t < 3.45) requestAnimationFrame(frame);
+    if(t >= SHT + 0.37 && !fin){ fin = 1; done(); }
+    if(t < SHT + 1.07) requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
 }
