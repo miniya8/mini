@@ -189,8 +189,8 @@
     for (let i = 0; i < 12; i++) sp({ type: 'smoke', x: sx + rnd(-C, C), y: sy + rnd(-C * .5, C * .5), vx: rnd(-40, 40), vy: -rnd(30, 90), life: rnd(2, 3.6), size: C * rnd(.5, .9), grow: 1.8, a: .3 });
     if (sk === 'nuke') SMK.push({ x: sx, y: sy, born: now, dur: 9 });
     /* 코믹 글자 */
-    TXT.push({ x: sx, y: sy - C * .6, text: pick(prof.txt), col: prof.col, t0: now, life: 1.9, rot: rnd(-.12, .12), size: Math.max(22, C * 1.05) });
-    setTimeout(() => { if (NODES.length) TXT.push({ x: sx, y: sy - C * 1.5, text: prof.pal === 'frost' ? '❄️ 서리!' : prof.pal === 'blue' ? '⚡ 감전!' : prof.pal === 'green' ? '☣️ 부식!' : '🔥 불붙었다!', col: prof.col, t0: performance.now(), life: 1.6, rot: rnd(-.08, .08), size: Math.max(16, C * .6) }); }, 900);
+    TXT.push({ x: sx, y: Math.max(RC.top + C * 3.2, sy - C * .6), text: pick(prof.txt), col: prof.col, t0: now, life: 1.9, rot: rnd(-.12, .12), size: Math.max(22, C * 1.05) });
+    setTimeout(() => { if (NODES.length) TXT.push({ x: sx, y: Math.max(RC.top + C * 4.4, sy - C * 1.5), text: prof.pal === 'frost' ? '❄️ 서리!' : prof.pal === 'blue' ? '⚡ 감전!' : prof.pal === 'green' ? '☣️ 부식!' : '🔥 불붙었다!', col: prof.col, t0: performance.now(), life: 1.6, rot: rnd(-.08, .08), size: Math.max(16, C * .6) }); }, 900);
     try { if (prof.pal === 'frost') noise(.6, 'highpass', 4200, 2400, .12, 1); else whoosh(.14); } catch (e) {}
   }
 
@@ -216,12 +216,20 @@
   function update(dt, now) {
     /* 화염 노드 */
     for (let i = NODES.length - 1; i >= 0; i--) {
-      const n = NODES[i], age = (now - n.born) / 1000 - n.delay;
-      if (age > n.life) { NODES.splice(i, 1); continue; }
+      const n = NODES[i], age = (now - n.born) / 1000 - n.delay, tail = n.prof.pal === 'frost' ? 0 : 4.5;
+      if (age > n.life + tail) { NODES.splice(i, 1); continue; }
       if (age < 0) continue;
-      const I = intensity(n, age); if (I <= 0.01) continue;
       const [X, Y] = toScreen(n.gx, n.gy), prof = n.prof;
-      n.acc += (n.piece ? 16 : 26) * I * dt * (prof.pal === 'frost' ? .35 : 1);
+      if (!n.ign) { n.ign = 1; if (prof.pal !== 'frost') { sp({ type: 'glowpuff', x: X, y: Y - n.r * C * .3, life: .45, size: n.r * C * 1.6, vy: -20, pal: n.pal, a: .55 }); for (let q = 0; q < 6; q++) sp({ type: 'ember', pal: n.pal, x: X + rnd(-4, 4), y: Y, vx: rnd(-40, 40), vy: -rnd(60, 160), life: rnd(.7, 1.6), size: rnd(1, 2.2), sway: rnd(8, 18), swf: rnd(2, 5), seed: rnd(0, 6) }); } }
+      /* 잔불: 불길이 사그라든 뒤에도 연기와 불씨가 서서히 식어감 */
+      if (age > n.life) {
+        const sm = 1 - (age - n.life) / tail, rr0 = n.r * C;
+        if (Math.random() < dt * 7 * sm) sp({ type: 'smoke', x: X + rnd(-rr0 * .4, rr0 * .4), y: Y - rr0 * .4, vx: rnd(-8, 10), vy: -rnd(18, 44), life: rnd(2, 3.4), size: rr0 * rnd(.4, .7), grow: 2.2, a: .2 * sm, sway: rr0 * .4, swf: rnd(1, 2), seed: rnd(0, 6) });
+        if (Math.random() < dt * 5 * sm) sp({ type: 'ember', pal: n.pal, x: X + rnd(-rr0 * .5, rr0 * .5), y: Y, vx: rnd(-10, 10), vy: -rnd(20, 60), life: rnd(1, 2), size: rnd(.9, 1.7), sway: rnd(6, 14), swf: rnd(2, 4), seed: rnd(0, 6) });
+        continue;
+      }
+      const I = intensity(n, age); if (I <= 0.01) continue;
+      n.acc += (n.piece ? 5 : 9) * I * dt * (prof.pal === 'frost' ? .35 : 1);
       let c = 0; while (n.acc >= 1 && c++ < 6) { n.acc -= 1; if (prof.pal !== 'frost') emitFlame(n, I, X, Y); }
       const rr = n.r * C;
       if (prof.pal === 'frost') {
@@ -277,11 +285,31 @@
   /* ---------- 그리기 ---------- */
   function drawFlameParticle(g, p) {
     const k = p.age / p.life, pal = PAL[p.pal] || PAL.fire, idx = clamp(k * (pal.length - 1), 0, pal.length - 1.001), i0 = Math.floor(idx), fa = idx - i0;
-    const s = p.size * (1 - .5 * Math.pow(k, 1.4)), al = (k < .12 ? k / .12 : 1) * (1 - k * k) * .5;
+    const s = p.size * (1 - .5 * Math.pow(k, 1.4)), al = (k < .12 ? k / .12 : 1) * (1 - k * k) * .34;
     if (al < .01 || s < .5) return;
     const w = s * 1.9, h = s * 3.1, x = p.x, y = p.y - h * .55;
     g.globalAlpha = al * (1 - fa * .5); g.drawImage(sprite(pal[i0]), x - w / 2, y - h / 2, w, h);
     g.globalAlpha = al * fa; g.drawImage(sprite(pal[i0 + 1]), x - w / 2, y - h / 2, w, h);
+  }
+  /* 부드럽게 일렁이는 불길 (곡선 혀 5개 + 안쪽 밝은 심지) */
+  function drawTongues(g, n, I, X, Y, now) {
+    const pal = PAL[n.pal]; if (!pal || n.pal === 'frost') return;
+    const rr = n.r * C, t = now * .001, cnt = n.piece ? 3 : 5, wind = Math.sin(t * .7 + n.seed) * rr * .25;
+    for (let i = 0; i < cnt; i++) {
+      const ph = n.seed + i * 1.9, f = cnt > 1 ? (i - (cnt - 1) / 2) / ((cnt - 1) / 2) : 0;
+      const flick = .5 + .5 * Math.sin(t * 6.5 + ph) * .6 + .5 * Math.sin(t * 12.7 + ph * 2.1) * .4;
+      const hgt = rr * (1.35 + 1.0 * flick) * I * (1 - Math.abs(f) * .38) * (n.piece ? .85 : 1.25), wid = rr * (.42 - Math.abs(f) * .1) * (.65 + .35 * I);
+      const bx = X + f * rr * .72, by = Y + rr * .18, sway = Math.sin(t * 3.6 + ph) * rr * .32 + wind, tipx = bx + sway, tipy = by - hgt;
+      const gr = g.createLinearGradient(0, by, 0, tipy);
+      gr.addColorStop(0, `rgba(${pal[1]},${.62 * I})`); gr.addColorStop(.3, `rgba(${pal[2]},${.55 * I})`); gr.addColorStop(.72, `rgba(${pal[3]},${.26 * I})`); gr.addColorStop(1, `rgba(${pal[4]},0)`);
+      g.fillStyle = gr; g.beginPath(); g.moveTo(bx - wid, by);
+      g.bezierCurveTo(bx - wid * 1.15, by - hgt * .45, tipx - wid * .5 + sway * .25, by - hgt * .74, tipx, tipy);
+      g.bezierCurveTo(tipx + wid * .5 + sway * .25, by - hgt * .7, bx + wid * 1.15, by - hgt * .42, bx + wid, by); g.closePath(); g.fill();
+      if (i === Math.floor(cnt / 2)) { /* 가운데 혀에 밝은 심지 */
+        const h2 = hgt * .55, g2 = g.createLinearGradient(0, by, 0, by - h2); g2.addColorStop(0, `rgba(${pal[0]},${.75 * I})`); g2.addColorStop(1, `rgba(${pal[1]},0)`);
+        g.fillStyle = g2; g.beginPath(); g.moveTo(bx - wid * .5, by); g.quadraticCurveTo(bx - wid * .45 + sway * .2, by - h2 * .6, bx + sway * .35, by - h2); g.quadraticCurveTo(bx + wid * .45 + sway * .2, by - h2 * .6, bx + wid * .5, by); g.closePath(); g.fill();
+      }
+    }
   }
   function draw(g, now) {
     /* 경고 조준 */
@@ -306,6 +334,14 @@
       const I = intensity(n, age); if (I < .02) continue;
       const [X, Y] = toScreen(n.gx, n.gy), gl = GLOW[n.pal] || GLOW.fire, rr = n.r * C * (n.piece ? 3 : 4.2) * (.8 + .25 * I);
       g.globalAlpha = clamp(.2 * I * (.85 + .15 * Math.sin(now * .02 + n.seed)), 0, .4); g.drawImage(sprite(gl), X - rr, Y - rr * .8, rr * 2, rr * 1.6);
+    }
+    g.restore();
+    /* 불길 */
+    g.save(); g.globalCompositeOperation = 'lighter';
+    for (const n of NODES) {
+      const age = (now - n.born) / 1000 - n.delay; if (age < 0 || age > n.life) continue;
+      const I = intensity(n, age); if (I < .03) continue;
+      const [X, Y] = toScreen(n.gx, n.gy); drawTongues(g, n, clamp(I, 0, 1.25), X, Y, now);
     }
     g.restore();
     /* 연기(아래층) → 불꽃(가산) → 불씨/불똥 → 전류 → 링 → 글자 */

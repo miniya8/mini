@@ -10,7 +10,7 @@
 (function jgEnvSpecialV3(){
   if (window.__JG_ENV3__) return;
   window.__JG_ENV3__ = true;
-  const E3 = window.jgEnv3 = { enabled: true, sfx: true, weather: true, dur: 1.75, wdur: 1.8 };
+  const E3 = window.jgEnv3 = { enabled: true, sfx: true, weather: true, dur: 2.4, wdur: 2.8, pace: 1.8 };
   const TAU = Math.PI * 2;
   const rnd = (a, b) => a + Math.random() * (b - a);
   const pick = a => a[(Math.random() * a.length) | 0];
@@ -405,11 +405,11 @@
   function drawWeather(g, now, dt) {
     if (!wx) return;
     const el = Math.max(0, (now - wx.t0) / 1000), k = el / wx.dur;
-    if (k >= 1) { wx = null; nextWx = now + rnd(8000, 15000); return; }
+    if (k >= 1) { wx = null; nextWx = now + rnd(32000, 55000); return; }
     const env = ease(Math.min(1, Math.min(k / .2, (1 - k) / .28))), B0 = BR(), S = Math.min(Wd, Hd), kind = wx.def.draw;
     const tint = (col, a) => atmo(g, col, a, B0.x + B0.w / 2, B0.y + B0.h / 2, B0.w * 1.08, B0.h * .84);
     wx.acc += dt;
-    const every = (sec, fn) => { while (wx.acc >= sec) { wx.acc -= sec; fn(); } };
+    const every = (sec, fn) => { sec *= E3.pace; while (wx.acc >= sec) { wx.acc -= sec; fn(); } };
     if (kind === 'sandstorm') {
       tint('210,160,90', .26 * env);
       for (let i = 0; i < Math.ceil(6 * env); i++) sp('streak', B0.x - 30, rnd(B0.y, B0.y + B0.h), { col: [230, 185, 115], size: rnd(1, 2.4), len: S * rnd(.07, .16), a: .6, life: rnd(.6, 1), vx: S * rnd(1.2, 2.2), vy: S * rnd(.02, .2) });
@@ -447,7 +447,7 @@
     } else if (kind === 'storm') {
       tint('30,10,50', .22 * env);
       wx.bolts -= dt;
-      if (wx.bolts <= 0) { wx.bolts = rnd(.5, 1.3); const bx = rnd(B0.x, B0.x + B0.w); bolt(bx, B0.y - C, bx + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .9), .4, '200,100,255', 2.6); flash = Math.max(flash, .42); flashCol = '225,200,255'; try { noiseBurst(.9, 'lowpass', 1200, 80, .2, 1); } catch (e) {} }
+      if (wx.bolts <= 0) { wx.bolts = rnd(.5, 1.3) * E3.pace; const bx = rnd(B0.x, B0.x + B0.w); bolt(bx, B0.y - C, bx + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .9), .4, '200,100,255', 2.6); flash = Math.max(flash, .42); flashCol = '225,200,255'; try { noiseBurst(.9, 'lowpass', 1200, 80, .2, 1); } catch (e) {} }
     } else if (kind === 'geyser') {
       [.2, .5, .8].forEach((f, i) => {
         const vx0 = B0.x + B0.w * f, vy0 = B0.y + B0.h;
@@ -547,7 +547,7 @@
 
   /* ---------- 환경 이벤트 확장 (사막·설원·숲·암흑·고성 각 6종 추가) ---------- */
   function drawWeatherX(g, now, dt, kind, env, k, el, B0, S, tint, every) {
-    const ev = (n, sec, fn) => { wx[n] = (wx[n] || 0) + dt; let c = 0; while (wx[n] >= sec && c++ < 4) { wx[n] -= sec; fn(); } };
+    const ev = (n, sec, fn) => { sec *= E3.pace; wx[n] = (wx[n] || 0) + dt; let c = 0; while (wx[n] >= sec && c++ < 4) { wx[n] -= sec; fn(); } };
     const bx = () => rnd(B0.x, B0.x + B0.w), by = () => rnd(B0.y, B0.y + B0.h), cx = B0.x + B0.w / 2, cy = B0.y + B0.h / 2;
     const pc = pick;
     switch (kind) {
@@ -576,7 +576,7 @@
       case 'sandthunder':
         tint('210,160,90', .24 * env);
         for (let i = 0; i < Math.ceil(4 * env); i++) sp('streak', B0.x - 30, by(), { col: [230, 185, 115], size: rnd(1, 2.4), len: S * rnd(.07, .15), a: .6, life: rnd(.6, .95), vx: S * rnd(1.2, 2), vy: S * rnd(.02, .15) });
-        wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.7, 1.5); const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .85), .45, '255,230,150', 2.8); flash = Math.max(flash, .32); flashCol = '255,235,170'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(.9, 'lowpass', 1400, 90, .18, 1); } catch (e) {} }
+        wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.7, 1.5) * E3.pace; const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .85), .45, '255,230,150', 2.8); flash = Math.max(flash, .32); flashCol = '255,235,170'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(.9, 'lowpass', 1400, 90, .18, 1); } catch (e) {} }
         break;
       case 'sunset': {
         const gr = g.createLinearGradient(0, B0.y, 0, B0.y + B0.h); gr.addColorStop(0, `rgba(150,70,170,${.24 * env})`); gr.addColorStop(.5, `rgba(255,120,60,${.22 * env})`); gr.addColorStop(1, `rgba(255,170,70,${.1 * env})`);
@@ -630,7 +630,7 @@
       case 'thunderrain':
         tint('30,60,50', .22 * env);
         for (let i = 0; i < Math.ceil(10 * env); i++) sp('streak', rnd(B0.x - S * .1, B0.x + B0.w + S * .1), B0.y - 20, { col: [190, 228, 245], size: 1, len: S * .05, a: .55, life: rnd(.45, .7), vx: -S * .25, vy: S * 1.5 });
-        wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.9, 1.8); const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .9), .45, '170,255,200', 2.6); flash = Math.max(flash, .34); flashCol = '215,255,225'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(1, 'lowpass', 1100, 80, .2, 1); } catch (e) {} }
+        wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.9, 1.8) * E3.pace; const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .9), .45, '170,255,200', 2.6); flash = Math.max(flash, .34); flashCol = '215,255,225'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(1, 'lowpass', 1100, 80, .2, 1); } catch (e) {} }
         ev('r', .1, () => ring(bx(), by(), 1, C * rnd(.2, .35), .5, '190,230,255', 1.2, .5));
         break;
       case 'rainbow': {
@@ -693,7 +693,7 @@
         break;
       case 'redlightning':
         tint('110,0,20', .22 * env);
-        wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.45, 1.1); const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .9), .4, '255,60,90', 2.8); flash = Math.max(flash, .36); flashCol = '255,150,170'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(.9, 'lowpass', 1200, 80, .2, 1); } catch (e) {} }
+        wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.45, 1.1) * E3.pace; const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .9), .4, '255,60,90', 2.8); flash = Math.max(flash, .36); flashCol = '255,150,170'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(.9, 'lowpass', 1200, 80, .2, 1); } catch (e) {} }
         break;
       /* ===== ⚔️ 고성 ===== */
       case 'beacon':
@@ -819,7 +819,7 @@
     } catch (e) {}
 
     /* 환경 이벤트 스케줄 */
-    if (E3.weather && inPlay && !wx) { if (!nextWx) nextWx = now + rnd(4500, 8500); else if (now >= nextWx) startWeather(theme); }
+    if (E3.weather && inPlay && !wx) { if (!nextWx) nextWx = now + rnd(24000, 38000); else if (now >= nextWx) startWeather(theme); }
     if (!inPlay) { nextWx = 0; }
 
     /* 클리핑: 장기판 캔버스 영역(상단 HUD 제외) */
