@@ -1,5 +1,6 @@
 /* ============================================================================
  * [응징 스킬 연출 강화 모듈 v1]  js/skill-fx.js
+ *  - [이미지 활용] 불 사진 3종(주황/푸른/녹색 변환) + 균열·구멍 이미지 15종(장기판 파손 자국)
  *  - 불이 번지는 화염 시스템 : 점화 → 활활 → 번짐 → 잦아듦 (불꽃·연기·불씨·열기 빛)
  *  - 스킬별 개성 : 핵(대화염+버섯연기+재) · 운석(용암불+파편) · 외계인(녹색 플라즈마+기포)
  *                에네르기파(푸른 불꽃+전류) · 주먹(균열 불씨) · 망치(서리 안개) · 총(총탄 불꽃+연기)
@@ -106,16 +107,112 @@
 
   /* ---------- 스킬별 프로필 ---------- */
   const PROF = {
-    nuke:   { pal: 'fire',  life: 16, n0: 10, rad: 2.5, r: .44, spread: true,  maxN: 32, smoke: 1.7, ash: true,  scorch: 2.8, pieces: true,  pr: 3.4, txt: ['💥 쾅!!', '☢️ BOOM!!', '🔥 대폭발!'], col: '255,150,60' },
-    meteor: { pal: 'fire',  life: 14, n0: 7,  rad: 2.0, r: .42, spread: true,  maxN: 26, smoke: 1.3, scatter: 6, scorch: 2.3, pieces: true,  pr: 2.7, txt: ['☄️ 쿠쾅!!', '🔥 운석 직격!', '🌋 용암 폭발!'], col: '255,120,40' },
-    alien:  { pal: 'green', life: 11, n0: 8,  rad: 1.9, r: .44, spread: false, maxN: 22, smoke: .5,  bubbles: true, arcs: true, scorch: 1.9, pieces: true, pr: 2.3, txt: ['👽 지지직!', '🛸 광선 직격!', '☣️ 녹아내린다!'], col: '150,255,120' },
-    kame:   { pal: 'blue',  life: 10, n0: 7,  rad: 1.7, r: .44, spread: false, maxN: 18, smoke: .3,  arcs: true,    scorch: 1.7, pieces: true, pr: 2.1, txt: ['🐉 파앗!', '⚡ 에네르기 폭발!', '💥 기가 폭발한다!'], col: '120,200,255' },
-    kame2:  { pal: 'blue',  life: 13, n0: 9,  rad: 2.3, r: .5,  spread: false, maxN: 24, smoke: .4,  arcs: true, line: 4, scorch: 2.3, pieces: true, pr: 2.7, txt: ['🌌 콰아앙!!', '💫 파괴 광선!', '⚡ 장기판이 갈라진다!'], col: '130,215,255' },
-    fist:   { pal: 'fire',  life: 7,  n0: 3,  rad: 1.0, r: .34, spread: false, maxN: 8,  smoke: .6,  scorch: 1.1, pieces: false, pr: 0, txt: ['👊 퍽!', '💢 한 방!', '🥊 KO!'], col: '255,170,70' },
+    nuke:   { pal: 'fire',  flame: true, tint: 'o', life: 16, n0: 10, rad: 2.5, r: .44, spread: true,  maxN: 32, smoke: 1.7, ash: true,  scorch: 2.8, pieces: true,  pr: 3.4, txt: ['💥 쾅!!', '☢️ BOOM!!', '🔥 대폭발!'], col: '255,150,60' },
+    meteor: { pal: 'fire',  flame: true, tint: 'o', life: 14, n0: 7,  rad: 2.0, r: .42, spread: true,  maxN: 26, smoke: 1.3, scatter: 6, scorch: 2.3, pieces: true,  pr: 2.7, txt: ['☄️ 쿠쾅!!', '🔥 운석 직격!', '🌋 용암 폭발!'], col: '255,120,40' },
+    alien:  { pal: 'green', flame: true, tint: 'g', life: 11, n0: 8,  rad: 1.9, r: .44, spread: false, maxN: 22, smoke: .5,  bubbles: true, arcs: true, scorch: 1.9, pieces: true, pr: 2.3, txt: ['👽 지지직!', '🛸 광선 직격!', '☣️ 녹아내린다!'], col: '150,255,120' },
+    kame:   { pal: 'blue',  flame: true, tint: 'b', life: 10, n0: 7,  rad: 1.7, r: .44, spread: false, maxN: 18, smoke: .3,  arcs: true,    scorch: 1.7, pieces: true, pr: 2.1, txt: ['🐉 파앗!', '⚡ 에네르기 폭발!', '💥 기가 폭발한다!'], col: '120,200,255' },
+    kame2:  { pal: 'blue',  flame: true, tint: 'b', life: 13, n0: 9,  rad: 2.3, r: .5,  spread: false, maxN: 24, smoke: .4,  arcs: true, line: 4, scorch: 2.3, pieces: true, pr: 2.7, txt: ['🌌 콰아앙!!', '💫 파괴 광선!', '⚡ 장기판이 갈라진다!'], col: '130,215,255' },
+    fist:   { pal: 'dust',  flame: false, life: 6, n0: 0, rad: 1.0, r: .34, spread: false, maxN: 0, smoke: .6, scorch: 0, pieces: false, pr: 0, txt: ['👊 퍽!', '💢 한 방!', '🥊 KO!'], col: '220,190,150' },
     hammer: { pal: 'frost', life: 10, n0: 3,  rad: 1.4, r: .38, spread: false, maxN: 10, mist: true, scorch: 1.4, pieces: false, pr: 0, txt: ['🔨 쾅!', '🧊 얼어붙는다!', '⚡ 철퇴 직격!'], col: '170,225,255' },
-    gun:    { pal: 'fire',  life: 7,  n0: 2,  rad: .9, r: .28, spread: false, maxN: 8,  smoke: .8,  sparks: true, scorch: .9, pieces: false, pr: 0, txt: ['🔫 타다다!', '💥 명중!', '🎯 정조준!'], col: '255,200,90' }
+    gun:    { pal: 'spark', flame: false, life: 5, n0: 0, rad: .9, r: .28, spread: false, maxN: 0, smoke: .8, sparks: true, scorch: 0, pieces: false, pr: 0, txt: ['🔫 타다다!', '💥 명중!', '🎯 정조준!'], col: '255,215,120' }
   };
 
+
+  /* ---------- 이미지 자산 : 불 사진 · 균열/구멍 아틀라스 ---------- */
+  const FXDIR = 'assets/images/fx/';
+  const FIMG = {};
+  ['f1', 'f2', 'f3'].forEach(k => ['o', 'b', 'g'].forEach(t => { const im = new Image(); im.src = FXDIR + k + '_' + t + '.webp'; FIMG[k + '_' + t] = im; }));
+  const CATLAS = new Image(); CATLAS.src = FXDIR + 'crack_atlas.webp';
+  const CR = [["c4", 0, 0, 154, 149], ["c4", 158, 0, 96, 157], ["c4", 258, 0, 139, 116], ["c4", 401, 0, 134, 100], ["c4", 539, 0, 116, 167], ["c4", 659, 0, 162, 135], ["c4", 825, 0, 162, 99], ["c4", 0, 171, 116, 97], ["c4", 120, 171, 178, 125], ["c4", 302, 171, 135, 128], ["c4", 441, 171, 148, 125], ["c4", 593, 171, 154, 118], ["c5", 0, 303, 360, 250], ["c5", 364, 303, 230, 181], ["c5", 598, 303, 350, 129]];
+  const okImg = im => !!im && im.complete && im.naturalWidth > 0;
+  const CLS = { small: [7, 9, 3], mid: [0, 2, 6, 8], net: [4, 5, 10, 11, 1], big: [12, 13, 14] };
+  const CLSW = { small: .85, mid: 1.5, net: 2.4, big: 3.6 };
+  const CRK = [];
+  function addCrack(gx, gy, cls, o) {
+    CRK.push(Object.assign({ gx, gy, idx: pick(CLS[cls]), cls, sc: 1, rot: rnd(-.6, .6) + (Math.random() < .5 ? 0 : Math.PI), born: performance.now(), delay: 0, life: 46, hot: null, hotLife: 12, flipX: Math.random() < .5 }, o || {}));
+    if (CRK.length > 46) CRK.shift();
+  }
+  const tintCache = {};
+  function tinted(idx, col) {
+    const key = idx + '|' + col; if (tintCache[key]) return tintCache[key];
+    const r = CR[idx], c = document.createElement('canvas'); c.width = r[3]; c.height = r[4];
+    const g = c.getContext('2d'); g.drawImage(CATLAS, r[1], r[2], r[3], r[4], 0, 0, r[3], r[4]);
+    g.globalCompositeOperation = 'source-in'; g.fillStyle = col; g.fillRect(0, 0, r[3], r[4]);
+    return (tintCache[key] = c);
+  }
+  /* 스킬별 균열/구멍 구성 : [종류, 개수, 퍼짐(칸), 크기배율] */
+  const CRACKSPEC = {
+    nuke:   [['big', 1, 0, 1.0], ['mid', 3, 2.7, 1.1], ['net', 4, 3.5, 1.1], ['small', 4, 3.8, 1]],
+    meteor: [['big', 1, 0, .9], ['mid', 2, 2.5, 1], ['net', 3, 3.3, 1], ['small', 3, 3.5, 1]],
+    alien:  [['mid', 2, 1.5, .95], ['net', 3, 2.5, .9], ['small', 2, 2.1, .8]],
+    kame:   [['mid', 1, 0, 1], ['net', 3, 2.3, 1]],
+    kame2:  [['mid', 1, 0, 1.1], ['net', 3, 2.7, 1.1], ['small', 2, 2.1, .9]],
+    fist:   [['mid', 1, 0, 1.05], ['net', 2, 1.7, .9]],
+    hammer: [['net', 2, 0, 1.2], ['mid', 1, 1.3, .8], ['net', 2, 2.1, 1]],
+    gun:    [['small', 1, 0, .85]]
+  };
+  const HOTCOL = { nuke: '255,110,40', meteor: '255,100,35', alien: '120,255,110', kame: '110,190,255', kame2: '120,200,255', hammer: '200,235,255' };
+  function spawnCracks(side, sk, gx, gy, rot) {
+    (CRACKSPEC[sk] || []).forEach(([cls, cnt, spread, scl]) => {
+      for (let i = 0; i < cnt; i++) {
+        const a = rnd(0, TAU), d = spread * Math.sqrt(Math.random()), x = gx + Math.cos(a) * d, y = gy + Math.sin(a) * d * .8;
+        if (!inCamp(side, x, y)) continue;
+        addCrack(x, y, cls, { sc: scl * rnd(.9, 1.15), delay: i === 0 && spread === 0 ? 0 : rnd(.08, .7), hot: HOTCOL[sk] || null, hotLife: sk === 'hammer' ? 3.5 : (sk === 'nuke' ? 16 : 11) });
+      }
+    });
+    /* 광선이 지나간 선형 균열 */
+    if (sk === 'kame2') for (let i = 1; i <= 3; i++) { const x = gx - Math.cos(rot) * i * 1.2, y = gy - Math.sin(rot) * i * 1.2; if (inCamp(side, x, y)) addCrack(x, y, 'net', { sc: .9, rot: rot + rnd(-.3, .3), delay: i * .1, hot: HOTCOL.kame2, hotLife: 9 }); }
+  }
+  function drawCracks(g, now) {
+    if (!okImg(CATLAS)) return;
+    for (let i = CRK.length - 1; i >= 0; i--) {
+      const c = CRK[i], age = (now - c.born) / 1000 - c.delay;
+      if (age > c.life) { CRK.splice(i, 1); continue; }
+      if (age < 0) continue;
+      const r = CR[c.idx], [X, Y] = px(c.gx, c.gy), w = CLSW[c.cls] * CX * c.sc, sc = w / r[3], h = r[4] * sc;
+      const slam = ease(age / .3), pop = 1.2 - .2 * slam, ab = slam * (age > c.life - 8 ? (c.life - age) / 8 : 1);
+      g.save(); g.translate(X, Y); g.rotate(c.rot); g.scale((c.flipX ? -1 : 1) * pop, pop);
+      g.globalAlpha = ab * .32; g.drawImage(tinted(c.idx, 'rgb(255,238,205)'), -w / 2 - 1.3, -h / 2 - 1.3, w, h);   /* 어두운 판에서도 보이도록 밝은 테두리 */
+      g.globalAlpha = ab * .96; g.drawImage(CATLAS, r[1], r[2], r[3], r[4], -w / 2, -h / 2, w, h);
+      if (c.hot) {
+        const hotA = Math.max(0, 1 - age / c.hotLife) * ab;
+        if (hotA > .02) { const pulse = .65 + .35 * Math.sin(now * .006 + c.gx * 3); g.globalCompositeOperation = 'lighter'; g.globalAlpha = hotA * pulse * .75; g.shadowColor = 'rgb(' + c.hot + ')'; g.shadowBlur = C * .3; g.drawImage(tinted(c.idx, 'rgb(' + c.hot + ')'), -w / 2, -h / 2, w, h); g.shadowBlur = 0; }
+      }
+      g.restore();
+    }
+  }
+  /* 사진 불꽃: 가로줄 단위로 흔들어 일렁임을 만들고, 두 장을 번갈아 섞어 불규칙한 타오름을 표현 */
+  /* 사진의 일부(세로로 좁게 잘라낸 부분)를 천천히 훑으며 그려서, 길쭉하고 매번 다른 불길을 만든다 */
+  const CWF = { f1: .34, f2: .4, f3: .62 };
+  const FFW = 128, FFH = 256, ffc = document.createElement('canvas'); ffc.width = FFW; ffc.height = FFH; const ffg = ffc.getContext('2d');
+  function drawWavy(g, img, key, cx, by, w, alpha, hMul, t, seed, flip) {
+    if (alpha < .02) return;
+    const iw = img.naturalWidth, ih = img.naturalHeight, cw = iw * CWF[key], sx0 = (iw - cw) * (.5 + .5 * Math.sin(t * .33 + seed)), aspect = ih / cw, h = w * aspect * hMul;
+    if (h < 2) return;
+    /* 잘라낸 사진 가장자리가 네모로 보이지 않도록 좌우·위아래를 부드럽게 지움 */
+    const th = Math.min(FFH, Math.round(FFW * aspect));
+    ffg.globalCompositeOperation = 'source-over'; ffg.clearRect(0, 0, FFW, FFH); ffg.drawImage(img, sx0, 0, cw, ih, 0, 0, FFW, th);
+    ffg.globalCompositeOperation = 'destination-in';
+    let gr = ffg.createLinearGradient(0, 0, FFW, 0); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.3, 'rgba(0,0,0,1)'); gr.addColorStop(.7, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ffg.fillStyle = gr; ffg.fillRect(0, 0, FFW, FFH);
+    gr = ffg.createLinearGradient(0, 0, 0, th); gr.addColorStop(0, 'rgba(0,0,0,0)'); gr.addColorStop(.25, 'rgba(0,0,0,1)'); gr.addColorStop(.8, 'rgba(0,0,0,1)'); gr.addColorStop(1, 'rgba(0,0,0,0)'); ffg.fillStyle = gr; ffg.fillRect(0, 0, FFW, th);
+    g.save(); g.globalAlpha = Math.min(1, alpha); g.translate(cx, by + h * .06); if (flip) g.scale(-1, 1);
+    const sk = Math.sin(t * 3.3 + seed) * .16 + Math.sin(t * 7.9 + seed * 2) * .05, sx = 1 + .06 * Math.sin(t * 5.7 + seed * 1.3);
+    g.transform(1, 0, sk, 1, 0, 0);               /* 위쪽일수록 크게 흔들리는 전단 변형 → 부드러운 일렁임 */
+    g.drawImage(ffc, 0, 0, FFW, th, -w * sx / 2, -h, w * sx, h);
+    g.restore();
+  }
+  function drawFlamePhoto(g, n, I, X, Y, now) {
+    const tint = n.prof.tint || 'o', t = now * .001, big = n.r >= n.prof.r * 1.3;
+    const kA = big ? 'f1' : (((n.seed * 7) | 0) % 2 ? 'f2' : 'f3'), kB = ((n.seed * 3) | 0) % 2 ? 'f3' : 'f2';
+    const A = FIMG[kA + '_' + tint], B = FIMG[kB + '_' + tint];
+    if (!okImg(A) || !okImg(B)) return false;
+    const rr = n.r * C, Ic = clamp(I, 0, 1.1), W0 = rr * (n.piece ? 2.3 : (big ? 4.1 : 3.1)) * (.8 + .3 * Ic), flick = .94 + .1 * Math.sin(t * 9 + n.seed) + .05 * Math.sin(t * 23 + n.seed * 3);
+    const mix = .5 + .5 * Math.sin(t * 2.3 + n.seed), flip = (((n.seed * 13) | 0) & 1) === 1, al = clamp(Ic, 0, 1) * (.82 + .18 * Math.sin(t * 17 + n.seed * 2)), by = Y + rr * .4, hm = Math.pow(Ic, .85) * flick;
+    g.save(); g.globalCompositeOperation = 'lighter';
+    drawWavy(g, A, kA, X, by, W0, al * (1 - mix * .6), hm, t, n.seed, flip);
+    drawWavy(g, B, kB, X, by, W0 * .92, al * (.4 + mix * .6), hm * .94, t, n.seed + 1.7, !flip);
+    g.restore(); return true;
+  }
   /* ---------- 화염 노드 ---------- */
   function addNode(gx, gy, prof, o) {
     if (NODES.length >= 60) return null;
@@ -148,26 +245,29 @@
   }
   function startFire(side, sk, prof, gx, gy, sx, sy, rot) {
     const now = performance.now();
-    /* 메인 화염 */
-    addNode(gx, gy, prof, { r: prof.r * 1.35, base: 1.15, gen: 0, delay: 0 });
-    for (let i = 0; i < prof.n0; i++) {
+    /* 장기판 파손 : 균열·구멍 이미지 */
+    spawnCracks(side, sk, gx, gy, rot);
+    const burns = prof.flame || prof.pal === 'frost';
+    /* 메인 화염 (불이 날 만한 스킬 / 서리 스킬만) */
+    if (burns) addNode(gx, gy, prof, { r: prof.r * 1.35, base: 1.15, gen: 0, delay: 0 });
+    for (let i = 0; burns && i < prof.n0; i++) {
       const a = rnd(0, TAU), d = prof.rad * Math.sqrt(Math.random()) * .9;
       const ngx = gx + Math.cos(a) * d, ngy = gy + Math.sin(a) * d * .8;
       if (!inCamp(side, ngx, ngy)) continue;
       addNode(ngx, ngy, prof, { delay: rnd(.05, 1.4), base: rnd(.7, 1.05), life: prof.life * rnd(.75, 1), gen: 1 });
     }
     /* 운석 파편 불 */
-    if (prof.scatter) for (let i = 0; i < prof.scatter; i++) {
+    if (burns && prof.scatter) for (let i = 0; i < prof.scatter; i++) {
       const ngx = gx + rnd(-3.6, 3.6), ngy = gy + rnd(-2.2, 2.2);
       if (inCamp(side, ngx, ngy)) addNode(ngx, ngy, prof, { delay: rnd(.2, 1.8), base: rnd(.55, .9), r: prof.r * rnd(.6, .9), life: prof.life * rnd(.6, .9), gen: 2 });
     }
     /* 광선이 지나간 그을린 줄 */
-    if (prof.line) for (let i = 1; i <= prof.line; i++) {
+    if (burns && prof.line) for (let i = 1; i <= prof.line; i++) {
       const ngx = gx - Math.cos(rot) * i * .9, ngy = gy - Math.sin(rot) * i * .9;
       if (inCamp(side, ngx, ngy)) addNode(ngx, ngy, prof, { delay: i * .12, base: .8, r: prof.r * .75, life: prof.life * .8, gen: 2 });
     }
     /* 기물에 옮겨붙는 불 */
-    if (prof.pieces && typeof B !== 'undefined') {
+    if (burns && prof.pieces && typeof B !== 'undefined') {
       for (let y = 0; y < 10; y++) for (let x = 0; x < 9; x++) {
         if (!B[y][x]) continue;
         const d = Math.hypot(x - gx, (y - gy) * .9);
@@ -177,8 +277,9 @@
       }
     }
     /* 그을음/서리 자국 */
-    SCORCH.push({ gx, gy, r: prof.scorch, born: now, life: 40, pal: prof.pal, seed: rnd(0, 99) });
-    if (SCORCH.length > 12) SCORCH.shift();
+    if (prof.scorch) { SCORCH.push({ gx, gy, r: prof.scorch, born: now, life: 40, pal: prof.pal, seed: rnd(0, 99) }); if (SCORCH.length > 12) SCORCH.shift(); }
+    /* 주먹: 불 대신 흙먼지와 돌조각 */
+    if (sk === 'fist') { for (let i = 0; i < 16; i++) sp({ type: 'smoke', x: sx + rnd(-C * .6, C * .6), y: sy + rnd(-C * .2, C * .3), vx: rnd(-90, 90), vy: -rnd(20, 80), life: rnd(1.2, 2.4), size: C * rnd(.3, .6), grow: 1.8, a: .42, under: 1 }); for (let i = 0; i < 22; i++) { const a = rnd(0, TAU), v = rnd(80, 300); sp({ type: 'dot', x: sx, y: sy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 140, ay: 560, life: rnd(.6, 1.3), size: rnd(1.2, 2.8), a: .95, col: [150, 125, 95] }); } }
     /* 폭발 섬광·충격 링 */
     flash = Math.max(flash, .38); flashCol = prof.col; flashX = sx; flashY = sy;
     for (let i = 0; i < 2; i++) RINGS.push({ x: sx, y: sy + C * .2, r0: C * .2, r1: C * (2.6 + prof.rad), life: 1.1 + i * .3, age: -i * .12, col: prof.col, lw: C * .16, flat: .55 });
@@ -190,8 +291,8 @@
     if (sk === 'nuke') SMK.push({ x: sx, y: sy, born: now, dur: 9 });
     /* 코믹 글자 */
     TXT.push({ x: sx, y: Math.max(RC.top + C * 3.2, sy - C * .6), text: pick(prof.txt), col: prof.col, t0: now, life: 1.9, rot: rnd(-.12, .12), size: Math.max(22, C * 1.05) });
-    setTimeout(() => { if (NODES.length) TXT.push({ x: sx, y: Math.max(RC.top + C * 4.4, sy - C * 1.5), text: prof.pal === 'frost' ? '❄️ 서리!' : prof.pal === 'blue' ? '⚡ 감전!' : prof.pal === 'green' ? '☣️ 부식!' : '🔥 불붙었다!', col: prof.col, t0: performance.now(), life: 1.6, rot: rnd(-.08, .08), size: Math.max(16, C * .6) }); }, 900);
-    try { if (prof.pal === 'frost') noise(.6, 'highpass', 4200, 2400, .12, 1); else whoosh(.14); } catch (e) {}
+    setTimeout(() => { if (NODES.length || sk === 'fist') TXT.push({ x: sx, y: Math.max(RC.top + C * 4.4, sy - C * 1.5), text: sk === 'fist' ? '💢 균열!' : prof.pal === 'frost' ? '❄️ 서리!' : prof.pal === 'blue' ? '⚡ 감전!' : prof.pal === 'green' ? '☣️ 부식!' : '🔥 불붙었다!', col: prof.col, t0: performance.now(), life: 1.6, rot: rnd(-.08, .08), size: Math.max(16, C * .6) }); }, 900);
+    try { if (prof.pal === 'frost') noise(.6, 'highpass', 4200, 2400, .12, 1); else if (prof.flame) whoosh(.14); else noise(.35, 'lowpass', 900, 120, .18, 1); } catch (e) {}
   }
 
   /* ---------- 개별 타격(총탄·주먹·망치) 소규모 연출 ---------- */
@@ -208,8 +309,10 @@
     for (let i = 0; i < 5; i++) sp({ type: 'smoke', x: sx + rnd(-8, 8), y: sy, vx: rnd(-14, 14), vy: -rnd(25, 70), life: rnd(1.4, 2.4), size: C * rnd(.2, .35), grow: 1.8, a: .28 });
     RINGS.push({ x: sx, y: sy, r0: C * .08, r1: C * (ctx.sk === 'gun' ? .7 : 1.4), life: .6, age: 0, col: prof.col, lw: C * .08, flat: .6 });
     const [gx, gy] = fromScreen(sx, sy);
-    if (ctx.sk !== 'hammer' || Math.random() < .5) addNode(gx, gy, prof, { r: prof.r * (ctx.sk === 'gun' ? .5 : .7), base: .75, life: prof.life * rnd(.6, 1), gen: 4, spT: 99 });
-    if (ctx.sk === 'gun') { SCORCH.push({ gx, gy, r: .5, born: performance.now(), life: 30, pal: 'fire', seed: rnd(0, 99), hole: true }); if (SCORCH.length > 14) SCORCH.shift(); try { crackle(.1); } catch (e) {} }
+    if (ctx.sk === 'hammer' && Math.random() < .5) addNode(gx, gy, prof, { r: prof.r * .7, base: .75, life: prof.life * rnd(.6, 1), gen: 4, spT: 99 });
+    if (ctx.sk === 'gun') { addCrack(gx, gy, 'small', { sc: rnd(.75, 1), hot: '255,170,60', hotLife: 2.2, life: 36 }); try { crackle(.1); } catch (e) {} }
+    else if (ctx.sk === 'fist') addCrack(gx, gy, 'net', { sc: rnd(.55, .8), life: 36 });
+    else if (ctx.sk === 'hammer') addCrack(gx, gy, 'net', { sc: rnd(.6, .9), hot: '200,235,255', hotLife: 3, life: 36 });
   }
 
   /* ---------- 갱신 ---------- */
@@ -230,7 +333,7 @@
       }
       const I = intensity(n, age); if (I <= 0.01) continue;
       n.acc += (n.piece ? 5 : 9) * I * dt * (prof.pal === 'frost' ? .35 : 1);
-      let c = 0; while (n.acc >= 1 && c++ < 6) { n.acc -= 1; if (prof.pal !== 'frost') emitFlame(n, I, X, Y); }
+      let c = 0; while (n.acc >= 1 && c++ < 6) { n.acc -= 1; if (prof.pal !== 'frost' && !(okImg(FIMG.f1_o) && okImg(FIMG.f2_o))) emitFlame(n, I, X, Y); }
       const rr = n.r * C;
       if (prof.pal === 'frost') {
         if (Math.random() < .5 * I) sp({ type: 'mist', x: X + rnd(-rr, rr), y: Y + rnd(-rr * .3, rr * .4), vx: rnd(-12, 12), vy: -rnd(10, 30), life: rnd(1.8, 3), size: rr * rnd(.9, 1.6), grow: 1.4, a: .22 });
@@ -337,11 +440,13 @@
     }
     g.restore();
     /* 불길 */
+    let photoCount = 0;
     g.save(); g.globalCompositeOperation = 'lighter';
     for (const n of NODES) {
       const age = (now - n.born) / 1000 - n.delay; if (age < 0 || age > n.life) continue;
       const I = intensity(n, age); if (I < .03) continue;
-      const [X, Y] = toScreen(n.gx, n.gy); drawTongues(g, n, clamp(I, 0, 1.25), X, Y, now);
+      const [X, Y] = toScreen(n.gx, n.gy);
+      if (!(photoCount < 22 && drawFlamePhoto(g, n, clamp(I, 0, 1.25), X, Y, now) && ++photoCount)) drawTongues(g, n, clamp(I, 0, 1.25), X, Y, now);
     }
     g.restore();
     /* 연기(아래층) → 불꽃(가산) → 불씨/불똥 → 전류 → 링 → 글자 */
@@ -418,7 +523,7 @@
     if (orig && orig.__sfx) return;
     window.jgDrawBoardThemeFX = function (g, now) {
       if (typeof orig === 'function') orig.apply(this, arguments);
-      try { drawScorch(g, now); } catch (e) {}
+      try { drawScorch(g, now); drawCracks(g, now); } catch (e) {}
     };
     window.jgDrawBoardThemeFX.__sfx = true;
   }
@@ -475,6 +580,6 @@
     SF.start(sk, side || (window.me === 'c' ? 'h' : 'c'));
     setTimeout(() => window.hitCamp(side || (window.me === 'c' ? 'h' : 'c'), sk), 700);
   };
-  SF.clear = () => { NODES.length = 0; PS.length = 0; SCORCH.length = 0; ARCS.length = 0; RINGS.length = 0; TXT.length = 0; SMK.length = 0; warn = null; };
+  SF.clear = () => { CRK.length = 0; NODES.length = 0; PS.length = 0; SCORCH.length = 0; ARCS.length = 0; RINGS.length = 0; TXT.length = 0; SMK.length = 0; warn = null; };
   requestAnimationFrame(loop);
 })();
