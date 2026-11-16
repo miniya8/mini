@@ -1967,175 +1967,13 @@ window.hitCamp=function(s,sk,extra){
 };
 
 window.jgSplitAnim={c:null,h:null};
-window.jgTriggerBoardSplit=function(side,sk){
-  const colMap={
-    nuke:['#ff6d00','#ffd54a','#ff1744'],
-    meteor:['#ff3d00','#ffab00','#dd2c00'],
-    alien:['#76ff03','#00e5ff','#00c853'],
-    kame:['#00e5ff','#ffffff','#2979ff'],
-    kame2:['#00e5ff','#ffe57f','#00b0ff'],
-    fist:['#ff5252','#ffd54a','#8d5524'],
-    hammer:['#80d8ff','#cfd8dc','#4dd0e1'],
-    gun:['#ffd54a','#ff9100','#fff59d']
-  };
-  const cols=colMap[sk]||colMap.nuke;
-  const rocks=[];
-  for(let i=0;i<28;i++){
-    const a=Math.random()*Math.PI*2,sp=0.38+Math.random()*1.15;
-    rocks.push({
-      fx:0.18+Math.random()*0.64,
-      fy:0.15+Math.random()*0.65,
-      vx:Math.cos(a)*sp,
-      vy:Math.sin(a)*sp-0.48,
-      sz:0.045+Math.random()*0.085,
-      rot:Math.random()*6.28,
-      vr:(Math.random()-0.5)*12,
-      col:i%3===0?cols[0]:i%3===1?'#a17449':'#5c3818'
-    });
-  }
-  const hitList=ensureDmgSk()[side]||[],hit=hitList[hitList.length-1]||{fx:0.5,fy:0.5};
-  const slabs=[];
-  for(let i=0;i<9;i++){
-    const a=i/9*Math.PI*2+(Math.random()-.5)*.5,spreadX=.045+Math.random()*.17,spreadY=.035+Math.random()*.13,speed=.48+Math.random()*.95;
-    slabs.push({fx:Math.max(.025,Math.min(.975,hit.fx+Math.cos(a)*spreadX)),fy:Math.max(.025,Math.min(.975,hit.fy+Math.sin(a)*spreadY)),vx:Math.cos(a)*speed,vy:Math.sin(a)*speed-.72,w:.24+Math.random()*.38,h:.13+Math.random()*.23,depth:.055+Math.random()*.075,rot:a,vr:(Math.random()-.5)*7,grain:Math.random()});
-  }
-  window.jgSplitAnim[side]={t0:performance.now(),sk:sk||'nuke',cols,rocks,slabs,lv:(window.DMG&&window.DMG[side])||1};
-};
+window.jgTriggerBoardSplit=function(){/* 오래된 판 갈라짐 연출 삭제 */};
 
 // 정교한 지각 단층 및 보조 균열 트리 생성기
-function buildTectonicCanyons(xMin,bw,yEdge,dir,bh,C,lv,side){
-  let sd=side==='c'?73856093:19349663;
-  const rn=()=>(sd=Math.imul(sd,1664525)+1013904223>>>0)/4294967296;
-  const canyons=[];
-  // 1) 메인 대단층 (장기판 진영을 가로지르며 양쪽으로 벌어지게 만드는 주 협곡)
-  const mainPts=[];
-  const steps=14+lv*2;
-  const cx=xMin+bw*(side==='c'?0.22:0.78);
-  const cy=yEdge-dir*C*0.18; // 외곽 테두리 밖에서부터 시작해 테두리까지 실제로 쪼개짐
-  const tx=xMin+bw*(side==='c'?0.78:0.22);
-  const ty=yEdge+dir*bh*(0.58+lv*0.08);
-  for(let i=0;i<=steps;i++){
-    const u=i/steps;
-    const envelope=Math.sin(u*Math.PI);
-    const jx=(i===0||i===steps)?0:(rn()-0.5)*C*(0.28+lv*0.04);
-    const jy=(i===0||i===steps)?0:(rn()-0.5)*C*0.16;
-    const wMul=(0.35+0.65*envelope)*(0.78+0.35*rn())*(0.62+lv*0.20);
-    mainPts.push({
-      x:cx+(tx-cx)*u+jx,
-      y:cy+(ty-cy)*u+jy,
-      w:C*(0.11+0.11*wMul)
-    });
-  }
-  canyons.push(mainPts);
-
-  // 2) Lv2 이상: 주 단층에서 갈라져 나오는 Y자 지각 분기 단층
-  if(lv>=2){
-    const branchPts=[];
-    const bSteps=10;
-    const mid=mainPts[Math.floor(mainPts.length*0.42)];
-    const bx1=xMin+bw*(side==='c'?0.14:0.86);
-    const by1=yEdge+dir*bh*(0.68+lv*0.05);
-    for(let i=0;i<=bSteps;i++){
-      const u=i/bSteps;
-      const wMul=Math.pow(1-u*0.75,0.8)*(0.55+lv*0.16);
-      branchPts.push({
-        x:mid.x+(bx1-mid.x)*u+(i>0?(rn()-0.5)*C*0.22:0),
-        y:mid.y+(by1-mid.y)*u+(i>0?(rn()-0.5)*C*0.14:0),
-        w:C*(0.08+0.08*wMul)
-      });
-    }
-    canyons.push(branchPts);
-  }
-
-  // 3) Lv3~4: 측면 외곽 절벽까지 쪼개는 3차 단층
-  if(lv>=3){
-    const subPts=[];
-    const sSteps=9;
-    const p0=mainPts[Math.floor(mainPts.length*0.64)];
-    const sx1=side==='c'?(xMin+bw+C*0.15):(xMin-C*0.15);
-    const sy1=yEdge+dir*bh*0.44;
-    for(let i=0;i<=sSteps;i++){
-      const u=i/sSteps;
-      subPts.push({
-        x:p0.x+(sx1-p0.x)*u+(i>0?(rn()-0.5)*C*0.18:0),
-        y:p0.y+(sy1-p0.y)*u+(i>0?(rn()-0.5)*C*0.14:0),
-        w:C*0.11*(1-u*0.45)*(0.75+lv*0.12)
-      });
-    }
-    canyons.push(subPts);
-  }
-  return canyons;
-}
+/* (삭제됨) buildTectonicCanyons: 오래된 단층 협곡 생성 */
 
 // 장기판이 실제로 좌우/외곽으로 벌어지는(Plate Separation) 효과를 렌더링 (게임 조작 및 기물 위치 방해 0%)
-window.jgDrawBoardSplitPlates=function(g,drawRawBoardImg,st){
-  ['c','h'].forEach(side=>{
-    const lv=window.jgDmg(side);
-    if(!lv||lv<=0)return;
-    const isBottom=flip?(side==='h'):(side==='c');
-    const yMin=isBottom?OY+4.52*CY:OY-CY*0.55;
-    const yMax=isBottom?OY+9*CY+CY*0.55:OY+4.48*CY;
-    const yEdge=isBottom?OY+9*CY:OY;
-    const dir=isBottom?-1:1;
-    const xMin=OX,xMax=OX+8*CX,bw=xMax-xMin,bh=4.48*CY;
-    const canyons=buildTectonicCanyons(xMin,bw,yEdge,dir,bh,C,lv,side);
-    const mainPts=canyons[0];
-    if(!mainPts||mainPts.length<2)return;
-
-    // 실시간 대분열 충격 직후에는 더 크게 벌어졌다가 탄성 있게 자리잡음
-    let animBoost=0;
-    const spAnim=window.jgSplitAnim&&window.jgSplitAnim[side];
-    if(spAnim){
-      const dt=(performance.now()-spAnim.t0)*0.001;
-      if(dt>=0&&dt<2.4)animBoost=Math.sin(Math.min(1,dt/0.18)*Math.PI*0.5)*Math.exp(-dt*1.6)*C*0.085;
-    }
-    const shiftPx=C*(0.026+lv*0.018)+animBoost; // 약 2px ~ 6.5px의 세련되고 리얼한 지각 벌어짐 유격
-
-    // 단층 좌측 판(Left Tectonic Plate)과 우측 판(Right Tectonic Plate)을 각각 클리핑하여 바깥쪽으로 미세 이동
-    for(const plateSign of [-1, 1]){
-      g.save();
-      g.beginPath();
-      if(plateSign < 0){
-        g.moveTo(xMin - CX*0.6, yMin);
-        for(let i=0;i<mainPts.length;i++)g.lineTo(mainPts[i].x, mainPts[i].y);
-        g.lineTo(xMin - CX*0.6, yMax);
-      }else{
-        g.moveTo(xMax + CX*0.6, yMin);
-        for(let i=0;i<mainPts.length;i++)g.lineTo(mainPts[i].x, mainPts[i].y);
-        g.lineTo(xMax + CX*0.6, yMax);
-      }
-      g.closePath();
-      g.clip();
-      g.translate(plateSign * shiftPx, dir * shiftPx * 0.28);
-      drawRawBoardImg(g);
-      g.restore();
-    }
-
-    // 장기판 외곽 테두리가 단층에 의해 실제로 끊어지고 어긋난 3D 절단면(Split Rim Gap) 표현
-    const pEdge=mainPts[0];
-    const gapW=pEdge.w*1.25+shiftPx*1.8;
-    g.save();
-    // 테두리가 벌어진 틈새의 어두운 심연과 양쪽 나무/석판 두께 단면
-    g.fillStyle=st.slabDeep||'#120802';
-    g.beginPath();
-    g.rect(pEdge.x - gapW, yEdge - C*0.14, gapW*2, C*0.28);
-    g.fill();
-
-    // 벌어진 테두리 좌우 절단면 입체 두께
-    for(const sgn of [-1, 1]){
-      const rx = pEdge.x + sgn * gapW;
-      g.fillStyle = sgn < 0 ? (st.slabEdge||'#7a4f2a') : (st.slabDeep||'#2b1405');
-      g.beginPath();
-      g.moveTo(rx, yEdge - C*0.11);
-      g.lineTo(rx + sgn*C*0.09, yEdge - C*0.07);
-      g.lineTo(rx + sgn*C*0.07, yEdge + C*0.11);
-      g.lineTo(rx, yEdge + C*0.09);
-      g.closePath();
-      g.fill();
-    }
-    g.restore();
-  });
-};
+window.jgDrawBoardSplitPlates=function(){/* 오래된 상판 분리(갈라짐) 표현 삭제 */};
 
 // 바위/목재 절벽 해칭(층리) 및 미세 잔균열 렌더링 보조 함수
 function drawFineRockFractures(g, originX, originY, baseAng, len, depth, rn, st){
@@ -2185,144 +2023,12 @@ function drawCampDamage(g,side,lv,debrisOnly){
   const rn=()=>(sd=Math.imul(sd,1664525)+1013904223>>>0)/4294967296;
   const dsk=ensureDmgSk()[side];
   const lastSk=(dsk.length?dsk[dsk.length-1].sk:(side==='c'?'nuke':'meteor'));
-  const canyons=buildTectonicCanyons(xMin,bw,yEdge,dir,bh,C,lv,side);
-
-  // 실시간 벌어짐 보너스 반영
-  let animBoost=0;
-  const spAnim=window.jgSplitAnim&&window.jgSplitAnim[side];
-  if(spAnim){
-    const dt=(performance.now()-spAnim.t0)*0.001;
-    if(dt>=0&&dt<2.4)animBoost=Math.sin(Math.min(1,dt/0.18)*Math.PI*0.5)*Math.exp(-dt*1.6)*C*0.07;
-  }
-  const splitExtra=C*(0.018+lv*0.014)+animBoost;
 
   if(!debrisOnly){
     g.save();
     g.beginPath();g.rect(xMin-CX*.55,yMin,bw+CX*1.1,yMax-yMin);g.clip();
 
-    // 1. 고밀도 다층 3D 지각 단층 & 장기판 벌어짐 협곡(Multi-Strata Tectonic Chasm) 렌더링
-    canyons.forEach((pts,cIdx)=>{
-      if(pts.length<2)return;
-      const leftRim=[],rightRim=[],step1L=[],step1R=[],step2L=[],step2R=[],abyssL=[],abyssR=[];
-      const normals=[];
-
-      for(let i=0;i<pts.length;i++){
-        const p=pts[i];
-        const pPrev=pts[Math.max(0,i-1)],pNext=pts[Math.min(pts.length-1,i+1)];
-        const dx=pNext.x-pPrev.x,dy=pNext.y-pPrev.y,L=Math.hypot(dx,dy)||1;
-        const nx=-dy/L,ny=dx/L;
-        normals.push([nx,ny]);
-        const w = p.w + (cIdx===0 ? splitExtra : splitExtra*0.5);
-
-        // 비대칭 톱니 단면으로 인위적인 직선 느낌 완전 제거
-        const jagL = 0.82 + 0.36 * rn();
-        const jagR = 0.82 + 0.36 * rn();
-        leftRim.push([p.x + nx*w*jagL, p.y + ny*w*jagL]);
-        rightRim.unshift([p.x - nx*w*jagR, p.y - ny*w*jagR]);
-
-        // 1단 상부 파쇄 암반/목재 단층 (빛을 받는 사면과 그늘진 사면 구분)
-        step1L.push([p.x + nx*w*jagL*0.76, p.y + ny*w*jagL*0.76 + dir*C*0.032]);
-        step1R.unshift([p.x - nx*w*jagR*0.76, p.y - ny*w*jagR*0.76 + dir*C*0.032]);
-
-        // 2단 중부 암벽 층리 단층
-        step2L.push([p.x + nx*w*jagL*0.48, p.y + ny*w*jagL*0.48 + dir*C*0.068]);
-        step2R.unshift([p.x - nx*w*jagR*0.48, p.y - ny*w*jagR*0.48 + dir*C*0.068]);
-
-        // 3단 최심부 심연 크레바스 바닥
-        abyssL.push([p.x + nx*w*0.24, p.y + ny*w*0.24 + dir*C*0.095]);
-        abyssR.unshift([p.x - nx*w*0.24, p.y - ny*w*0.24 + dir*C*0.095]);
-      }
-
-      const polyRim = leftRim.concat(rightRim);
-      const polyStep1 = step1L.concat(step1R);
-      const polyStep2 = step2L.concat(step2R);
-      const polyAbyss = abyssL.concat(abyssR);
-
-      // (A) 단층 외곽 그을음 & 앰비언트 오클루전 그림자
-      g.save();
-      g.shadowColor='rgba(0,0,0,0.88)';
-      g.shadowBlur=Math.max(8, C*0.22);
-      g.fillStyle=st.slabEdge||'#6e4720';
-      g.beginPath();polyRim.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-      g.restore();
-
-      // (B) 1단 파쇄 절벽면 (상판이 쪼개진 밝은 속살 단면)
-      const cliffGrad = g.createLinearGradient(xMin, yEdge, xMax, yEdge + dir*bh*0.7);
-      cliffGrad.addColorStop(0, st.slabEdge||'#7d5228');
-      cliffGrad.addColorStop(0.5, '#4a2c11');
-      cliffGrad.addColorStop(1, st.slabDeep||'#2b1506');
-      g.fillStyle = cliffGrad;
-      g.beginPath();polyRim.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-
-      // (C) 2단 깊은 암반 단층
-      g.fillStyle = '#211005';
-      g.beginPath();polyStep1.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-
-      // (D) 절벽 수직 층리(Rock Striation Lines): 단면이 평평해 보이지 않도록 가장자리에서 심연으로 내려가는 암석 결 표현
-      g.strokeStyle = 'rgba(255, 220, 160, 0.22)';
-      g.lineWidth = 0.9;
-      g.beginPath();
-      for(let i=0; i<leftRim.length; i++){
-        g.moveTo(leftRim[i][0], leftRim[i][1]);
-        g.lineTo(step2L[i][0], step2L[i][1]);
-        const rIdx = rightRim.length - 1 - i;
-        g.moveTo(rightRim[rIdx][0], rightRim[rIdx][1]);
-        g.lineTo(step2R[rIdx][0], step2R[rIdx][1]);
-      }
-      g.stroke();
-
-      g.strokeStyle = 'rgba(0, 0, 0, 0.65)';
-      g.lineWidth = 1.1;
-      g.beginPath();
-      for(let i=0; i<step1L.length; i+=2){
-        g.moveTo(step1L[i][0], step1L[i][1]);
-        g.lineTo(abyssL[i][0], abyssL[i][1]);
-      }
-      g.stroke();
-
-      // (E) 3단 & 최심부 심연 바닥
-      g.fillStyle = '#0d0603';
-      g.beginPath();polyStep2.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-      g.fillStyle = '#040201';
-      g.beginPath();polyAbyss.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-
-      // (F) 심연 바닥에서 은은하게 배어 나오는 마그마/플라즈마 광맥 (위쪽에 식은 암석 브릿지 조각들을 덮어 과하지 않고 리얼하게 표현)
-      const coreCol=lastSk==='kame'||lastSk==='kame2'?'#00e5ff':lastSk==='alien'?'#76ff03':lastSk==='hammer'?'#80d8ff':'#ff5722';
-      g.save();
-      g.strokeStyle=coreCol;
-      g.shadowColor=coreCol;g.shadowBlur=6;
-      g.globalAlpha=0.68;
-      g.lineWidth=Math.max(1.4,C*(0.028+lv*0.008)*(cIdx===0?1:0.65));
-      g.setLineDash([C*0.22, C*0.11, C*0.08, C*0.14]); // 암석 조각에 가려져 끊겨 보이는 리얼한 심연 광맥
-      g.beginPath();
-      pts.forEach((p,i)=>i?g.lineTo(p.x,p.y+dir*C*0.06):g.moveTo(p.x,p.y+dir*C*0.06));
-      g.stroke();
-      g.restore();
-
-      // (G) 쪼개진 상판 모서리의 날카로운 3D 베벨 하이라이트 (빛을 받는 쪽은 밝게, 반대쪽은 짙은 음영)
-      g.strokeStyle = st.bevel || 'rgba(255, 230, 175, 0.72)';
-      g.lineWidth = Math.max(1.3, C*0.032);
-      g.beginPath();
-      leftRim.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
-      g.stroke();
-
-      g.strokeStyle = 'rgba(15, 7, 2, 0.85)';
-      g.lineWidth = Math.max(1.4, C*0.035);
-      g.beginPath();
-      rightRim.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));
-      g.stroke();
-
-      // (H) 단층 양옆으로 뻗어나가는 리얼한 미세 암석 잔균열(Micro-fissures)
-      for(let i=1; i<pts.length-1; i+=2){
-        const [nx, ny] = normals[i];
-        const sideSgn = (i % 4 === 1) ? 1 : -1;
-        const baseX = sideSgn > 0 ? leftRim[i][0] : rightRim[pts.length - 1 - i][0];
-        const baseY = sideSgn > 0 ? leftRim[i][1] : rightRim[pts.length - 1 - i][1];
-        const outAng = Math.atan2(ny * sideSgn, nx * sideSgn) + (rn() - 0.5) * 0.5;
-        drawFineRockFractures(g, baseX, baseY, outAng, C * (0.28 + 0.26 * rn()) * (0.8 + lv * 0.1), 2, rn, st);
-      }
-    });
-
+    /* (삭제됨) 오래된 지각 단층·협곡 갈라짐 표현 */
     // 2. 응징 스킬별 고정밀 3D 크레이터 & 파쇄흔 (다층 단면 + 방사형 파열망)
     const activeHits=dsk.length?dsk:[
       {sk:'nuke',lv:1,fx:0.28,fy:0.26,rot:0.1},
@@ -2336,44 +2042,16 @@ function drawCampDamage(g,side,lv,debrisOnly){
       const sk=hit.sk;
       g.save();
 
-      // 공통: 크레이터 주변 방사형 지면 실금
-      const rayCnt = sk==='gun' ? 5 : 8;
-      for(let r=0; r<rayCnt; r++){
-        const a = (r / rayCnt) * Math.PI * 2 + (rn() - 0.5) * 0.4;
-        const rStart = C * (sk==='gun' ? 0.14 : 0.36);
-        drawFineRockFractures(g, cx + Math.cos(a)*rStart, cy + Math.sin(a)*rStart, a, C*(0.32 + 0.28*rn()), 2, rn, st);
-      }
+      /* (삭제됨) 오래된 방사형 지면 실금 → 균열·구멍 이미지(skill-fx.js)로 대체 */
 
       if(sk==='kame'||sk==='kame2'){
-        // 에네르기파 1·2: 초고열 플라즈마에 녹아내린 3D 유리화 협곡(Vitrified Plasma Trench)
-        g.translate(cx,cy);g.rotate(hit.rot||-0.25);
-        const len=C*(2.1+lv*0.24),th=C*(0.32+lv*0.04);
-        // 외곽 그을림 후광
-        const sg=g.createRadialGradient(0,0,th*0.2,0,0,len*0.55);
-        sg.addColorStop(0,'rgba(4,12,24,0.85)');
-        sg.addColorStop(0.6,'rgba(8,22,38,0.45)');
+        // 에네르기파 1·2: 그을린 후광과 식어가는 푸른 플라즈마 자국 (갈라진 협곡 표현은 삭제)
+        const sg=g.createRadialGradient(cx,cy,C*0.1,cx,cy,C*(0.9+lv*0.12));
+        sg.addColorStop(0,'rgba(4,12,24,0.8)');
+        sg.addColorStop(0.6,'rgba(8,22,38,0.4)');
         sg.addColorStop(1,'rgba(0,0,0,0)');
-        g.fillStyle=sg;
-        g.beginPath();g.ellipse(0,0,len*0.58,th*1.35,0,0,7);g.fill();
-
-        // 다각형 파쇄 트렌치 외벽 및 내벽
-        const tPts=16,outerT=[],innerT=[];
-        for(let i=0;i<tPts;i++){
-          const a=(i/tPts)*Math.PI*2;
-          const j=0.82+0.32*rn();
-          outerT.push([Math.cos(a)*len*0.48*j, Math.sin(a)*th*0.65*j]);
-          innerT.push([Math.cos(a)*len*0.36*j, Math.sin(a)*th*0.38*j + dir*C*0.03]);
-        }
-        g.fillStyle=st.slabEdge||'#4a3219';
-        g.beginPath();outerT.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-        g.strokeStyle='rgba(190,245,255,0.65)';g.lineWidth=1.3;g.stroke();
-
-        g.fillStyle='#051020';
-        g.beginPath();innerT.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
-
-        // 바닥에 잔류하는 푸른 플라즈마 결정 줄기
-        g.strokeStyle='#00e5ff';g.lineWidth=1.8;g.globalAlpha=0.75;
-        g.beginPath();g.moveTo(-len*0.32,0);g.lineTo(len*0.32,0);g.stroke();
+        g.fillStyle=sg;g.beginPath();g.ellipse(cx,cy,C*(0.9+lv*0.12),C*(0.7+lv*0.1),0,0,7);g.fill();
+        g.fillStyle='rgba(0,229,255,0.55)';g.beginPath();g.arc(cx,cy,C*0.07,0,7);g.fill();
       }else if(sk==='gun'){
         // 권총 사격: 정교한 3D 베벨 철갑탄 관통공 군집
         for(let b=0;b<4;b++){
@@ -2531,95 +2209,7 @@ const BOARD_CHUNK_PALETTE=[
   ['#e0b66f','#a5723d','#704722','#392315']
 ];
 /* ==== 실시간 갈라진 장기판 단층 심연 광맥 호흡 & 분열 쇼크웨이브 ==== */
-window.jgDrawBoardLiveCracks=function(g,now){
-  const t=now*0.001;
-  ['c','h'].forEach(side=>{
-    const lv=window.jgDmg(side);
-    const spAnim=window.jgSplitAnim&&window.jgSplitAnim[side];
-    if(lv<=0&&!spAnim)return;
-    const isBottom=flip?(side==='h'):(side==='c');
-    const yEdge=isBottom?OY+9*CY:OY;
-    const dir=isBottom?-1:1;
-    const xMin=OX,bw=8*CX,bh=4.48*CY;
-    const dsk=ensureDmgSk()[side];
-    const lastSk=(dsk.length?dsk[dsk.length-1].sk:(side==='c'?'nuke':'meteor'));
-
-    if(lv>0){
-      const canyons=buildTectonicCanyons(xMin,bw,yEdge,dir,bh,C,lv,side);
-      const pulse=0.5+0.5*Math.sin(t*3.2+(side==='c'?0:2.1));
-      const glowCol=lastSk==='kame'||lastSk==='kame2'?'#00e5ff':lastSk==='alien'?'#76ff03':lastSk==='hammer'?'#80d8ff':'#ff5722';
-      g.save();
-      g.globalCompositeOperation='lighter';
-      canyons.forEach((pts,ci)=>{
-        g.strokeStyle=glowCol;
-        g.globalAlpha=(0.12+0.12*pulse)*(ci===0?1:0.65);
-        g.lineWidth=Math.max(1.5,C*(0.038+0.012*pulse));
-        g.setLineDash([C*0.18, C*0.14]);
-        g.beginPath();
-        pts.forEach((p,i)=>i?g.lineTo(p.x,p.y+dir*C*0.06):g.moveTo(p.x,p.y+dir*C*0.06));
-        g.stroke();
-      });
-      g.restore();
-    }
-
-    if(spAnim){
-      const dt=(now-spAnim.t0)*0.001;
-      if(dt>2.4){window.jgSplitAnim[side]=null;return}
-      const u=dt/2.4,fade=1-u;
-      const canyons=buildTectonicCanyons(xMin,bw,yEdge,dir,bh,C,spAnim.lv||1,side);
-      g.save();
-      g.globalCompositeOperation='lighter';
-      if(canyons[0]){
-        g.strokeStyle=spAnim.cols[0];
-        g.shadowColor=spAnim.cols[1];g.shadowBlur=14;
-        g.globalAlpha=Math.min(0.85,fade*1.1);
-        g.lineWidth=C*(0.16*(1-u*0.7));
-        g.beginPath();
-        canyons[0].forEach((p,i)=>i?g.lineTo(p.x,p.y):g.moveTo(p.x,p.y));
-        g.stroke();
-      }
-      spAnim.rocks.forEach(rk=>{
-        const rx=xMin+bw*rk.fx+rk.vx*C*2.1*dt;
-        const ry=yEdge+dir*bh*rk.fy+(rk.vy*dt+0.92*dt*dt)*C*2.1;
-        const sz=C*rk.sz*(1-u*0.45);
-        g.save();
-        g.globalCompositeOperation='source-over';
-        g.globalAlpha=Math.max(0,fade*0.88);
-        g.translate(rx,ry);g.rotate(rk.rot+rk.vr*dt);
-        g.fillStyle=rk.col;g.strokeStyle='#1a0902';g.lineWidth=1.0;
-        g.beginPath();
-        g.moveTo(-sz,-sz*0.5);g.lineTo(sz*0.8,-sz*0.7);g.lineTo(sz,sz*0.6);g.lineTo(-sz*0.7,sz*0.8);
-        g.closePath();g.fill();g.stroke();
-        g.restore();
-      });
-      (spAnim.slabs||[]).forEach((slab,index)=>{
-        const sx=xMin+bw*slab.fx+slab.vx*C*2.4*dt;
-        const sy=yEdge+dir*bh*slab.fy+(slab.vy*dt+0.84*dt*dt)*C*2.2-Math.sin(Math.min(1,dt/.24)*Math.PI*.5)*C*.18;
-        const w=C*slab.w*(1+Math.min(dt,.3)*.18),h=C*slab.h*(1+Math.min(dt,.25)*.12),dep=C*slab.depth,alpha=Math.max(0,fade*(dt<.16?dt/.16:1));
-        const shade=(BOARD_CHUNK_PALETTE[window.curBoardIdx||0]||BOARD_CHUNK_PALETTE[0])[index%4];
-        g.save();g.globalCompositeOperation='source-over';g.globalAlpha=alpha;
-        // 접지 그림자와 떠오르는 나무판 조각의 두께를 따로 그려 입체감을 줍니다.
-        g.fillStyle='rgba(16,8,3,'+(.28*alpha)+')';g.beginPath();g.ellipse(sx+dep*1.5,sy+dep*2,w*.58,h*.44,slab.rot,0,Math.PI*2);g.fill();
-        g.translate(sx,sy);g.rotate(slab.rot+slab.vr*dt);
-        const pts=[[-w*.52,-h*.12],[-w*.28,-h*.48],[w*.22,-h*.42],[w*.52,-h*.08],[w*.33,h*.38],[-w*.32,h*.48]];
-        const wood=g.createLinearGradient(-w*.45,-h*.4,w*.42,h*.4);wood.addColorStop(0,'#c5985f');wood.addColorStop(.32,shade);wood.addColorStop(.72,'#7b542e');wood.addColorStop(1,'#3b2412');
-        // 옆면: 떠 있는 판 조각의 두께와 어두운 깨진 단면
-        g.fillStyle='rgba(28,14,6,.98)';g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x+dep*.18,y+dep):g.moveTo(x+dep*.18,y+dep));for(let i=pts.length-1;i>=0;i--)g.lineTo(pts[i][0],pts[i][1]);g.closePath();g.fill();
-        g.fillStyle=wood;g.strokeStyle='rgba(28,13,5,.95)';g.lineWidth=Math.max(1,C*.018);
-        g.beginPath();pts.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();g.stroke();
-        // 나뭇결과 밝은 깨진 단면 하이라이트
-        g.strokeStyle='rgba(238,197,132,.42)';g.lineWidth=Math.max(.7,C*.009);
-        for(let k=0;k<2;k++){const yy=(k-.5)*h*.22;g.beginPath();g.moveTo(-w*.28,yy);g.quadraticCurveTo(-w*.02,yy-h*.08,w*.28,yy+h*.015);g.stroke()}
-        g.strokeStyle='rgba(255,226,174,.8)';g.lineWidth=Math.max(1,C*.014);g.beginPath();g.moveTo(pts[0][0],pts[0][1]);g.lineTo(pts[1][0],pts[1][1]);g.lineTo(pts[2][0],pts[2][1]);g.stroke();
-        g.restore();
-      });
-
-      g.restore();
-    }
-  });
-  // 파편과 충격광 위에 원래 격자선을 다시 그려 게임판 선을 항상 선명하게 유지합니다.
-  if(typeof window.jgDrawCrispGridOverlay==='function')try{g.save();window.jgDrawCrispGridOverlay(g);g.restore()}catch(e){}
-};
+window.jgDrawBoardLiveCracks=function(){/* 오래된 단층 광맥/분열 쇼크웨이브 삭제 */};
 
 /* ==== 5종 장기판 테마별 은은한 환경 파티클 (장기판 중앙 그림/파문 제거) ==== */
 const THEME_PARTICLES=Array.from({length:32},(_,i)=>({

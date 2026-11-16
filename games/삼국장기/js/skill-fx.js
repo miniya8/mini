@@ -97,7 +97,7 @@
 
   /* ---------- 데이터 ---------- */
   const PS = [], NODES = [], ARCS = [], RINGS = [], TXT = [], SCORCH = [], SMK = [];
-  let ctx = null, warn = null, lastT = 0, flash = 0, flashCol = '255,200,120', flashX = 0, flashY = 0, crackAcc = 0;
+  let zeroSince = 0, ctx = null, warn = null, lastT = 0, flash = 0, flashCol = '255,200,120', flashX = 0, flashY = 0, crackAcc = 0;
 
   function sp(o) {
     if (PS.length > 760) PS.shift();
@@ -129,8 +129,12 @@
   const CLSW = { small: .85, mid: 1.5, net: 2.4, big: 3.6 };
   const CRK = [];
   function addCrack(gx, gy, cls, o) {
-    CRK.push(Object.assign({ gx, gy, idx: pick(CLS[cls]), cls, sc: 1, rot: rnd(-.6, .6) + (Math.random() < .5 ? 0 : Math.PI), born: performance.now(), delay: 0, life: 46, hot: null, hotLife: 12, flipX: Math.random() < .5 }, o || {}));
-    if (CRK.length > 46) CRK.shift();
+    const d = Object.assign({ gx, gy, idx: pick(CLS[cls]), cls, sc: 1, rot: rnd(-.6, .6) + (Math.random() < .5 ? 0 : Math.PI), born: performance.now(), delay: 0, life: 1e9, hot: null, hotLife: 12, flipX: Math.random() < .5, seed: rnd(0, 1000) }, o || {});
+    /* 파편: 충격 때 튀어나와 구멍 주변에 쌓이는 돌/나무 조각 */
+    const nr = { big: 11, mid: 6, small: 2, net: 0 }[cls] || 0; d.rub = [];
+    for (let i = 0; i < nr; i++) d.rub.push({ a: rnd(0, TAU), d: rnd(.42, .95), r: rnd(.05, .12), rot: rnd(0, TAU), tone: rnd(0, 1), v: rnd(.7, 1.3) });
+    CRK.push(d);
+    if (CRK.length > 64) CRK.shift();
   }
   const tintCache = {};
   function tinted(idx, col) {
@@ -167,13 +171,27 @@
     if (!okImg(CATLAS)) return;
     for (let i = CRK.length - 1; i >= 0; i--) {
       const c = CRK[i], age = (now - c.born) / 1000 - c.delay;
-      if (age > c.life) { CRK.splice(i, 1); continue; }
       if (age < 0) continue;
       const r = CR[c.idx], [X, Y] = px(c.gx, c.gy), w = CLSW[c.cls] * CX * c.sc, sc = w / r[3], h = r[4] * sc;
-      const slam = ease(age / .3), pop = 1.2 - .2 * slam, ab = slam * (age > c.life - 8 ? (c.life - age) / 8 : 1);
+      const slam = ease(age / .3), pop = 1.2 - .2 * slam, ab = slam;
+      const stl = (typeof BOARD_STYLE_META !== 'undefined' && BOARD_STYLE_META[window.curBoardIdx || 0]) || {};
       g.save(); g.translate(X, Y); g.rotate(c.rot); g.scale((c.flipX ? -1 : 1) * pop, pop);
+      /* 구멍 둘레의 어두운 그림자: 판이 눌려 파인 깊이감 */
+      if (c.cls !== 'net') { const ao = g.createRadialGradient(0, 0, w * .08, 0, 0, w * .66); ao.addColorStop(0, 'rgba(0,0,0,.5)'); ao.addColorStop(.55, 'rgba(0,0,0,.26)'); ao.addColorStop(1, 'rgba(0,0,0,0)'); g.globalAlpha = ab; g.fillStyle = ao; g.beginPath(); g.ellipse(0, 0, w * .66, h * .6, 0, 0, TAU); g.fill(); }
       g.globalAlpha = ab * .32; g.drawImage(tinted(c.idx, 'rgb(255,238,205)'), -w / 2 - 1.3, -h / 2 - 1.3, w, h);   /* 어두운 판에서도 보이도록 밝은 테두리 */
       g.globalAlpha = ab * .96; g.drawImage(CATLAS, r[1], r[2], r[3], r[4], -w / 2, -h / 2, w, h);
+      /* 파편: 0.6초 동안 바깥으로 튀어나가 자리를 잡고, 이후 그림자와 함께 남음 */
+      if (c.rub && c.rub.length) {
+        const fl = ease(age / .6), base = stl.slabEdge || '#6a5a48';
+        c.rub.forEach(q => {
+          const dd = q.d * fl, qx = Math.cos(q.a) * dd * w * .5, qy = Math.sin(q.a) * dd * h * .5 - Math.sin(Math.PI * Math.min(1, age / .6)) * C * .35 * q.v, rr = q.r * w;
+          g.save(); g.translate(qx, qy); g.rotate(q.rot + age * (1 - fl) * 6);
+          g.fillStyle = 'rgba(0,0,0,.35)'; g.beginPath(); g.ellipse(rr * .25, rr * .45, rr * .95, rr * .4, 0, 0, TAU); g.fill();
+          g.fillStyle = base; g.globalAlpha = ab * (.75 + .25 * q.tone); g.beginPath(); g.moveTo(-rr, -rr * .2); g.lineTo(-rr * .3, -rr * .8); g.lineTo(rr * .7, -rr * .5); g.lineTo(rr, rr * .3); g.lineTo(0, rr * .75); g.closePath(); g.fill();
+          g.strokeStyle = 'rgba(255,235,200,.45)'; g.lineWidth = 1; g.beginPath(); g.moveTo(-rr, -rr * .2); g.lineTo(-rr * .3, -rr * .8); g.lineTo(rr * .7, -rr * .5); g.stroke();
+          g.restore();
+        });
+      }
       if (c.hot) {
         const hotA = Math.max(0, 1 - age / c.hotLife) * ab;
         if (hotA > .02) { const pulse = .65 + .35 * Math.sin(now * .006 + c.gx * 3); g.globalCompositeOperation = 'lighter'; g.globalAlpha = hotA * pulse * .75; g.shadowColor = 'rgb(' + c.hot + ')'; g.shadowBlur = C * .3; g.drawImage(tinted(c.idx, 'rgb(' + c.hot + ')'), -w / 2, -h / 2, w, h); g.shadowBlur = 0; }
@@ -277,7 +295,7 @@
       }
     }
     /* 그을음/서리 자국 */
-    if (prof.scorch) { SCORCH.push({ gx, gy, r: prof.scorch, born: now, life: 40, pal: prof.pal, seed: rnd(0, 99) }); if (SCORCH.length > 12) SCORCH.shift(); }
+    if (prof.scorch) { SCORCH.push({ gx, gy, r: prof.scorch, born: now, life: 40, pal: prof.pal, seed: rnd(0, 99) }); if (SCORCH.length > 18) SCORCH.shift(); }
     /* 주먹: 불 대신 흙먼지와 돌조각 */
     if (sk === 'fist') { for (let i = 0; i < 16; i++) sp({ type: 'smoke', x: sx + rnd(-C * .6, C * .6), y: sy + rnd(-C * .2, C * .3), vx: rnd(-90, 90), vy: -rnd(20, 80), life: rnd(1.2, 2.4), size: C * rnd(.3, .6), grow: 1.8, a: .42, under: 1 }); for (let i = 0; i < 22; i++) { const a = rnd(0, TAU), v = rnd(80, 300); sp({ type: 'dot', x: sx, y: sy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 140, ay: 560, life: rnd(.6, 1.3), size: rnd(1.2, 2.8), a: .95, col: [150, 125, 95] }); } }
     /* 폭발 섬광·충격 링 */
@@ -502,8 +520,7 @@
     if (!SF.enabled) return;
     for (let i = SCORCH.length - 1; i >= 0; i--) {
       const s = SCORCH[i], age = (now - s.born) / 1000;
-      if (age > s.life) { SCORCH.splice(i, 1); continue; }
-      const a = ease(age / .8) * (age > s.life - 8 ? (s.life - age) / 8 : 1), [X, Y] = px(s.gx, s.gy), r = s.r * C;
+      const a = ease(age / .8) * (s.hole ? Math.max(.4, Math.exp(-age / 40)) : (.4 + .6 * Math.exp(-age / 30))), [X, Y] = px(s.gx, s.gy), r = s.r * C;
       g.save(); g.translate(X, Y);
       if (s.hole) { g.fillStyle = `rgba(10,6,4,${.7 * a})`; g.beginPath(); g.arc(0, 0, C * .07, 0, TAU); g.fill(); g.strokeStyle = `rgba(255,170,60,${.7 * a * Math.max(0, 1 - age / 4)})`; g.lineWidth = 1.2; g.beginPath(); g.arc(0, 0, C * .1, 0, TAU); g.stroke(); g.restore(); continue; }
       if (s.pal === 'frost') {
@@ -539,6 +556,7 @@
     go.setTransform(dpr, 0, 0, dpr, 0, 0); go.clearRect(0, 0, W, H);
     if (!SF.enabled || !gameVisible()) { if (PS.length || NODES.length || warn) { PS.length = 0; NODES.length = 0; ARCS.length = 0; RINGS.length = 0; TXT.length = 0; SMK.length = 0; warn = null; } return; }
     RC = cv.getBoundingClientRect();
+    try { const dmgSum = (window.jgDmg ? (window.jgDmg('c') || 0) + (window.jgDmg('h') || 0) : 1); if (dmgSum === 0 && (CRK.length || SCORCH.length) && now - (ctx ? ctx.t0 : 0) > 20000) { zeroSince = zeroSince || now; if (now - zeroSince > 3000) { CRK.length = 0; SCORCH.length = 0; zeroSince = 0; } } else zeroSince = 0; } catch (e) {}
     update(dt, now);
     go.save(); go.beginPath(); go.rect(RC.left, RC.top, RC.width, RC.height); go.clip();
     draw(go, now);
