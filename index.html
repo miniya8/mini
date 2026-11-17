@@ -5,16 +5,16 @@
   <!-- 모바일 & 폴더블 최적화 뷰포트 -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   
-  <!-- 모바일 웹앱 / 웹뷰 전체화면(풀스크린) 설정 (상단 브라우저 UI 및 기본 툴바 숨김 유도) -->
+  <!-- 모바일 웹앱 / 웹뷰 전체화면(풀스크린) 설정 -->
   <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#0d0926">
+  <meta name="theme-color" content="#09051d">
 
-  <title>🎪 세미니의 페스티벌 놀이터 🎈</title>
+  <title>🎪 주인장 세미니의 페스티벌 놀이터 🎈</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Jua&family=Noto+Sans+KR:wght@400;600;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Jua&family=Noto+Sans+KR:wght@400;500;700;900&display=swap');
 
     * {
       box-sizing: border-box;
@@ -27,7 +27,7 @@
       min-height: 100%;
       margin: 0;
       padding: 0;
-      background-color: #0d0926;
+      background-color: #09051d;
       font-family: 'Noto Sans KR', sans-serif;
       user-select: none;
       -webkit-user-select: none;
@@ -39,7 +39,7 @@
       overflow-wrap: break-word;
     }
 
-    img, a, div, span, h1, h2, h3, p {
+    img, a, div, span, h1, h2, h3, p, svg, button {
       -webkit-user-drag: none;
       user-select: none;
     }
@@ -49,7 +49,7 @@
       -webkit-user-select: text;
     }
 
-    /* 외부 앱이나 웹뷰 래퍼가 주입할 수 있는 사이드바/드로어/오프캔버스 요소 강제 차단 */
+    /* 외부 앱/웹뷰 사이드바 강제 차단 */
     #sidebar, #drawer, .sidebar, .drawer, .side-menu, .nav-menu, [data-drawer], [class*="offcanvas"] {
       display: none !important;
       visibility: hidden !important;
@@ -59,121 +59,430 @@
       height: 0 !important;
     }
 
-    /* 산뜻한 축제 오로라 배경 */
+    .title-font { font-family: 'Black Han Sans', 'Jua', sans-serif; }
+    .jua-font { font-family: 'Jua', sans-serif; }
+
+    /* =======================================================
+       1. 입체 야간 페스티벌 오로라 & 서치라이트 배경
+       ======================================================= */
     .bg-festival {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: 
-        radial-gradient(circle at 15% 15%, rgba(236, 72, 153, 0.45), transparent 45%),
-        radial-gradient(circle at 85% 20%, rgba(245, 158, 11, 0.4), transparent 40%),
-        radial-gradient(circle at 50% 65%, rgba(99, 102, 241, 0.45), transparent 50%),
-        radial-gradient(circle at 80% 85%, rgba(20, 184, 166, 0.35), transparent 45%),
-        linear-gradient(180deg, #180b38 0%, #100b2b 40%, #09061d 100%);
-      z-index: -2;
+      inset: 0;
+      background:
+        radial-gradient(circle at 14% 12%, rgba(244, 63, 94, 0.45), transparent 44%),
+        radial-gradient(circle at 86% 14%, rgba(251, 191, 36, 0.38), transparent 42%),
+        radial-gradient(circle at 50% 48%, rgba(124, 58, 237, 0.45), transparent 56%),
+        radial-gradient(circle at 84% 86%, rgba(16, 185, 129, 0.34), transparent 46%),
+        radial-gradient(circle at 16% 84%, rgba(6, 182, 212, 0.34), transparent 44%),
+        linear-gradient(180deg, #160936 0%, #0d0826 50%, #060314 100%);
+      z-index: -3;
       pointer-events: none;
     }
 
-    .title-font { font-family: 'Black Han Sans', 'Jua', sans-serif; }
-
-    /* =======================================================
-       1. 정식 운영 게임 카드 (확실한 크기 + 화려한 광채/쉬머 이펙트)
-       ======================================================= */
-    .live-game-card {
-      position: relative;
-      background: linear-gradient(145deg, rgba(36, 27, 78, 0.95) 0%, rgba(18, 14, 42, 0.95) 100%);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      contain: content;
-      transform: translate3d(0, 0, 0);
-      transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.25s ease, border-color 0.25s ease;
-      touch-action: pan-y;
-      -webkit-user-drag: none;
-      min-width: 0;
-      overflow: hidden;
+    .festival-beams {
+      position: fixed;
+      inset: 0;
+      background:
+        conic-gradient(from 195deg at 18% -8%, transparent 0deg, rgba(253, 224, 71, 0.11) 10deg, transparent 22deg),
+        conic-gradient(from 145deg at 82% -8%, transparent 0deg, rgba(244, 114, 182, 0.12) 10deg, transparent 22deg),
+        conic-gradient(from 170deg at 50% -12%, transparent 0deg, rgba(56, 189, 248, 0.08) 9deg, transparent 18deg);
+      z-index: -2;
+      pointer-events: none;
+      animation: beam-sway 9s ease-in-out infinite alternate;
     }
 
-    /* 정식 카드 대각선 빛 반사(Shimmer) 애니메이션 */
-    .live-game-card::before {
+    @keyframes beam-sway {
+      0% { transform: rotate(-2.5deg) scale(1.03); opacity: 0.72; }
+      100% { transform: rotate(2.5deg) scale(1.06); opacity: 1; }
+    }
+
+    #festival-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -1;
+      pointer-events: none;
+    }
+
+    /* =======================================================
+       2. 상단 페스티벌 꼬마전구 가랜드 & 깃발 장식
+       ======================================================= */
+    .garland-wire {
+      position: relative;
+    }
+    .garland-wire::before {
+      content: "";
+      position: absolute;
+      top: 3px;
+      left: 4%;
+      right: 4%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(253, 224, 71, 0.45), rgba(244, 114, 182, 0.45), rgba(56, 189, 248, 0.45), transparent);
+      border-radius: 999px;
+    }
+
+    .garland-bulb {
+      position: relative;
+      width: 8px;
+      height: 12px;
+      border-radius: 45% 45% 50% 50%;
+      animation: bulb-twinkle 1.6s infinite alternate ease-in-out;
+    }
+    .garland-bulb::before {
+      content: "";
+      position: absolute;
+      top: -2px;
+      left: 2px;
+      width: 4px;
+      height: 3px;
+      background: #cbd5e1;
+      border-radius: 1px;
+    }
+    .garland-bulb:nth-child(3n+1) { animation-delay: 0s; }
+    .garland-bulb:nth-child(3n+2) { animation-delay: 0.55s; }
+    .garland-bulb:nth-child(3n)   { animation-delay: 1.1s; }
+
+    @keyframes bulb-twinkle {
+      0% { opacity: 0.5; transform: scale(0.9) rotate(-4deg); filter: brightness(0.85); }
+      100% { opacity: 1; transform: scale(1.15) rotate(4deg); filter: brightness(1.35); }
+    }
+
+    /* =======================================================
+       3. 주인장 세미니 VIP 황금 배너 & 엠블럼 애니메이션
+       ======================================================= */
+    .owner-crown-card {
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.2) 0%, rgba(244, 63, 94, 0.22) 50%, rgba(168, 85, 247, 0.2) 100%);
+      border: 1px solid rgba(253, 224, 71, 0.5);
+      box-shadow: inset 0 0 24px rgba(251, 191, 36, 0.16), 0 4px 16px rgba(251, 191, 36, 0.14);
+    }
+
+    .owner-crown-card::after {
       content: "";
       position: absolute;
       top: 0;
-      left: -130%;
-      width: 65%;
+      left: -100%;
+      width: 50%;
       height: 100%;
-      background: linear-gradient(
-        115deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.03) 30%,
-        rgba(255, 255, 255, 0.18) 50%,
-        rgba(255, 255, 255, 0.03) 70%,
-        transparent 100%
-      );
-      transform: skewX(-20deg);
-      animation: card-shimmer 4.5s infinite ease-in-out;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+      transform: skewX(-25deg);
+      animation: vip-sweep 4.2s infinite ease-in-out;
       pointer-events: none;
     }
 
-    @keyframes card-shimmer {
-      0% { left: -130%; }
+    @keyframes vip-sweep {
+      0% { left: -100%; }
       45%, 100% { left: 160%; }
     }
 
-    .live-game-card:active {
-      transform: scale(0.96);
-    }
-
-    /* 정식 게임 입장 버튼 강조 효과 */
-    .enter-btn-glow {
-      box-shadow: 0 0 12px rgba(255, 255, 255, 0.15);
-      animation: btn-pulse 2.2s infinite ease-in-out;
-    }
-    @keyframes btn-pulse {
-      0%, 100% { transform: translateX(0); }
-      50% { transform: translateX(3px); }
-    }
-
-    /* =======================================================
-       2. 개발자용 서브 버튼 (작고 차분하게, 개발자 1인용 미니 도크)
-       ======================================================= */
-    .dev-mini-btn {
-      background: rgba(15, 13, 30, 0.68);
-      border: 1px dashed rgba(148, 163, 184, 0.32);
-      color: rgba(148, 163, 184, 0.85);
-      transition: all 0.15s ease;
-      touch-action: pan-y;
-      -webkit-user-drag: none;
-      min-width: 0;
-    }
-    .dev-mini-btn:hover, .dev-mini-btn:active {
-      background: rgba(30, 27, 58, 0.92);
-      border-color: rgba(251, 191, 36, 0.6);
-      color: #fde68a;
-      transform: scale(0.97);
-    }
-
-    /* 세미니 강조 골드 네온 뱃지 */
     .owner-badge {
-      background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 50%, #d97706 100%);
-      box-shadow: 0 0 15px rgba(245, 158, 11, 0.6), inset 0 1px 1px rgba(255, 255, 255, 0.6);
-      text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+      background: linear-gradient(135deg, #fef08a 0%, #f59e0b 52%, #ea580c 100%);
+      box-shadow: 0 0 18px rgba(245, 158, 11, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.85);
+      text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
     }
 
-    /* 축제 무지개 텍스트 애니메이션 */
     @keyframes rainbow-fest {
       0% { background-position: 0% 50%; }
       50% { background-position: 100% 50%; }
       100% { background-position: 0% 50%; }
     }
     .sparkle-text {
-      background: linear-gradient(90deg, #ffe066, #ff6b81, #c56cf0, #4bcffa, #0be881, #ffe066);
-      background-size: 300% 300%;
+      background: linear-gradient(90deg, #fff3b0, #ff758f, #e0aaff, #72efdd, #ffe066);
+      background-size: 280% 280%;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
-      animation: rainbow-fest 5s ease infinite;
+      animation: rainbow-fest 4.2s ease infinite;
       display: inline-block;
+    }
+
+    /* 메인 서커스 엠블럼 전용 애니메이션 */
+    @keyframes tent-float {
+      0%, 100% { transform: translateY(0px) rotate(-2deg); }
+      50% { transform: translateY(-2.5px) rotate(2deg); }
+    }
+    @keyframes flag-flutter {
+      0%, 100% { transform: skewY(0deg) scaleX(1); }
+      50% { transform: skewY(-6deg) scaleX(0.92); }
+    }
+    @keyframes star-pop {
+      0%, 100% { opacity: 0.4; transform: scale(0.8); }
+      50% { opacity: 1; transform: scale(1.25); }
+    }
+    .anim-tent { animation: tent-float 3s ease-in-out infinite; transform-origin: 32px 36px; }
+    .anim-flag { animation: flag-flutter 1.2s ease-in-out infinite; transform-origin: 32px 10px; }
+    .anim-emblem-star1 { animation: star-pop 2s ease-in-out infinite; transform-origin: 12px 18px; }
+    .anim-emblem-star2 { animation: star-pop 2s ease-in-out infinite 1s; transform-origin: 52px 18px; }
+
+    /* =======================================================
+       4. 세련된 정식 게임 카드 + 포인터 스포트라이트 + 쉬머
+       ======================================================= */
+    .live-game-card {
+      --mx: 50%;
+      --my: 30%;
+      --glow-color: rgba(255, 255, 255, 0.14);
+      position: relative;
+      background:
+        radial-gradient(circle 140px at var(--mx) var(--my), var(--glow-color), transparent 75%),
+        linear-gradient(155deg, rgba(34, 24, 76, 0.94) 0%, rgba(14, 10, 36, 0.97) 100%);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      contain: content;
+      transform: translate3d(0, 0, 0);
+      transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.28s ease, border-color 0.28s ease;
+      touch-action: pan-y;
+      min-width: 0;
+      overflow: hidden;
+    }
+
+    /* 상단 유리 하이라이트 라인 */
+    .live-game-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 12%;
+      right: 12%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
+      pointer-events: none;
+    }
+
+    /* 대각선 광택 쉬머 */
+    .live-game-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -140%;
+      width: 55%;
+      height: 100%;
+      background: linear-gradient(
+        115deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) 35%,
+        rgba(255, 255, 255, 0.2) 50%,
+        rgba(255, 255, 255, 0.03) 65%,
+        transparent 100%
+      );
+      transform: skewX(-22deg);
+      animation: card-shimmer 5.2s infinite ease-in-out;
+      pointer-events: none;
+    }
+
+    .game-item:nth-child(2) .live-game-card::before { animation-delay: 0.7s; }
+    .game-item:nth-child(3) .live-game-card::before { animation-delay: 1.4s; }
+    .game-item:nth-child(4) .live-game-card::before { animation-delay: 2.1s; }
+    .game-item:nth-child(5) .live-game-card::before { animation-delay: 2.8s; }
+    .game-item:nth-child(6) .live-game-card::before { animation-delay: 3.5s; }
+
+    @keyframes card-shimmer {
+      0% { left: -140%; }
+      38%, 100% { left: 165%; }
+    }
+
+    .live-game-card:hover {
+      transform: translateY(-4px) scale(1.015);
+    }
+
+    .live-game-card:active {
+      transform: scale(0.96);
+    }
+
+    .live-game-card:hover .game-svg-icon {
+      transform: scale(1.1);
+    }
+
+    .game-svg-icon {
+      transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* 입장 버튼 화살표 모션 */
+    .enter-arrow {
+      transition: transform 0.22s ease;
+    }
+    .live-game-card:hover .enter-arrow {
+      transform: translateX(4px);
+    }
+
+    /* =======================================================
+       5. 메뉴별 고유 전용 SVG 애니메이션 (6종 각각 다른 모션!)
+       ======================================================= */
+    /* [메뉴 1: 세미니 삼국장기] 왕관 부유 + 장기말 위엄 펄스 + 쌍검 섬광 */
+    @keyframes janggi-crown-bob {
+      0%, 100% { transform: translateY(0px) rotate(-3deg); }
+      50% { transform: translateY(-2.5px) rotate(3deg); }
+    }
+    @keyframes janggi-piece-pulse {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 2px rgba(251, 113, 133, 0.4)); }
+      50% { transform: scale(1.04); filter: drop-shadow(0 0 7px rgba(253, 224, 71, 0.85)); }
+    }
+    @keyframes janggi-sword-glint {
+      0%, 100% { opacity: 0.65; }
+      50% { opacity: 1; }
+    }
+    .anim-janggi-crown { animation: janggi-crown-bob 2.2s ease-in-out infinite; transform-origin: 32px 13px; }
+    .anim-janggi-piece { animation: janggi-piece-pulse 2.6s ease-in-out infinite; transform-origin: 32px 37px; }
+    .anim-janggi-swords { animation: janggi-sword-glint 1.8s ease-in-out infinite; }
+
+    /* [메뉴 2: 전설장기 1] 탱크 돌진 반동 + 곡사 포탄 궤적 비행 + 폭발 섬광 */
+    @keyframes tank-drive {
+      0%, 100% { transform: translateX(0px); }
+      40% { transform: translateX(2.5px); }
+      55% { transform: translateX(-1.5px); }
+    }
+    @keyframes shell-arc {
+      0% { stroke-dashoffset: 38; opacity: 0.3; }
+      50% { stroke-dashoffset: 0; opacity: 1; }
+      100% { stroke-dashoffset: -38; opacity: 0.3; }
+    }
+    @keyframes boom-burst {
+      0%, 35% { transform: scale(0.55) rotate(0deg); opacity: 0.4; }
+      55% { transform: scale(1.22) rotate(18deg); opacity: 1; }
+      100% { transform: scale(0.7) rotate(36deg); opacity: 0.5; }
+    }
+    .anim-tank { animation: tank-drive 2.4s ease-in-out infinite; }
+    .anim-shell-trail { stroke-dasharray: 12 26; animation: shell-arc 2.4s linear infinite; }
+    .anim-boom { animation: boom-burst 2.4s ease-out infinite; transform-origin: 50px 21px; }
+
+    /* [메뉴 3: 미니삼국 땅따먹기] 영토 점령 점멸 + 정복 깃발 펄럭임 + 파동 링 */
+    @keyframes territory-capture-1 {
+      0%, 100% { fill-opacity: 0.85; }
+      50% { fill-opacity: 1; filter: brightness(1.22); }
+    }
+    @keyframes territory-capture-2 {
+      0%, 100% { fill-opacity: 1; filter: brightness(1.18); }
+      50% { fill-opacity: 0.82; }
+    }
+    @keyframes conquest-flag-wave {
+      0%, 100% { transform: skewY(0deg) scaleX(1); }
+      50% { transform: skewY(-7deg) scaleX(0.9); }
+    }
+    @keyframes land-ring {
+      0% { r: 2.5; opacity: 0.9; }
+      100% { r: 13; opacity: 0; }
+    }
+    .anim-land-a { animation: territory-capture-1 2.6s ease-in-out infinite; }
+    .anim-land-b { animation: territory-capture-2 2.6s ease-in-out infinite; }
+    .anim-conquest-flag { animation: conquest-flag-wave 1.5s ease-in-out infinite; transform-origin: 32px 16px; }
+    .anim-land-wave { animation: land-ring 2.2s ease-out infinite; }
+
+    /* [메뉴 4: 미니 스코어보드] 스코어 카드 플립 박동 + 승자 트로피 부양 & 반짝임 */
+    @keyframes score-card-beat {
+      0%, 100% { transform: scaleY(1); }
+      15% { transform: scaleY(0.88); }
+      30% { transform: scaleY(1.04); }
+    }
+    @keyframes trophy-float {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-2.5px) scale(1.06); }
+    }
+    @keyframes trophy-spark {
+      0%, 100% { opacity: 0.2; transform: scale(0.6); }
+      50% { opacity: 1; transform: scale(1.25); }
+    }
+    .anim-score-left { animation: score-card-beat 2.8s ease-in-out infinite; transform-origin: 18.5px 29px; }
+    .anim-score-right { animation: score-card-beat 2.8s ease-in-out infinite 1.4s; transform-origin: 45.5px 29px; }
+    .anim-trophy { animation: trophy-float 2.2s ease-in-out infinite; transform-origin: 32px 45px; }
+    .anim-trophy-star { animation: trophy-spark 1.8s ease-in-out infinite; transform-origin: 32px 13px; }
+
+    /* [메뉴 5: 복불복 핀볼] 구슬 바운스 + 범퍼 히트 발광 + 플리퍼 튕김 */
+    @keyframes pinball-orb-move {
+      0%   { transform: translate(0px, 0px); }
+      33%  { transform: translate(-9px, -9px); }
+      66%  { transform: translate(6px, -8px); }
+      100% { transform: translate(0px, 0px); }
+    }
+    @keyframes bumper-hit-1 {
+      0%, 28%, 45%, 100% { transform: scale(1); filter: brightness(1); }
+      34% { transform: scale(1.28); filter: brightness(1.5); }
+    }
+    @keyframes bumper-hit-2 {
+      0%, 60%, 78%, 100% { transform: scale(1); filter: brightness(1); }
+      67% { transform: scale(1.28); filter: brightness(1.5); }
+    }
+    @keyframes flipper-left-kick {
+      0%, 82%, 100% { transform: rotate(0deg); }
+      90% { transform: rotate(-22deg); }
+    }
+    @keyframes flipper-right-kick {
+      0%, 82%, 100% { transform: rotate(0deg); }
+      90% { transform: rotate(22deg); }
+    }
+    .anim-pinball-ball { animation: pinball-orb-move 2.4s cubic-bezier(0.37, 0, 0.63, 1) infinite; }
+    .anim-bumper-1 { animation: bumper-hit-1 2.4s ease-out infinite; transform-origin: 24px 23px; }
+    .anim-bumper-2 { animation: bumper-hit-2 2.4s ease-out infinite; transform-origin: 40px 23px; }
+    .anim-flipper-l { animation: flipper-left-kick 2.4s ease-in-out infinite; transform-origin: 18px 45px; }
+    .anim-flipper-r { animation: flipper-right-kick 2.4s ease-in-out infinite; transform-origin: 46px 45px; }
+
+    /* [메뉴 6: 미니멀티디펜스] 홀로그램 실드 순환 + 코어 크리스탈 부유 & 방어 파동 */
+    @keyframes shield-energy-flow {
+      0% { stroke-dashoffset: 60; }
+      100% { stroke-dashoffset: 0; }
+    }
+    @keyframes core-crystal-pulse {
+      0%, 100% { transform: translateY(0px) scale(1); filter: drop-shadow(0 0 2px #38bdf8); }
+      50% { transform: translateY(-1.8px) scale(1.14); filter: drop-shadow(0 0 7px #7dd3fc); }
+    }
+    @keyframes shield-aura {
+      0%, 100% { opacity: 0.75; }
+      50% { opacity: 1; }
+    }
+    .anim-shield-border { stroke-dasharray: 10 5; animation: shield-energy-flow 2.5s linear infinite; }
+    .anim-shield-body { animation: shield-aura 2.4s ease-in-out infinite; }
+    .anim-defense-core { animation: core-crystal-pulse 2s ease-in-out infinite; transform-origin: 32px 39px; }
+
+    /* =======================================================
+       6. 개발자(DEV) 모드 서브 버튼 & 필터 탭
+       ======================================================= */
+    .dev-drawer {
+      display: none;
+    }
+    body.dev-mode-on .dev-drawer {
+      display: flex;
+      animation: fadeSlideIn 0.22s ease-out;
+    }
+    @keyframes fadeSlideIn {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .dev-mini-btn {
+      background: rgba(15, 12, 34, 0.88);
+      border: 1px dashed rgba(251, 191, 36, 0.48);
+      color: #fde68a;
+      transition: all 0.16s ease;
+    }
+    .dev-mini-btn:hover, .dev-mini-btn:active {
+      background: rgba(245, 158, 11, 0.22);
+      border-color: #fbbf24;
+      transform: scale(0.98);
+    }
+
+    .filter-tab {
+      background: rgba(24, 18, 56, 0.78);
+      border: 1px solid rgba(139, 92, 246, 0.32);
+      color: rgba(226, 232, 240, 0.8);
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .filter-tab:hover {
+      border-color: rgba(244, 114, 182, 0.6);
+      color: #ffffff;
+    }
+    .filter-tab.active {
+      background: linear-gradient(135deg, #ec4899 0%, #8b5cf6 100%);
+      border-color: rgba(255, 255, 255, 0.6);
+      color: #ffffff;
+      box-shadow: 0 4px 16px rgba(236, 72, 153, 0.48);
+      transform: translateY(-1px);
+    }
+
+    @keyframes badge-wiggle {
+      0%, 100% { transform: rotate(-4deg) scale(1); }
+      50% { transform: rotate(4deg) scale(1.08); }
+    }
+    .wiggle {
+      display: inline-block;
+      animation: badge-wiggle 2.4s ease-in-out infinite;
     }
 
     @keyframes float-slow {
@@ -184,34 +493,18 @@
       0%, 100% { transform: translateY(0px) rotate(0deg); }
       50% { transform: translateY(8px) rotate(-5deg); }
     }
-    @keyframes sparkle-twinkle {
-      0%, 100% { opacity: 0.35; transform: scale(0.85); }
-      50% { opacity: 1; transform: scale(1.18) rotate(12deg); filter: drop-shadow(0 0 8px rgba(253, 224, 71, 0.9)); }
-    }
+    .float-item-1 { animation: float-slow 3.6s ease-in-out infinite; }
+    .float-item-2 { animation: float-reverse 4.3s ease-in-out infinite; }
 
-    .float-item-1 { animation: float-slow 3.5s ease-in-out infinite; }
-    .float-item-2 { animation: float-reverse 4.2s ease-in-out infinite; }
-    .float-item-3 { animation: float-slow 4.8s ease-in-out infinite 0.5s; }
-    .twinkle-star { animation: sparkle-twinkle 2.4s ease-in-out infinite; }
-
-    @keyframes badge-wiggle {
-      0%, 100% { transform: rotate(-3deg) scale(1); }
-      50% { transform: rotate(3deg) scale(1.06); }
-    }
-    .wiggle {
-      display: inline-block;
-      animation: badge-wiggle 2.2s ease-in-out infinite;
-    }
-
-    /* 모바일 세이프 에어리어 대응 */
+    /* 모바일 세이프 에어리어 */
     .safe-container {
       padding-top: max(12px, env(safe-area-inset-top));
-      padding-bottom: max(16px, env(safe-area-inset-bottom));
-      padding-left: max(10px, env(safe-area-inset-left));
-      padding-right: max(10px, env(safe-area-inset-right));
+      padding-bottom: max(18px, env(safe-area-inset-bottom));
+      padding-left: max(12px, env(safe-area-inset-left));
+      padding-right: max(12px, env(safe-area-inset-right));
     }
 
-    /* 넓은 화면 좌우 장식 날개 */
+    /* 데스크톱 좌우 장식 날개 */
     .side-decor {
       position: fixed;
       top: 50%;
@@ -220,298 +513,487 @@
       z-index: -1;
       display: none;
     }
-    @media (min-width: 1100px) {
+    @media (min-width: 1120px) {
       .side-decor {
         display: flex;
         flex-direction: column;
-        gap: 28px;
+        gap: 26px;
         align-items: center;
       }
     }
 
-    /* 갤럭시 폴드 커버 화면 등 초소형 기기(폭 340px 이하) 미세 조정 */
+    /* 초소형 기기(갤럭시 폴드 커버 등 340px 이하) 대응 */
     @media (max-width: 340px) {
       .live-title-text { font-size: 0.88rem !important; }
       .live-desc-text { font-size: 0.65rem !important; }
-      .live-badge-text { font-size: 0.56rem !important; padding: 1px 5px !important; }
-      .live-icon-box { width: 2.2rem !important; height: 2.2rem !important; font-size: 1.25rem !important; }
-      .dev-mini-text { font-size: 0.62rem !important; }
+      .live-icon-wrap { width: 2.65rem !important; height: 2.65rem !important; }
     }
   </style>
 </head>
 <body class="text-white flex flex-col items-center safe-container relative">
-  <!-- 축제 배경 -->
+  <!-- 축제 배경 레이어 -->
   <div class="bg-festival"></div>
+  <div class="festival-beams"></div>
+  <canvas id="festival-canvas"></canvas>
 
   <!-- 넓은 화면 좌측 장식 날개 -->
-  <aside class="side-decor left-6 text-3xl select-none">
-    <div class="float-item-1 bg-purple-900/40 p-2.5 rounded-2xl border border-purple-400/30 backdrop-blur-sm shadow-lg text-2xl">🎪</div>
-    <div class="twinkle-star text-amber-300 text-xl">✨</div>
-    <div class="float-item-2 bg-pink-900/40 p-2.5 rounded-2xl border border-pink-400/30 backdrop-blur-sm shadow-lg text-2xl">🎠</div>
-    <div class="float-item-3 text-cyan-300 text-2xl">🎈</div>
-    <div class="float-item-1 bg-indigo-900/40 p-2.5 rounded-2xl border border-indigo-400/30 backdrop-blur-sm shadow-lg text-2xl">🎡</div>
+  <aside class="side-decor left-7 select-none">
+    <div class="float-item-1 bg-purple-950/65 p-3 rounded-2xl border border-purple-400/40 backdrop-blur-md shadow-[0_0_22px_rgba(168,85,247,0.35)] text-2xl">🎪</div>
+    <div class="text-amber-300 text-xl animate-pulse">✨</div>
+    <div class="float-item-2 bg-pink-950/65 p-3 rounded-2xl border border-pink-400/40 backdrop-blur-md shadow-[0_0_22px_rgba(236,72,153,0.35)] text-2xl">🎠</div>
+    <div class="float-item-1 bg-indigo-950/65 p-3 rounded-2xl border border-indigo-400/40 backdrop-blur-md shadow-[0_0_22px_rgba(99,102,241,0.35)] text-2xl">🎡</div>
   </aside>
 
   <!-- 넓은 화면 우측 장식 날개 -->
-  <aside class="side-decor right-6 text-3xl select-none">
-    <div class="float-item-2 bg-pink-900/40 p-2.5 rounded-2xl border border-pink-400/30 backdrop-blur-sm shadow-lg text-2xl">🍭</div>
-    <div class="twinkle-star text-amber-300 text-xl">⭐</div>
-    <div class="float-item-1 bg-amber-900/40 p-2.5 rounded-2xl border border-amber-400/30 backdrop-blur-sm shadow-lg text-2xl">🍿</div>
-    <div class="float-item-3 text-fuchsia-400 text-2xl">🎆</div>
-    <div class="float-item-2 bg-emerald-900/40 p-2.5 rounded-2xl border border-emerald-400/30 backdrop-blur-sm shadow-lg text-2xl">🍬</div>
+  <aside class="side-decor right-7 select-none">
+    <div class="float-item-2 bg-amber-950/65 p-3 rounded-2xl border border-amber-400/40 backdrop-blur-md shadow-[0_0_22px_rgba(245,158,11,0.35)] text-2xl">👑</div>
+    <div class="text-pink-300 text-xl animate-pulse">🎆</div>
+    <div class="float-item-1 bg-rose-950/65 p-3 rounded-2xl border border-rose-400/40 backdrop-blur-md shadow-[0_0_22px_rgba(244,63,94,0.35)] text-2xl">🍭</div>
+    <div class="float-item-2 bg-emerald-950/65 p-3 rounded-2xl border border-emerald-400/40 backdrop-blur-md shadow-[0_0_22px_rgba(16,185,129,0.35)] text-2xl">🎈</div>
   </aside>
 
-  <!-- 상단 헤더 -->
-  <header class="w-full max-w-md sm:max-w-xl md:max-w-3xl flex flex-col gap-2.5 sm:gap-3 bg-indigo-950/80 border border-purple-500/40 rounded-3xl p-3 sm:p-4 shadow-[0_8px_30px_rgb(139,92,246,0.28)] backdrop-blur-xl flex-shrink-0 transition-all duration-300">
+  <!-- =========================================================
+       상단 헤더: 주인장 세미니 VIP 배너 + 축제 타이틀 + 닉네임 HUD
+       ========================================================= -->
+  <header class="w-full max-w-md sm:max-w-xl md:max-w-3xl relative bg-indigo-950/85 border border-purple-400/45 rounded-3xl p-3.5 sm:p-5 shadow-[0_14px_44px_rgba(139,92,246,0.38)] backdrop-blur-xl flex-shrink-0 overflow-hidden">
     
-    <!-- 오너 세미니 하이라이트 배너 -->
-    <div class="flex items-center justify-between bg-purple-900/40 border border-purple-400/30 rounded-2xl px-2.5 py-1.5 sm:px-4">
-      <div class="flex items-center gap-1 sm:gap-2 min-w-0">
-        <span class="text-sm sm:text-lg wiggle flex-shrink-0">👑</span>
-        <span class="text-[11px] sm:text-sm font-black text-amber-300 tracking-tight truncate">FESTIVAL OWNER</span>
-        <span class="owner-badge text-slate-950 text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full ml-0.5 flex-shrink-0">세미니</span>
+    <!-- 상단 꼬마전구 가랜드 장식 -->
+    <div class="garland-wire flex items-center justify-around px-2 pb-2.5 mb-2.5 border-b border-white/10" aria-hidden="true">
+      <span class="garland-bulb bg-rose-400 shadow-[0_0_9px_#fb7185]"></span>
+      <span class="garland-bulb bg-amber-300 shadow-[0_0_9px_#fcd34d]"></span>
+      <span class="garland-bulb bg-emerald-400 shadow-[0_0_9px_#34d399]"></span>
+      <span class="garland-bulb bg-cyan-400 shadow-[0_0_9px_#22d3ee]"></span>
+      <span class="garland-bulb bg-fuchsia-400 shadow-[0_0_9px_#e879f9]"></span>
+      <span class="garland-bulb bg-amber-300 shadow-[0_0_9px_#fcd34d]"></span>
+      <span class="garland-bulb bg-rose-400 shadow-[0_0_9px_#fb7185]"></span>
+      <span class="garland-bulb bg-cyan-400 shadow-[0_0_9px_#22d3ee]"></span>
+      <span class="garland-bulb bg-emerald-400 shadow-[0_0_9px_#34d399]"></span>
+      <span class="garland-bulb bg-fuchsia-400 shadow-[0_0_9px_#e879f9]"></span>
+    </div>
+
+    <!-- 주인장 세미니 전용 VIP 배너 -->
+    <div class="owner-crown-card flex items-center justify-between rounded-2xl px-3 py-1.5 sm:px-4 sm:py-2 mb-3">
+      <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+        <span class="text-base sm:text-xl wiggle flex-shrink-0">👑</span>
+        <span class="text-[11px] sm:text-xs font-extrabold text-amber-200 tracking-wide truncate">
+          이곳의 주인장
+        </span>
+        <span class="owner-badge text-slate-950 text-xs sm:text-sm font-black px-2.5 py-0.5 rounded-full flex-shrink-0">
+          세미니
+        </span>
       </div>
-      <div class="flex items-center gap-1 flex-shrink-0">
-        <span class="text-[10px] sm:text-xs text-pink-300 font-bold flex items-center gap-1">
-          <span class="w-1.5 h-1.5 rounded-full bg-pink-400 animate-ping"></span>
-          FESTIVAL OPEN! 🎉
+      <div class="flex items-center gap-1.5 flex-shrink-0">
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-pink-500"></span>
+        </span>
+        <span class="text-[10px] sm:text-xs text-pink-200 font-extrabold tracking-tight">
+          FESTIVAL OPEN!
         </span>
       </div>
     </div>
 
-    <!-- 타이틀 영역 -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2.5 sm:gap-3">
-      <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-        <div class="w-11 h-11 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-tr from-amber-500/30 via-pink-500/30 to-purple-500/30 border-2 border-amber-300/80 flex items-center justify-center text-2xl sm:text-3xl shadow-lg flex-shrink-0">
-          <span class="wiggle">🎪</span>
+    <!-- 타이틀 & 통합 닉네임 설정 바 -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+      <div class="flex items-center gap-3 min-w-0">
+        <!-- 커스텀 서커스 & 깃발 애니메이션 메인 엠블럼 -->
+        <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-400/25 via-pink-500/25 to-indigo-500/30 border-2 border-amber-300/85 flex items-center justify-center shadow-[0_0_22px_rgba(251,191,36,0.4)] flex-shrink-0">
+          <svg class="w-9 h-9 sm:w-10 sm:h-10 anim-tent" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="tentRed" x1="0" y1="0" x2="64" y2="64">
+                <stop offset="0%" stop-color="#FF5E7E"/>
+                <stop offset="100%" stop-color="#E11D48"/>
+              </linearGradient>
+              <linearGradient id="tentGold" x1="0" y1="0" x2="0" y2="64">
+                <stop offset="0%" stop-color="#FEF08A"/>
+                <stop offset="100%" stop-color="#F59E0B"/>
+              </linearGradient>
+            </defs>
+            <!-- 펄럭이는 깃발 -->
+            <path d="M32 6V16" stroke="#FDE047" stroke-width="3" stroke-linecap="round"/>
+            <path class="anim-flag" d="M32 6L44 10L32 14V6Z" fill="#FB7185"/>
+            <!-- 서커스 천막 지붕 -->
+            <path d="M10 32L32 15L54 32H10Z" fill="url(#tentRed)" stroke="#FDE047" stroke-width="2" stroke-linejoin="round"/>
+            <path d="M22 32L32 15L42 32H22Z" fill="url(#tentGold)"/>
+            <!-- 천막 몸통 -->
+            <path d="M13 32H51V52C51 53.6569 49.6569 55 48 55H16C14.3431 55 13 53.6569 13 52V32Z" fill="#312E81" stroke="#FDE047" stroke-width="2"/>
+            <path d="M25 55V41C25 37.134 28.134 34 32 34C35.866 34 39 37.134 39 41V55H25Z" fill="#F59E0B"/>
+            <!-- 반짝이는 별 -->
+            <circle class="anim-emblem-star1" cx="12" cy="18" r="2.4" fill="#FDE047"/>
+            <circle class="anim-emblem-star2" cx="52" cy="18" r="2.4" fill="#38BDF8"/>
+          </svg>
         </div>
+
         <div class="min-w-0">
-          <h1 class="text-lg sm:text-2xl font-black title-font tracking-wide flex items-center gap-1 sm:gap-1.5">
+          <h1 class="text-xl sm:text-2xl font-black title-font tracking-wide flex items-center gap-1.5">
             <span class="sparkle-text truncate">세미니의 페스티벌</span>
-            <span class="text-base sm:text-xl flex-shrink-0">🎈</span>
+            <span class="text-lg sm:text-xl flex-shrink-0">🎈</span>
           </h1>
-          <p class="text-[10px] sm:text-xs text-purple-200/90 flex items-center gap-1 mt-0.5 font-medium truncate">
-            <span>🎡 매일매일 펼쳐지는 짜릿한 게임 파티 🍭</span>
+          <p class="text-[11px] sm:text-xs text-purple-200/90 mt-0.5 font-medium truncate">
+            ✨ 세미니 놀이터에 오신 걸 환영합니다! 원하는 게임을 골라보세요
           </p>
         </div>
       </div>
 
       <!-- 통합 닉네임 설정 바 -->
-      <div class="flex items-center justify-between sm:justify-end gap-2 bg-slate-950/80 px-3 py-1.5 sm:py-2 rounded-2xl border border-indigo-500/30 flex-shrink-0">
+      <div class="flex items-center justify-between sm:justify-end gap-2 bg-slate-950/85 px-3 py-2 rounded-2xl border border-amber-400/40 shadow-inner flex-shrink-0">
         <div class="flex items-center gap-1.5 min-w-0">
-          <span class="text-[11px] sm:text-xs font-bold text-amber-300 flex-shrink-0">내 닉네임:</span>
-          <input id="hub-nickname-input" type="text" maxlength="8" oninput="saveNickname(this.value)" onchange="saveNickname(this.value)" class="bg-transparent border-b border-amber-400/60 text-xs font-bold text-white focus:outline-none focus:border-amber-400 w-20 sm:w-28 px-1">
+          <span class="text-xs">🪪</span>
+          <span class="text-[11px] font-bold text-amber-300 flex-shrink-0">닉네임</span>
+          <input id="hub-nickname-input" type="text" maxlength="8" oninput="saveNickname(this.value)" onchange="saveNickname(this.value)" placeholder="닉네임 입력" class="bg-slate-900/95 border border-amber-400/50 rounded-lg text-xs font-bold text-white focus:outline-none focus:border-amber-300 w-24 sm:w-28 px-2 py-1">
         </div>
-        <span class="text-[10px] text-emerald-300 font-bold flex items-center gap-1 flex-shrink-0">
-          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>영구저장
+        <span id="nick-save-badge" class="text-[10px] text-emerald-300 bg-emerald-950/85 border border-emerald-500/40 px-2 py-0.5 rounded-full font-bold flex items-center gap-1 flex-shrink-0 transition-transform duration-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>자동저장
         </span>
       </div>
     </div>
-
   </header>
 
   <!-- =========================================================
-       메인 영역 1: 현재 운영 중인 정식 게임 (크고 화려하게 집중 배치!)
+       메인 영역: 게임 라운지 (필터 + DEV 토글 + 6종 정식 게임 카드)
        ========================================================= -->
-  <main class="w-full max-w-md sm:max-w-xl md:max-w-3xl my-3.5 sm:my-5 flex-1 flex flex-col justify-start transition-all duration-300">
+  <main class="w-full max-w-md sm:max-w-xl md:max-w-3xl my-4 sm:my-5 flex-1 flex flex-col justify-start">
     
-    <!-- 정식 운영 게임 섹션 타이틀 -->
-    <div class="flex items-center justify-between mb-3 sm:mb-4 px-1">
-      <div class="flex items-center gap-2 min-w-0">
-        <span class="flex h-3 w-3 relative flex-shrink-0">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
-        </span>
-        <h2 class="text-base sm:text-xl font-black text-white title-font tracking-wide drop-shadow truncate">
-          현재 운영중인 게임 <span class="text-amber-300">🔥</span>
-        </h2>
+    <!-- 섹션 컨트롤 바 -->
+    <div class="flex flex-col gap-2.5 mb-3.5 px-0.5">
+      <div class="flex items-center justify-between gap-2">
+        <div class="flex items-center gap-2 min-w-0">
+          <span class="flex h-3 w-3 relative flex-shrink-0">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+          </span>
+          <h2 class="text-base sm:text-xl font-black text-white title-font tracking-wide drop-shadow truncate">
+            페스티벌 게임 라운지 <span class="text-amber-300">🔥</span>
+          </h2>
+          <span class="hidden sm:inline-flex text-[11px] font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-400/40 px-2.5 py-0.5 rounded-full">
+            6개 게임 LIVE
+          </span>
+        </div>
+
+        <!-- 개발자 모드 토글 버튼 -->
+        <button id="dev-toggle-btn" type="button" onclick="toggleDevMode()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-slate-900/85 border border-slate-600/60 text-slate-300 hover:border-amber-400/70 hover:text-amber-300 transition-all flex-shrink-0">
+          <span>🛠️</span>
+          <span id="dev-toggle-label">DEV 모드 OFF</span>
+        </button>
       </div>
-      <span class="text-[10px] sm:text-xs font-bold text-emerald-300 bg-emerald-950/80 border border-emerald-400/50 px-2.5 py-0.5 rounded-full shadow-sm flex-shrink-0">
-        LIVE 서버 가동중
-      </span>
+
+      <!-- 카테고리 필터 탭 -->
+      <div class="flex items-center gap-1.5 overflow-x-auto pb-0.5">
+        <button type="button" onclick="filterGames('all', this)" class="filter-tab active px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
+          🎪 전체 (6)
+        </button>
+        <button type="button" onclick="filterGames('strategy', this)" class="filter-tab px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
+          ♟️ 전략 · 장기 (3)
+        </button>
+        <button type="button" onclick="filterGames('party', this)" class="filter-tab px-3 py-1 rounded-full text-xs font-bold flex-shrink-0">
+          🎯 아케이드 · 파티 (3)
+        </button>
+      </div>
     </div>
 
-    <!-- 운영중인 6개 메인 게임 그리드 (일반폰 2열 / 폴드 펼침·태블릿 3열, 큼직하고 화려한 카드) -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+    <!-- 운영중인 6개 메인 게임 그리드 -->
+    <div id="game-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
 
-      <!-- 1. 세미니 삼국장기 (LIVE) -->
-      <div class="flex flex-col gap-1.5 min-w-0">
-        <a href="games/삼국장기/index.html" target="_self" draggable="false" class="live-game-card flex-1 border-2 border-rose-500 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_0_25px_rgba(244,63,94,0.38)] hover:shadow-[0_0_32px_rgba(244,63,94,0.6)]">
+      <!-- =========================================================
+           1. 세미니 삼국장기 (전략·장기)
+           ========================================================= -->
+      <div class="game-item flex flex-col gap-1.5 min-w-0" data-category="strategy">
+        <a href="games/삼국장기/index.html" target="_self" draggable="false" style="--glow-color: rgba(244, 63, 94, 0.28);" class="live-game-card flex-1 border-2 border-rose-500/90 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_6px_26px_rgba(244,63,94,0.34)] hover:shadow-[0_12px_36px_rgba(244,63,94,0.62)]">
           <div>
-            <div class="flex items-center justify-between gap-1 mb-2">
-              <div class="live-icon-box w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-rose-500/20 border border-rose-400/60 flex items-center justify-center text-2xl sm:text-3xl shadow-inner flex-shrink-0">
-                <span class="wiggle">🏮</span>
+            <div class="flex items-start justify-between gap-1.5 mb-2.5">
+              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-rose-500/35 to-amber-500/20 border border-rose-400/75 flex items-center justify-center shadow-inner flex-shrink-0">
+                <!-- 전용 애니메이션 SVG: 황금 왕관 바운스 + 쌍검 광채 + 將 장기말 펄스 -->
+                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="janggiWood" x1="12" y1="18" x2="52" y2="58">
+                      <stop offset="0%" stop-color="#FEF08A"/>
+                      <stop offset="100%" stop-color="#D97706"/>
+                    </linearGradient>
+                  </defs>
+                  <!-- 교차 쌍검 -->
+                  <g class="anim-janggi-swords">
+                    <path d="M12 16L52 54M52 16L12 54" stroke="#FDA4AF" stroke-width="3.5" stroke-linecap="round"/>
+                    <path d="M15 13L11 17M49 13L53 17" stroke="#FEF08A" stroke-width="2.2" stroke-linecap="round"/>
+                  </g>
+                  <!-- 황금 왕관 -->
+                  <path class="anim-janggi-crown" d="M21 16L24 9L32 14L40 9L43 16H21Z" fill="#FACC15" stroke="#FEF08A" stroke-width="1.5" stroke-linejoin="round"/>
+                  <!-- 8각 장기말 -->
+                  <g class="anim-janggi-piece">
+                    <polygon points="23,19 41,19 51,29 51,45 41,55 23,55 13,45 13,29" fill="url(#janggiWood)" stroke="#FFFBEB" stroke-width="2.2"/>
+                    <polygon points="25,22 39,22 47,30 47,44 39,52 25,52 17,44 17,30" fill="none" stroke="#B45309" stroke-width="1.5"/>
+                    <text x="32" y="43" text-anchor="middle" fill="#BE123C" font-family="serif" font-weight="900" font-size="19">將</text>
+                  </g>
+                </svg>
               </div>
-              <span class="live-badge-text px-2 py-0.5 bg-gradient-to-r from-rose-600 to-pink-600 border border-rose-300 text-white text-[10px] sm:text-[11px] font-black rounded-full shadow-md truncate">
+              <span class="px-2 py-0.5 bg-gradient-to-r from-rose-600 to-pink-600 border border-rose-300/80 text-white text-[10px] font-black rounded-full shadow">
                 👑 인기 추천
               </span>
             </div>
-            <h3 class="live-title-text text-base sm:text-lg font-black text-rose-200 title-font tracking-wide drop-shadow">
+
+            <h3 class="live-title-text text-base sm:text-lg font-black text-rose-100 title-font tracking-wide drop-shadow">
               세미니 삼국장기
             </h3>
-            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200 mt-1 leading-snug line-clamp-2 font-medium">
-              삼국지의 호걸들과 펼치는 전략 대결!
+            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200/90 mt-1 leading-snug line-clamp-2">
+              삼국지의 호걸들과 펼치는 두뇌 전략 장기 대결!
             </p>
           </div>
-          <div class="mt-3 flex items-center justify-between bg-rose-600/35 border border-rose-400/60 rounded-xl px-2.5 py-1.5 text-[11px] sm:text-xs font-black text-white shadow-inner">
-            <span>🎮 대국실 입장</span>
-            <span class="enter-btn-glow">👉</span>
+
+          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-rose-600/85 to-pink-600/85 border border-rose-300/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-white shadow">
+            <span>대국실 입장</span>
+            <span class="enter-arrow">▶</span>
           </div>
         </a>
-        <!-- 카드 바로 밑에 붙은 초소형 개발자 전용 퀵링크 (일반 유저 시선 방해 없음) -->
-        <a href="games/삼국장기개발/index.html" target="_self" draggable="false" class="dev-mini-btn rounded-lg px-2 py-1 flex items-center justify-between text-[10px] font-semibold">
-          <span class="dev-mini-text truncate">🛠️ 삼국장기 개발중</span>
-          <span class="text-[9px] opacity-75 flex-shrink-0">DEV ▸</span>
+
+        <a href="games/삼국장기개발/index.html" target="_self" draggable="false" class="dev-drawer dev-mini-btn rounded-xl px-2.5 py-1.5 items-center justify-between text-[10px] font-bold">
+          <span class="truncate">🛠️ 삼국장기 개발버전</span>
+          <span class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded flex-shrink-0">DEV</span>
         </a>
       </div>
 
-      <!-- 2. 전설장기 1 (LIVE) -->
-      <div class="flex flex-col gap-1.5 min-w-0">
-        <a href="games/janggi/index.html" target="_self" draggable="false" class="live-game-card flex-1 border-2 border-emerald-400 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_0_25px_rgba(52,211,153,0.35)] hover:shadow-[0_0_32px_rgba(52,211,153,0.55)]">
+      <!-- =========================================================
+           2. 전설장기 1 (전략·장기)
+           ========================================================= -->
+      <div class="game-item flex flex-col gap-1.5 min-w-0" data-category="strategy">
+        <a href="games/janggi/index.html" target="_self" draggable="false" style="--glow-color: rgba(52, 211, 153, 0.26);" class="live-game-card flex-1 border-2 border-emerald-400/90 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_6px_26px_rgba(52,211,153,0.32)] hover:shadow-[0_12px_36px_rgba(52,211,153,0.58)]">
           <div>
-            <div class="flex items-center justify-between gap-1 mb-2">
-              <div class="live-icon-box w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-500/20 border border-emerald-400/60 flex items-center justify-center text-2xl sm:text-3xl shadow-inner flex-shrink-0">
-                <span class="wiggle">⚔️</span>
+            <div class="flex items-start justify-between gap-1.5 mb-2.5">
+              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-500/35 to-teal-500/20 border border-emerald-400/75 flex items-center justify-center shadow-inner flex-shrink-0">
+                <!-- 전용 애니메이션 SVG: 돌진 탱크 + 곡사 포격 탄도 + 폭발 섬광 -->
+                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- 장기판 격자 -->
+                  <path d="M10 48H54M14 40H50M20 34V54M32 34V54M44 34V54" stroke="#34D399" stroke-opacity="0.38" stroke-width="1.5"/>
+                  <!-- 곡사 포격 궤적 (흐르는 탄도 애니메이션) -->
+                  <path d="M18 32C22 14 40 12 49 22" stroke="#FDE047" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
+                  <path class="anim-shell-trail" d="M18 32C22 14 40 12 49 22" stroke="#FEF08A" stroke-width="2.8" stroke-linecap="round"/>
+                  <!-- 포격 폭발 스파크 -->
+                  <polygon class="anim-boom" points="50,15 52,20 57,20 53,23 54,28 50,25 46,28 47,23 43,20 48,20" fill="#F97316" stroke="#FEF08A" stroke-width="1.2"/>
+                  <!-- 전설 탱크 -->
+                  <g class="anim-tank">
+                    <rect x="16" y="33" width="18" height="8" rx="3" fill="#10B981" stroke="#A7F3D0" stroke-width="1.8"/>
+                    <path d="M32 36L43 31" stroke="#ECFDF5" stroke-width="3.5" stroke-linecap="round"/>
+                    <rect x="11" y="40" width="28" height="10" rx="5" fill="#047857" stroke="#6EE7B7" stroke-width="2"/>
+                    <circle cx="17" cy="45" r="2" fill="#A7F3D0"/>
+                    <circle cx="25" cy="45" r="2" fill="#A7F3D0"/>
+                    <circle cx="33" cy="45" r="2" fill="#A7F3D0"/>
+                  </g>
+                </svg>
               </div>
-              <span class="live-badge-text px-2 py-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-300 text-white text-[10px] sm:text-[11px] font-black rounded-full shadow-md truncate">
+              <span class="px-2 py-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-300/80 text-white text-[10px] font-black rounded-full shadow">
                 ⚡ 실시간 P2P
               </span>
             </div>
-            <h3 class="live-title-text text-base sm:text-lg font-black text-emerald-200 title-font tracking-wide drop-shadow">
+
+            <h3 class="live-title-text text-base sm:text-lg font-black text-emerald-100 title-font tracking-wide drop-shadow">
               전설장기 1
             </h3>
-            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200 mt-1 leading-snug line-clamp-2 font-medium">
+            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200/90 mt-1 leading-snug line-clamp-2">
               탱크 돌진, 곡사 포격 모션 및 킬 이펙트 탑재!
             </p>
           </div>
-          <div class="mt-3 flex items-center justify-between bg-emerald-600/35 border border-emerald-400/60 rounded-xl px-2.5 py-1.5 text-[11px] sm:text-xs font-black text-white shadow-inner">
-            <span>🎮 대국실 입장</span>
-            <span class="enter-btn-glow">👉</span>
+
+          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-emerald-600/85 to-teal-600/85 border border-emerald-300/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-white shadow">
+            <span>대국실 입장</span>
+            <span class="enter-arrow">▶</span>
           </div>
         </a>
-        <a href="games/janggi개발/index.html" target="_self" draggable="false" class="dev-mini-btn rounded-lg px-2 py-1 flex items-center justify-between text-[10px] font-semibold">
-          <span class="dev-mini-text truncate">🛠️ 전설장기 개발중</span>
-          <span class="text-[9px] opacity-75 flex-shrink-0">DEV ▸</span>
+
+        <a href="games/janggi개발/index.html" target="_self" draggable="false" class="dev-drawer dev-mini-btn rounded-xl px-2.5 py-1.5 items-center justify-between text-[10px] font-bold">
+          <span class="truncate">🛠️ 전설장기 개발버전</span>
+          <span class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded flex-shrink-0">DEV</span>
         </a>
       </div>
 
-      <!-- 3. 미니삼국 땅따먹기 (LIVE) -->
-      <div class="flex flex-col gap-1.5 min-w-0">
-        <a href="games/미니삼국 땅따먹기/index.html" target="_self" draggable="false" class="live-game-card flex-1 border-2 border-cyan-400 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_0_25px_rgba(34,211,238,0.35)] hover:shadow-[0_0_32px_rgba(34,211,238,0.55)]">
+      <!-- =========================================================
+           3. 미니삼국 땅따먹기 (전략·장기)
+           ========================================================= -->
+      <div class="game-item flex flex-col gap-1.5 min-w-0" data-category="strategy">
+        <a href="games/미니삼국 땅따먹기/index.html" target="_self" draggable="false" style="--glow-color: rgba(34, 211, 238, 0.26);" class="live-game-card flex-1 border-2 border-cyan-400/90 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_6px_26px_rgba(34,211,238,0.32)] hover:shadow-[0_12px_36px_rgba(34,211,238,0.58)]">
           <div>
-            <div class="flex items-center justify-between gap-1 mb-2">
-              <div class="live-icon-box w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/60 flex items-center justify-center text-2xl sm:text-3xl shadow-inner flex-shrink-0">
-                <span class="wiggle">🗺️</span>
+            <div class="flex items-start justify-between gap-1.5 mb-2.5">
+              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-cyan-500/35 to-blue-500/20 border border-cyan-400/75 flex items-center justify-center shadow-inner flex-shrink-0">
+                <!-- 전용 애니메이션 SVG: 삼국 영토 점령 파동 + 깃발 펄럭임 -->
+                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- 삼국 영토 영역 -->
+                  <path class="anim-land-a" d="M12 24L32 16L32 36L14 44L12 24Z" fill="#06B6D4" stroke="#CFFAFE" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path class="anim-land-b" d="M32 16L52 24L50 44L32 36V16Z" fill="#3B82F6" stroke="#DBEAFE" stroke-width="1.8" stroke-linejoin="round"/>
+                  <path class="anim-land-a" d="M14 44L32 36L50 44L32 54L14 44Z" fill="#F43F5E" stroke="#FFE4E6" stroke-width="1.8" stroke-linejoin="round"/>
+                  <!-- 영토 확장 충격파 -->
+                  <circle class="anim-land-wave" cx="32" cy="37" r="3" stroke="#FEF08A" stroke-width="1.6"/>
+                  <!-- 중앙 영토 쟁탈 깃발 -->
+                  <path d="M32 10V37" stroke="#FEF08A" stroke-width="3" stroke-linecap="round"/>
+                  <path class="anim-conquest-flag" d="M32 10L48 16L32 22V10Z" fill="#FACC15" stroke="#FFFBEB" stroke-width="1.5" stroke-linejoin="round"/>
+                  <circle cx="32" cy="37" r="3" fill="#FEF08A"/>
+                </svg>
               </div>
-              <span class="live-badge-text px-2 py-0.5 bg-gradient-to-r from-cyan-600 to-blue-600 border border-cyan-300 text-white text-[10px] sm:text-[11px] font-black rounded-full shadow-md truncate">
-                🔥 신규 전장
+              <span class="px-2 py-0.5 bg-gradient-to-r from-cyan-600 to-blue-600 border border-cyan-300/80 text-white text-[10px] font-black rounded-full shadow">
+                🔥 영토 쟁탈
               </span>
             </div>
-            <h3 class="live-title-text text-base sm:text-lg font-black text-cyan-200 title-font tracking-wide drop-shadow">
+
+            <h3 class="live-title-text text-base sm:text-lg font-black text-cyan-100 title-font tracking-wide drop-shadow">
               미니삼국 땅따먹기
             </h3>
-            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200 mt-1 leading-snug line-clamp-2 font-medium">
-              영토 점령과 긴장감 넘치는 전략 땅따먹기 대결.
+            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200/90 mt-1 leading-snug line-clamp-2">
+              영토 점령과 긴장감 넘치는 전략 땅따먹기 대결!
             </p>
           </div>
-          <div class="mt-3 flex items-center justify-between bg-cyan-600/35 border border-cyan-400/60 rounded-xl px-2.5 py-1.5 text-[11px] sm:text-xs font-black text-white shadow-inner">
-            <span>🎮 전장 입장</span>
-            <span class="enter-btn-glow">👉</span>
+
+          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-cyan-600/85 to-blue-600/85 border border-cyan-300/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-white shadow">
+            <span>전장 입장</span>
+            <span class="enter-arrow">▶</span>
           </div>
         </a>
-        <a href="games/미니삼국 땅따먹기개발/index.html" target="_self" draggable="false" class="dev-mini-btn rounded-lg px-2 py-1 flex items-center justify-between text-[10px] font-semibold">
-          <span class="dev-mini-text truncate">🛠️ 땅따먹기 개발중</span>
-          <span class="text-[9px] opacity-75 flex-shrink-0">DEV ▸</span>
+
+        <a href="games/미니삼국 땅따먹기개발/index.html" target="_self" draggable="false" class="dev-drawer dev-mini-btn rounded-xl px-2.5 py-1.5 items-center justify-between text-[10px] font-bold">
+          <span class="truncate">🛠️ 땅따먹기 개발버전</span>
+          <span class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded flex-shrink-0">DEV</span>
         </a>
       </div>
 
-      <!-- 4. 미니 스코어보드 (LIVE) -->
-      <div class="flex flex-col gap-1.5 min-w-0">
-        <a href="games/점수/index.html" target="_self" draggable="false" class="live-game-card flex-1 border-2 border-amber-400 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_0_25px_rgba(251,191,36,0.35)] hover:shadow-[0_0_32px_rgba(251,191,36,0.55)]">
+      <!-- =========================================================
+           4. 미니 스코어보드 (아케이드·파티)
+           ========================================================= -->
+      <div class="game-item flex flex-col gap-1.5 min-w-0" data-category="party">
+        <a href="games/점수/index.html" target="_self" draggable="false" style="--glow-color: rgba(251, 191, 36, 0.26);" class="live-game-card flex-1 border-2 border-amber-400/90 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_6px_26px_rgba(251,191,36,0.32)] hover:shadow-[0_12px_36px_rgba(251,191,36,0.58)]">
           <div>
-            <div class="flex items-center justify-between gap-1 mb-2">
-              <div class="live-icon-box w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-500/20 border border-amber-400/60 flex items-center justify-center text-2xl sm:text-3xl shadow-inner flex-shrink-0">
-                <span class="wiggle">🏆</span>
+            <div class="flex items-start justify-between gap-1.5 mb-2.5">
+              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-500/35 to-orange-500/20 border border-amber-400/75 flex items-center justify-center shadow-inner flex-shrink-0">
+                <!-- 전용 애니메이션 SVG: 플립 스코어 카드 + 황금 트로피 부양 & 별빛 -->
+                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- 좌우 스코어 플립 보드 -->
+                  <g class="anim-score-left">
+                    <rect x="8" y="16" width="21" height="26" rx="4" fill="#1E1B4B" stroke="#FBBF24" stroke-width="2"/>
+                    <line x1="8" y1="29" x2="29" y2="29" stroke="#F59E0B" stroke-opacity="0.55" stroke-width="1.5"/>
+                    <text x="18.5" y="35" text-anchor="middle" fill="#FDE047" font-weight="900" font-size="16">7</text>
+                  </g>
+                  <g class="anim-score-right">
+                    <rect x="35" y="16" width="21" height="26" rx="4" fill="#1E1B4B" stroke="#FBBF24" stroke-width="2"/>
+                    <line x1="35" y1="29" x2="56" y2="29" stroke="#F59E0B" stroke-opacity="0.55" stroke-width="1.5"/>
+                    <text x="45.5" y="35" text-anchor="middle" fill="#38BDF8" font-weight="900" font-size="16">5</text>
+                  </g>
+                  <!-- 상단 반짝이 별 -->
+                  <polygon class="anim-trophy-star" points="32,8 33.5,11.5 37,13 33.5,14.5 32,18 30.5,14.5 27,13 30.5,11.5" fill="#FEF08A"/>
+                  <!-- 중앙 승자 트로피 -->
+                  <g class="anim-trophy">
+                    <path d="M25 36H39L37 47C36.5 49.5 34.5 51 32 51C29.5 51 27.5 49.5 27 47L25 36Z" fill="#F59E0B" stroke="#FEF08A" stroke-width="1.8"/>
+                    <path d="M27 55H37M32 51V55" stroke="#FDE047" stroke-width="2.5" stroke-linecap="round"/>
+                  </g>
+                </svg>
               </div>
-              <span class="live-badge-text px-2 py-0.5 bg-gradient-to-r from-amber-600 to-orange-600 border border-amber-300 text-white text-[10px] sm:text-[11px] font-black rounded-full shadow-md truncate">
-                👑 파티 랭킹
+              <span class="px-2 py-0.5 bg-gradient-to-r from-amber-600 to-orange-600 border border-amber-300/80 text-white text-[10px] font-black rounded-full shadow">
+                🏆 파티 랭킹
               </span>
             </div>
-            <h3 class="live-title-text text-base sm:text-lg font-black text-amber-200 title-font tracking-wide drop-shadow">
+
+            <h3 class="live-title-text text-base sm:text-lg font-black text-amber-100 title-font tracking-wide drop-shadow">
               미니 스코어보드
             </h3>
-            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200 mt-1 leading-snug line-clamp-2 font-medium">
+            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200/90 mt-1 leading-snug line-clamp-2">
               점수 계산과 승패 기록을 한눈에 간편하게!
             </p>
           </div>
-          <div class="mt-3 flex items-center justify-between bg-amber-600/35 border border-amber-400/60 rounded-xl px-2.5 py-1.5 text-[11px] sm:text-xs font-black text-white shadow-inner">
-            <span>🎮 스코어보드</span>
-            <span class="enter-btn-glow">👉</span>
+
+          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-amber-600/85 to-orange-600/85 border border-amber-300/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-white shadow">
+            <span>스코어보드 열기</span>
+            <span class="enter-arrow">▶</span>
           </div>
         </a>
-        <a href="games/점수개발/index.html" target="_self" draggable="false" class="dev-mini-btn rounded-lg px-2 py-1 flex items-center justify-between text-[10px] font-semibold">
-          <span class="dev-mini-text truncate">🛠️ 스코어보드 개발중</span>
-          <span class="text-[9px] opacity-75 flex-shrink-0">DEV ▸</span>
+
+        <a href="games/점수개발/index.html" target="_self" draggable="false" class="dev-drawer dev-mini-btn rounded-xl px-2.5 py-1.5 items-center justify-between text-[10px] font-bold">
+          <span class="truncate">🛠️ 스코어보드 개발버전</span>
+          <span class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded flex-shrink-0">DEV</span>
         </a>
       </div>
 
-      <!-- 5. 복불복 핀볼 (LIVE) -->
-      <div class="flex flex-col gap-1.5 min-w-0">
-        <a href="games/pinball/index.html" target="_self" draggable="false" class="live-game-card flex-1 border-2 border-fuchsia-400 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_0_25px_rgba(217,70,239,0.35)] hover:shadow-[0_0_32px_rgba(217,70,239,0.55)]">
+      <!-- =========================================================
+           5. 복불복 핀볼 (아케이드·파티)
+           ========================================================= -->
+      <div class="game-item flex flex-col gap-1.5 min-w-0" data-category="party">
+        <a href="games/pinball/index.html" target="_self" draggable="false" style="--glow-color: rgba(217, 70, 239, 0.28);" class="live-game-card flex-1 border-2 border-fuchsia-400/90 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_6px_26px_rgba(217,70,239,0.34)] hover:shadow-[0_12px_36px_rgba(217,70,239,0.6)]">
           <div>
-            <div class="flex items-center justify-between gap-1 mb-2">
-              <div class="live-icon-box w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/60 flex items-center justify-center text-2xl sm:text-3xl shadow-inner flex-shrink-0">
-                <span class="wiggle">🎰</span>
+            <div class="flex items-start justify-between gap-1.5 mb-2.5">
+              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-fuchsia-500/35 to-purple-500/20 border border-fuchsia-400/75 flex items-center justify-center shadow-inner flex-shrink-0">
+                <!-- 전용 애니메이션 SVG: 핀볼 구슬 바운스 + 범퍼 히트 발광 + 플리퍼 킥 -->
+                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <rect x="13" y="9" width="38" height="46" rx="14" fill="#2E1065" stroke="#F0ABFC" stroke-width="2.2"/>
+                  <!-- 네온 범퍼 2개 -->
+                  <circle class="anim-bumper-1" cx="24" cy="23" r="4.5" fill="#EC4899" stroke="#FDE047" stroke-width="1.8"/>
+                  <circle class="anim-bumper-2" cx="40" cy="23" r="4.5" fill="#8B5CF6" stroke="#67E8F9" stroke-width="1.8"/>
+                  <!-- 구슬 궤적 & 움직이는 핀볼 구슬 -->
+                  <path d="M24 23L35 33L27 42" stroke="#FDE047" stroke-opacity="0.55" stroke-width="1.8" stroke-dasharray="3 2" stroke-linecap="round"/>
+                  <circle class="anim-pinball-ball" cx="35" cy="33" r="4" fill="#FEF08A" stroke="#FFFFFF" stroke-width="1.5"/>
+                  <!-- 하단 좌우 플리퍼 -->
+                  <path class="anim-flipper-l" d="M18 45L28 49" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+                  <path class="anim-flipper-r" d="M46 45L36 49" stroke="#38BDF8" stroke-width="4" stroke-linecap="round"/>
+                </svg>
               </div>
-              <span class="live-badge-text px-2 py-0.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 border border-fuchsia-300 text-white text-[10px] sm:text-[11px] font-black rounded-full shadow-md truncate">
-                🎯 내기/추첨
+              <span class="px-2 py-0.5 bg-gradient-to-r from-fuchsia-600 to-purple-600 border border-fuchsia-300/80 text-white text-[10px] font-black rounded-full shadow">
+                🎯 내기 · 추첨
               </span>
             </div>
-            <h3 class="live-title-text text-base sm:text-lg font-black text-fuchsia-200 title-font tracking-wide drop-shadow">
+
+            <h3 class="live-title-text text-base sm:text-lg font-black text-fuchsia-100 title-font tracking-wide drop-shadow">
               복불복 핀볼
             </h3>
-            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200 mt-1 leading-snug line-clamp-2 font-medium">
-              구슬 낙하 핀볼로 즐기는 심장 쫄깃 추첨!
+            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200/90 mt-1 leading-snug line-clamp-2">
+              구슬 낙하 핀볼로 즐기는 심장 쫄깃 추첨 게임!
             </p>
           </div>
-          <div class="mt-3 flex items-center justify-between bg-fuchsia-600/35 border border-fuchsia-400/60 rounded-xl px-2.5 py-1.5 text-[11px] sm:text-xs font-black text-white shadow-inner">
-            <span>🎮 추첨장 입장</span>
-            <span class="enter-btn-glow">👉</span>
+
+          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-fuchsia-600/85 to-purple-600/85 border border-fuchsia-300/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-white shadow">
+            <span>추첨장 입장</span>
+            <span class="enter-arrow">▶</span>
           </div>
         </a>
-        <a href="games/pinball개발/index.html" target="_self" draggable="false" class="dev-mini-btn rounded-lg px-2 py-1 flex items-center justify-between text-[10px] font-semibold">
-          <span class="dev-mini-text truncate">🛠️ 복불복 핀볼 개발중</span>
-          <span class="text-[9px] opacity-75 flex-shrink-0">DEV ▸</span>
+
+        <a href="games/pinball개발/index.html" target="_self" draggable="false" class="dev-drawer dev-mini-btn rounded-xl px-2.5 py-1.5 items-center justify-between text-[10px] font-bold">
+          <span class="truncate">🛠️ 복불복 핀볼 개발버전</span>
+          <span class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded flex-shrink-0">DEV</span>
         </a>
       </div>
 
-      <!-- 6. 미니멀티디펜스 (LIVE) -->
-      <div class="flex flex-col gap-1.5 min-w-0">
-        <a href="games/미니디펜스/index.html" target="_self" draggable="false" class="live-game-card flex-1 border-2 border-violet-400 rounded-2xl p-3 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_0_25px_rgba(139,92,246,0.35)] hover:shadow-[0_0_32px_rgba(139,92,246,0.55)]">
+      <!-- =========================================================
+           6. 미니멀티디펜스 (아케이드·파티)
+           ========================================================= -->
+      <div class="game-item flex flex-col gap-1.5 min-w-0" data-category="party">
+        <a href="games/미니디펜스/index.html" target="_self" draggable="false" style="--glow-color: rgba(139, 92, 246, 0.28);" class="live-game-card flex-1 border-2 border-violet-400/90 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_6px_26px_rgba(139,92,246,0.34)] hover:shadow-[0_12px_36px_rgba(139,92,246,0.6)]">
           <div>
-            <div class="flex items-center justify-between gap-1 mb-2">
-              <div class="live-icon-box w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-violet-500/20 border border-violet-400/60 flex items-center justify-center text-2xl sm:text-3xl shadow-inner flex-shrink-0">
-                <span class="wiggle">🏰</span>
+            <div class="flex items-start justify-between gap-1.5 mb-2.5">
+              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-violet-500/35 to-indigo-500/20 border border-violet-400/75 flex items-center justify-center shadow-inner flex-shrink-0">
+                <!-- 전용 애니메이션 SVG: 홀로그램 에너지 실드 + 부유 방어 코어 -->
+                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <!-- 외곽 에너지 방패 -->
+                  <path class="anim-shield-body" d="M32 10L50 18V33C50 44.5 42.2 52.8 32 56C21.8 52.8 14 44.5 14 33V18L32 10Z" fill="#4C1D95" fill-opacity="0.72" stroke="#A78BFA" stroke-opacity="0.4" stroke-width="2" stroke-linejoin="round"/>
+                  <path class="anim-shield-border" d="M32 10L50 18V33C50 44.5 42.2 52.8 32 56C21.8 52.8 14 44.5 14 33V18L32 10Z" stroke="#E9D5FF" stroke-width="2.2" stroke-linejoin="round"/>
+                  <!-- 내부 성벽 포탑 -->
+                  <path d="M23 25H27V28H30V25H34V28H37V25H41V32H23V25Z" fill="#A78BFA" stroke="#EDE9FE" stroke-width="1.3"/>
+                  <rect x="25" y="32" width="14" height="14" rx="2" fill="#7C3AED" stroke="#DDD6FE" stroke-width="1.5"/>
+                  <!-- 방어 코어 크리스탈 -->
+                  <polygon class="anim-defense-core" points="32,34 36,39 32,44 28,39" fill="#38BDF8" stroke="#FFFFFF" stroke-width="1.2"/>
+                </svg>
               </div>
-              <span class="live-badge-text px-2 py-0.5 bg-gradient-to-r from-violet-600 to-indigo-600 border border-violet-300 text-white text-[10px] sm:text-[11px] font-black rounded-full shadow-md truncate">
-                🔥 협동 방어
+              <span class="px-2 py-0.5 bg-gradient-to-r from-violet-600 to-indigo-600 border border-violet-300/80 text-white text-[10px] font-black rounded-full shadow">
+                🛡️ 협동 방어
               </span>
             </div>
-            <h3 class="live-title-text text-base sm:text-lg font-black text-violet-200 title-font tracking-wide drop-shadow">
+
+            <h3 class="live-title-text text-base sm:text-lg font-black text-violet-100 title-font tracking-wide drop-shadow">
               미니멀티디펜스
             </h3>
-            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200 mt-1 leading-snug line-clamp-2 font-medium">
-              적들의 공세를 막아내고 기지를 지켜라!
+            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200/90 mt-1 leading-snug line-clamp-2">
+              적들의 공세를 막아내고 기지를 끝까지 지켜라!
             </p>
           </div>
-          <div class="mt-3 flex items-center justify-between bg-violet-600/35 border border-violet-400/60 rounded-xl px-2.5 py-1.5 text-[11px] sm:text-xs font-black text-white shadow-inner">
-            <span>🎮 방어선 입장</span>
-            <span class="enter-btn-glow">👉</span>
+
+          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-violet-600/85 to-indigo-600/85 border border-violet-300/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-white shadow">
+            <span>방어선 입장</span>
+            <span class="enter-arrow">▶</span>
           </div>
         </a>
-        <a href="games/미니디펜스개발/index.html" target="_self" draggable="false" class="dev-mini-btn rounded-lg px-2 py-1 flex items-center justify-between text-[10px] font-semibold">
-          <span class="dev-mini-text truncate">🛠️ 멀티디펜스 개발중</span>
-          <span class="text-[9px] opacity-75 flex-shrink-0">DEV ▸</span>
+
+        <a href="games/미니디펜스개발/index.html" target="_self" draggable="false" class="dev-drawer dev-mini-btn rounded-xl px-2.5 py-1.5 items-center justify-between text-[10px] font-bold">
+          <span class="truncate">🛠️ 멀티디펜스 개발버전</span>
+          <span class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded flex-shrink-0">DEV</span>
         </a>
       </div>
 
@@ -519,12 +1001,12 @@
   </main>
 
   <!-- 하단 상태바 -->
-  <footer class="w-full max-w-md sm:max-w-xl md:max-w-3xl bg-indigo-950/75 border border-purple-500/30 rounded-2xl px-3.5 py-2 sm:px-5 sm:py-2.5 flex items-center justify-between text-[10px] sm:text-xs text-purple-200/80 my-2 flex-shrink-0 transition-all duration-300">
-    <div class="flex items-center gap-1.5 min-w-0">
-      <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse flex-shrink-0"></span>
-      <span class="font-bold text-amber-200 truncate">👑 세미니 놀이터 축제 성황 중! ✨</span>
+  <footer class="w-full max-w-md sm:max-w-xl md:max-w-3xl bg-indigo-950/80 border border-purple-400/35 rounded-2xl px-4 py-2.5 flex items-center justify-between text-[11px] sm:text-xs text-purple-200/85 my-2 flex-shrink-0 backdrop-blur-md">
+    <div class="flex items-center gap-2 min-w-0">
+      <span class="w-2 h-2 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+      <span class="font-bold text-amber-200 truncate">👑 주인장 세미니의 페스티벌 성황 운영 중! ✨</span>
     </div>
-    <span class="font-medium text-purple-300 flex-shrink-0 ml-2">© 세미니의 놀이터</span>
+    <span class="font-semibold text-purple-300 flex-shrink-0 ml-2">© 세미니의 놀이터</span>
   </footer>
 
   <script>
@@ -532,7 +1014,8 @@
     document.addEventListener('dragstart', function(e) { e.preventDefault(); return false; }, false);
     document.addEventListener('drop', function(e) { e.preventDefault(); return false; }, false);
 
-    // 2. 닉네임 로직
+    // 2. 닉네임 영구 저장 로직 (기존 키값 100% 호환 + 저장 피드백 애니메이션)
+    let nickBadgeTimer = null;
     function loadSavedNickname() {
       let saved = localStorage.getItem('jg_permanent_nickname');
       if (!saved) {
@@ -550,12 +1033,179 @@
       if (trimmed) {
         localStorage.setItem('jg_permanent_nickname', trimmed);
         localStorage.setItem('jg_nick_is_custom', 'true');
+        const badge = document.getElementById('nick-save-badge');
+        if (badge) {
+          badge.style.transform = 'scale(1.12)';
+          clearTimeout(nickBadgeTimer);
+          nickBadgeTimer = setTimeout(() => { badge.style.transform = 'scale(1)'; }, 220);
+        }
       }
     }
 
-    // 3. 메인메뉴 및 개발자 링크 이동 처리
+    // 3. 카테고리 필터 기능
+    function filterGames(category, btnEl) {
+      document.querySelectorAll('.filter-tab').forEach(tab => tab.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+
+      document.querySelectorAll('.game-item').forEach(item => {
+        if (category === 'all' || item.dataset.category === category) {
+          item.style.display = 'flex';
+        } else {
+          item.style.display = 'none';
+        }
+      });
+    }
+
+    // 4. 개발자(DEV) 모드 토글
+    function applyDevModeState(isOn) {
+      const btn = document.getElementById('dev-toggle-btn');
+      const label = document.getElementById('dev-toggle-label');
+      if (isOn) {
+        document.body.classList.add('dev-mode-on');
+        if (btn) {
+          btn.classList.remove('bg-slate-900/85', 'border-slate-600/60', 'text-slate-300');
+          btn.classList.add('bg-amber-500/25', 'border-amber-400', 'text-amber-200');
+        }
+        if (label) label.textContent = 'DEV 모드 ON';
+      } else {
+        document.body.classList.remove('dev-mode-on');
+        if (btn) {
+          btn.classList.add('bg-slate-900/85', 'border-slate-600/60', 'text-slate-300');
+          btn.classList.remove('bg-amber-500/25', 'border-amber-400', 'text-amber-200');
+        }
+        if (label) label.textContent = 'DEV 모드 OFF';
+      }
+    }
+
+    function toggleDevMode() {
+      const nextState = !document.body.classList.contains('dev-mode-on');
+      localStorage.setItem('semini_hub_dev_mode', nextState ? 'true' : 'false');
+      applyDevModeState(nextState);
+    }
+
+    // 5. 카드 마우스/터치 스포트라이트 트래킹
+    document.querySelectorAll('.live-game-card').forEach(card => {
+      card.addEventListener('pointermove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = ((e.clientX - rect.left) / rect.width) * 100;
+        const y = ((e.clientY - rect.top) / rect.height) * 100;
+        card.style.setProperty('--mx', `${x}%`);
+        card.style.setProperty('--my', `${y}%`);
+      });
+    });
+
+    // 6. 화려한 페스티벌 파티클 & 터치 스파클 버스트 캔버스
+    function initFestivalCanvas() {
+      const canvas = document.getElementById('festival-canvas');
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      let w = canvas.width = window.innerWidth;
+      let h = canvas.height = window.innerHeight;
+
+      window.addEventListener('resize', () => {
+        w = canvas.width = window.innerWidth;
+        h = canvas.height = window.innerHeight;
+      });
+
+      const colors = ['#fde047', '#fb7185', '#c084fc', '#38bdf8', '#34d399', '#f472b6'];
+      const ambientCount = Math.min(34, Math.floor((w * h) / 28000));
+      const ambient = Array.from({ length: ambientCount }, () => ({
+        x: Math.random() * w,
+        y: Math.random() * h,
+        r: Math.random() * 2.3 + 0.9,
+        vx: (Math.random() - 0.5) * 0.35,
+        vy: -Math.random() * 0.45 - 0.15,
+        alpha: Math.random() * 0.55 + 0.25,
+        pulse: Math.random() * Math.PI * 2,
+        color: colors[Math.floor(Math.random() * colors.length)]
+      }));
+
+      const bursts = [];
+
+      function spawnBurst(x, y, count = 14) {
+        for (let i = 0; i < count; i++) {
+          const angle = (Math.PI * 2 * i) / count + (Math.random() - 0.5) * 0.4;
+          const speed = Math.random() * 2.8 + 1.2;
+          bursts.push({
+            x,
+            y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed,
+            r: Math.random() * 2.4 + 1.2,
+            life: 1,
+            decay: Math.random() * 0.025 + 0.022,
+            color: colors[Math.floor(Math.random() * colors.length)]
+          });
+        }
+      }
+
+      // 터치/클릭 시 화면에 반짝이는 불꽃 스파클 생성
+      window.addEventListener('pointerdown', (e) => {
+        spawnBurst(e.clientX, e.clientY, 14);
+      }, { passive: true });
+
+      // 가끔 하늘에 은은한 미니 폭죽 터짐
+      setInterval(() => {
+        if (document.hidden) return;
+        spawnBurst(w * (0.15 + Math.random() * 0.7), h * (0.12 + Math.random() * 0.35), 16);
+      }, 3800);
+
+      function draw() {
+        ctx.clearRect(0, 0, w, h);
+
+        // 부유하는 축제 불빛
+        for (const p of ambient) {
+          p.x += p.vx;
+          p.y += p.vy;
+          p.pulse += 0.032;
+          if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
+          if (p.x < -10) p.x = w + 10;
+          if (p.x > w + 10) p.x = -10;
+
+          const currentAlpha = p.alpha * (0.65 + 0.35 * Math.sin(p.pulse));
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.globalAlpha = currentAlpha;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+          ctx.fill();
+        }
+
+        // 폭죽 & 터치 스파클
+        for (let i = bursts.length - 1; i >= 0; i--) {
+          const b = bursts[i];
+          b.x += b.vx;
+          b.y += b.vy;
+          b.vy += 0.035; // 미세 중력
+          b.vx *= 0.97;
+          b.vy *= 0.97;
+          b.life -= b.decay;
+
+          if (b.life <= 0) {
+            bursts.splice(i, 1);
+            continue;
+          }
+
+          ctx.beginPath();
+          ctx.arc(b.x, b.y, b.r * b.life, 0, Math.PI * 2);
+          ctx.fillStyle = b.color;
+          ctx.globalAlpha = b.life;
+          ctx.shadowBlur = 10;
+          ctx.shadowColor = b.color;
+          ctx.fill();
+        }
+
+        ctx.globalAlpha = 1;
+        ctx.shadowBlur = 0;
+        requestAnimationFrame(draw);
+      }
+      draw();
+    }
+
+    // 7. 링크 이동 처리
     document.querySelectorAll('a.live-game-card, a.dev-mini-btn').forEach(function(card) {
-      card.addEventListener('click', function(e) {
+      card.addEventListener('click', function() {
         const targetUrl = this.getAttribute('href');
         if (targetUrl) {
           window.location.href = targetUrl;
@@ -563,7 +1213,11 @@
       });
     });
 
-    window.addEventListener('DOMContentLoaded', loadSavedNickname);
+    window.addEventListener('DOMContentLoaded', () => {
+      loadSavedNickname();
+      applyDevModeState(localStorage.getItem('semini_hub_dev_mode') === 'true');
+      initFestivalCanvas();
+    });
   </script>
 </body>
 </html>
