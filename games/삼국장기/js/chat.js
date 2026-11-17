@@ -2120,13 +2120,87 @@ function drawCampDamage(g,side,lv,debrisOnly){
         g.beginPath();mid2.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
 
         // 최심부 코어 (스킬 속성별 잔류 열기/에너지)
-        const cCol = sk==='alien'?'#00e676':sk==='hammer'||sk==='warlord_sunquan'||sk==='warlord_simayi'?'#38bdf8':sk==='warlord_liubei'?'#10b981':sk==='warlord_lvbu'?'#d946ef':sk==='warlord_zhuge'?'#fde047':sk==='warlord_caocao'||sk==='fist'?'#f43f5e':'#ff6d00';
+        const cCol = sk==='alien'?'#00e676':sk==='hammer'||sk==='warlord_sunquan'?'#38bdf8':sk==='warlord_simayi'?'#818cf8':sk==='warlord_liubei'?'#10b981':sk==='warlord_lvbu'?'#d946ef':sk==='warlord_zhuge'?'#fde047':sk==='warlord_caocao'||sk==='fist'?'#f43f5e':'#ff6d00';
         const lg=g.createRadialGradient(cx,cy+dir*C*.07,1,cx,cy+dir*C*.07,rx*0.36);
         lg.addColorStop(0,cCol);
         lg.addColorStop(0.55,'#2b0902');
         lg.addColorStop(1,'#080301');
         g.fillStyle=lg;
         g.beginPath();deep.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
+
+        // 군주별 고유 공격 형태에 따른 특화 파손 흔적 오버레이
+        if(sk==='warlord_zhuge'){
+          // 제갈량(백우선 공명빔 + 팔괘): 8방향 팔괘 방사형 직선 균열
+          g.strokeStyle='rgba(253, 224, 71, 0.72)';
+          g.lineWidth=1.4;
+          for(let k=0;k<8;k++){
+            const a=(k*Math.PI)/4;
+            g.beginPath();
+            g.moveTo(cx+Math.cos(a)*rx*0.35,cy+Math.sin(a)*ry*0.35);
+            g.lineTo(cx+Math.cos(a)*rx*1.45,cy+Math.sin(a)*ry*1.45);
+            g.stroke();
+          }
+        }else if(sk==='warlord_sunquan'){
+          // 손권(고정도 수압 검기): 3중 평행 초승달 단층 절단 참격홈
+          for(let sIdx=-1;sIdx<=1;sIdx++){
+            const off=sIdx*C*0.26;
+            g.strokeStyle='#071926';
+            g.lineWidth=3.6;
+            g.beginPath();
+            g.moveTo(cx-rx*1.25+off,cy-ry*0.75-off*0.5);
+            g.quadraticCurveTo(cx+off,cy-off*0.2,cx+rx*1.25+off,cy+ry*0.75-off*0.5);
+            g.stroke();
+            g.strokeStyle='rgba(56, 189, 248, 0.85)';
+            g.lineWidth=1.3;
+            g.stroke();
+          }
+        }else if(sk==='warlord_caocao'){
+          // 조조(분신 검무 난무 봉황난무): 6방향 교차 성형(星形) 참격 흉터
+          for(let k=0;k<3;k++){
+            const a=-0.5+k*1.05;
+            g.strokeStyle='#14060a';
+            g.lineWidth=3.4;
+            g.beginPath();
+            g.moveTo(cx-Math.cos(a)*rx*1.35,cy-Math.sin(a)*ry*1.35);
+            g.lineTo(cx+Math.cos(a)*rx*1.35,cy+Math.sin(a)*ry*1.35);
+            g.stroke();
+            g.strokeStyle='rgba(244, 63, 94, 0.82)';
+            g.lineWidth=1.2;
+            g.stroke();
+          }
+        }else if(sk==='warlord_liubei'){
+          // 유비(자웅일대검 쌍검 연격): 나란히 파인 2중 평행 쌍검 절단선
+          [-C*0.14, C*0.14].forEach((off, idx)=>{
+            g.strokeStyle='#051b11';
+            g.lineWidth=3.5;
+            g.beginPath();
+            g.moveTo(cx-rx*1.2+off,cy-ry*0.8);
+            g.lineTo(cx+rx*1.2+off,cy+ry*0.8);
+            g.stroke();
+            g.strokeStyle=idx===0?'rgba(16, 185, 129, 0.85)':'rgba(253, 224, 71, 0.85)';
+            g.lineWidth=1.2;
+            g.stroke();
+          });
+        }else if(sk==='warlord_lvbu'){
+          // 여포(방천화극 전방위 지진 충격파): 초대형 외곽 파쇄 링 & 거대 균열
+          g.strokeStyle='rgba(217, 70, 239, 0.78)';
+          g.lineWidth=2.0;
+          g.beginPath();
+          g.ellipse(cx,cy,rx*1.35,ry*1.35,0,0,Math.PI*2);
+          g.stroke();
+        }else if(sk==='warlord_simayi'){
+          // 사마의(우선 중력파 & 연쇄 뇌전): 동심원 중력 함몰 링 + 주변 4방위 연쇄 감전 소분화구
+          g.strokeStyle='rgba(129, 140, 248, 0.82)';
+          g.lineWidth=1.6;
+          g.beginPath();g.ellipse(cx,cy,rx*0.72,ry*0.72,0,0,Math.PI*2);g.stroke();
+          for(let s=0;s<4;s++){
+            const sa=s*Math.PI*0.5+0.4;
+            const sx=cx+Math.cos(sa)*rx*1.25, sy=cy+Math.sin(sa)*ry*1.25;
+            g.fillStyle='#0b0f29';
+            g.beginPath();g.arc(sx,sy,C*0.13,0,Math.PI*2);g.fill();
+            g.strokeStyle='#38bdf8';g.lineWidth=1.1;g.stroke();
+          }
+        }
       }
       g.restore();
     });

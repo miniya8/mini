@@ -31,7 +31,9 @@
       duelSkill: '팔진도 · 천기누설(天機漏洩)',
       duelDesc: '북두칠성과 팔괘 진법을 소환해 하늘의 별빛 광선으로 제압합니다.',
       punishName: '🌌 팔진천기참 (스매시컷)',
-      punishFull: '팔진도 · 태극천기참(太極天機斬)',
+      punishFull: '백우선 · 공명광선 팔진참(孔明光線 八陣斬)',
+      attackStyle: '백우선 직선 에너지 광선(공명빔) 관통 + 팔괘 돌풍',
+      destructionForm: '직선 광선 관통 융해 크레이터 + 8방향 팔괘 직선 균열',
       punishDesc: '스매시 컷 3연속 구도 전환 후 팔괘 태극진과 북두칠성 광선으로 장기판을 파쇄합니다. (불꽃 없음)',
       primary: '#2563eb',
       secondary: '#fde047',
@@ -76,7 +78,9 @@
       duelSkill: '적벽수군진 · 파천노도(破天怒濤)',
       duelDesc: '거대한 청룡 해일과 수압 칼날을 일으켜 고정도로 일섬합니다.',
       punishName: '🌊 파천노도참 (스매시컷)',
-      punishFull: '고정도 · 장강 파천노도참(破天怒濤斬)',
+      punishFull: '고정도 · 수압검기 파천노도(古錠刀 水壓劍氣)',
+      attackStyle: '고정도 3연속 원거리 수압 검기 발사 + 장강 해일 파동',
+      destructionForm: '3중 평행 초승달 수압 검기 단층 절단 참격선',
       punishDesc: '스매시 컷 급줌·군기 컷인 전환 후 장강의 수압 해일과 고정도 참격으로 장기판을 분쇄합니다. (불꽃 없음)',
       primary: '#0284c7',
       secondary: '#38bdf8',
@@ -121,7 +125,9 @@
       duelSkill: '패왕위압 · 천하호령(天下號令)',
       duelDesc: '진홍빛 패왕의 뇌전과 의천검의 검압으로 상대를 짓누릅니다.',
       punishName: '⚡ 패왕뇌전참 (스매시컷)',
-      punishFull: '의천검 · 패왕천명 뇌전참(覇王雷電斬)',
+      punishFull: '의천검 · 그림자분신 봉황난무(分身 鳳凰亂舞)',
+      attackStyle: '3체 그림자 분신 교차 검무 난무 + 패왕 뇌전·빙결 일격',
+      destructionForm: '분신 6중 성형(星形) 교차 참격 흉터 + 암청 뇌전 균열망',
       punishDesc: '스매시 컷 3연속 호령·돌격 컷인 후 의천검 참격과 진홍빛 뇌전으로 장기판을 격파합니다. (불꽃 없음)',
       primary: '#dc2626',
       secondary: '#f59e0b',
@@ -166,7 +172,9 @@
       duelSkill: '쌍검합벽 · 도원결의(桃園結義)',
       duelDesc: '자웅일대검의 비취·황금 쌍검기와 도원의 벚꽃 바람으로 적을 제압합니다.',
       punishName: '🐉 쌍검천공참 (FPV)',
-      punishFull: '자웅일대검 · 쌍검천공참(雙劍穿空斬)',
+      punishFull: '자웅일대검 · 쌍룡회오리 연격(雌雄雙劍 連擊)',
+      attackStyle: '자웅일대검 고속 회전 연격 + 비취·황금 2중 나선 돌풍',
+      destructionForm: '자웅일대검 이중 평행 절단 참격홈 + 비취·황금 나선 파쇄흔',
       punishDesc: 'FPV 드론이 유비의 자웅일대검 궤적을 따라 급강하하며 비취·황금 쌍검기로 장기판을 파손합니다. (불꽃 없음)',
       primary: '#10b981',
       secondary: '#fde047',
@@ -211,7 +219,9 @@
       duelSkill: '귀신강림 · 방천무쌍격(方天無雙擊)',
       duelDesc: '적토마의 질주와 방천화극의 초거대 자색·진홍 참격으로 전장을 뒤흔듭니다.',
       punishName: '🔱 방천귀신격 (FPV)',
-      punishFull: '방천화극 · 천하무쌍 귀신격(鬼神擊)',
+      punishFull: '방천화극 · 전방위 지진파 귀신격(方天畫戟 地震擊)',
+      attackStyle: '적토마 수직 강하 내리찍기 + 전방위 지진 충격파 & 흑자색 뇌전',
+      destructionForm: '초대형 분화구 크레이터 + 진영 외곽 거미줄 대균열',
       punishDesc: 'FPV 드론이 배럴롤 회전 후 적토마와 함께 수직 강하하여 방천화극의 자색 참격으로 장기판을 분쇄합니다. (불꽃 없음)',
       primary: '#9333ea',
       secondary: '#f43f5e',
@@ -256,7 +266,9 @@
       duelSkill: '낭고지상 · 암영빙옥(暗影氷獄)',
       duelDesc: '황금빛 천명 륜과 암영 빙결 파동으로 상대의 틈을 차갑게 꿰뚫습니다.',
       punishName: '🐺 낭고빙결진 (FPV)',
-      punishFull: '낭고지상 · 암영빙결 파쇄진(暗影氷結陣)',
+      punishFull: '흑철우선 · 중력암영 연쇄뇌전(重力暗影 連鎖雷電)',
+      attackStyle: '우선 지면 강타 중력 압축 파동 + 암영 구체 연쇄 뇌전 방출',
+      destructionForm: '동심원 중력 압축 함몰 분화구 + 주변 4방위 연쇄 감전 소균열',
       punishDesc: 'FPV 드론이 빙결 소용돌이를 가르며 급강하해 사마의의 우산 일격으로 장기판을 얼려 파쇄합니다. (불꽃 없음)',
       primary: '#4f46e5',
       secondary: '#38bdf8',
@@ -883,9 +895,9 @@
     requestAnimationFrame(frame);
   }
 
-  // 스매시 컷 착탄 시 제갈량 · 손권 · 조조 전용 비화염(No-Fire) 필살기 연출
+  // 스매시 컷 착탄 시 제갈량 · 손권 · 조조 외부 검색 기반 고유 공격 형태 연출 (불꽃 없음)
   function drawSmashCutSignatureStrike(g, w, tx, ty, S, q, alpha) {
-    const fade = Math.max(0, 1 - q / 1.65) * alpha;
+    const fade = Math.max(0, 1 - q / 1.70) * alpha;
     if (fade <= 0.01) return;
 
     g.save();
@@ -893,82 +905,87 @@
     g.globalAlpha = fade;
 
     if (w.id === 'zhuge') {
-      // 제갈량: 팔괘 태극진 + 7개 북두칠성 성광 수직 관통 포격 (불꽃 없음)
-      const rad = S * (0.28 + Math.min(0.18, q * 0.22));
+      // 제갈량: 백우선 직선 에너지 광선('공명빔') 관통 + 팔괘 마법진 + 동남풍 회오리 돌풍
+      const rad = S * (0.28 + Math.min(0.20, q * 0.24));
       g.save();
       g.translate(tx, ty);
-      g.rotate(q * 2.2);
+      g.rotate(q * 2.4);
       g.strokeStyle = '#fde047';
       g.lineWidth = 4;
       g.beginPath(); g.arc(0, 0, rad, 0, Math.PI * 2); g.stroke();
       g.strokeStyle = '#38bdf8';
       g.lineWidth = 2.5;
       g.beginPath(); g.arc(0, 0, rad * 0.72, 0, Math.PI * 2); g.stroke();
-      // 팔괘 8방향 괘선
       for (let k = 0; k < 8; k++) {
         const a = (k * Math.PI) / 4;
         g.beginPath();
-        g.moveTo(Math.cos(a) * rad * 0.78, Math.sin(a) * rad * 0.78);
-        g.lineTo(Math.cos(a) * rad * 0.96, Math.sin(a) * rad * 0.96);
+        g.moveTo(Math.cos(a) * rad * 0.35, Math.sin(a) * rad * 0.35);
+        g.lineTo(Math.cos(a) * rad * 1.15, Math.sin(a) * rad * 1.15);
         g.stroke();
       }
       g.restore();
 
-      // 북두칠성 수직 별빛 광선
-      const beamW = S * 0.16 * Math.max(0, 1 - q * 1.1);
+      // 백우선 직선 에너지 광선포('공명빔') 코어 + 외곽 광채
+      const beamW = S * 0.19 * Math.max(0.05, 1 - q * 1.05);
       if (beamW > 1) {
         const bg = g.createLinearGradient(tx - beamW, 0, tx + beamW, 0);
         bg.addColorStop(0, 'rgba(56,189,248,0)');
-        bg.addColorStop(0.5, 'rgba(254,240,138,0.95)');
+        bg.addColorStop(0.32, 'rgba(56,189,248,0.85)');
+        bg.addColorStop(0.5, 'rgba(255,255,255,0.98)');
+        bg.addColorStop(0.68, 'rgba(253,224,71,0.85)');
         bg.addColorStop(1, 'rgba(56,189,248,0)');
         g.fillStyle = bg;
         g.fillRect(tx - beamW, 0, beamW * 2, ty + S * 0.08);
       }
     } else if (w.id === 'sunquan') {
-      // 손권: 고정도 쌍수압 참격 X자 크로스 슬래시 + 장강 청룡 해일 파동 (불꽃 없음)
-      const slashLen = S * 0.56;
-      [-0.65, 0.65].forEach((ang, idx) => {
+      // 손권: 고정도 3연속 원거리 수압 검기 파동(초승달 슬래시 3연사) + 장강 해일 충격파
+      const slashLen = S * 0.60;
+      [-1, 0, 1].forEach((offsetIdx, idx) => {
+        const delay = idx * 0.08;
+        const sq = Math.max(0, q - delay);
+        const travel = Math.min(S * 0.16, sq * S * 0.45);
         g.save();
-        g.translate(tx, ty);
-        g.rotate(ang);
+        g.translate(tx + offsetIdx * S * 0.09, ty + offsetIdx * S * 0.06 + travel * 0.25);
+        g.rotate(-0.55);
         const sg = g.createLinearGradient(-slashLen, 0, slashLen, 0);
         sg.addColorStop(0, 'rgba(2,132,199,0)');
-        sg.addColorStop(0.5, idx === 0 ? 'rgba(224,242,254,0.98)' : 'rgba(56,189,248,0.95)');
+        sg.addColorStop(0.5, idx === 1 ? 'rgba(224,242,254,0.98)' : 'rgba(56,189,248,0.95)');
         sg.addColorStop(1, 'rgba(2,132,199,0)');
         g.fillStyle = sg;
         g.beginPath();
-        g.ellipse(0, 0, slashLen, S * 0.032 * Math.max(0.1, 1 - q * 0.8), 0, 0, Math.PI * 2);
+        g.ellipse(0, 0, slashLen, S * 0.028 * Math.max(0.1, 1 - sq * 0.85), 0, 0, Math.PI * 2);
         g.fill();
         g.restore();
       });
     } else {
-      // 조조: 의천검 십자 패왕 참격 + 다중 진홍·황금 뇌전 낙뢰 (불꽃 없음)
-      const slashLen = S * 0.62;
-      [-0.45, 0.75].forEach((ang, idx) => {
+      // 조조: 3체 그림자 분신 교차 검무 난무('봉황난무') 6연속 참격 + 암청·진홍 뇌전 낙뢰
+      const slashLen = S * 0.64;
+      for (let k = 0; k < 6; k++) {
+        const ang = -0.75 + k * 0.52;
         g.save();
-        g.translate(tx, ty);
+        g.translate(tx + Math.cos(ang * 2) * S * 0.04, ty + Math.sin(ang * 2) * S * 0.04);
         g.rotate(ang);
         const sg = g.createLinearGradient(-slashLen, 0, slashLen, 0);
         sg.addColorStop(0, 'rgba(220,38,38,0)');
-        sg.addColorStop(0.5, idx === 0 ? 'rgba(254,240,138,0.98)' : 'rgba(248,113,113,0.95)');
-        sg.addColorStop(1, 'rgba(220,38,38,0)');
+        sg.addColorStop(0.5, k % 2 === 0 ? 'rgba(254,240,138,0.96)' : 'rgba(244,63,94,0.95)');
+        sg.addColorStop(1, 'rgba(79,70,229,0)');
         g.fillStyle = sg;
         g.beginPath();
-        g.ellipse(0, 0, slashLen, S * 0.034 * Math.max(0.1, 1 - q * 0.8), 0, 0, Math.PI * 2);
+        g.ellipse(0, 0, slashLen, S * 0.024 * Math.max(0.1, 1 - q * 0.82), 0, 0, Math.PI * 2);
         g.fill();
         g.restore();
-      });
+      }
 
-      // 상공에서 내리꽂히는 진홍·황금 뇌전 줄기
-      for (let b = 0; b < 4; b++) {
-        g.strokeStyle = b % 2 === 0 ? '#fde047' : '#f87171';
-        g.lineWidth = 4 - b * 0.6;
+      // 상공에서 내리꽂히는 진홍·암청 패왕 뇌전 줄기
+      for (let b = 0; b < 5; b++) {
+        g.strokeStyle = b % 2 === 0 ? '#fde047' : '#818cf8';
+        g.lineWidth = 4 - b * 0.5;
         g.beginPath();
-        let bx = tx + (b - 1.5) * S * 0.08;
+        let bx = tx + (b - 2) * S * 0.075;
         let by = 0;
         g.moveTo(bx, by);
         for (let step = 1; step <= 6; step++) {
-          bx += Math.sin(q * 35 + step * 7 + b) * S * 0.04;
+          bx += Math.sin(q * 38 + step * 7 + b) * S * 0.042;
           by = (ty / 6) * step;
           g.lineTo(bx, by);
         }
@@ -1237,35 +1254,50 @@
     requestAnimationFrame(frame);
   }
 
-  // 불꽃 없는 군주별 고유 에너지 소용돌이 (검기/뇌전/해일/참격/팔괘/빙결)
+  // 불꽃 없는 군주별 고유 공격 형태 에너지 소용돌이 (쌍검나선/방천지진파/중력연쇄뇌전/분신검무/수압검기/팔괘광선)
   function drawNonFireWarlordVortex(g, w, cx, cy, rad, t, alpha) {
     g.save();
     g.globalCompositeOperation = 'lighter';
-    g.globalAlpha = alpha * 0.85;
+    g.globalAlpha = alpha * 0.88;
     if (w.id === 'liubei') {
+      // 유비: 자웅일대검(비취 웅검 + 황금 자검) 2중 나선 고속 회전 연격
       for (let k = 0; k < 2; k++) {
         g.strokeStyle = k === 0 ? '#10b981' : '#fde047';
-        g.lineWidth = 6;
+        g.lineWidth = 6.5;
         g.beginPath();
-        g.arc(cx, cy, rad * (0.8 + k * 0.25), t * 9 + k * Math.PI, t * 9 + k * Math.PI + Math.PI * 1.25);
+        g.arc(cx, cy, rad * (0.78 + k * 0.26), t * 10 + k * Math.PI, t * 10 + k * Math.PI + Math.PI * 1.35);
         g.stroke();
       }
     } else if (w.id === 'lvbu') {
+      // 여포: 방천화극 전방위 초거대 지진 충격파 & 흑자색 뇌전 방출
       g.strokeStyle = '#d946ef';
-      g.lineWidth = 8;
+      g.lineWidth = 9;
       g.beginPath();
-      g.arc(cx, cy, rad * 1.1, t * 11, t * 11 + Math.PI * 1.3);
+      g.arc(cx, cy, rad * 1.18, t * 12, t * 12 + Math.PI * 1.45);
       g.stroke();
+      g.strokeStyle = '#f43f5e';
+      g.lineWidth = 4;
+      for (let b = 0; b < 6; b++) {
+        const a = t * 9 + (b * Math.PI) / 3;
+        g.beginPath();
+        g.moveTo(cx + Math.cos(a) * rad * 0.4, cy + Math.sin(a) * rad * 0.4);
+        g.lineTo(cx + Math.cos(a + 0.18) * rad * 0.9, cy + Math.sin(a + 0.18) * rad * 0.9);
+        g.lineTo(cx + Math.cos(a) * rad * 1.42, cy + Math.sin(a) * rad * 1.42);
+        g.stroke();
+      }
     } else if (w.id === 'simayi') {
+      // 사마의: 우선 암영 중력 구체 압축 링 + 4방위 연쇄 뇌전 아크
+      g.strokeStyle = '#818cf8';
+      g.lineWidth = 5.5;
+      g.beginPath(); g.arc(cx, cy, rad * 0.85, 0, Math.PI * 2); g.stroke();
       g.strokeStyle = '#38bdf8';
-      g.lineWidth = 5;
-      g.save();
-      g.translate(cx, cy);
-      g.rotate(-t * 6);
-      g.strokeRect(-rad * 0.7, -rad * 0.7, rad * 1.4, rad * 1.4);
-      g.rotate(Math.PI / 4);
-      g.strokeRect(-rad * 0.7, -rad * 0.7, rad * 1.4, rad * 1.4);
-      g.restore();
+      g.lineWidth = 3.5;
+      for (let s = 0; s < 4; s++) {
+        const a = -t * 5 + (s * Math.PI) / 2;
+        const sx = cx + Math.cos(a) * rad * 1.15, sy = cy + Math.sin(a) * rad * 1.15;
+        g.beginPath(); g.moveTo(cx, cy); g.lineTo(sx, sy); g.stroke();
+        g.beginPath(); g.arc(sx, sy, rad * 0.24, 0, Math.PI * 2); g.stroke();
+      }
     } else if (w.id === 'caocao') {
       g.strokeStyle = '#f87171';
       g.lineWidth = 5;
@@ -1622,6 +1654,8 @@
             ${selW.icon} ${selW.name}(${selW.hanja}) · ${camTag} · 무기: ${selW.weapon}
           </div>
           <div style="font-size:12.5px;color:#e2e8f0;line-height:1.48;">
+            • <b>검색 기반 공격 형태:</b> <span style="color:#7dd3fc;">${selW.attackStyle}</span><br>
+            • <b>장기판 파손 방식:</b> <span style="color:#fca5a5;">${selW.destructionForm}</span><br>
             • <b>특수 응징 [${selW.punishFull}]:</b> ${selW.punishDesc}<br>
             • <b>군주 출진 멘트:</b> <i style="color:#fef08a;">"${selW.quotes.start}"</i><br>
             • <b>휘하 명장 [${sampleGen.general}]:</b> <i style="color:#bae6fd;">"${sampleGen.quote}"</i>

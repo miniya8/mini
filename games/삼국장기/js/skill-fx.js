@@ -159,14 +159,19 @@
     hammer: [['net', 2, 0, 1.2], ['mid', 1, 1.3, .8], ['net', 2, 2.1, 1]],
     gun:    [['small', 1, 0, .85]],
     warlord:         [['big', 1, 0, 0.95], ['mid', 2, 1.8, 0.9], ['net', 3, 2.4, 0.95]],
-    warlord_liubei:  [['big', 1, 0, 0.90], ['mid', 2, 1.7, 0.9], ['net', 3, 2.3, 0.95]],
-    warlord_lvbu:    [['big', 1, 0, 1.10], ['mid', 3, 2.2, 1.0], ['net', 4, 2.8, 1.05]],
-    warlord_simayi:  [['big', 1, 0, 0.95], ['mid', 2, 1.9, 0.9], ['net', 3, 2.5, 1.00]],
-    warlord_caocao:  [['big', 1, 0, 1.05], ['mid', 3, 2.0, 0.95], ['net', 3, 2.6, 1.00]],
-    warlord_sunquan: [['big', 1, 0, 1.00], ['mid', 2, 1.9, 0.95], ['net', 3, 2.5, 1.00]],
-    warlord_zhuge:   [['big', 1, 0, 1.00], ['mid', 2, 1.9, 0.95], ['net', 3, 2.5, 1.00]]
+    warlord_zhuge:   [['big', 1, 0, 0.95], ['net', 4, 2.4, 1.05], ['small', 4, 2.8, 0.9]],
+    warlord_sunquan: [['mid', 3, 1.4, 1.05], ['net', 3, 2.2, 1.0]],
+    warlord_caocao:  [['mid', 3, 1.6, 1.00], ['net', 4, 2.4, 1.05], ['small', 3, 2.6, 0.85]],
+    warlord_liubei:  [['mid', 2, 1.2, 1.00], ['net', 3, 2.1, 0.95], ['small', 2, 2.4, 0.85]],
+    warlord_lvbu:    [['big', 1, 0, 1.22], ['mid', 3, 2.3, 1.05], ['net', 5, 3.0, 1.10]],
+    warlord_simayi:  [['big', 1, 0, 0.92], ['small', 4, 2.2, 0.95], ['net', 3, 2.5, 1.00]]
   };
-  const HOTCOL = { nuke: '255,110,40', meteor: '255,100,35', alien: '120,255,110', kame: '110,190,255', kame2: '120,200,255', hammer: '200,235,255' };
+  const HOTCOL = {
+    nuke: '255,110,40', meteor: '255,100,35', alien: '120,255,110',
+    kame: '110,190,255', kame2: '120,200,255', hammer: '200,235,255',
+    warlord_zhuge: '253,224,71', warlord_sunquan: '56,189,248', warlord_caocao: '244,63,94',
+    warlord_liubei: '16,185,129', warlord_lvbu: '217,70,239', warlord_simayi: '129,140,248'
+  };
   function spawnCracks(side, sk, gx, gy, rot) {
     (CRACKSPEC[sk] || []).forEach(([cls, cnt, spread, scl]) => {
       for (let i = 0; i < cnt; i++) {
