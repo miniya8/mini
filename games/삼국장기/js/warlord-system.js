@@ -1758,62 +1758,7 @@
       drb.textContent = `⚔️ ${myW.name} 일기토 출진! (${myW.duelSkill.split('·')[0].trim()})`;
     }
 
-    if (da && !da.dataset.wlAnimRunning) {
-      da.dataset.wlAnimRunning = '1';
-      const ctx = da.getContext('2d');
-      function drawModalDuelPreview() {
-        if (dc.style.display === 'none') {
-          da.dataset.wlAnimRunning = '';
-          return;
-        }
-        requestAnimationFrame(drawModalDuelPreview);
-        const w1 = getWarlord(window.JG_MY_WARLORD);
-        const w2 = getWarlord(window.JG_OPP_WARLORD);
-        const t = performance.now() * 0.001;
-        const W = da.width, H = da.height;
-
-        ctx.clearRect(0, 0, W, H);
-        const gL = ctx.createLinearGradient(0, 0, W * 0.55, H);
-        gL.addColorStop(0, w1.primary);
-        gL.addColorStop(1, '#090d16');
-        ctx.fillStyle = gL;
-        ctx.beginPath();
-        ctx.moveTo(0, 0); ctx.lineTo(W * 0.54, 0); ctx.lineTo(W * 0.46, H); ctx.lineTo(0, H);
-        ctx.closePath(); ctx.fill();
-
-        const gR = ctx.createLinearGradient(W * 0.45, 0, W, H);
-        gR.addColorStop(0, '#090d16');
-        gR.addColorStop(1, w2.primary);
-        ctx.fillStyle = gR;
-        ctx.beginPath();
-        ctx.moveTo(W * 0.54, 0); ctx.lineTo(W, 0); ctx.lineTo(W, H); ctx.lineTo(W * 0.46, H);
-        ctx.closePath(); ctx.fill();
-
-        ctx.save();
-        ctx.globalCompositeOperation = 'lighter';
-        const pulse = 18 + Math.sin(t * 8) * 6;
-        const cg = ctx.createRadialGradient(W * 0.5, H * 0.46, 2, W * 0.5, H * 0.46, pulse * 2.2);
-        cg.addColorStop(0, '#ffffff');
-        cg.addColorStop(0.4, w1.secondary);
-        cg.addColorStop(1, 'rgba(0,0,0,0)');
-        ctx.fillStyle = cg;
-        ctx.beginPath(); ctx.arc(W * 0.5, H * 0.46, pulse * 2.2, 0, Math.PI * 2); ctx.fill();
-        ctx.restore();
-
-        const bob1 = Math.sin(t * 3.5) * 4;
-        const bob2 = Math.cos(t * 3.5) * 4;
-        drawMiniWarlordAvatar(ctx, w1, W * 0.24, H * 0.45 + bob1, 44, t);
-        drawMiniWarlordAvatar(ctx, w2, W * 0.76, H * 0.45 + bob2, 44, -t);
-
-        ctx.fillStyle = 'rgba(0,0,0,0.76)';
-        ctx.fillRect(0, H - 36, W, 36);
-        ctx.fillStyle = '#fef08a';
-        ctx.font = 'bold 11.5px "Malgun Gothic", sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(`"${w1.duelLines.intro}"`, W * 0.5, H - 14);
-      }
-      requestAnimationFrame(drawModalDuelPreview);
-    }
+    // #da 캔버스는 piece-animation.js의 arena() 기마 일기토 엔진이 직접 렌더링하도록 보존
   }
 
   function drawMiniWarlordAvatar(ctx, w, x, y, r, rotPhase) {
@@ -2018,7 +1963,6 @@
   function drawDuelWarlordHero(g, w, x, y, r, t, isWinner) {
     g.save();
     g.save();
-    ctxTranslate = true;
     g.translate(x, y);
     g.rotate(t * 1.2);
     g.strokeStyle = isWinner ? '#fde047' : w.secondary;
@@ -2296,26 +2240,18 @@
       const obs = new MutationObserver(() => {
         const isShown = dc.style.display && dc.style.display !== 'none';
         if (!isShown) return;
-
-        if (!window.__JG_WARLORD_MATCH_READY__) {
-          dc.style.display = 'none';
-          window.openWarlordSelectModal({
-            mode: (typeof cfg !== 'undefined' && cfg.mode === 'mp') ? 'mp' : 'ai',
-            onConfirm: (pickedId) => {
-              window.JG_MY_WARLORD = pickedId;
-              if (typeof cfg === 'undefined' || cfg.mode !== 'mp') {
-                window.JG_OPP_WARLORD = pickDistinctAiWarlord(pickedId);
-              } else if (typeof bcast === 'function') {
-                try { bcast({ k: 'warlord_pick', id: pickedId }); } catch (e) {}
-              }
-              window.__JG_WARLORD_MATCH_READY__ = true;
-              dc.style.display = 'flex';
-              enhanceDuelModalWithWarlords();
-            }
-          });
-        } else {
-          enhanceDuelModalWithWarlords();
+        const rm = document.getElementById('rm');
+        if (rm) rm.style.display = 'none';
+        const inv = document.getElementById('inv_mdl');
+        if (inv) inv.style.display = 'none';
+        if (typeof cfg === 'undefined' || cfg.mode !== 'mp') {
+          if (!window.JG_OPP_WARLORD || window.JG_OPP_WARLORD === window.JG_MY_WARLORD) {
+            window.JG_OPP_WARLORD = pickDistinctAiWarlord(window.JG_MY_WARLORD);
+          }
+        } else if (typeof bcast === 'function') {
+          try { bcast({ k: 'warlord_pick', id: window.JG_MY_WARLORD }); } catch (e) {}
         }
+        enhanceDuelModalWithWarlords();
       });
       obs.observe(dc, { attributes: true, attributeFilter: ['style'] });
     }
