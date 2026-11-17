@@ -1349,18 +1349,21 @@ function arena(a, b, tok, done){
   const T0 = performance.now();
   // 8차례의 초고밀도 칼날 격돌 타임라인 (챙! -> 챙챙!! -> 채앵!! -> 카앙! -> 챙!챙! -> 콰아앙!! -> 번쩍!! -> 필살일섬!!)
   /* 일기토 안무: 돌격 → 칼날 맞부딪힘(패링) ↔ 서로 주고받는 타격(맞는 모션) → 필살 일섬 & 낙마 */
-  const SHT = 4.62;
+  const SHT = 4.0;
+  const SKN = {dash: ['질풍참', '비호돌격', '번개 돌진'], crescent: ['청룡언월참', '초승달 베기', '월광참'], triple: ['쌍룡격', '삼연격', '난무참'], thunder: ['천둥벽력참', '뇌전일섬', '벽력참'], final: ['천하무쌍 일섬', '필살 용천검', '천지개벽참']};
+  const pkOne = arr => arr[(Math.random() * arr.length) | 0];
   const BT = [
-    {t: .46, k: 'clash', w: '챙!'},
-    {t: .96, k: 'hit', atk: lo, vic: wi, pow: .9,  w: '쾅!',   rw: '윽!'},
-    {t: 1.46, k: 'clash', w: '카앙!'},
-    {t: 1.96, k: 'hit', atk: wi, vic: lo, pow: 1.0, w: '베기!', rw: '크윽!'},
-    {t: 2.44, k: 'clash', w: '챙챙!!'},
-    {t: 2.92, k: 'hit', atk: lo, vic: wi, pow: 1.35, w: '일격!', rw: '컥!'},
-    {t: 3.38, k: 'clash', w: '채앵!!'},
-    {t: 3.84, k: 'hit', atk: wi, vic: lo, pow: 1.5, w: '콰앙!!', rw: '으아악!'},
-    {t: SHT, k: 'final', atk: wi, vic: lo, pow: 2.2, w: '필살일섬!!', rw: '낙마!'}
+    {t: .40, k: 'clash', w: '챙!'},
+    {t: .80, k: 'hit', atk: lo, vic: wi, pow: .9,  w: '쾅!',   rw: '윽!',   sk: 'dash'},
+    {t: 1.20, k: 'clash', w: '카앙!'},
+    {t: 1.62, k: 'hit', atk: wi, vic: lo, pow: 1.0, w: '베기!', rw: '크윽!', sk: 'crescent'},
+    {t: 2.02, k: 'clash', w: '챙챙!!'},
+    {t: 2.44, k: 'hit', atk: lo, vic: wi, pow: 1.35, w: '일격!', rw: '컥!',  sk: 'triple'},
+    {t: 2.84, k: 'clash', w: '채앵!!'},
+    {t: 3.26, k: 'hit', atk: wi, vic: lo, pow: 1.5, w: '콰앙!!', rw: '으아악!', sk: 'thunder'},
+    {t: SHT, k: 'final', atk: wi, vic: lo, pow: 2.2, w: '필살일섬!!', rw: '낙마!', sk: 'final'}
   ];
+  BT.forEach(bt => { if(bt.sk) bt.skn = pkOne(SKN[bt.sk]); });
   /* 각 비트 직후 체력 [승자, 패자] */
   const HPT = [[96,96],[78,96],[76,93],[75,70],[72,67],[48,66],[46,63],[44,32],[42,0]];
   const ez = u => u < 0 ? 0 : u > 1 ? 1 : u * u * (3 - 2 * u);
@@ -1375,6 +1378,9 @@ function arena(a, b, tok, done){
   /* 맞는 모션/히트스톱 상태 */
   let hs = [-99, -99], as_ = [-99, -99], hitPow = [0, 0], cs = -99, cShift = 0, push = 0, lastHitT = -99;
   let frozen = 0, frzUntil = 0, frzStart = 0, holdT = 0, lastBeat = -1;
+  let shouts = [], banners = [], waves = [], bolts = [], streaks = [], bursts = [], iframes = [], spoken = {}, lastTaunt = -1, lastRetort = -1;
+  const TAUNT = ['{N}! 목을 내놓아라!!', '{N}, 각오해라!!', '이놈 {N}!! 받아라!!', '{N}!! 어디서 감히!!', '{N}! 네놈의 최후다!!', '덤벼라 {N}!!', '{N}!! 이 칼을 받아라!', '{N}, 두 동강 내주마!'];
+  const RETORT = ['{N}!! 이놈이...!', '크윽... {N}!', '{N}! 감히!!', '이 정도냐 {N}!!', '아직이다 {N}!!', '{N}, 두고 보자!!'];
   const OW = 240, OH = 200, ocv = document.createElement('canvas'); ocv.width = OW * d; ocv.height = OH * d; const og = ocv.getContext('2d');
   const hitMsg = [
     '🐎 전속력 기마 돌격!',
@@ -1450,7 +1456,7 @@ function arena(a, b, tok, done){
         hfl[i] = (hit && rk < .18) ? Math.pow(1 - rk / .18, 2) : 0;
         dz[i] = (hit && hitPow[i] >= 1.3 && rk > .2 && rk < 1.4) ? 1 : 0;
       }
-      camZoom = 1.03 + .05 * Math.sin(Math.PI * uE) + (lastHitT > -90 ? .06 * Math.exp(-(t - lastHitT) * 5) : 0);
+      camZoom = 1.06 + .07 * Math.sin(Math.PI * uE) + (lastHitT > -90 ? .11 * Math.exp(-(t - lastHitT) * 5) : 0);
       camX += cShift * .5;
       speedAmt = .55 + .35 * Math.sin(Math.PI * uRaw);
       dlg = lastBeat >= 0 ? hitMsg[Math.min(lastBeat + 1, hitMsg.length - 1)] : hitMsg[0];
@@ -1475,6 +1481,28 @@ function arena(a, b, tok, done){
       dlg = `🏆 [${nameOf(wi)}] 일기토 승리! 선공 선택권을 차지합니다!`;
     }
 
+    /* ---------- 호통 · 필살기 호출 ---------- */
+    const shortN = n => { n = String(n || ''); return n.length > 9 ? n.slice(0, 9) + '…' : n; };
+    const say = (who, text, delay, dur) => { const t1 = t + (delay || 0); shouts.forEach(sh => { if(sh.who === who && sh.t0 <= t1) sh.dur = Math.min(sh.dur, t1 - sh.t0 + .08); }); shouts.push({who, text, t0: t1, dur: dur || 1.0}); };
+    const rndIdx = (len, last) => { let k = (Math.random() * len) | 0; if(k === last) k = (k + 1) % len; return k; };
+    if(!spoken.open && t >= .08){
+      spoken.open = 1;
+      say(0, `${shortN(nameOf(1))}!! 네놈 목을 베어주마!`, 0, 1.05);
+      say(1, `${shortN(nameOf(0))}!! 건방진 놈! 덤벼라!`, .14, 1.05);
+    }
+    BT.forEach(bt => {
+      if(!bt.sk || bt.called || t < bt.t - .30) return;
+      bt.called = 1;
+      const atkI = bt.atk, vicI = bt.vic, ac = (atkI === 0 ? genL : genR).atkCol || '#ffab00';
+      banners.push({who: atkI, name: bt.skn, t0: t, dur: bt.k === 'final' ? .95 : .62, col: ac});
+      if(bt.k === 'final') say(atkI, `${shortN(nameOf(vicI))}!! 이 한 칼에 끝이다!!`, 0, 1.0);
+      else { lastTaunt = rndIdx(TAUNT.length, lastTaunt); say(atkI, TAUNT[lastTaunt].replace('{N}', shortN(nameOf(vicI))), 0, .9); }
+      /* 필살기별 사전 연출 */
+      if(bt.sk === 'dash'){ streaks.push({x0: X[atkI], x1: X[vicI], t0: t, dur: .32, col: ac, ys: [0,1,2,3,4,5,6].map(() => 112 + Math.random() * 50), dir: dir[atkI]}); }
+      else if(bt.sk === 'crescent' || bt.sk === 'final'){ waves.push({x0: X[atkI], x1: X[vicI], y: 132, t0: t, dur: .3, col: ac, dir: dir[atkI], big: bt.sk === 'final'}); }
+      else if(bt.sk === 'triple'){ for(let q = 0; q < 3; q++) waves.push({x0: X[atkI], x1: X[vicI], y: 118 + q * 14, t0: t + q * .07, dur: .24, col: ac, dir: dir[atkI], big: false}); }
+    });
+
     /* ---------- 비트 발생: 칼날 부딪힘 / 타격 적중 ---------- */
     BT.forEach((bt, i) => {
       if(t < bt.t || bt.fired) return;
@@ -1498,8 +1526,16 @@ function arena(a, b, tok, done){
       rg.push({t0: t, r: i % 7, x: cxHit, y: cyHit});
       /* 3) 의성어 + 피격 비명 */
       popWords.push({s: bt.w, t0: t, x: cxHit + (isHit ? (dir[atk] > 0 ? -6 : 6) : 0), y: isFin ? 44 : 66 + (i % 3) * 10, rot: (i % 2 === 0 ? -.10 : .10), big: isFin || pw >= 1.35});
+      if(isHit){
+        bursts.push({x: cxHit, y: cyHit, t0: t, big: isFin || pw >= 1.35, seed: Math.random() * 6.28});
+        if(bt.sk === 'thunder' || isFin){ for(let q = 0; q < (isFin ? 4 : 3); q++){ const bx = X[vic] + (Math.random() - .5) * 46, pts = [[bx + (Math.random() - .5) * 30, -6]]; for(let z = 1; z < 7; z++) pts.push([bx + (Math.random() - .5) * 26, z * 24]); pts.push([X[vic], 142]); bolts.push({pts, t0: t, dur: .26, col: atkCol}); } }
+        if(isFin || pw >= 1.5) iframes.push({t0: t, big: isFin});
+        /* 맞은 쪽의 맞받아치는 호통 */
+        if(!isFin){ lastRetort = rndIdx(RETORT.length, lastRetort); say(vic, RETORT[lastRetort].replace('{N}', shortN(nameOf(atk))), .3, .85); }
+        else say(vic, `${shortN(nameOf(atk))}...! 내가... 졌다...`, .34, 1.1);
+      }
       if(isHit && !isFin) popWords.push({s: bt.rw, t0: t + .12, x: X[vic] + (vic === 0 ? -14 : 14), y: 92, rot: vic === 0 ? -.2 : .2, big: pw >= 1.35});
-      shake = isHit ? 7 + pw * 7 : 5 + i * 1.2; flash = isHit ? .24 + pw * .1 : .2;
+      shake = isHit ? 10 + pw * 9 : 6.5 + i * 1.4; flash = isHit ? .26 + pw * .12 : .22;
       /* 4) 히트스톱 : 맞는 순간 화면이 잠깐 멈칫 */
       const fz = isFin ? 150 : isHit ? 55 + pw * 32 : 36;
       frzStart = now; frzUntil = now + fz; holdT = t;
@@ -1578,7 +1614,7 @@ function arena(a, b, tok, done){
     }
 
     // 4) 두 기마 무장 (머리 위 닉네임 배지 & 칼날 모션 블러 포함)
-    const phase = t * 18.5;
+    const phase = t * 25;
     const drawGen = (i, ph) => {
       const gen = i === 0 ? genL : genR, need = hfl[i] > .02 || hurtAmt[i] > .05;
       /* 접지 그림자는 따로 그려 섬광에 물들지 않게 */
@@ -1608,6 +1644,42 @@ function arena(a, b, tok, done){
     };
     drawGen(0, phase);
     drawGen(1, phase + 1.4);
+
+    /* 필살기 효과: 질주 속도선 · 검기(초승달) · 번개 · 집중선 */
+    streaks = streaks.filter(q => t - q.t0 < q.dur);
+    for(const q of streaks){
+      const u = (t - q.t0) / q.dur, hx = lp(q.x0, q.x1, ez(Math.min(1, u * 1.2))), len = 90 * (1 - u * .5);
+      g.save(); g.lineCap = 'round'; g.strokeStyle = q.col;
+      q.ys.forEach((yy, k) => { g.globalAlpha = (1 - u) * .8; g.lineWidth = 1.2 + (k % 3); g.beginPath(); g.moveTo(hx - q.dir * len * (.6 + (k % 4) * .18), yy); g.lineTo(hx + q.dir * 8, yy); g.stroke(); });
+      g.restore();
+    }
+    waves = waves.filter(q => t - q.t0 < q.dur);
+    for(const q of waves){
+      const u = (t - q.t0) / q.dur; if(u < 0) continue;
+      const wx = lp(q.x0, q.x1, ez(u)), rad = (q.big ? 40 : 26) * (1 + u * .35);
+      g.save(); g.translate(wx + q.dir * 8, q.y); g.scale(q.dir, 1);
+      g.globalAlpha = Math.min(1, (1 - u * .4)); g.lineCap = 'round';
+      g.strokeStyle = q.col; g.lineWidth = q.big ? 11 : 7; g.beginPath(); g.arc(-rad * .35, 0, rad, -1.0, 1.0); g.stroke();
+      g.strokeStyle = '#ffffff'; g.lineWidth = q.big ? 4.5 : 3; g.beginPath(); g.arc(-rad * .35, 0, rad * .98, -.92, .92); g.stroke();
+      g.restore();
+    }
+    bolts = bolts.filter(q => t - q.t0 < q.dur);
+    for(const q of bolts){
+      const u = (t - q.t0) / q.dur, al = (1 - u) * (Math.random() < .3 ? .5 : 1);
+      g.save(); g.lineJoin = 'round'; g.lineCap = 'round';
+      g.globalAlpha = al * .5; g.strokeStyle = q.col; g.lineWidth = 7; g.beginPath(); q.pts.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke();
+      g.globalAlpha = al; g.strokeStyle = '#ffffff'; g.lineWidth = 2.2; g.beginPath(); q.pts.forEach((p, k) => k ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke();
+      g.restore();
+    }
+    bursts = bursts.filter(q => t - q.t0 < .3);
+    for(const q of bursts){
+      const u = (t - q.t0) / .3; g.save(); g.translate(q.x, q.y); g.strokeStyle = '#ffffff'; g.lineCap = 'round';
+      for(let k = 0; k < (q.big ? 38 : 26); k++){
+        const an = q.seed + k * 6.2832 / (q.big ? 38 : 26) + Math.sin(k * 12.9) * .06, r0 = 16 + u * 12, r1 = (q.big ? 120 : 84) * (.6 + .5 * ((k * 37) % 10) / 10) * (.5 + u);
+        g.globalAlpha = (1 - u) * .75; g.lineWidth = .8 + ((k * 7) % 3) * .6; g.beginPath(); g.moveTo(Math.cos(an) * r0, Math.sin(an) * r0); g.lineTo(Math.cos(an) * r1, Math.sin(an) * r1); g.stroke();
+      }
+      g.restore();
+    }
 
     // 5) 날아가는 패배자의 무기
     if(flyWeap){
@@ -1741,6 +1813,28 @@ function arena(a, b, tok, done){
       g.restore();
     }
 
+    /* 닉네임을 부르며 외치는 호통 말풍선 */
+    shouts = shouts.filter(sh => t - sh.t0 < sh.dur);
+    for(const sh of shouts){
+      const u = (t - sh.t0) / sh.dur; if(u < 0) continue;
+      const w0 = sh.who, pop = 1 + .45 * Math.exp(-u * 16), al = u > .8 ? (1 - u) / .2 : 1, own = w0 === 0 ? genL : genR;
+      g.save(); g.font = "900 12.5px 'Malgun Gothic',sans-serif";
+      let lines = [sh.text]; const wFull = g.measureText(sh.text).width;
+      if(wFull > 112){ const mid = Math.floor(sh.text.length / 2); let sp2 = sh.text.lastIndexOf(' ', mid + 3); if(sp2 < 3) sp2 = sh.text.indexOf(' ', mid - 3); if(sp2 > 0) lines = [sh.text.slice(0, sp2), sh.text.slice(sp2 + 1)]; }
+      const bw = Math.max(...lines.map(l => g.measureText(l).width)) + 18, bh = lines.length * 15 + 10;
+      let bx = w0 === 0 ? X[0] + 12 - bw : X[1] - 12; bx = Math.max(4, Math.min(DW - 4 - bw, bx));
+      const by = 50 + (lines.length === 1 ? 6 : 0), hx = Math.max(bx + 14, Math.min(bx + bw - 14, X[w0])), shk = Math.sin(t * 90) * (1 - u) * 1.4;
+      g.translate(bx + bw / 2 + shk, by + bh / 2); g.scale(pop, pop); g.rotate((w0 === 0 ? -1 : 1) * .035); g.globalAlpha = al;
+      g.translate(-(bx + bw / 2), -(by + bh / 2));
+      const ac = own.atkCol || '#ffab00';
+      g.fillStyle = '#fffbea'; g.strokeStyle = ac; g.lineWidth = 2.6; g.lineJoin = 'round';
+      g.beginPath(); g.moveTo(bx + 7, by); g.lineTo(bx + bw - 7, by); g.quadraticCurveTo(bx + bw, by, bx + bw, by + 7); g.lineTo(bx + bw, by + bh - 7); g.quadraticCurveTo(bx + bw, by + bh, bx + bw - 7, by + bh);
+      g.lineTo(hx + 8, by + bh); g.lineTo(hx, by + bh + 12); g.lineTo(hx - 8, by + bh); g.lineTo(bx + 7, by + bh); g.quadraticCurveTo(bx, by + bh, bx, by + bh - 7); g.lineTo(bx, by + 7); g.quadraticCurveTo(bx, by, bx + 7, by); g.closePath(); g.fill(); g.stroke();
+      g.fillStyle = '#2a0a06'; g.textAlign = 'center'; g.textBaseline = 'middle';
+      lines.forEach((l, k) => g.fillText(l, bx + bw / 2, by + 5 + 7.5 + k * 15));
+      g.restore();
+    }
+
     if(t >= SHT + 0.08){
       const u = Math.min(1, (t - SHT - 0.08) / 0.3);
       g.font = Math.round(24 * (1 + 0.5 * Math.exp(-u * 5))) + 'px serif';
@@ -1749,6 +1843,30 @@ function arena(a, b, tok, done){
     }
 
     g.restore();
+
+    /* 필살기 컷인: 사선 띠 + 닉네임 + 기술 이름 */
+    banners = banners.filter(q => t - q.t0 < q.dur);
+    for(const q of banners){
+      const u = (t - q.t0) / q.dur, inU = Math.min(1, u / .16), outU = u > .8 ? (u - .8) / .2 : 0, slide = (1 - Math.pow(1 - inU, 3)) * (1 - outU);
+      const fromL = q.who === 0, y0 = 90, hh = 34, off = (1 - slide) * (DW + 60) * (fromL ? -1 : 1);
+      g.save(); g.translate(off, 0); g.globalAlpha = .93 * (1 - outU * .6);
+      const gr = g.createLinearGradient(0, 0, DW, 0); gr.addColorStop(0, 'rgba(8,10,20,.88)'); gr.addColorStop(.5, 'rgba(20,12,24,.94)'); gr.addColorStop(1, 'rgba(8,10,20,.88)');
+      g.fillStyle = gr; g.beginPath(); g.moveTo(-20, y0 + 8); g.lineTo(DW + 20, y0 - 6); g.lineTo(DW + 20, y0 - 6 + hh); g.lineTo(-20, y0 + 8 + hh); g.closePath(); g.fill();
+      g.strokeStyle = q.col; g.lineWidth = 2.4; g.beginPath(); g.moveTo(-20, y0 + 8); g.lineTo(DW + 20, y0 - 6); g.moveTo(-20, y0 + 8 + hh); g.lineTo(DW + 20, y0 - 6 + hh); g.stroke();
+      g.globalAlpha = .35; g.strokeStyle = '#fff'; g.lineWidth = 1; for(let k = 0; k < 9; k++){ const yy = y0 - 4 + ((k * 13 + t * 400) % (hh + 10)); g.beginPath(); g.moveTo(((k * 71 + t * 700) % (DW + 80)) - 40, yy); g.lineTo(((k * 71 + t * 700) % (DW + 80)) + 30, yy - 1.2); g.stroke(); }
+      g.globalAlpha = 1; g.translate(DW / 2, y0 + hh / 2 + 1); g.rotate(-.0634);
+      const label = `${shortN(nameOf(q.who))}  ⚔  ${q.name}!!`; g.font = "italic 900 19px 'Malgun Gothic',sans-serif"; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+      g.lineWidth = 5; g.strokeStyle = '#1a0500'; g.strokeText(label, 0, 0);
+      const tg = g.createLinearGradient(0, -10, 0, 10); tg.addColorStop(0, '#ffffff'); tg.addColorStop(.5, '#ffe38a'); tg.addColorStop(1, q.col); g.fillStyle = tg; g.fillText(label, 0, 0);
+      g.restore();
+    }
+    /* 임팩트 프레임: 강타 순간 만화처럼 어두워졌다가 번쩍 */
+    iframes = iframes.filter(q => t - q.t0 < .12);
+    for(const q of iframes){
+      const u = t - q.t0;
+      if(u < .05){ g.fillStyle = 'rgba(10,0,0,' + (q.big ? .6 : .42) + ')'; g.fillRect(0, 0, DW, DH); g.strokeStyle = 'rgba(255,255,255,.55)'; g.lineWidth = 1; for(let k = 0; k < 24; k++){ const an = k * .2618; g.beginPath(); g.moveTo(DW / 2 + Math.cos(an) * 40, DH / 2 + Math.sin(an) * 30); g.lineTo(DW / 2 + Math.cos(an) * 300, DH / 2 + Math.sin(an) * 240); g.stroke(); } }
+      else { g.fillStyle = 'rgba(255,255,255,' + (q.big ? .5 : .32) * (1 - (u - .05) / .07) + ')'; g.fillRect(0, 0, DW, DH); }
+    }
 
     // 8) 상단 일기토 체력바 & 하단 실황 대사 (카메라 줌 밖에서 고정 표시)
     drawDuelHUD(g, genL, genR, hp[0], hp[1], dlg);
