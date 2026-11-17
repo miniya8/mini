@@ -157,7 +157,14 @@
     kame2:  [['mid', 1, 0, 1.1], ['net', 3, 2.7, 1.1], ['small', 2, 2.1, .9]],
     fist:   [['mid', 1, 0, 1.05], ['net', 2, 1.7, .9]],
     hammer: [['net', 2, 0, 1.2], ['mid', 1, 1.3, .8], ['net', 2, 2.1, 1]],
-    gun:    [['small', 1, 0, .85]]
+    gun:    [['small', 1, 0, .85]],
+    warlord:         [['big', 1, 0, 0.95], ['mid', 2, 1.8, 0.9], ['net', 3, 2.4, 0.95]],
+    warlord_liubei:  [['big', 1, 0, 0.90], ['mid', 2, 1.7, 0.9], ['net', 3, 2.3, 0.95]],
+    warlord_lvbu:    [['big', 1, 0, 1.10], ['mid', 3, 2.2, 1.0], ['net', 4, 2.8, 1.05]],
+    warlord_simayi:  [['big', 1, 0, 0.95], ['mid', 2, 1.9, 0.9], ['net', 3, 2.5, 1.00]],
+    warlord_caocao:  [['big', 1, 0, 1.05], ['mid', 3, 2.0, 0.95], ['net', 3, 2.6, 1.00]],
+    warlord_sunquan: [['big', 1, 0, 1.00], ['mid', 2, 1.9, 0.95], ['net', 3, 2.5, 1.00]],
+    warlord_zhuge:   [['big', 1, 0, 1.00], ['mid', 2, 1.9, 0.95], ['net', 3, 2.5, 1.00]]
   };
   const HOTCOL = { nuke: '255,110,40', meteor: '255,100,35', alien: '120,255,110', kame: '110,190,255', kame2: '120,200,255', hammer: '200,235,255' };
   function spawnCracks(side, sk, gx, gy, rot) {

@@ -2120,7 +2120,7 @@ function drawCampDamage(g,side,lv,debrisOnly){
         g.beginPath();mid2.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
 
         // 최심부 코어 (스킬 속성별 잔류 열기/에너지)
-        const cCol = sk==='alien'?'#00e676':sk==='hammer'?'#80d8ff':sk==='fist'?'#ff5252':'#ff6d00';
+        const cCol = sk==='alien'?'#00e676':sk==='hammer'||sk==='warlord_sunquan'||sk==='warlord_simayi'?'#38bdf8':sk==='warlord_liubei'?'#10b981':sk==='warlord_lvbu'?'#d946ef':sk==='warlord_zhuge'?'#fde047':sk==='warlord_caocao'||sk==='fist'?'#f43f5e':'#ff6d00';
         const lg=g.createRadialGradient(cx,cy+dir*C*.07,1,cx,cy+dir*C*.07,rx*0.36);
         lg.addColorStop(0,cCol);
         lg.addColorStop(0.55,'#2b0902');
