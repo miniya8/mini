@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="theme-color" content="#05020a">
   <meta name="color-scheme" content="dark">
@@ -14,93 +14,205 @@
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
   <style>
     :root {
       color-scheme: dark;
+      --neon-pink: #ec4899;
+      --neon-cyan: #06b6d4;
+      --neon-gold: #facc15;
+    }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
     html {
       background-color: #05020a;
       min-height: 100%;
-      -webkit-tap-highlight-color: transparent;
+      scroll-behavior: smooth;
     }
     body {
       margin: 0;
-      /* 상단 노치 + 하단 스마트폰 네비게이션 바(가상버튼/홈바) 여백 120px 이상 확보하여 가림 원천 방지 */
       padding-top: max(12px, env(safe-area-inset-top));
       padding-left: max(10px, env(safe-area-inset-left));
       padding-right: max(10px, env(safe-area-inset-right));
-      padding-bottom: max(100px, calc(env(safe-area-inset-bottom, 20px) + 70px));
+      padding-bottom: max(116px, calc(env(safe-area-inset-bottom, 20px) + 88px));
       word-break: keep-all;
       min-height: 100vh;
       background-color: #05020a;
-      background: #05020a radial-gradient(circle at 50% 0%, #200d3d 0%, #0c0617 60%, #05020a 100%) no-repeat fixed center top;
+      background:
+        radial-gradient(circle at 18% 8%, rgba(236, 72, 153, 0.16) 0%, transparent 42%),
+        radial-gradient(circle at 82% 12%, rgba(6, 182, 212, 0.15) 0%, transparent 42%),
+        radial-gradient(circle at 50% 0%, #220e42 0%, #0b0516 58%, #05020a 100%) no-repeat fixed center top;
       color: #f3f4f6;
-      font-family: 'Pretendard', sans-serif;
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
       overflow-x: hidden;
-      overflow-y: scroll; /* 모바일 네이티브 관성 스크롤 복구 (위아래 당김 100% 매끄러움) */
+      overflow-y: scroll;
       -webkit-overflow-scrolling: touch;
     }
+
+    /* Ambient Stage Spotlight Orbs */
+    .stage-ambient {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+    .ambient-orb {
+      position: absolute;
+      border-radius: 9999px;
+      filter: blur(70px);
+      opacity: 0.28;
+      animation: floatOrb 12s ease-in-out infinite alternate;
+    }
+    .ambient-orb-1 {
+      width: 260px;
+      height: 260px;
+      background: #ec4899;
+      top: -60px;
+      left: -60px;
+    }
+    .ambient-orb-2 {
+      width: 280px;
+      height: 280px;
+      background: #06b6d4;
+      top: 12%;
+      right: -80px;
+      animation-delay: -4s;
+    }
+    .ambient-orb-3 {
+      width: 240px;
+      height: 240px;
+      background: #8b5cf6;
+      bottom: 8%;
+      left: 25%;
+      animation-delay: -8s;
+    }
+    @keyframes floatOrb {
+      0% { transform: translate3d(0, 0, 0) scale(1); }
+      100% { transform: translate3d(20px, 24px, 0) scale(1.12); }
+    }
+
     .app-main-shell {
+      position: relative;
+      z-index: 1;
       width: 100%;
       max-width: 1152px;
       margin: 0 auto;
-      padding: 0 4px;
+      padding: 0 2px;
     }
-    /* 가로 탭 바 및 표 영역 터치 스크롤 최적화 */
-    #dashboard-tabs-container, .overflow-x-auto {
+
+    /* Glassmorphism Cards & Panels */
+    .glass-card {
+      background: linear-gradient(160deg, rgba(22, 18, 42, 0.90) 0%, rgba(12, 10, 26, 0.94) 100%);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow:
+        0 12px 32px -8px rgba(0, 0, 0, 0.65),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+    }
+    .glass-subcard {
+      background: rgba(19, 17, 36, 0.82);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Touch & Scroll Optimization */
+    button, a, label, select, [role="button"] {
+      touch-action: manipulation;
+    }
+    #dashboard-tabs-container, .overflow-x-auto, .no-scrollbar {
       -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
     }
-    /* 셀렉트 및 인풋 폼 다크 테마 고정 */
+    #dashboard-tabs-container::-webkit-scrollbar,
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+
+    /* Prevent iOS Safari auto-zoom on input focus */
+    @media (max-width: 640px) {
+      input[type="text"],
+      input[type="number"],
+      textarea,
+      select {
+        font-size: 16px !important;
+      }
+    }
+
     select, input, textarea {
       color-scheme: dark;
     }
     select option {
-      background-color: #1f2937 !important;
+      background-color: #16132b !important;
       color: #ffffff !important;
     }
     input:-webkit-autofill,
-    input:-webkit-autofill:hover, 
-    input:-webkit-autofill:focus, 
+    input:-webkit-autofill:hover,
+    input:-webkit-autofill:focus,
     textarea:-webkit-autofill,
     select:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0 1000px #1f2937 inset !important;
+      -webkit-box-shadow: 0 0 0 1000px #16132b inset !important;
       -webkit-text-fill-color: #ffffff !important;
       transition: background-color 5000s ease-in-out 0s;
     }
+
     .font-game {
       font-family: 'Black Han Sans', sans-serif;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
     }
     .neon-border-pink {
-      box-shadow: 0 0 15px rgba(236, 72, 153, 0.25);
+      box-shadow: 0 0 24px rgba(236, 72, 153, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     .neon-border-cyan {
-      box-shadow: 0 0 15px rgba(6, 182, 212, 0.25);
+      box-shadow: 0 0 24px rgba(6, 182, 212, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.08);
     }
     .neon-btn-pink {
-      box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
-      transition: all 0.2s ease;
+      box-shadow: 0 6px 24px rgba(236, 72, 153, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
     }
     .neon-btn-pink:hover {
-      box-shadow: 0 0 30px rgba(236, 72, 153, 0.8);
-      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(236, 72, 153, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+      transform: translateY(-1px);
     }
+
+    /* Podium Champion Tiers */
     .rank-1 {
-      background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(161, 98, 7, 0.12));
+      background: linear-gradient(155deg, rgba(250, 204, 21, 0.28) 0%, rgba(217, 119, 6, 0.14) 55%, rgba(17, 14, 34, 0.95) 100%);
       border: 2px solid #facc15;
-      box-shadow: 0 0 25px rgba(234, 179, 8, 0.35);
+      box-shadow: 0 0 32px rgba(250, 204, 21, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+    .rank-1::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 45%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.18), transparent);
+      transform: rotate(25deg);
+      animation: goldShimmer 3.6s infinite;
+      pointer-events: none;
+    }
+    @keyframes goldShimmer {
+      0% { left: -60%; }
+      45%, 100% { left: 135%; }
     }
     .rank-2 {
-      background: linear-gradient(135deg, rgba(203, 213, 225, 0.2), rgba(100, 116, 139, 0.12));
+      background: linear-gradient(155deg, rgba(203, 213, 225, 0.22) 0%, rgba(71, 85, 105, 0.14) 60%, rgba(17, 14, 34, 0.95) 100%);
       border: 1.5px solid #cbd5e1;
-      box-shadow: 0 0 15px rgba(203, 213, 225, 0.2);
+      box-shadow: 0 0 18px rgba(203, 213, 225, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.15);
     }
     .rank-3 {
-      background: linear-gradient(135deg, rgba(217, 119, 6, 0.2), rgba(180, 83, 9, 0.12));
+      background: linear-gradient(155deg, rgba(245, 158, 11, 0.20) 0%, rgba(146, 64, 14, 0.14) 60%, rgba(17, 14, 34, 0.95) 100%);
       border: 1.5px solid #d97706;
-      box-shadow: 0 0 15px rgba(217, 119, 6, 0.2);
+      box-shadow: 0 0 18px rgba(217, 119, 6, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.12);
     }
+
     #fireworks-canvas {
       position: fixed;
       top: 0;
@@ -110,16 +222,52 @@
       pointer-events: none;
       z-index: 9999;
     }
+
+    /* Toast Notification Slide Animation */
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateY(-14px) scale(0.95); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .toast-enter {
+      animation: toastIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Modal Sheet Entry Animation */
+    @keyframes modalPop {
+      from { opacity: 0; transform: translateY(16px) scale(0.97); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    .modal-animate {
+      animation: modalPop 0.22s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+
+    /* Mobile Bottom Floating Dock */
+    .mobile-bottom-dock {
+      position: fixed;
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: max(10px, env(safe-area-inset-bottom));
+      width: calc(100% - 20px);
+      max-width: 520px;
+      z-index: 45;
+      background: rgba(15, 12, 32, 0.92);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid rgba(236, 72, 153, 0.38);
+      box-shadow: 0 10px 35px rgba(0, 0, 0, 0.8), 0 0 20px rgba(236, 72, 153, 0.22);
+    }
+
     ::-webkit-scrollbar { width: 6px; height: 6px; }
     ::-webkit-scrollbar-track { background: #0c0617; }
     ::-webkit-scrollbar-thumb { background: #3c2560; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #62369f; }
+
     /* 상하 방향(수직 피라미드/사다리) 토너먼트 트리 대진표 전용 CSS */
     .bracket-vertical-wrapper {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 24px;
+      gap: 26px;
       padding: 12px 2px;
       width: 100%;
     }
@@ -146,12 +294,12 @@
       display: none;
     }
     @keyframes bounceUp {
-      0%, 100% { transform: translate(-50%, 0); opacity: 0.6; }
-      50% { transform: translate(-50%, -3px); opacity: 1; }
+      0%, 100% { transform: translate(-50%, 0); opacity: 0.65; }
+      50% { transform: translate(-50%, -4px); opacity: 1; }
     }
     .bracket-round-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
       gap: 16px 10px;
       width: 100%;
     }
@@ -167,12 +315,12 @@
       letter-spacing: 0.03em;
     }
     .bracket-match-box {
-      background: rgba(17, 24, 39, 0.95);
+      background: rgba(15, 18, 34, 0.95);
       border: 1.5px solid #374151;
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 8px;
       position: relative;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.5);
       display: flex;
       flex-direction: column;
       gap: 5px;
@@ -186,35 +334,35 @@
       width: 2px;
       height: 16px;
       background: linear-gradient(180deg, #facc15, #ec4899);
-      opacity: 0.7;
+      opacity: 0.75;
     }
     .bracket-slot {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 10px;
-      border-radius: 9px;
+      padding: 8px 10px;
+      border-radius: 10px;
       font-size: 13px;
       font-weight: 700;
       border: 1px solid #1f2937;
-      background: #1f2937;
+      background: #1a1f35;
       color: #e5e7eb;
       transition: all 0.15s ease;
     }
     .bracket-slot.slot-win {
-      background: linear-gradient(90deg, rgba(236, 72, 153, 0.35), rgba(168, 85, 247, 0.25));
+      background: linear-gradient(90deg, rgba(236, 72, 153, 0.38), rgba(168, 85, 247, 0.28));
       border-color: #f472b6;
       color: #ffffff;
-      box-shadow: 0 0 12px rgba(236, 72, 153, 0.4);
+      box-shadow: 0 0 14px rgba(236, 72, 153, 0.45);
     }
     .bracket-slot.slot-loss {
-      background: rgba(17, 24, 39, 0.6);
+      background: rgba(15, 18, 34, 0.55);
       border-color: #1f2937;
       color: #6b7280;
       text-decoration: line-through;
     }
     .bracket-slot.slot-empty {
-      background: rgba(17, 24, 39, 0.4);
+      background: rgba(15, 18, 34, 0.4);
       border: 1px dashed #374151;
       color: #6b7280;
       font-style: italic;
@@ -222,12 +370,22 @@
   </style>
 </head>
 <body class="selection:bg-pink-500 selection:text-white">
+  <!-- Ambient Animated Stage Orbs -->
+  <div class="stage-ambient" aria-hidden="true">
+    <div class="ambient-orb ambient-orb-1"></div>
+    <div class="ambient-orb ambient-orb-2"></div>
+    <div class="ambient-orb ambient-orb-3"></div>
+  </div>
+
+  <!-- Sleek Neon Toast Stack -->
+  <div id="toast-container" class="fixed top-3 left-1/2 -translate-x-1/2 z-[10002] flex flex-col items-center gap-2 w-11/12 max-w-md pointer-events-none"></div>
+
   <div class="app-main-shell flex flex-col items-center">
 
   <!-- Floating Festival Toast Banner with Winner Name (Ultra-High Contrast & Radiant Gold) -->
-  <div id="festival-banner" class="fixed top-8 left-1/2 transform -translate-x-1/2 pointer-events-none z-[10000] opacity-0 transition-all duration-500 scale-75 text-center w-11/12 max-w-xl">
-    <div class="px-7 py-5 rounded-3xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-gray-950 border-4 border-white shadow-[0_0_60px_rgba(250,204,21,1),0_0_30px_rgba(255,255,255,0.8)] bg-yellow-400">
-      <div id="festival-banner-title" class="text-2xl md:text-4xl font-game tracking-wider text-gray-950 drop-shadow-sm flex items-center justify-center gap-2">
+  <div id="festival-banner" class="fixed top-7 left-1/2 transform -translate-x-1/2 pointer-events-none z-[10000] opacity-0 transition-all duration-500 scale-75 text-center w-11/12 max-w-xl">
+    <div class="px-5 py-4 sm:px-7 sm:py-5 rounded-3xl bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 text-gray-950 border-4 border-white shadow-[0_0_60px_rgba(250,204,21,1),0_0_30px_rgba(255,255,255,0.85)]">
+      <div id="festival-banner-title" class="text-xl sm:text-3xl md:text-4xl font-game tracking-wider text-gray-950 drop-shadow-sm flex items-center justify-center gap-2">
         👑 민수 님이 1등 독주 중! 👑
       </div>
       <div id="festival-banner-sub" class="text-xs md:text-sm text-gray-900 mt-1 font-extrabold tracking-wide">
@@ -245,16 +403,38 @@
   <!-- Main Container -->
   <div class="w-full max-w-6xl">
 
+    <!-- TOP UTILITY BAR (사운드 음소거 / 팡파르 테스트 / 이펙트 스튜디오) -->
+    <div class="flex items-center justify-between gap-2 mb-2.5 px-1">
+      <div class="flex items-center gap-1.5">
+        <button id="btn-sound-toggle" type="button" onclick="toggleSoundMute()"
+                class="px-2.5 py-1.5 rounded-full glass-subcard border border-gray-700/80 hover:border-pink-500/50 text-[11px] sm:text-xs font-bold text-gray-200 flex items-center gap-1 transition active:scale-95 cursor-pointer">
+          <span id="sound-toggle-icon">🔊</span>
+          <span id="sound-toggle-label">사운드 ON</span>
+        </button>
+        <button type="button" onclick="testFanfareSound()"
+                class="px-2.5 py-1.5 rounded-full glass-subcard border border-amber-500/40 hover:bg-amber-500/20 text-[11px] sm:text-xs font-bold text-amber-300 flex items-center gap-1 transition active:scale-95 cursor-pointer" title="팡파르 오디오 미리듣기">
+          <span>🎵</span><span class="hidden xs:inline">팡파르 테스트</span><span class="xs:hidden">오디오</span>
+        </button>
+      </div>
+
+      <div class="flex items-center gap-1.5">
+        <button type="button" onclick="openEffectStudioModal()"
+                class="px-2.5 py-1.5 rounded-full bg-gradient-to-r from-pink-500/20 to-purple-500/20 border border-pink-500/40 hover:border-pink-400 text-[11px] sm:text-xs font-extrabold text-pink-200 flex items-center gap-1 transition active:scale-95 cursor-pointer">
+          <span>✨ 이펙트 스튜디오</span>
+        </button>
+      </div>
+    </div>
+
     <!-- HEADER / LOGO (일반 스마트폰 화면 최적화) -->
-    <header class="text-center mb-4 md:mb-6 relative pt-1">
+    <header class="text-center mb-4 md:mb-6 relative">
       <div class="inline-flex items-center justify-center gap-1.5 sm:gap-3">
         <span class="text-2xl sm:text-4xl animate-bounce">👑</span>
-        <h1 class="text-2xl sm:text-4xl md:text-6xl font-game tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-amber-400 via-pink-500 to-cyan-400 drop-shadow-xl leading-tight">
+        <h1 class="text-3xl sm:text-5xl md:text-6xl font-game tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-amber-300 via-pink-500 to-cyan-400 drop-shadow-[0_4px_20px_rgba(236,72,153,0.45)] leading-tight">
           GAME NIGHT
         </h1>
         <span class="text-2xl sm:text-4xl animate-bounce" style="animation-delay: 0.25s;">🔥</span>
       </div>
-      <p class="text-gray-400 mt-1 text-xs sm:text-sm md:text-base font-medium flex items-center justify-center gap-1.5">
+      <p class="text-gray-300 mt-1 text-xs sm:text-sm md:text-base font-semibold flex items-center justify-center gap-1.5">
         <i data-lucide="sparkles" class="w-3.5 h-3.5 text-pink-400 flex-shrink-0"></i>
         <span>실시간 미니게임 챔피언십 스코어보드</span>
         <i data-lucide="sparkles" class="w-3.5 h-3.5 text-cyan-400 flex-shrink-0"></i>
@@ -262,91 +442,109 @@
     </header>
 
     <!-- VIEW 1: HOME (LOBBY & ROOM SELECTION) -->
-    <section id="view-home" class="space-y-8">
+    <section id="view-home" class="space-y-4 sm:space-y-6">
       
       <!-- 상단 카카오톡 초대 및 공유 빠른 안내 바 (모바일 최적화) -->
-      <div class="bg-gradient-to-r from-amber-500/20 via-yellow-500/10 to-amber-500/20 border border-yellow-500/40 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-lg">
+      <div class="glass-card border border-yellow-500/40 rounded-2xl p-3 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 shadow-lg">
         <div class="flex items-center gap-2.5">
-          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-yellow-400 text-gray-950 flex items-center justify-center font-bold text-lg shadow flex-shrink-0">
+          <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-yellow-300 to-amber-500 text-gray-950 flex items-center justify-center font-bold text-lg shadow-md flex-shrink-0">
             💬
           </div>
           <div>
-            <h3 class="text-xs sm:text-sm font-bold text-yellow-300">카카오톡 & 링크로 친구 초대하기</h3>
+            <h3 class="text-xs sm:text-sm font-extrabold text-yellow-300">카카오톡 & 링크로 친구 초대하기</h3>
             <p class="text-[11px] sm:text-xs text-gray-300 leading-snug">링크를 단톡방에 공유하면 친구들도 실시간 순위와 기록을 함께 볼 수 있어요!</p>
           </div>
         </div>
         <button onclick="shareViaKakaoOrLink()" 
-                class="w-full sm:w-auto justify-center px-3.5 py-2 bg-yellow-400 hover:bg-yellow-300 active:scale-95 text-gray-950 rounded-xl font-extrabold text-xs sm:text-sm shadow flex items-center gap-1.5 transition cursor-pointer flex-shrink-0">
+                class="w-full sm:w-auto justify-center px-4 py-2.5 bg-gradient-to-r from-yellow-400 to-amber-400 hover:brightness-105 active:scale-95 text-gray-950 rounded-xl font-black text-xs sm:text-sm shadow-md flex items-center gap-1.5 transition cursor-pointer flex-shrink-0">
           <i data-lucide="share-2" class="w-4 h-4"></i> 친구 초대 링크 공유
+        </button>
+      </div>
+
+      <!-- 모바일 빠른 섹션 점프 바 (한 손 엄지 조작 최적화) -->
+      <div class="grid grid-cols-2 gap-2 md:hidden">
+        <button type="button" onclick="scrollToSection('lobby-create-card')"
+                class="py-2.5 px-3 rounded-xl glass-subcard border border-pink-500/40 text-pink-300 font-extrabold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+          <span>✨ 새 모임 개설</span>
+        </button>
+        <button type="button" onclick="scrollToSection('lobby-archive-card')"
+                class="py-2.5 px-3 rounded-xl glass-subcard border border-cyan-500/40 text-cyan-300 font-extrabold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition">
+          <span>📚 모임 아카이브</span>
         </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
         
         <!-- 새 모임 개설 카드 -->
-        <div class="bg-gray-900/95 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-pink-500/30 neon-border-pink flex flex-col justify-between relative overflow-hidden">
+        <div id="lobby-create-card" class="glass-card p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-pink-500/35 neon-border-pink flex flex-col justify-between relative overflow-hidden">
           <div class="absolute -top-12 -right-12 w-40 h-40 bg-pink-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div>
-            <div class="flex items-center gap-2.5 mb-3">
-              <div class="p-2.5 bg-pink-500/20 text-pink-400 rounded-xl">
-                <i data-lucide="crown" class="w-5 h-5 sm:w-7 sm:h-7"></i>
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2.5">
+                <div class="p-2.5 bg-pink-500/20 text-pink-400 rounded-xl border border-pink-500/30">
+                  <i data-lucide="crown" class="w-5 h-5 sm:w-7 sm:h-7"></i>
+                </div>
+                <div>
+                  <h2 class="text-lg sm:text-2xl font-black text-white">새 모임 개설하기</h2>
+                  <p class="text-xs sm:text-sm text-gray-400">모임을 만든 사람이 호스트가 됩니다</p>
+                </div>
               </div>
-              <div>
-                <h2 class="text-lg sm:text-2xl font-bold text-white">새 모임 개설하기</h2>
-                <p class="text-xs sm:text-sm text-gray-400">모임을 만든 사람이 호스트가 됩니다</p>
-              </div>
+              <button type="button" onclick="fillQuickSampleRoom()"
+                      class="px-2.5 py-1.5 rounded-lg bg-gray-800/90 hover:bg-gray-700 border border-gray-700 text-[11px] font-bold text-pink-300 transition active:scale-95 cursor-pointer flex-shrink-0">
+                ⚡ 예시 채우기
+              </button>
             </div>
 
-            <div class="space-y-4 my-6">
+            <div class="space-y-4 my-5">
               <div>
-                <label class="block text-sm font-semibold text-gray-300 mb-1.5 flex items-center gap-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5 flex items-center gap-1.5">
                   <i data-lucide="sparkles" class="w-4 h-4 text-pink-400"></i> 모임 / 파티 이름
                 </label>
                 <input id="input-room-name" type="text" placeholder="예: 불토 미니게임 대격돌 🍕" 
-                       class="w-full px-4 py-3 bg-gray-800/90 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 text-white placeholder-gray-500 transition">
+                       class="w-full px-4 py-3 bg-gray-900/90 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 text-white placeholder-gray-500 transition">
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-300 mb-1.5 flex items-center gap-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5 flex items-center gap-1.5">
                   <i data-lucide="users" class="w-4 h-4 text-cyan-400"></i> 참여자 명단 (쉼표 또는 줄바꿈으로 구분)
                 </label>
                 <textarea id="input-members" rows="3" placeholder="예: 민수, 지혜, 철수, 영희, 준호" 
-                          class="w-full px-4 py-3 bg-gray-800/90 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 text-white placeholder-gray-500 transition resize-none"></textarea>
+                          class="w-full px-4 py-3 bg-gray-900/90 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 text-white placeholder-gray-500 transition resize-none"></textarea>
               </div>
 
               <div>
-                <label class="block text-sm font-semibold text-gray-300 mb-1.5 flex items-center gap-1.5">
+                <label class="block text-xs sm:text-sm font-bold text-gray-200 mb-1.5 flex items-center gap-1.5">
                   <i data-lucide="key" class="w-4 h-4 text-amber-400"></i> 호스트 관리자 비밀번호 (선택)
                 </label>
                 <input id="input-host-pin" type="text" placeholder="예: 1234 (초대받은 친구가 호스트 권한을 얻을 때 사용)" 
-                       class="w-full px-4 py-2.5 bg-gray-800/90 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 text-white placeholder-gray-500 text-sm transition">
+                       class="w-full px-4 py-2.5 bg-gray-900/90 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 focus:ring-2 focus:ring-pink-500/20 text-white placeholder-gray-500 text-sm transition">
               </div>
             </div>
           </div>
 
           <button id="btn-create-room" type="button" onclick="createNewRoom()" 
-                  class="w-full py-4 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 rounded-xl font-bold text-lg text-white neon-btn-pink flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition">
+                  class="w-full py-4 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 rounded-2xl font-black text-base sm:text-lg text-white neon-btn-pink flex items-center justify-center gap-2 cursor-pointer active:scale-95 transition">
             <i data-lucide="flame" class="w-6 h-6 text-amber-300"></i> 모임 방 개설하기
           </button>
         </div>
 
         <!-- 모임 목록 카드 (진행 중 / 종료된 모임 2개 탭 분리) -->
-        <div class="bg-gray-900/95 p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-cyan-500/30 neon-border-cyan flex flex-col justify-between relative overflow-hidden">
+        <div id="lobby-archive-card" class="glass-card p-4 sm:p-6 md:p-8 rounded-2xl sm:rounded-3xl border border-cyan-500/35 neon-border-cyan flex flex-col justify-between relative overflow-hidden">
           <div class="absolute -top-12 -right-12 w-40 h-40 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div>
             <div class="flex items-center gap-2.5 mb-3">
-              <div class="p-2.5 bg-cyan-500/20 text-cyan-400 rounded-xl">
+              <div class="p-2.5 bg-cyan-500/20 text-cyan-400 rounded-xl border border-cyan-500/30">
                 <i data-lucide="history" class="w-5 h-5 sm:w-7 sm:h-7"></i>
               </div>
               <div>
-                <h2 class="text-lg sm:text-2xl font-bold text-white">모임 아카이브</h2>
+                <h2 class="text-lg sm:text-2xl font-black text-white">모임 아카이브</h2>
                 <p class="text-xs sm:text-sm text-gray-400">진행 중 모임과 명예의 전당 기록</p>
               </div>
             </div>
 
             <!-- 진행 중 vs 종료된 모임 탭 -->
-            <div class="grid grid-cols-2 p-1 bg-gray-800 rounded-xl mb-4 font-bold text-xs md:text-sm">
-              <button id="lobby-tab-active" onclick="switchLobbyTab('active')" class="py-2.5 rounded-lg bg-pink-600 text-white shadow transition flex items-center justify-center gap-1.5 cursor-pointer">
+            <div class="grid grid-cols-2 p-1 bg-gray-950/80 border border-gray-800 rounded-xl mb-4 font-extrabold text-xs md:text-sm">
+              <button id="lobby-tab-active" onclick="switchLobbyTab('active')" class="py-2.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow transition flex items-center justify-center gap-1.5 cursor-pointer">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
                 <span>🔥 진행 중인 모임</span>
               </button>
@@ -356,23 +554,23 @@
             </div>
 
             <!-- 진행 중 모임 리스트 -->
-            <div id="room-list-active" class="space-y-3 my-2 max-h-[260px] overflow-y-auto pr-1">
+            <div id="room-list-active" class="space-y-3 my-2 max-h-[280px] overflow-y-auto pr-1">
               <!-- JS 렌더링 -->
             </div>
 
             <!-- 종료된 모임 리스트 -->
-            <div id="room-list-completed" class="hidden space-y-3 my-2 max-h-[260px] overflow-y-auto pr-1">
+            <div id="room-list-completed" class="hidden space-y-3 my-2 max-h-[280px] overflow-y-auto pr-1">
               <!-- JS 렌더링 -->
             </div>
 
           </div>
 
-          <div class="pt-4 border-t border-gray-800 space-y-3">
+          <div class="pt-4 border-t border-gray-800/90 space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2 text-xs">
-              <span id="global-sync-status" class="flex items-center gap-1.5 text-emerald-400 font-semibold">
+              <span id="global-sync-status" class="flex items-center gap-1.5 text-emerald-400 font-bold">
                 <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> 실시간 전체 기기 자동 공유 중
               </span>
-              <div class="flex items-center gap-2.5 flex-wrap">
+              <div class="flex items-center gap-2 flex-wrap">
                 <button id="btn-super-admin-lobby" onclick="promptSuperAdmin()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 hover:bg-amber-500/30 font-bold cursor-pointer transition">🛡️ 슈퍼관리자</button>
                 <button onclick="forceGlobalSync()" class="text-cyan-400 hover:text-cyan-300 font-bold cursor-pointer">🔄 동기화</button>
                 <button onclick="clearAllDataPrompt()" class="text-red-400 hover:text-red-300 hover:underline cursor-pointer">전체 초기화</button>
@@ -380,10 +578,10 @@
             </div>
             <!-- 모임 데이터 영구 백업 / 복원 버튼 바 -->
             <div class="grid grid-cols-2 gap-2 text-xs pt-1">
-              <button onclick="exportBackupFile()" class="py-2 px-3 bg-purple-900/60 hover:bg-purple-800/80 border border-purple-500/40 rounded-xl text-purple-200 font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
-                <i data-lucide="download" class="w-3.5 h-3.5 text-purple-400"></i> 데이터 백업 파일 저장
+              <button onclick="exportBackupFile()" class="py-2.5 px-3 bg-purple-950/70 hover:bg-purple-900/80 border border-purple-500/40 rounded-xl text-purple-200 font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer">
+                <i data-lucide="download" class="w-3.5 h-3.5 text-purple-400"></i> 데이터 백업 저장
               </button>
-              <label class="py-2 px-3 bg-cyan-900/60 hover:bg-cyan-800/80 border border-cyan-500/40 rounded-xl text-cyan-200 font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer text-center">
+              <label class="py-2.5 px-3 bg-cyan-950/70 hover:bg-cyan-900/80 border border-cyan-500/40 rounded-xl text-cyan-200 font-bold flex items-center justify-center gap-1.5 transition active:scale-95 cursor-pointer text-center">
                 <i data-lucide="upload" class="w-3.5 h-3.5 text-cyan-400"></i> 백업 파일 복원
                 <input type="file" id="backup-file-input" accept=".json" onchange="importBackupFile(event)" class="hidden">
               </label>
@@ -398,24 +596,28 @@
     </section>
 
     <!-- VIEW 2: GAME DASHBOARD -->
-    <section id="view-dashboard" class="hidden space-y-6">
+    <section id="view-dashboard" class="hidden space-y-4 sm:space-y-6">
       
       <!-- 상단 방 정보 & 호스트 권한 & 액션 바 (일반 스마트폰 컴팩트 레이아웃) -->
-      <div class="bg-gray-900/95 p-3.5 sm:p-5 rounded-2xl border border-gray-800 shadow-xl space-y-3">
+      <div class="glass-card p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border border-gray-800/90 shadow-xl space-y-3">
         
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div class="flex items-start gap-2.5 min-w-0">
-            <button onclick="goHome()" class="p-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl transition flex items-center justify-center cursor-pointer flex-shrink-0 mt-0.5" title="메인으로 나가기">
+            <button onclick="goHome()" class="p-2.5 bg-gray-800/90 hover:bg-gray-700 border border-gray-700 text-gray-200 rounded-xl transition flex items-center justify-center cursor-pointer flex-shrink-0 mt-0.5 active:scale-95" title="메인으로 나가기">
               <i data-lucide="arrow-left" class="w-5 h-5"></i>
             </button>
             <div class="min-w-0 flex-1">
               <div class="flex items-center gap-1.5 flex-wrap">
-                <span id="room-status-badge" class="px-2 py-0.5 text-[11px] rounded-full font-bold flex items-center gap-1"></span>
-                <span id="role-badge" class="px-2 py-0.5 text-[11px] rounded-full font-bold"></span>
+                <span id="room-status-badge" class="px-2.5 py-0.5 text-[11px] rounded-full font-extrabold flex items-center gap-1"></span>
+                <span id="role-badge" class="px-2.5 py-0.5 text-[11px] rounded-full font-extrabold"></span>
               </div>
               <h2 id="active-room-title" class="text-lg sm:text-2xl font-black text-white truncate mt-1">모임 이름</h2>
-              <div class="flex items-center gap-1.5 text-[11px] text-gray-400 mt-0.5 flex-wrap font-medium">
-                <span id="active-room-members-count" class="truncate max-w-[230px] sm:max-w-none">참여자 0명</span>
+              <div class="flex items-center gap-1.5 text-[11px] text-gray-300 mt-0.5 flex-wrap font-medium">
+                <span id="active-room-members-count" class="truncate max-w-[210px] sm:max-w-none">참여자 0명</span>
+                <button id="btn-manage-members" type="button" onclick="openMembersModal()"
+                        class="hidden px-2 py-0.5 rounded-md bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-[10px] font-extrabold transition cursor-pointer">
+                  👥 인원 편집
+                </button>
                 <span class="text-gray-600">•</span>
                 <span id="active-room-created-at" class="text-amber-300 font-mono flex items-center gap-1">
                   개설일: -
@@ -425,46 +627,57 @@
           </div>
 
           <!-- 모바일에서 한눈에 들어오는 정렬형 액션 버튼 바 -->
-          <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 flex-wrap pt-2 sm:pt-0 border-t border-gray-800/80 sm:border-none">
+          <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5 sm:gap-2 flex-wrap pt-2.5 sm:pt-0 border-t border-gray-800/80 sm:border-none">
             <button onclick="shareActiveRoom()" 
-                    class="px-3 py-2 bg-yellow-400 hover:bg-yellow-300 text-gray-950 rounded-xl text-xs font-extrabold shadow active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+                    class="px-3 py-2.5 bg-gradient-to-r from-yellow-400 to-amber-400 hover:brightness-105 text-gray-950 rounded-xl text-xs font-black shadow active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
               <i data-lucide="share-2" class="w-3.5 h-3.5"></i> 카톡 초대/공유
             </button>
 
-            <button onclick="triggerRandomCelebration()" 
-                    class="px-3 py-2 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white rounded-xl text-xs font-black shadow-lg hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
-              <span>🎪 축제 쇼!</span>
+            <div class="flex items-stretch gap-1">
+              <button onclick="triggerRandomCelebration()" 
+                      class="flex-1 px-3 py-2.5 bg-gradient-to-r from-amber-500 via-rose-500 to-purple-600 text-white rounded-l-xl text-xs font-black shadow-lg hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+                <span>🎪 축제 쇼!</span>
+              </button>
+              <button type="button" onclick="openEffectStudioModal()" title="이펙트 선택"
+                      class="px-2.5 py-2.5 bg-purple-700 hover:bg-purple-600 text-white rounded-r-xl text-xs font-black shadow-lg active:scale-95 transition flex items-center justify-center cursor-pointer">
+                ✨
+              </button>
+            </div>
+
+            <button onclick="openPartyToolsModal()" 
+                    class="px-3 py-2.5 bg-indigo-600/90 hover:bg-indigo-500 text-white rounded-xl text-xs font-extrabold shadow active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+              <span>🎲 파티 도구함</span>
             </button>
 
             <button id="btn-add-game-host" onclick="openAddGameModal()" 
-                    class="px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shadow hover:opacity-90 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+                    class="px-3 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-extrabold shadow hover:opacity-90 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
               <i data-lucide="plus-circle" class="w-3.5 h-3.5"></i> 게임 추가
             </button>
 
             <button id="btn-finish-room-host" onclick="finishRoomPrompt()" 
-                    class="px-3 py-2 bg-gradient-to-r from-red-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-xs font-black shadow hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
+                    class="px-3 py-2.5 bg-gradient-to-r from-red-600 to-pink-600 hover:opacity-90 text-white rounded-xl text-xs font-black shadow hover:brightness-110 active:scale-95 transition flex items-center justify-center gap-1 cursor-pointer">
               <i data-lucide="flag" class="w-3.5 h-3.5"></i> 모임 종료 🏁
             </button>
 
             <button id="btn-toggle-host-role" onclick="promptSwitchToHost()" 
-                    class="hidden col-span-2 sm:col-span-1 px-3 py-2 bg-gray-800 hover:bg-gray-700 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer">
+                    class="hidden col-span-2 sm:col-span-1 px-3 py-2.5 bg-gray-800 hover:bg-gray-700 text-amber-300 border border-amber-500/40 rounded-xl text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer">
               <i data-lucide="key" class="w-3.5 h-3.5"></i> 권한 전환
             </button>
           </div>
         </div>
 
         <!-- 종료된 모임 안내 바 -->
-        <div id="completed-info-bar" class="hidden bg-amber-950/40 border border-amber-500/40 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
+        <div id="completed-info-bar" class="hidden bg-amber-950/45 border border-amber-500/40 rounded-xl p-3.5 flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2 text-xs md:text-sm text-amber-200">
-            <i data-lucide="trophy" class="w-5 h-5 text-amber-400"></i>
+            <i data-lucide="trophy" class="w-5 h-5 text-amber-400 flex-shrink-0"></i>
             <span>본 모임은 <b>최종 종료 및 우승자가 확정</b>되었습니다. 기록 수정은 불가능하며 모든 참여자가 자유롭게 점수를 열람할 수 있습니다.</span>
           </div>
           <span class="text-xs bg-amber-500/20 text-amber-300 px-3 py-1 rounded-full font-bold">읽기 전용 (명예의 전당 보관됨)</span>
         </div>
 
         <!-- 호스트 전용: 점수 수정 요청 대기열 알림 바 (진행 중일 때만) -->
-        <div id="host-pending-requests-bar" class="hidden bg-purple-950/60 border border-purple-500/50 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-2 text-sm text-purple-200">
+        <div id="host-pending-requests-bar" class="hidden bg-purple-950/65 border border-purple-500/50 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
+          <div class="flex items-center gap-2 text-xs sm:text-sm text-purple-200">
             <span class="p-1.5 bg-pink-500 text-white rounded-lg text-xs font-bold animate-pulse">NEW</span>
             <span id="pending-requests-count-text" class="font-bold">초대 인원의 점수 수정 요청이 있습니다.</span>
           </div>
@@ -474,12 +687,12 @@
         </div>
 
         <!-- 게스트용 안내 바: 점수 수정 요청하기 버튼 (진행 중일 때만) -->
-        <div id="guest-request-info-bar" class="hidden bg-blue-950/50 border border-blue-500/40 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
+        <div id="guest-request-info-bar" class="hidden bg-blue-950/55 border border-blue-500/40 rounded-xl p-3 flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-2 text-xs md:text-sm text-blue-200">
-            <i data-lucide="info" class="w-4 h-4 text-cyan-400"></i>
+            <i data-lucide="info" class="w-4 h-4 text-cyan-400 flex-shrink-0"></i>
             <span>현재 <b>초대 멤버(게스트)</b> 모드입니다. 점수 수정이 필요하면 요청 버튼을 눌러주세요.</span>
           </div>
-          <button onclick="openScoreRequestModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:opacity-90 text-white text-xs font-bold rounded-lg shadow transition flex items-center gap-1.5 cursor-pointer">
+          <button onclick="openScoreRequestModal()" class="px-3.5 py-2 bg-gradient-to-r from-cyan-600 to-blue-600 hover:opacity-90 text-white text-xs font-bold rounded-xl shadow transition flex items-center gap-1.5 cursor-pointer">
             <i data-lucide="edit-3" class="w-4 h-4"></i> 내 점수 수정 요청 📝
           </button>
         </div>
@@ -487,8 +700,8 @@
       </div>
 
       <!-- DYNAMIC TABS: [🏆 종합 순위표] + 각 게임별 개별 탭 -->
-      <div class="border-b border-gray-800 pb-2">
-        <div id="dashboard-tabs-container" class="flex items-center gap-2 overflow-x-auto pb-1 text-sm md:text-base font-bold">
+      <div class="sticky top-1 z-30 bg-[#070412]/85 backdrop-blur-md py-2 px-1.5 rounded-2xl border border-gray-800/80 shadow-lg">
+        <div id="dashboard-tabs-container" class="flex items-center gap-2 overflow-x-auto text-xs sm:text-sm md:text-base font-bold">
           <!-- JS로 동적 탭 렌더링: 종합 순위표 + 게임 1 + 게임 2... -->
         </div>
       </div>
@@ -496,18 +709,18 @@
       <!-- TAB 1: 실시간 종합 순위표 콘텐츠 (모바일 한눈에 보기 최적화) -->
       <div id="tab-content-leaderboard" class="space-y-4 sm:space-y-6">
         
-        <!-- 포디움 (모바일에서도 3명이 한 줄에 한눈에 들어오는 3열 포디움!) -->
-        <div id="podium-container" class="grid grid-cols-3 gap-2 sm:gap-4 pt-1">
+        <!-- 포디움 (모바일에서도 3명이 한 줄에 한눈에 들어오는 올림픽 3열 포디움!) -->
+        <div id="podium-container" class="grid grid-cols-3 items-end gap-2 sm:gap-4 pt-2">
           <!-- JS 렌더링 -->
         </div>
 
         <!-- 전체 랭킹 테이블 (가로 스크롤 없이 한 화면에 쏙 들어오는 반응형 테이블) -->
-        <div class="bg-gray-900/95 rounded-2xl border border-gray-800 p-3.5 sm:p-6 shadow-lg">
+        <div class="glass-card rounded-2xl sm:rounded-3xl border border-gray-800 p-3.5 sm:p-6 shadow-lg">
           <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm sm:text-lg font-bold text-gray-200 flex items-center gap-1.5">
+            <h3 class="text-sm sm:text-lg font-black text-gray-100 flex items-center gap-1.5">
               <i data-lucide="medal" class="w-4 h-4 sm:w-5 sm:h-5 text-amber-400"></i> 참가자 종합 랭킹
             </h3>
-            <span class="text-[11px] text-gray-400">총 승점(RP) 기준</span>
+            <span class="text-[11px] text-gray-400 font-semibold">총 승점(RP) 기준</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left">
@@ -535,48 +748,89 @@
       </div>
 
       <!-- 게임이 전혀 없을 때 빈 화면 가이드 -->
-      <div id="no-games-guide" class="hidden bg-gray-900/80 bg-gray-900/95 rounded-2xl border border-dashed border-gray-700 p-10 text-center space-y-3">
-        <div class="w-16 h-16 bg-pink-500/10 text-pink-400 rounded-2xl flex items-center justify-center mx-auto text-3xl">
+      <div id="no-games-guide" class="hidden glass-card rounded-2xl border border-dashed border-gray-700 p-8 sm:p-10 text-center space-y-3">
+        <div class="w-16 h-16 bg-pink-500/15 text-pink-400 rounded-2xl flex items-center justify-center mx-auto text-3xl">
           🎯
         </div>
-        <h3 class="text-xl font-bold text-white">등록된 게임이 없습니다</h3>
-        <p class="text-sm text-gray-400 max-w-md mx-auto">
+        <h3 class="text-lg sm:text-xl font-black text-white">등록된 게임이 없습니다</h3>
+        <p class="text-xs sm:text-sm text-gray-400 max-w-md mx-auto">
           '새 게임 추가' 버튼을 눌러 승패 배틀(다전제), 볼링(다세트 합산), 젠가 탈락 순서, 타임어택 등 원하는 미니게임을 등록해보세요!
         </p>
-        <button id="btn-empty-add-game" onclick="openAddGameModal()" class="px-5 py-2.5 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl font-bold text-white shadow hover:opacity-90 inline-flex items-center gap-2 cursor-pointer">
+        <button id="btn-empty-add-game" onclick="openAddGameModal()" class="px-5 py-3 bg-gradient-to-r from-pink-500 to-purple-600 rounded-xl font-extrabold text-white shadow hover:opacity-90 inline-flex items-center gap-2 cursor-pointer active:scale-95 transition">
           <i data-lucide="plus" class="w-4 h-4"></i> 첫 게임 등록하기
         </button>
       </div>
+
+      <!-- MOBILE FLOATING BOTTOM DOCK (스마트폰 엄지손가락 퀵 네비게이션) -->
+      <nav id="mobile-bottom-dock" class="mobile-bottom-dock md:hidden rounded-2xl p-1.5 grid grid-cols-4 gap-1">
+        <button type="button" onclick="switchTab('leaderboard'); window.scrollTo({top: 0, behavior: 'smooth'});"
+                class="py-2 px-1 rounded-xl hover:bg-white/10 active:scale-95 transition flex flex-col items-center justify-center gap-0.5 text-amber-300">
+          <span class="text-base leading-none">🏆</span>
+          <span class="text-[10px] font-extrabold">순위표</span>
+        </button>
+        <button type="button" onclick="openPartyToolsModal()"
+                class="py-2 px-1 rounded-xl hover:bg-white/10 active:scale-95 transition flex flex-col items-center justify-center gap-0.5 text-cyan-300">
+          <span class="text-base leading-none">🎲</span>
+          <span class="text-[10px] font-extrabold">파티도구</span>
+        </button>
+        <button type="button" onclick="triggerRandomCelebration()"
+                class="py-2 px-1 rounded-xl bg-gradient-to-r from-pink-600/40 to-purple-600/40 border border-pink-500/40 active:scale-95 transition flex flex-col items-center justify-center gap-0.5 text-pink-200">
+          <span class="text-base leading-none">🎪</span>
+          <span class="text-[10px] font-black">축제쇼!</span>
+        </button>
+        <button id="dock-primary-action-btn" type="button" onclick="handleDockPrimaryAction()"
+                class="py-2 px-1 rounded-xl bg-cyan-600/30 border border-cyan-500/40 active:scale-95 transition flex flex-col items-center justify-center gap-0.5 text-white">
+          <span id="dock-primary-icon" class="text-base leading-none">➕</span>
+          <span id="dock-primary-label" class="text-[10px] font-black">게임추가</span>
+        </button>
+      </nav>
 
     </section>
 
   </div>
 
-  <!-- MODAL 1: ADD GAME (호스트 전용) -->
-  <div id="modal-add-game" class="fixed inset-0 bg-black/80 bg-gray-900/95 hidden z-50 flex items-center justify-center p-4 overflow-y-auto">
-    <div class="bg-gray-900 border border-purple-500/50 rounded-3xl max-w-xl w-full p-6 md:p-8 space-y-5 shadow-2xl my-8">
+  <!-- MODAL 1: ADD GAME (호스트 전용 + 인기 미니게임 원터치 프리셋) -->
+  <div id="modal-add-game" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="glass-card border border-purple-500/50 rounded-3xl max-w-xl w-full p-5 sm:p-7 space-y-4 shadow-2xl my-6 modal-animate">
       
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-        <h3 class="text-xl font-bold text-white flex items-center gap-2">
+        <h3 class="text-lg sm:text-xl font-black text-white flex items-center gap-2">
           <i data-lucide="gamepad-2" class="w-6 h-6 text-pink-400"></i> 미니게임 추가 및 규칙 설정
         </h3>
-        <button onclick="closeAddGameModal()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
-          <i data-lucide="x" class="w-6 h-6"></i>
+        <button onclick="closeAddGameModal()" class="text-gray-400 hover:text-white p-1.5 rounded-lg hover:bg-gray-800 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <!-- 원터치 인기 종목 프리셋 바 -->
+      <div class="space-y-1.5">
+        <div class="text-[11px] font-bold text-amber-300 flex items-center gap-1">
+          <span>⚡ 인기 파티 종목 원터치 자동 세팅</span>
+        </div>
+        <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+          <button type="button" onclick="applyGamePreset('🎳 볼링', 'points', 'desc')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">🎳 볼링</button>
+          <button type="button" onclick="applyGamePreset('🎯 다트', 'points', 'desc')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">🎯 다트</button>
+          <button type="button" onclick="applyGamePreset('🎤 노래방 점수', 'points', 'desc')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">🎤 노래방</button>
+          <button type="button" onclick="applyGamePreset('⚔️ 철권 / 격투 배틀', 'winloss', 'tournament')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">⚔️ 격투 토너먼트</button>
+          <button type="button" onclick="applyGamePreset('✊ 가위바위보 토너먼트', 'winloss', 'tournament')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">✊ 가위바위보</button>
+          <button type="button" onclick="applyGamePreset('🪵 젠가 서바이벌', 'elimination', '')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">🪵 젠가</button>
+          <button type="button" onclick="applyGamePreset('⏱️ 플랭크 버티기', 'time', 'desc')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">⏱️ 플랭크</button>
+          <button type="button" onclick="applyGamePreset('🚀 스피드 타임어택', 'time', 'asc')" class="px-2.5 py-1.5 rounded-xl bg-gray-800 hover:bg-pink-600/30 border border-gray-700 hover:border-pink-400 text-xs font-bold text-gray-200 whitespace-nowrap cursor-pointer active:scale-95 transition">🚀 스피드 레이스</button>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
         <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1.5">게임 이름</label>
+          <label class="block text-xs font-bold text-gray-300 mb-1.5">게임 이름</label>
           <input id="modal-game-name" type="text" placeholder="예: 볼링, 철권7, 젠가, 카트라이더" 
-                 class="w-full px-3.5 py-2.5 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 text-white text-sm">
+                 class="w-full px-3.5 py-2.5 bg-gray-900 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 text-white text-sm">
         </div>
         <div>
-          <label class="block text-xs font-semibold text-gray-300 mb-1.5">게임 유형 선택</label>
+          <label class="block text-xs font-bold text-gray-300 mb-1.5">게임 유형 선택</label>
           <select id="modal-game-type" onchange="onGameTypeChange()" 
-                  class="w-full px-3.5 py-2.5 bg-gray-800 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 text-white text-sm font-semibold">
-            <option value="points">🎯 점수 집계형 (볼링, 다트, 노래방 점수 등 - 다세트 지원)</option>
-            <option value="winloss">⚔️ 승패형 (철권/격투, 가위바위보, 리그 배틀 - 3판2선승 등)</option>
+                  class="w-full px-3.5 py-2.5 bg-gray-900 border border-gray-700 rounded-xl focus:outline-none focus:border-pink-500 text-white text-sm font-semibold">
+            <option value="points">🎯 점수 집계형 (볼링, 다트, 노래방 점수 등)</option>
+            <option value="winloss">⚔️ 승패형 (토너먼트 대진표 / 풀리그 배틀)</option>
             <option value="elimination">🪵 생존/탈락 순서형 (젠가, 폴가이즈, 의자뺏기)</option>
             <option value="time">⏱️ 타임어택/시간기록형 (플랭크, 스피드 챌린지)</option>
           </select>
@@ -584,14 +838,14 @@
       </div>
 
       <!-- 타입별 상세 옵션 -->
-      <div id="type-options-container" class="bg-gray-800/60 p-4 rounded-2xl border border-gray-700/80 space-y-3">
+      <div id="type-options-container" class="bg-gray-900/75 p-3.5 rounded-2xl border border-gray-700/80 space-y-3">
         <!-- JS 동적 내용 주입 -->
       </div>
 
       <!-- 순위별 승점 배분 설정 -->
       <div class="space-y-2">
         <div class="flex items-center justify-between">
-          <label class="block text-xs font-semibold text-gray-300">
+          <label class="block text-xs font-bold text-gray-300">
             🏆 종합 반영 승점 배분 기준 (Rank Points)
           </label>
           <span class="text-[11px] text-pink-400 font-mono">순위별 승점 배분</span>
@@ -599,29 +853,29 @@
         <div class="grid grid-cols-4 gap-2 text-center text-xs">
           <div>
             <span class="text-amber-400 font-bold">1등 승점</span>
-            <input id="rp-rank-1" type="number" value="10" class="w-full mt-1 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-center text-white font-bold">
+            <input id="rp-rank-1" type="number" value="10" class="w-full mt-1 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-center text-white font-bold">
           </div>
           <div>
             <span class="text-slate-300 font-bold">2등 승점</span>
-            <input id="rp-rank-2" type="number" value="7" class="w-full mt-1 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-center text-white font-bold">
+            <input id="rp-rank-2" type="number" value="7" class="w-full mt-1 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-center text-white font-bold">
           </div>
           <div>
             <span class="text-amber-600 font-bold">3등 승점</span>
-            <input id="rp-rank-3" type="number" value="5" class="w-full mt-1 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-center text-white font-bold">
+            <input id="rp-rank-3" type="number" value="5" class="w-full mt-1 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-center text-white font-bold">
           </div>
           <div>
             <span class="text-gray-400 font-bold">기타/참가</span>
-            <input id="rp-rank-others" type="number" value="1" class="w-full mt-1 px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-center text-white font-bold">
+            <input id="rp-rank-others" type="number" value="1" class="w-full mt-1 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-center text-white font-bold">
           </div>
         </div>
-        <p class="text-[11px] text-gray-500">* 개별 탭에서 세트/라운드를 추가해 다전제로 누적 진행할 수 있습니다.</p>
+        <p class="text-[11px] text-gray-400">* 개별 탭에서 세트/라운드를 추가해 다전제로 누적 진행할 수 있습니다.</p>
       </div>
 
-      <div class="pt-3 flex gap-3">
-        <button onclick="closeAddGameModal()" class="w-1/2 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-semibold transition cursor-pointer">
+      <div class="pt-2 flex gap-3">
+        <button onclick="closeAddGameModal()" class="w-1/2 py-3 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-bold transition cursor-pointer">
           취소
         </button>
-        <button onclick="submitNewGame()" class="w-1/2 py-3 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white rounded-xl text-sm font-bold shadow-lg hover:opacity-90 active:scale-95 transition cursor-pointer">
+        <button onclick="submitNewGame()" class="w-1/2 py-3 bg-gradient-to-r from-pink-500 via-purple-600 to-indigo-600 text-white rounded-xl text-sm font-black shadow-lg hover:opacity-90 active:scale-95 transition cursor-pointer">
           게임 탭 생성 완료
         </button>
       </div>
@@ -629,10 +883,10 @@
   </div>
 
   <!-- MODAL 2: GUEST SCORE REQUEST (초대 인원 점수 수정 요청 모달) -->
-  <div id="modal-score-request" class="fixed inset-0 bg-black/80 bg-gray-900/95 hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-gray-900 border border-cyan-500/50 rounded-3xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+  <div id="modal-score-request" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card border border-cyan-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl modal-animate">
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
           <i data-lucide="edit-3" class="w-5 h-5 text-cyan-400"></i> 점수 수정 요청하기
         </h3>
         <button onclick="closeScoreRequestModal()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
@@ -641,36 +895,32 @@
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-300 mb-1">내 이름 선택</label>
-        <select id="req-member-select" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm">
-          <!-- JS 옵션 주입 -->
-        </select>
+        <label class="block text-xs font-bold text-gray-300 mb-1">내 이름 선택</label>
+        <select id="req-member-select" class="w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm"></select>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-300 mb-1">수정할 게임 선택</label>
-        <select id="req-game-select" class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm">
-          <!-- JS 옵션 주입 -->
-        </select>
+        <label class="block text-xs font-bold text-gray-300 mb-1">수정할 게임 선택</label>
+        <select id="req-game-select" class="w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm"></select>
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-300 mb-1">수정 요청할 점수 / 세트 결과</label>
+        <label class="block text-xs font-bold text-gray-300 mb-1">수정 요청할 점수 / 세트 결과</label>
         <input id="req-score-val" type="text" placeholder="예: 2세트 140점 또는 1승 추가" 
-               class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm">
+               class="w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm">
       </div>
 
       <div>
-        <label class="block text-xs font-semibold text-gray-300 mb-1">수정 사유 (선택)</label>
+        <label class="block text-xs font-bold text-gray-300 mb-1">수정 사유 (선택)</label>
         <input id="req-reason-val" type="text" placeholder="예: 2번째 판 점수 입력 누락 정정 부탁드려요" 
-               class="w-full px-3 py-2 bg-gray-800 border border-gray-700 rounded-xl text-white text-sm">
+               class="w-full px-3 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm">
       </div>
 
       <div class="pt-2 flex gap-3">
-        <button onclick="closeScoreRequestModal()" class="w-1/2 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-semibold transition cursor-pointer">
+        <button onclick="closeScoreRequestModal()" class="w-1/2 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-bold transition cursor-pointer">
           취소
         </button>
-        <button onclick="submitScoreRequest()" class="w-1/2 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-sm font-bold shadow transition cursor-pointer">
+        <button onclick="submitScoreRequest()" class="w-1/2 py-2.5 bg-gradient-to-r from-cyan-600 to-blue-600 hover:brightness-110 text-white rounded-xl text-sm font-black shadow transition cursor-pointer">
           호스트에게 요청 전송
         </button>
       </div>
@@ -678,10 +928,10 @@
   </div>
 
   <!-- MODAL 3: HOST REQUEST REVIEW (호스트의 요청 검토 모달) -->
-  <div id="modal-host-review" class="fixed inset-0 bg-black/80 bg-gray-900/95 hidden z-50 flex items-center justify-center p-4">
-    <div class="bg-gray-900 border border-purple-500/50 rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl max-h-[85vh] flex flex-col">
+  <div id="modal-host-review" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card border border-purple-500/50 rounded-3xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl max-h-[85vh] flex flex-col modal-animate">
       <div class="flex justify-between items-center border-b border-gray-800 pb-3">
-        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
           <i data-lucide="inbox" class="w-5 h-5 text-purple-400"></i> 점수 수정 요청 검토 (호스트)
         </h3>
         <button onclick="closeRequestsModal()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
@@ -689,21 +939,145 @@
         </button>
       </div>
 
-      <div id="host-review-list" class="space-y-3 overflow-y-auto flex-1 pr-1">
-        <!-- JS 렌더링 -->
-      </div>
+      <div id="host-review-list" class="space-y-3 overflow-y-auto flex-1 pr-1"></div>
 
       <div class="pt-2 border-t border-gray-800 flex justify-end">
-        <button onclick="closeRequestsModal()" class="px-5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-semibold transition cursor-pointer">
+        <button onclick="closeRequestsModal()" class="px-5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-sm font-bold transition cursor-pointer">
           닫기
         </button>
       </div>
     </div>
   </div>
 
+  <!-- MODAL 4: EFFECT STUDIO (화려한 축제 이펙트 선택 스튜디오) -->
+  <div id="modal-effect-studio" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card border border-pink-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl modal-animate">
+      <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
+          <span>✨ 축제 이펙트 스튜디오</span>
+        </h3>
+        <button onclick="closeEffectStudioModal()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <p class="text-xs text-gray-300">원하는 화려한 무대 연출을 직접 터치해 즉시 발사할 수 있습니다!</p>
+      <div class="grid grid-cols-2 gap-2.5 text-xs font-extrabold">
+        <button type="button" onclick="launchStudioEffect('fireworks')" class="p-3.5 rounded-2xl bg-gradient-to-br from-rose-600/30 to-pink-600/20 border border-pink-500/50 hover:border-pink-300 text-white flex flex-col items-center gap-1 active:scale-95 transition cursor-pointer">
+          <span class="text-2xl">🎆</span>
+          <span>메가 불꽃놀이</span>
+        </button>
+        <button type="button" onclick="launchStudioEffect('emoji')" class="p-3.5 rounded-2xl bg-gradient-to-br from-amber-500/30 to-yellow-600/20 border border-amber-400/50 hover:border-amber-200 text-white flex flex-col items-center gap-1 active:scale-95 transition cursor-pointer">
+          <span class="text-2xl">👑</span>
+          <span>이모지 카니발</span>
+        </button>
+        <button type="button" onclick="launchStudioEffect('laser')" class="p-3.5 rounded-2xl bg-gradient-to-br from-cyan-500/30 to-blue-600/20 border border-cyan-400/50 hover:border-cyan-200 text-white flex flex-col items-center gap-1 active:scale-95 transition cursor-pointer">
+          <span class="text-2xl">⚡</span>
+          <span>네온 레이저 쇼</span>
+        </button>
+        <button type="button" onclick="launchStudioEffect('confetti')" class="p-3.5 rounded-2xl bg-gradient-to-br from-emerald-500/30 to-teal-600/20 border border-emerald-400/50 hover:border-emerald-200 text-white flex flex-col items-center gap-1 active:scale-95 transition cursor-pointer">
+          <span class="text-2xl">🎊</span>
+          <span>꽃가루 허리케인</span>
+        </button>
+        <button type="button" onclick="launchStudioEffect('meteor')" class="p-3.5 rounded-2xl bg-gradient-to-br from-indigo-500/30 to-violet-600/20 border border-indigo-400/50 hover:border-indigo-200 text-white flex flex-col items-center gap-1 active:scale-95 transition cursor-pointer">
+          <span class="text-2xl">🌠</span>
+          <span>황금 유성우 쇼</span>
+        </button>
+        <button type="button" onclick="launchStudioEffect('grand')" class="p-3.5 rounded-2xl bg-gradient-to-br from-amber-400/40 via-pink-500/30 to-purple-600/40 border-2 border-amber-300 text-amber-200 flex flex-col items-center gap-1 active:scale-95 transition cursor-pointer shadow-lg">
+          <span class="text-2xl">🏆</span>
+          <span>그랜드 피에스타!</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 5: PARTY TOOLS (랜덤 순서/벌칙 룰렛 & 랜덤 팀 나누기) -->
+  <div id="modal-party-tools" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto">
+    <div class="glass-card border border-indigo-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl my-6 modal-animate">
+      <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
+          <span>🎲 파티 미니 도구함</span>
+        </h3>
+        <button onclick="closePartyToolsModal()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- 탭 전환: 랜덤 당첨 룰렛 vs 랜덤 팀 나누기 -->
+      <div class="grid grid-cols-2 p-1 bg-gray-950/90 border border-gray-800 rounded-xl text-xs font-extrabold">
+        <button id="ptool-tab-roulette" type="button" onclick="switchPartyToolTab('roulette')" class="py-2 rounded-lg bg-pink-600 text-white transition cursor-pointer">
+          🎡 랜덤 당첨 / 벌칙 룰렛
+        </button>
+        <button id="ptool-tab-teams" type="button" onclick="switchPartyToolTab('teams')" class="py-2 rounded-lg text-gray-400 hover:text-white transition cursor-pointer">
+          ⚖️ 랜덤 팀 나누기
+        </button>
+      </div>
+
+      <!-- Tool A: 랜덤 룰렛 -->
+      <div id="ptool-panel-roulette" class="space-y-4 text-center">
+        <p class="text-xs text-gray-300">순서 정하기, 커피 내기, 벌칙 당첨자를 짜릿하게 뽑아보세요!</p>
+        <div class="p-6 rounded-2xl bg-gradient-to-b from-gray-900 to-gray-950 border-2 border-pink-500/50 shadow-inner">
+          <div class="text-[11px] font-bold text-pink-400 tracking-widest mb-1">LUCKY PICK</div>
+          <div id="roulette-display" class="text-3xl sm:text-4xl font-game text-amber-300 py-2 tracking-wider">
+            🎯 준비 완료!
+          </div>
+        </div>
+        <button id="btn-spin-roulette" type="button" onclick="spinMemberRoulette()"
+                class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-amber-500 text-white font-black text-sm shadow-lg active:scale-95 transition cursor-pointer">
+          🎰 룰렛 돌리기!
+        </button>
+      </div>
+
+      <!-- Tool B: 랜덤 팀 나누기 -->
+      <div id="ptool-panel-teams" class="hidden space-y-3">
+        <div class="flex items-center justify-between gap-2">
+          <span class="text-xs font-bold text-gray-300">나눌 팀 수 선택:</span>
+          <div class="flex items-center gap-1.5">
+            <button type="button" onclick="generateRandomTeams(2)" class="px-3 py-1.5 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-extrabold cursor-pointer active:scale-95">2팀</button>
+            <button type="button" onclick="generateRandomTeams(3)" class="px-3 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-extrabold cursor-pointer active:scale-95">3팀</button>
+            <button type="button" onclick="generateRandomTeams(4)" class="px-3 py-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 text-white text-xs font-extrabold cursor-pointer active:scale-95">4팀</button>
+          </div>
+        </div>
+        <div id="random-teams-result" class="space-y-2 max-h-[240px] overflow-y-auto pr-1">
+          <div class="text-center py-6 text-xs text-gray-500">위에서 팀 개수를 누르면 참여자가 랜덤으로 배정됩니다!</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL 6: PARTICIPANT MANAGEMENT (참여자 중간 추가/삭제) -->
+  <div id="modal-manage-members" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden z-50 flex items-center justify-center p-3 sm:p-4">
+    <div class="glass-card border border-cyan-500/50 rounded-3xl max-w-md w-full p-5 sm:p-6 space-y-4 shadow-2xl modal-animate">
+      <div class="flex justify-between items-center border-b border-gray-800 pb-3">
+        <h3 class="text-lg font-black text-white flex items-center gap-2">
+          <span>👥 참여자 명단 관리</span>
+        </h3>
+        <button onclick="closeMembersModal()" class="text-gray-400 hover:text-white p-1 cursor-pointer">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="flex gap-2">
+        <input id="input-add-member-name" type="text" placeholder="새 참여자 이름 (예: 지민)"
+               class="flex-1 px-3.5 py-2.5 bg-gray-900 border border-gray-700 rounded-xl text-white text-sm focus:outline-none focus:border-cyan-400">
+        <button type="button" onclick="addMemberToActiveRoom()"
+                class="px-4 py-2.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-black cursor-pointer active:scale-95 transition">
+          + 추가
+        </button>
+      </div>
+
+      <div id="manage-members-list" class="space-y-2 max-h-[240px] overflow-y-auto pr-1"></div>
+
+      <div class="pt-2 border-t border-gray-800 flex justify-end">
+        <button onclick="closeMembersModal()" class="px-5 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-bold cursor-pointer">
+          완료
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- FOOTER -->
-  <footer class="mt-12 text-center text-xs text-gray-500 pb-4">
-    Ultimate Game Night Scoreboard • Built for Gathering Hosts & Champions
+  <footer class="mt-10 text-center text-xs text-gray-500 pb-4">
+    Ultimate Game Night Scoreboard • Mobile & Party Edition
   </footer>
   </div><!-- /.app-main-shell -->
 
@@ -711,6 +1085,7 @@
   <script>
     var STORAGE_KEY = 'GAME_NIGHT_PRO_DATA_V5';
     var HOST_SESSION_KEY = 'GAME_NIGHT_HOST_ROOMS';
+    var SOUND_MUTED_KEY = 'GAME_NIGHT_SOUND_MUTED';
 
     var appData = {
       rooms: []
@@ -719,12 +1094,66 @@
     var activeTab = 'leaderboard'; // 'leaderboard' or game.id
     var isHost = false;
     var currentLobbyTab = 'active'; // 'active' or 'completed'
+    var lastKnownLeaderName = null;
+
+    // --- HAPTIC & TOAST FEEDBACK HELPERS ---
+    function triggerHaptic(pattern) {
+      try {
+        if (navigator && typeof navigator.vibrate === 'function') {
+          navigator.vibrate(pattern || 18);
+        }
+      } catch (e) {}
+    }
+
+    function showToast(message, type) {
+      var container = document.getElementById('toast-container');
+      if (!container) return;
+
+      var badgeIcon = '✨';
+      var borderClass = 'border-pink-500/60 text-white';
+      if (type === 'success') {
+        badgeIcon = '✅';
+        borderClass = 'border-emerald-400/70 text-emerald-100';
+      } else if (type === 'gold') {
+        badgeIcon = '👑';
+        borderClass = 'border-amber-400/80 text-amber-100';
+      } else if (type === 'info') {
+        badgeIcon = '🔄';
+        borderClass = 'border-cyan-400/70 text-cyan-100';
+      } else if (type === 'warn') {
+        badgeIcon = '⚠️';
+        borderClass = 'border-rose-400/70 text-rose-100';
+      }
+
+      var toast = document.createElement('div');
+      toast.className = 'toast-enter pointer-events-auto px-4 py-3 rounded-2xl bg-gray-950/95 backdrop-blur-xl border ' + borderClass + ' shadow-[0_10px_30px_rgba(0,0,0,0.75)] flex items-center gap-2.5 text-xs sm:text-sm font-bold w-full';
+      toast.innerHTML = '<span class="text-base flex-shrink-0">' + badgeIcon + '</span><span class="flex-1 leading-snug">' + message + '</span>';
+      container.appendChild(toast);
+
+      setTimeout(function() {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        toast.style.transition = 'all 0.25s ease';
+        setTimeout(function() {
+          if (toast.parentNode) toast.parentNode.removeChild(toast);
+        }, 260);
+      }, 2800);
+    }
+
+    function scrollToSection(id) {
+      var el = document.getElementById(id);
+      if (el) {
+        triggerHaptic(12);
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
 
     // --- ULTIMATE FESTIVAL MULTI-EFFECT ENGINE WITH WINNER CELEBRATION ---
     var fwCanvas = document.getElementById('fireworks-canvas');
     var fwCtx = fwCanvas.getContext('2d');
     var particles = [];
     var laserBeams = [];
+    var shockwaves = [];
     var fwAnimationId = null;
     var isFiring = false;
     var festivalTimers = [];
@@ -734,6 +1163,7 @@
       festivalTimers = [];
       particles = [];
       laserBeams = [];
+      shockwaves = [];
       isFiring = false;
       if (fwCtx && fwCanvas) {
         fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
@@ -741,11 +1171,39 @@
     }
 
     function resizeFwCanvas() {
-      fwCanvas.width = window.innerWidth;
-      fwCanvas.height = window.innerHeight;
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      fwCanvas.width = window.innerWidth * dpr;
+      fwCanvas.height = window.innerHeight * dpr;
+      fwCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
     }
     window.addEventListener('resize', resizeFwCanvas);
     resizeFwCanvas();
+
+    function Shockwave(x, y, color) {
+      this.x = x;
+      this.y = y;
+      this.color = color || '#facc15';
+      this.radius = 6;
+      this.maxRadius = Math.min(window.innerWidth, window.innerHeight) * 0.28;
+      this.alpha = 0.85;
+    }
+    Shockwave.prototype.update = function() {
+      this.radius += (this.maxRadius - this.radius) * 0.14 + 3;
+      this.alpha -= 0.032;
+    };
+    Shockwave.prototype.draw = function(ctx) {
+      if (this.alpha <= 0) return;
+      ctx.save();
+      ctx.globalAlpha = Math.max(0, this.alpha);
+      ctx.strokeStyle = this.color;
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 16;
+      ctx.shadowColor = this.color;
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
+    };
 
     function Particle(x, y, color, speed, angle, friction, gravity, type, char) {
       this.x = x;
@@ -783,14 +1241,14 @@
       ctx.rotate(this.rotation);
 
       if (this.type === 'text') {
-        ctx.font = '900 28px "Black Han Sans", Pretendard, sans-serif';
+        ctx.font = '900 24px "Black Han Sans", Pretendard, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         var metrics = ctx.measureText(this.char);
-        var boxW = metrics.width + 36;
-        var boxH = 46;
+        var boxW = metrics.width + 32;
+        var boxH = 42;
         ctx.fillStyle = '#facc15';
-        ctx.shadowBlur = 25;
+        ctx.shadowBlur = 22;
         ctx.shadowColor = '#ffffff';
         ctx.beginPath();
         var bx = -boxW / 2, by = -boxH / 2;
@@ -874,7 +1332,14 @@
     };
 
     function loopFestivalCanvas() {
-      fwCtx.clearRect(0, 0, fwCanvas.width, fwCanvas.height);
+      fwCtx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+
+      for (var s = shockwaves.length - 1; s >= 0; s--) {
+        var sw = shockwaves[s];
+        sw.update();
+        sw.draw(fwCtx);
+        if (sw.alpha <= 0) shockwaves.splice(s, 1);
+      }
 
       for (var l = laserBeams.length - 1; l >= 0; l--) {
         var beam = laserBeams[l];
@@ -890,7 +1355,7 @@
         if (p.alpha <= 0) particles.splice(i, 1);
       }
 
-      if (particles.length > 0 || laserBeams.length > 0 || isFiring) {
+      if (particles.length > 0 || laserBeams.length > 0 || shockwaves.length > 0 || isFiring) {
         fwAnimationId = requestAnimationFrame(loopFestivalCanvas);
       } else {
         cancelAnimationFrame(fwAnimationId);
@@ -961,12 +1426,13 @@
       setTimeout(function() {
         banner.classList.remove('opacity-100', 'scale-100');
         banner.classList.add('opacity-0', 'scale-75');
-      }, 2500);
+      }, 2600);
     }
 
-    // EFFECT 1: FIREWORKS (첫 클릭 즉시 발사 + 겹침 방지)
+    // EFFECT 1: FIREWORKS (첫 클릭 즉시 발사 + 충격파 링 + 겹침 방지)
     function effectFireworks() {
       clearAllFestivalTimers();
+      triggerHaptic([30, 40, 60]);
       showFestivalBanner('🎆 MEGA FIREWORKS! 🎆', '밤하늘을 수놓는 대형 폭죽쇼!');
       triggerScreenFlash('#ff3388');
 
@@ -983,7 +1449,9 @@
         var colors = ['#ff0055', '#ffcc00', '#00e5ff', '#ff00ff', '#33ff77', '#ff6600', '#ffffff'];
         var color = colors[Math.floor(Math.random() * colors.length)];
 
-        for (var p = 0; p < 80; p++) {
+        shockwaves.push(new Shockwave(rx, ry, color));
+
+        for (var p = 0; p < 75; p++) {
           var angle = Math.random() * Math.PI * 2;
           var speed = Math.random() * 12 + 2;
           particles.push(new Particle(rx, ry, color, speed, angle, 0.96, 0.16, 'spark'));
@@ -1012,6 +1480,7 @@
     // EFFECT 2: EMOJI & STAR FIESTA
     function effectEmojiBomb() {
       clearAllFestivalTimers();
+      triggerHaptic([25, 30, 50]);
       showFestivalBanner('👑 EMOJI CARNIVAL! 🏆', '황금 트로피와 별빛이 쏟아집니다!');
       triggerScreenFlash('#ffea00');
 
@@ -1047,9 +1516,10 @@
       ensureCanvasLoop();
     }
 
-    // EFFECT 3: LASER SHOW (첫 클릭 즉시 발사)
+    // EFFECT 3: LASER SHOW
     function effectLaserShow() {
       clearAllFestivalTimers();
+      triggerHaptic([20, 20, 20, 40]);
       showFestivalBanner('⚡ NEON LASER PARTY! ⚡', '사이버 네온 레이저 쇼!');
       triggerScreenFlash('#00e5ff');
 
@@ -1091,6 +1561,7 @@
     // EFFECT 4: CONFETTI STORM
     function effectConfettiStorm() {
       clearAllFestivalTimers();
+      triggerHaptic([35, 30, 50]);
       showFestivalBanner('🎊 CONFETTI HURRICANE! 🎊', '대형 폭죽 캐넌이 양쪽에서 뿜어져 나옵니다!');
       triggerScreenFlash('#ff007f');
 
@@ -1131,6 +1602,43 @@
       }
     }
 
+    // EFFECT 5: GOLDEN METEOR SHOWER (NEW!)
+    function effectMeteorShower() {
+      clearAllFestivalTimers();
+      triggerHaptic([20, 40, 60]);
+      showFestivalBanner('🌠 GOLDEN METEOR SHOWER! 🌠', '승리의 황금 유성우가 밤하늘을 가릅니다!');
+      triggerScreenFlash('#facc15');
+
+      isFiring = true;
+      ensureCanvasLoop();
+
+      function spawnMeteor() {
+        var startX = Math.random() * window.innerWidth * 1.1;
+        var startY = -20;
+        var angle = Math.PI * 0.68 + (Math.random() - 0.5) * 0.15;
+        var speed = Math.random() * 14 + 14;
+        var colors = ['#facc15', '#fde047', '#38bdf8', '#f472b6'];
+        var col = colors[Math.floor(Math.random() * colors.length)];
+
+        particles.push(new Particle(startX, startY, col, speed, angle, 0.99, 0.05, 'star'));
+        for (var t = 0; t < 18; t++) {
+          particles.push(new Particle(startX - t * 4, startY + t * 4, col, Math.random() * 4 + 1, angle + (Math.random() - 0.5) * 0.4, 0.94, 0.04, 'spark'));
+        }
+      }
+
+      for (var m = 0; m < 6; m++) spawnMeteor();
+      var waves = 1;
+      var interval = setInterval(function() {
+        for (var m = 0; m < 4; m++) spawnMeteor();
+        ensureCanvasLoop();
+        waves++;
+        if (waves > 10) {
+          clearInterval(interval);
+          isFiring = false;
+        }
+      }, 150);
+      festivalTimers.push(interval);
+    }
 
     // --- RANDOM FANFARE AUDIO ENGINE (bgm1.mp3, bgm2.mp3, bgm3.mp3) ---
     var BGM_FILES = ['bgm1.mp3', 'bgm2.mp3', 'bgm3.mp3'];
@@ -1142,7 +1650,56 @@
     var currentFanfareAudio = null;
     var lastBgmIndex = -1;
 
+    function isSoundMuted() {
+      try {
+        return localStorage.getItem(SOUND_MUTED_KEY) === 'true';
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function updateSoundToggleUI() {
+      var muted = isSoundMuted();
+      var iconEl = document.getElementById('sound-toggle-icon');
+      var labelEl = document.getElementById('sound-toggle-label');
+      var btn = document.getElementById('btn-sound-toggle');
+      if (iconEl) iconEl.innerText = muted ? '🔇' : '🔊';
+      if (labelEl) labelEl.innerText = muted ? '음소거' : '사운드 ON';
+      if (btn) {
+        if (muted) {
+          btn.className = 'px-2.5 py-1.5 rounded-full glass-subcard border border-gray-700 text-[11px] sm:text-xs font-bold text-gray-500 flex items-center gap-1 transition active:scale-95 cursor-pointer';
+        } else {
+          btn.className = 'px-2.5 py-1.5 rounded-full glass-subcard border border-emerald-500/40 text-[11px] sm:text-xs font-bold text-emerald-300 flex items-center gap-1 transition active:scale-95 cursor-pointer';
+        }
+      }
+    }
+
+    function toggleSoundMute() {
+      var nextMuted = !isSoundMuted();
+      try {
+        localStorage.setItem(SOUND_MUTED_KEY, nextMuted ? 'true' : 'false');
+      } catch (e) {}
+      if (nextMuted && currentFanfareAudio) {
+        currentFanfareAudio.pause();
+        currentFanfareAudio.currentTime = 0;
+      }
+      updateSoundToggleUI();
+      triggerHaptic(15);
+      showToast(nextMuted ? '효과음 및 팡파르가 음소거되었습니다.' : '효과음 및 팡파르 사운드가 켜졌습니다!', nextMuted ? 'warn' : 'success');
+    }
+
+    function testFanfareSound() {
+      if (isSoundMuted()) {
+        try { localStorage.setItem(SOUND_MUTED_KEY, 'false'); } catch (e) {}
+        updateSoundToggleUI();
+      }
+      triggerHaptic(20);
+      playRandomFanfare();
+      showToast('랜덤 팡파르 오디오를 재생합니다! 🎺', 'gold');
+    }
+
     function playRandomFanfare() {
+      if (isSoundMuted()) return;
       try {
         if (currentFanfareAudio) {
           currentFanfareAudio.pause();
@@ -1159,7 +1716,6 @@
         var playPromise = audio.play();
         if (playPromise !== undefined) {
           playPromise.catch(function() {
-            // 로컬 파일 경로 실패 시 내장된 원본 오디오 Data URI로 즉시 폴백 재생
             var fallbackAudio = new Audio(BGM_DATA_URIS[idx]);
             currentFanfareAudio = fallbackAudio;
             fallbackAudio.play().catch(function(e) { console.warn('Audio play blocked:', e); });
@@ -1170,10 +1726,11 @@
       }
     }
 
-    // EFFECT 5: GRAND FIESTA
+    // EFFECT 6: GRAND FIESTA
     function triggerGrandFiesta() {
       playRandomFanfare();
       clearAllFestivalTimers();
+      triggerHaptic([40, 30, 40, 30, 80]);
       showFestivalBanner('👑 GRAND CHAMPIONSHIP FIESTA! 🏆', '모든 축제 이펙트가 한 번에 몰아칩니다!');
       effectFireworks();
       effectEmojiBomb();
@@ -1190,6 +1747,7 @@
         effectConfettiStorm,
         effectEmojiBomb,
         effectLaserShow,
+        effectMeteorShower,
         triggerGrandFiesta
       ];
 
@@ -1202,6 +1760,230 @@
         playRandomFanfare();
       }
       effectFunctions[nextIndex]();
+    }
+
+    // --- EFFECT STUDIO MODAL ---
+    function openEffectStudioModal() {
+      triggerHaptic(15);
+      document.getElementById('modal-effect-studio').classList.remove('hidden');
+    }
+    function closeEffectStudioModal() {
+      document.getElementById('modal-effect-studio').classList.add('hidden');
+    }
+    function launchStudioEffect(key) {
+      closeEffectStudioModal();
+      if (key === 'grand') {
+        triggerGrandFiesta();
+        return;
+      }
+      playRandomFanfare();
+      if (key === 'fireworks') effectFireworks();
+      else if (key === 'emoji') effectEmojiBomb();
+      else if (key === 'laser') effectLaserShow();
+      else if (key === 'confetti') effectConfettiStorm();
+      else if (key === 'meteor') effectMeteorShower();
+    }
+
+    // --- PARTY TOOLS MODAL (ROULETTE & RANDOM TEAMS) ---
+    var rouletteSpinning = false;
+    function openPartyToolsModal() {
+      var room = getActiveRoom();
+      if (!room) return;
+      triggerHaptic(15);
+      switchPartyToolTab('roulette');
+      document.getElementById('modal-party-tools').classList.remove('hidden');
+    }
+    function closePartyToolsModal() {
+      document.getElementById('modal-party-tools').classList.add('hidden');
+    }
+    function switchPartyToolTab(tab) {
+      var tR = document.getElementById('ptool-tab-roulette');
+      var tT = document.getElementById('ptool-tab-teams');
+      var pR = document.getElementById('ptool-panel-roulette');
+      var pT = document.getElementById('ptool-panel-teams');
+      if (tab === 'roulette') {
+        tR.className = 'py-2 rounded-lg bg-pink-600 text-white transition cursor-pointer';
+        tT.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition cursor-pointer';
+        pR.classList.remove('hidden');
+        pT.classList.add('hidden');
+      } else {
+        tT.className = 'py-2 rounded-lg bg-cyan-600 text-white transition cursor-pointer';
+        tR.className = 'py-2 rounded-lg text-gray-400 hover:text-white transition cursor-pointer';
+        pT.classList.remove('hidden');
+        pR.classList.add('hidden');
+      }
+    }
+    function spinMemberRoulette() {
+      if (rouletteSpinning) return;
+      var room = getActiveRoom();
+      if (!room || !room.members || room.members.length === 0) return;
+      rouletteSpinning = true;
+      var disp = document.getElementById('roulette-display');
+      var btn = document.getElementById('btn-spin-roulette');
+      if (btn) btn.disabled = true;
+
+      var steps = 0;
+      var maxSteps = 22;
+      var timer = setInterval(function() {
+        var randName = room.members[Math.floor(Math.random() * room.members.length)];
+        disp.innerText = '🎲 ' + randName;
+        triggerHaptic(10);
+        steps++;
+        if (steps >= maxSteps) {
+          clearInterval(timer);
+          var chosen = room.members[Math.floor(Math.random() * room.members.length)];
+          disp.innerText = '🎉 ' + chosen + ' 님 당첨!';
+          rouletteSpinning = false;
+          if (btn) btn.disabled = false;
+          triggerHaptic([30, 40, 60]);
+          if (window.confetti) {
+            confetti({ particleCount: 55, spread: 70, origin: { y: 0.65 }, zIndex: 10001 });
+          }
+        }
+      }, 65);
+    }
+
+    function generateRandomTeams(teamCount) {
+      var room = getActiveRoom();
+      if (!room || !room.members || room.members.length === 0) return;
+      var shuffled = shuffleArray(room.members);
+      var count = Math.min(teamCount, shuffled.length);
+      var teams = [];
+      for (var i = 0; i < count; i++) teams.push([]);
+      shuffled.forEach(function(m, idx) {
+        teams[idx % count].push(m);
+      });
+
+      var teamStyles = [
+        { name: '🔴 레드 팀', cls: 'border-rose-500/50 bg-rose-950/35 text-rose-200' },
+        { name: '🔵 블루 팀', cls: 'border-cyan-500/50 bg-cyan-950/35 text-cyan-200' },
+        { name: '🟡 골드 팀', cls: 'border-amber-500/50 bg-amber-950/35 text-amber-200' },
+        { name: '🟢 그린 팀', cls: 'border-emerald-500/50 bg-emerald-950/35 text-emerald-200' }
+      ];
+
+      var box = document.getElementById('random-teams-result');
+      box.innerHTML = '';
+      var shareLines = ['⚖️ [' + room.name + '] 랜덤 팀 편성 결과'];
+
+      teams.forEach(function(members, idx) {
+        var st = teamStyles[idx % teamStyles.length];
+        shareLines.push(st.name + ': ' + members.join(', '));
+        var card = document.createElement('div');
+        card.className = 'p-3 rounded-xl border ' + st.cls + ' flex items-center justify-between gap-2';
+        card.innerHTML =
+          '<span class="font-black text-xs">' + st.name + ' (' + members.length + '명)</span>' +
+          '<span class="font-bold text-xs sm:text-sm text-white">' + members.join(', ') + '</span>';
+        box.appendChild(card);
+      });
+
+      var copyBtn = document.createElement('button');
+      copyBtn.type = 'button';
+      copyBtn.className = 'w-full mt-2 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 border border-gray-700 text-xs font-extrabold text-cyan-300 cursor-pointer active:scale-95 transition';
+      copyBtn.innerText = '📋 팀 편성 결과 클립보드 복사';
+      copyBtn.onclick = function() {
+        copyToClipboardFallback(shareLines.join('
+'));
+      };
+      box.appendChild(copyBtn);
+      triggerHaptic(20);
+    }
+
+    // --- PARTICIPANT MANAGEMENT IN ACTIVE ROOM ---
+    function openMembersModal() {
+      var room = getActiveRoom();
+      if (!room || !canManageRoom(room)) return;
+      renderManageMembersList();
+      document.getElementById('modal-manage-members').classList.remove('hidden');
+    }
+    function closeMembersModal() {
+      document.getElementById('modal-manage-members').classList.add('hidden');
+    }
+    function renderManageMembersList() {
+      var room = getActiveRoom();
+      var listEl = document.getElementById('manage-members-list');
+      if (!room || !listEl) return;
+      listEl.innerHTML = '';
+      room.members.forEach(function(m) {
+        var row = document.createElement('div');
+        row.className = 'flex items-center justify-between px-3.5 py-2.5 bg-gray-900/90 border border-gray-800 rounded-xl';
+        row.innerHTML = '<span class="text-sm font-bold text-white">👤 ' + m + '</span>';
+        if (room.members.length > 2) {
+          var delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 text-xs font-bold cursor-pointer';
+          delBtn.innerText = '제외';
+          delBtn.onclick = function() {
+            if (confirm('"' + m + '" 님을 참여자 명단에서 제외하시겠습니까?')) {
+              room.members = room.members.filter(function(x) { return x !== m; });
+              saveData();
+              document.getElementById('active-room-members-count').innerText = '참여자 ' + room.members.length + '명: ' + room.members.join(', ');
+              renderManageMembersList();
+              renderAll();
+              showToast(m + ' 님이 명단에서 제외되었습니다.', 'info');
+            }
+          };
+          row.appendChild(delBtn);
+        }
+        listEl.appendChild(row);
+      });
+    }
+    function addMemberToActiveRoom() {
+      var room = getActiveRoom();
+      if (!room || !canManageRoom(room)) return;
+      var input = document.getElementById('input-add-member-name');
+      var name = (input.value || '').trim();
+      if (!name) return;
+      if (room.members.indexOf(name) !== -1) {
+        showToast('이미 등록된 참여자 이름입니다!', 'warn');
+        return;
+      }
+      room.members.push(name);
+      input.value = '';
+      saveData();
+      document.getElementById('active-room-members-count').innerText = '참여자 ' + room.members.length + '명: ' + room.members.join(', ');
+      renderManageMembersList();
+      renderAll();
+      triggerHaptic(18);
+      showToast(name + ' 님이 참여자로 합류했습니다! 🎉', 'success');
+    }
+
+    // --- QUICK SAMPLE FILL & GAME PRESET HELPERS ---
+    function fillQuickSampleRoom() {
+      document.getElementById('input-room-name').value = '불토 미니게임 챔피언십 🔥';
+      document.getElementById('input-members').value = '민수, 지혜, 철수, 영희';
+      triggerHaptic(15);
+      showToast('예시 모임 이름과 참여자가 입력되었습니다!', 'info');
+    }
+
+    function applyGamePreset(name, type, subOpt) {
+      document.getElementById('modal-game-name').value = name;
+      var typeSel = document.getElementById('modal-game-type');
+      typeSel.value = type;
+      onGameTypeChange();
+      if (type === 'points' && subOpt) {
+        var orderEl = document.getElementById('sub-opt-points-order');
+        if (orderEl) orderEl.value = subOpt;
+      } else if (type === 'winloss' && subOpt) {
+        var bModeEl = document.getElementById('sub-opt-battle-mode');
+        if (bModeEl) bModeEl.value = subOpt;
+      } else if (type === 'time' && subOpt) {
+        var tOrderEl = document.getElementById('sub-opt-time-order');
+        if (tOrderEl) tOrderEl.value = subOpt;
+      }
+      triggerHaptic(15);
+      showToast('[' + name + '] 규칙이 자동 세팅되었습니다!', 'success');
+    }
+
+    function handleDockPrimaryAction() {
+      var room = getActiveRoom();
+      if (!room) return;
+      if (room.status === 'completed') {
+        shareActiveRoom();
+      } else if (isHost || checkIsSuperAdmin()) {
+        openAddGameModal();
+      } else {
+        openScoreRequestModal();
+      }
     }
 
     // --- SUPER ADMIN (PIN: 1826) & HOST PERMISSION HELPERS ---
@@ -1233,7 +2015,8 @@
 
     function promptSuperAdmin() {
       if (checkIsSuperAdmin()) {
-        if (confirm('현재 [⚡ 슈퍼관리자] 모드가 활성화되어 있습니다.\n슈퍼관리자 권한을 해제하시겠습니까?')) {
+        if (confirm('현재 [⚡ 슈퍼관리자] 모드가 활성화되어 있습니다.
+슈퍼관리자 권한을 해제하시겠습니까?')) {
           localStorage.removeItem(SUPER_ADMIN_KEY);
           isSuperAdmin = false;
           if (activeRoomId) isHost = checkIsHost(activeRoomId);
@@ -1244,10 +2027,12 @@
             renderTabs();
             renderAll();
           }
+          showToast('슈퍼관리자 모드가 해제되었습니다.', 'info');
         }
         return;
       }
-      var pin = prompt('🛡️ 슈퍼관리자 비밀번호를 입력하세요:\n(슈퍼관리자는 호스트보다 상위 권한으로 즉시 삭제, 종료된 방 수정 등 모든 권한을 가집니다)', '');
+      var pin = prompt('🛡️ 슈퍼관리자 비밀번호를 입력하세요:
+(슈퍼관리자는 호스트보다 상위 권한으로 즉시 삭제, 종료된 방 수정 등 모든 권한을 가집니다)', '');
       if (pin === null) return;
       if (pin.trim() === SUPER_ADMIN_PIN) {
         localStorage.setItem(SUPER_ADMIN_KEY, 'true');
@@ -1260,9 +2045,9 @@
           renderTabs();
           renderAll();
         }
-        alert('⚡ 슈퍼관리자(SUPER ADMIN) 권한이 활성화되었습니다!\n- 모든 모임방 호스트 상위 권한 획득\n- 7일 대기 없이 모임 즉시 영구 삭제 가능\n- 종료된 모임 기록 수정 및 강제 제어 가능');
+        showToast('⚡ 슈퍼관리자(SUPER ADMIN) 최고 권한이 활성화되었습니다!', 'gold');
       } else {
-        alert('슈퍼관리자 비밀번호가 일치하지 않습니다.');
+        showToast('슈퍼관리자 비밀번호가 일치하지 않습니다.', 'warn');
       }
     }
 
@@ -1300,7 +2085,7 @@
       'GAME_NIGHT_BACKUP_MASTER'
     ];
 
-    // --- GLOBAL REAL-TIME SYNC ENGINE (링크 공유 없이도 모든 접속자 실시간 동일 리스트 공유) ---
+    // --- GLOBAL REAL-TIME SYNC ENGINE ---
     var GLOBAL_SYNC_TOPIC = 'semini_playground/scoreboard_v6/global_state';
     var GLOBAL_SYNC_REQ_TOPIC = 'semini_playground/scoreboard_v6/sync_request';
     var mqttClients = [];
@@ -1323,6 +2108,7 @@
     }
 
     function initApp() {
+      updateSoundToggleUI();
       deletedRoomIds = getDeletedRoomsMap();
       for (var k = 0; k < STORAGE_KEYS.length; k++) {
         try {
@@ -1340,7 +2126,6 @@
       var urlParams = new URLSearchParams(window.location.search);
       var sharedRoomId = urlParams.get('room');
 
-      // 주소창에 혹시 이전 해시(#data=...)가 붙어있다면 복원 후 즉시 깔끔하게 숨김
       var rawHash = urlParams.get('data') || (window.location.hash.indexOf('#data=') === 0 ? window.location.hash.substring(6) : '');
       if (rawHash) {
         try {
@@ -1363,7 +2148,6 @@
         }
       }
 
-      // 실시간 글로벌 동기화 네트워크 연결 (초대 링크 없이도 접속한 모든 친구들과 방 목록/점수 즉시 동기화)
       connectGlobalRealtimeSync(sharedRoomId);
 
       if (window.lucide) lucide.createIcons();
@@ -1393,7 +2177,6 @@
             client.subscribe(GLOBAL_SYNC_TOPIC, { qos: 1 });
             client.subscribe(GLOBAL_SYNC_REQ_TOPIC, { qos: 0 });
 
-            // 내가 가진 방이 있으면 브로드캐스트, 동시에 최신 상태 요청
             if (appData.rooms && appData.rooms.length > 0) {
               broadcastGlobalState();
             }
@@ -1480,7 +2263,6 @@
         }
       });
 
-      // 삭제된 방 필터링
       var beforeLen = appData.rooms.length;
       appData.rooms = appData.rooms.filter(function(r) { return !deletedRoomIds[r.id]; });
       if (appData.rooms.length !== beforeLen) changed = true;
@@ -1502,7 +2284,6 @@
       mqttClients.forEach(function(client) {
         try {
           if (client && client.connected) {
-            // retain: true 설정으로 나중에 접속한 친구도 즉시 전체 진행중/종료된 방 목록을 받음!
             client.publish(GLOBAL_SYNC_TOPIC, packet, { qos: 1, retain: true });
           }
         } catch (e) {}
@@ -1520,7 +2301,8 @@
       });
       renderLobbyRooms();
       if (activeRoomId) renderAll();
-      alert('실시간 동기화가 완료되었습니다! 🔄\n모든 친구들의 진행 중/종료된 모임 리스트가 최신 상태로 일치합니다.');
+      triggerHaptic(18);
+      showToast('실시간 동기화 완료! 모든 기기의 방 목록이 최신화되었습니다.', 'info');
     }
 
     function saveLocalOnly() {
@@ -1544,7 +2326,6 @@
       }
     }
 
-    // 파일로 내보내기 (백업 .json 다운로드)
     function exportBackupFile() {
       try {
         var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
@@ -1556,13 +2337,12 @@
         document.body.appendChild(dlAnchor);
         dlAnchor.click();
         dlAnchor.remove();
-        alert('모임 데이터 백업 파일이 기기에 다운로드되었습니다!\n기기를 바꾸거나 브라우저 캐시가 삭제되어도 언제든지 이 파일로 100% 복구할 수 있습니다.');
+        showToast('모임 데이터 백업 파일(.json)이 기기에 저장되었습니다!', 'success');
       } catch (e) {
-        alert('백업 파일 생성 중 오류가 발생했습니다: ' + e.message);
+        showToast('백업 파일 생성 중 오류가 발생했습니다: ' + e.message, 'warn');
       }
     }
 
-    // 파일에서 불러오기 (백업 복원)
     function importBackupFile(event) {
       var file = event.target.files && event.target.files[0];
       if (!file) return;
@@ -1572,7 +2352,9 @@
         try {
           var imported = JSON.parse(e.target.result);
           if (imported && Array.isArray(imported.rooms)) {
-            var confirmRestore = confirm('백업 파일을 불러오시겠습니까?\n저장된 모임 개수: ' + imported.rooms.length + '개\n(현재 점수판 데이터가 백업 내용으로 복원됩니다.)');
+            var confirmRestore = confirm('백업 파일을 불러오시겠습니까?
+저장된 모임 개수: ' + imported.rooms.length + '개
+(현재 점수판 데이터가 백업 내용으로 복원됩니다.)');
             if (confirmRestore) {
               appData = imported;
               saveData();
@@ -1580,17 +2362,16 @@
               if (activeRoomId) {
                 renderAll();
               }
-              alert('모임 데이터가 성공적으로 100% 복원되었습니다! 🏆');
+              showToast('모임 데이터가 성공적으로 100% 복원되었습니다! 🏆', 'gold');
             }
           } else {
-            alert('올바른 스코어보드 백업 파일 형식이 아닙니다.');
+            showToast('올바른 스코어보드 백업 파일 형식이 아닙니다.', 'warn');
           }
         } catch (err) {
-          alert('파일을 읽는 중 오류가 발생했습니다: ' + err.message);
+          showToast('파일을 읽는 중 오류가 발생했습니다: ' + err.message, 'warn');
         }
       };
       reader.readAsText(file);
-      // reset input
       event.target.value = '';
     }
 
@@ -1602,12 +2383,12 @@
       var listComp = document.getElementById('room-list-completed');
 
       if (tab === 'active') {
-        tabActiveBtn.className = "py-2.5 rounded-lg bg-pink-600 text-white shadow transition flex items-center justify-center gap-1.5 cursor-pointer";
+        tabActiveBtn.className = "py-2.5 rounded-lg bg-gradient-to-r from-pink-600 to-purple-600 text-white shadow transition flex items-center justify-center gap-1.5 cursor-pointer";
         tabCompBtn.className = "py-2.5 rounded-lg text-gray-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer";
         listActive.classList.remove('hidden');
         listComp.classList.add('hidden');
       } else {
-        tabCompBtn.className = "py-2.5 rounded-lg bg-amber-600 text-white shadow transition flex items-center justify-center gap-1.5 cursor-pointer";
+        tabCompBtn.className = "py-2.5 rounded-lg bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow transition flex items-center justify-center gap-1.5 cursor-pointer";
         tabActiveBtn.className = "py-2.5 rounded-lg text-gray-400 hover:text-white transition flex items-center justify-center gap-1.5 cursor-pointer";
         listComp.classList.remove('hidden');
         listActive.classList.add('hidden');
@@ -1660,7 +2441,7 @@
       });
 
       if (activeRooms.length === 0) {
-        activeContainer.innerHTML = '<div class="text-center py-10 text-gray-500 text-sm">진행 중인 모임이 없습니다.<br>새로운 모임 방을 개설해보세요!</div>';
+        activeContainer.innerHTML = '<div class="text-center py-10 text-gray-500 text-xs sm:text-sm">진행 중인 모임이 없습니다.<br>새로운 모임 방을 개설해보세요!</div>';
       } else {
         activeRooms.forEach(function(room) {
           activeContainer.appendChild(createRoomListItem(room, false));
@@ -1668,7 +2449,7 @@
       }
 
       if (completedRooms.length === 0) {
-        compContainer.innerHTML = '<div class="text-center py-10 text-gray-500 text-sm">종료된 모임 기록이 없습니다.<br>진행 중인 모임을 완료하거나 삭제 대기 중인 모임이 이곳에 보관됩니다!</div>';
+        compContainer.innerHTML = '<div class="text-center py-10 text-gray-500 text-xs sm:text-sm">종료된 모임 기록이 없습니다.<br>진행 중인 모임을 완료하거나 삭제 대기 중인 모임이 이곳에 보관됩니다!</div>';
       } else {
         completedRooms.forEach(function(room) {
           compContainer.appendChild(createRoomListItem(room, true));
@@ -1683,44 +2464,50 @@
       var isPendingDelete = Boolean(room.deleteRequestedAt);
       var remainDays = isPendingDelete ? getRemainingDeleteDays(room) : null;
 
-      item.className = "flex items-center justify-between p-3.5 bg-gray-800/90 hover:bg-gray-800 border " + 
-        (isPendingDelete ? 'border-rose-500/50 hover:border-rose-400' : (isCompleted ? 'border-amber-500/40 hover:border-amber-400' : 'border-gray-700 hover:border-cyan-500/50')) + 
-        " rounded-xl cursor-pointer transition group";
+      item.className = "flex items-center justify-between p-3.5 glass-subcard hover:bg-gray-800/90 border " + 
+        (isPendingDelete ? 'border-rose-500/50 hover:border-rose-400' : (isCompleted ? 'border-amber-500/40 hover:border-amber-400' : 'border-gray-700/80 hover:border-cyan-400/60')) + 
+        " rounded-2xl cursor-pointer transition group active:scale-[0.99]";
       item.onclick = function() { enterRoom(room.id); };
 
-      var dateStr = new Date(room.createdAt).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
       var gameCount = room.games ? room.games.length : 0;
       var amHost = checkIsHost(room.id);
       var amSuper = checkIsSuperAdmin();
+      var leader = getCurrentLeader(room);
+      var leaderChip = (leader && leader.totalRP > 0)
+        ? (' <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/15 text-amber-300 font-bold">👑 ' + leader.member + '</span>')
+        : '';
 
       var badgeText = isPendingDelete ? ('⏳ D-' + remainDays) : (isCompleted ? '🏆 확정' : (amSuper ? '⚡슈퍼' : (amHost ? '호스트' : '참여')));
       var badgeClass = isPendingDelete 
         ? 'bg-rose-500/20 text-rose-300 border border-rose-500/40' 
-        : (isCompleted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : (amSuper ? 'bg-amber-400/20 text-amber-300 border border-amber-400/50' : (amHost ? 'bg-pink-500/20 text-pink-400' : 'bg-cyan-500/10 text-cyan-400')));
+        : (isCompleted ? 'bg-amber-500/20 text-amber-300 border border-amber-500/40' : (amSuper ? 'bg-amber-400/20 text-amber-300 border border-amber-400/50' : (amHost ? 'bg-pink-500/20 text-pink-400 border border-pink-500/30' : 'bg-cyan-500/15 text-cyan-300 border border-cyan-500/30')));
 
       var statusTagHtml = '';
       if (isPendingDelete) {
-        statusTagHtml = ' <span class="text-[11px] px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-500/40 font-bold">🗑️ 삭제 대기 (남은 일수: ' + remainDays + '일)</span>';
+        statusTagHtml = ' <span class="text-[10px] px-2 py-0.5 rounded-full bg-rose-950 text-rose-300 border border-rose-500/40 font-bold">🗑️ 삭제 대기 (' + remainDays + '일)</span>';
       } else if (isCompleted) {
-        statusTagHtml = ' <span class="text-xs text-amber-400 font-normal">종료됨</span>';
+        statusTagHtml = ' <span class="text-[11px] text-amber-400 font-semibold">종료됨</span>';
       }
 
       item.innerHTML = 
         '<div class="flex items-center gap-2.5 min-w-0 flex-1">' +
-          '<div class="px-2 py-1.5 rounded-lg ' + badgeClass + ' flex items-center justify-center font-bold text-[11px] flex-shrink-0">' +
+          '<div class="px-2 py-1.5 rounded-xl ' + badgeClass + ' flex items-center justify-center font-extrabold text-[11px] flex-shrink-0">' +
             badgeText +
           '</div>' +
           '<div class="min-w-0 flex-1">' +
-            '<div class="font-bold text-sm sm:text-base text-white group-hover:text-cyan-400 transition flex items-center gap-1.5 flex-wrap">' +
-              '<span class="truncate max-w-[140px] sm:max-w-[220px]">' + room.name + '</span>' + statusTagHtml +
+            '<div class="font-extrabold text-sm sm:text-base text-white group-hover:text-cyan-300 transition flex items-center gap-1.5 flex-wrap">' +
+              '<span class="truncate max-w-[145px] sm:max-w-[220px]">' + room.name + '</span>' + statusTagHtml +
             '</div>' +
-            '<div class="text-[11px] text-gray-400 truncate mt-0.5">' + room.members.slice(0, 3).join(', ') + (room.members.length > 3 ? ' 외 ' + (room.members.length - 3) + '명' : '') + ' • ' + gameCount + '종목</div>' +
+            '<div class="text-[11px] text-gray-400 truncate mt-0.5 flex items-center gap-1 flex-wrap">' +
+              '<span>' + room.members.slice(0, 3).join(', ') + (room.members.length > 3 ? ' 외 ' + (room.members.length - 3) + '명' : '') + ' • ' + gameCount + '종목</span>' +
+              leaderChip +
+            '</div>' +
           '</div>' +
         '</div>' +
         '<div class="flex items-center gap-1 flex-shrink-0 ml-1">' +
-          (isPendingDelete && (amHost || amSuper) ? '<button type="button" class="btn-restore-room px-2 py-1 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-[11px] font-bold transition cursor-pointer" title="삭제 취소 및 복구">복구</button>' : '') +
-          '<button type="button" class="btn-share-room-item px-2 py-1 bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-300 border border-yellow-400/40 rounded-lg text-[11px] font-bold transition cursor-pointer" title="이 모임 초대/공유">💌</button>' +
-          '<button type="button" class="btn-del-room p-1.5 ' + (amSuper ? 'text-rose-400 hover:text-rose-300' : 'text-gray-500 hover:text-red-400') + ' transition cursor-pointer" title="삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
+          (isPendingDelete && (amHost || amSuper) ? '<button type="button" class="btn-restore-room px-2 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-[11px] font-bold transition cursor-pointer" title="삭제 취소 및 복구">복구</button>' : '') +
+          '<button type="button" class="btn-share-room-item px-2.5 py-1.5 bg-yellow-400/20 hover:bg-yellow-400/40 text-yellow-300 border border-yellow-400/40 rounded-xl text-xs font-bold transition cursor-pointer" title="이 모임 초대/공유">💌</button>' +
+          '<button type="button" class="btn-del-room p-2 ' + (amSuper ? 'text-rose-400 hover:text-rose-300' : 'text-gray-500 hover:text-red-400') + ' transition cursor-pointer" title="삭제"><i data-lucide="trash-2" class="w-4 h-4"></i></button>' +
         '</div>';
 
       var restoreBtn = item.querySelector('.btn-restore-room');
@@ -1732,6 +2519,7 @@
           room.updatedAt = Date.now();
           saveData();
           switchLobbyTab('active');
+          showToast('모임이 정상적으로 복구되었습니다!', 'success');
         });
       }
 
@@ -1765,24 +2553,25 @@
       var hostPin = (pinInput.value || '').trim();
 
       if (!roomName) {
-        alert('모임 이름을 입력해주세요!');
+        showToast('모임 이름을 입력해주세요!', 'warn');
         nameInput.focus();
         return;
       }
 
       if (!rawMembers) {
-        alert('참여자를 최소 2명 이상 입력해주세요 (예: 민수, 지혜)');
+        showToast('참여자를 최소 2명 이상 입력해주세요!', 'warn');
         membersInput.focus();
         return;
       }
 
       var members = rawMembers
-        .split(/[,\n]+/)
+        .split(/[,
+]+/)
         .map(function(m) { return m.trim(); })
         .filter(function(m) { return m.length > 0; });
 
       if (members.length < 2) {
-        alert('참여자를 최소 2명 이상 입력해주세요 (쉼표나 줄바꿈으로 구분)');
+        showToast('참여자를 최소 2명 이상 입력해주세요 (쉼표/줄바꿈 구분)', 'warn');
         membersInput.focus();
         return;
       }
@@ -1814,28 +2603,32 @@
       membersInput.value = '';
       pinInput.value = '';
 
+      triggerHaptic(25);
       enterRoom(newRoomId);
+      showToast('새 모임 방이 개설되었습니다! 첫 게임을 등록해보세요 🎯', 'success');
     }
 
     function deleteRoom(roomId) {
       var room = (appData.rooms || []).find(function(r) { return r.id === roomId; });
       if (!room) return;
 
-      // 1) 슈퍼관리자(1826)인 경우: 대기 없이 즉시 영구 삭제 가능!
       if (checkIsSuperAdmin()) {
         if (confirm('⚡ [슈퍼관리자 권한] "' + room.name + '" 모임을 7일 대기 없이 즉시 영구 삭제하시겠습니까?')) {
           markRoomDeleted(roomId);
           appData.rooms = appData.rooms.filter(function(r) { return r.id !== roomId; });
           saveData();
           renderLobbyRooms();
+          showToast('슈퍼관리자 권한으로 모임이 즉시 삭제되었습니다.', 'info');
         }
         return;
       }
 
-      // 2) 이미 7일 삭제 대기 중인 모임인데 삭제 버튼을 또 누른 경우 -> 슈퍼관리자 비번(1826) 입력 시 즉시 삭제 지원
       if (room.deleteRequestedAt) {
         var rDays = getRemainingDeleteDays(room);
-        var pinInput = prompt('⏳ 현재 [삭제 대기 중 (남은 일수: ' + rDays + '일)]인 모임입니다.\n7일 후 자동으로 영구 삭제됩니다.\n\n⚡ 즉시 영구 삭제하려면 [슈퍼관리자 비밀번호]를 입력하세요:', '');
+        var pinInput = prompt('⏳ 현재 [삭제 대기 중 (남은 일수: ' + rDays + '일)]인 모임입니다.
+7일 후 자동으로 영구 삭제됩니다.
+
+⚡ 즉시 영구 삭제하려면 [슈퍼관리자 비밀번호]를 입력하세요:', '');
         if (pinInput === null) return;
         if (pinInput.trim() === SUPER_ADMIN_PIN) {
           localStorage.setItem(SUPER_ADMIN_KEY, 'true');
@@ -1844,31 +2637,35 @@
           appData.rooms = appData.rooms.filter(function(r) { return r.id !== roomId; });
           saveData();
           renderLobbyRooms();
-          alert('⚡ 슈퍼관리자 권한으로 모임이 즉시 영구 삭제되었습니다!');
+          showToast('⚡ 슈퍼관리자 권한으로 모임이 즉시 영구 삭제되었습니다!', 'gold');
         } else if (pinInput.trim() !== '') {
-          alert('비밀번호가 일치하지 않습니다. (슈퍼관리자만 즉시 삭제 가능)');
+          showToast('비밀번호가 일치하지 않습니다.', 'warn');
         }
         return;
       }
 
-      // 3) 일반/호스트 모임 삭제 시 -> [종료된 모임] 탭으로 이동하며 7일간의 삭제 대기 부여
-      if (confirm('"' + room.name + '" 모임을 삭제하시겠습니까?\n\n• 일반 삭제 시 [🏆 종료된 모임] 목록으로 이동하여 7일간 삭제 대기 상태(남은 일수 표시)로 보관된 후 자동 삭제됩니다.\n• 슈퍼관리자(비번 1826)는 즉시 영구 삭제가 가능합니다.')) {
+      if (confirm('"' + room.name + '" 모임을 삭제하시겠습니까?
+
+• 일반 삭제 시 [🏆 종료된 모임] 목록으로 이동하여 7일간 삭제 대기 상태(남은 일수 표시)로 보관된 후 자동 삭제됩니다.
+• 슈퍼관리자(비번 1826)는 즉시 영구 삭제가 가능합니다.')) {
         room.status = 'completed';
         room.deleteRequestedAt = Date.now();
         room.updatedAt = Date.now();
         saveData();
         switchLobbyTab('completed');
-        alert('🗑️ 모임이 [종료된 모임] 탭으로 이동되었으며, 7일간의 삭제 대기(D-7)가 시작되었습니다.');
+        showToast('모임이 [종료된 모임]으로 이동되었으며 7일 삭제 대기가 시작되었습니다.', 'info');
       }
     }
 
     function enterRoom(roomId) {
       activeRoomId = roomId;
-      activeTab = 'leaderboard'; // 기본은 종합 순위표
+      activeTab = 'leaderboard';
       var room = getActiveRoom();
       if (!room) return;
 
       isHost = checkIsHost(room.id);
+      var initLeader = getCurrentLeader(room);
+      lastKnownLeaderName = (initLeader && initLeader.totalRP > 0) ? initLeader.member : null;
 
       document.getElementById('view-home').classList.add('hidden');
       document.getElementById('view-dashboard').classList.remove('hidden');
@@ -1876,7 +2673,6 @@
       document.getElementById('active-room-title').innerText = room.name;
       document.getElementById('active-room-members-count').innerText = '참여자 ' + room.members.length + '명: ' + room.members.join(', ');
       
-      // 개설 일시 (년월일) 반영
       var cDate = new Date(room.createdAt || Date.now());
       var year = cDate.getFullYear();
       var month = String(cDate.getMonth() + 1).padStart(2, '0');
@@ -1890,6 +2686,7 @@
       updateRoleUI();
       renderTabs();
       renderAll();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
 
       if (room.status === 'completed') {
         setTimeout(function() {
@@ -1903,6 +2700,7 @@
       document.getElementById('view-dashboard').classList.add('hidden');
       document.getElementById('view-home').classList.remove('hidden');
       renderLobbyRooms();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function getActiveRoom() {
@@ -1918,14 +2716,19 @@
       if (!room || !isHost) return;
 
       if (!room.games || room.games.length === 0) {
-        alert('아직 진행된 게임이 없습니다. 게임을 진행한 후 종료해주세요.');
+        showToast('아직 진행된 게임이 없습니다. 게임을 진행한 후 종료해주세요.', 'warn');
         return;
       }
 
       var leader = getCurrentLeader(room);
-      var leaderMsg = (leader && leader.member) ? ('\\n👑 현재 1위: ' + leader.member + ' (' + leader.totalRP + ' RP)') : '';
+      var leaderMsg = (leader && leader.member) ? ('
+👑 현재 1위: ' + leader.member + ' (' + leader.totalRP + ' RP)') : '';
 
-      var ok = confirm('정말로 본 모임을 최종 종료하시겠습니까?' + leaderMsg + '\n\n- 종료 후에는 호스트를 포함해 누구도 점수를 수정할 수 없습니다.\n- 최종 우승자와 순위가 확정되며 [종료된 모임] 보관소로 이동합니다.\n- 우승자를 위한 축하 대축제 쇼가 펼쳐집니다!');
+      var ok = confirm('정말로 본 모임을 최종 종료하시겠습니까?' + leaderMsg + '
+
+- 종료 후에는 호스트를 포함해 누구도 점수를 수정할 수 없습니다.
+- 최종 우승자와 순위가 확정되며 [종료된 모임] 보관소로 이동합니다.
+- 우승자를 위한 축하 대축제 쇼가 펼쳐집니다!');
       if (ok) {
         room.status = 'completed';
         room.completedAt = new Date().toISOString();
@@ -1934,7 +2737,7 @@
         renderTabs();
         renderAll();
         triggerGrandFiesta();
-        alert('모임이 성공적으로 종료 및 확정되었습니다! 🏆\n우승자 발표와 함께 명예의 전당에 영구 보관됩니다.');
+        showToast('모임이 최종 종료 및 확정되었습니다! 우승자 탄생을 축하합니다 🏆', 'gold');
       }
     }
 
@@ -1958,72 +2761,87 @@
       var btnAddGame = document.getElementById('btn-add-game-host');
       var btnFinishRoom = document.getElementById('btn-finish-room-host');
       var btnToggleHost = document.getElementById('btn-toggle-host-role');
+      var btnManageMembers = document.getElementById('btn-manage-members');
       var hostReqBar = document.getElementById('host-pending-requests-bar');
       var guestReqBar = document.getElementById('guest-request-info-bar');
       var completedBar = document.getElementById('completed-info-bar');
+      var dockIcon = document.getElementById('dock-primary-icon');
+      var dockLabel = document.getElementById('dock-primary-label');
 
       var pendingCount = (room && room.requests) ? room.requests.length : 0;
 
       if (isCompleted) {
         if (isPendingDel) {
           var rDays = getRemainingDeleteDays(room);
-          statusBadge.className = "px-2.5 py-0.5 text-xs bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full font-bold";
+          statusBadge.className = "px-2.5 py-0.5 text-[11px] bg-rose-500/20 text-rose-300 border border-rose-500/40 rounded-full font-bold";
           statusBadge.innerHTML = "🗑️ 삭제 대기 중 (D-" + rDays + "일)";
         } else {
-          statusBadge.className = "px-2.5 py-0.5 text-xs bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full font-bold";
+          statusBadge.className = "px-2.5 py-0.5 text-[11px] bg-amber-500/20 text-amber-300 border border-amber-500/40 rounded-full font-bold";
           statusBadge.innerHTML = "🏆 모임 종료 (우승 확정됨)";
         }
 
         if (isSuperAdmin) {
-          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-black bg-gradient-to-r from-amber-400 to-yellow-500 text-gray-950 shadow";
+          roleBadge.className = "px-2.5 py-0.5 text-[11px] rounded-full font-black bg-gradient-to-r from-amber-400 to-yellow-500 text-gray-950 shadow";
           roleBadge.innerText = "⚡ 슈퍼관리자 (기록 열람)";
           btnAddGame.classList.add('hidden');
           btnFinishRoom.classList.add('hidden');
           btnToggleHost.classList.add('hidden');
         } else {
-          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-bold bg-gray-800 text-gray-300 border border-gray-700";
+          roleBadge.className = "px-2.5 py-0.5 text-[11px] rounded-full font-bold bg-gray-800 text-gray-300 border border-gray-700";
           roleBadge.innerText = isHost ? "호스트 (기록 열람)" : "게스트 (기록 열람)";
           btnAddGame.classList.add('hidden');
           btnFinishRoom.classList.add('hidden');
           btnToggleHost.classList.remove('hidden');
-          btnToggleHost.innerHTML = '<i data-lucide="shield" class="w-4 h-4"></i> 슈퍼관리자 인증';
+          btnToggleHost.innerHTML = '<i data-lucide="shield" class="w-3.5 h-3.5"></i> 슈퍼관리자 인증';
         }
 
+        if (btnManageMembers) btnManageMembers.classList.add('hidden');
         hostReqBar.classList.add('hidden');
         guestReqBar.classList.add('hidden');
         completedBar.classList.remove('hidden');
+        if (dockIcon) dockIcon.innerText = '💌';
+        if (dockLabel) dockLabel.innerText = '결과공유';
 
       } else {
         completedBar.classList.add('hidden');
-        statusBadge.className = "px-2.5 py-0.5 text-xs bg-pink-500/20 text-pink-400 border border-pink-500/40 rounded-full font-bold flex items-center gap-1";
+        statusBadge.className = "px-2.5 py-0.5 text-[11px] bg-pink-500/20 text-pink-400 border border-pink-500/40 rounded-full font-bold flex items-center gap-1";
         statusBadge.innerHTML = '<span class="w-2 h-2 rounded-full bg-pink-500 animate-ping"></span> LIVE 진행 중';
 
         if (isSuperAdmin) {
-          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-black bg-gradient-to-r from-amber-400 to-yellow-500 text-gray-950 shadow";
+          roleBadge.className = "px-2.5 py-0.5 text-[11px] rounded-full font-black bg-gradient-to-r from-amber-400 to-yellow-500 text-gray-950 shadow";
           roleBadge.innerText = "⚡ 슈퍼관리자 (최고 권한)";
           btnAddGame.classList.remove('hidden');
           btnFinishRoom.classList.remove('hidden');
           btnToggleHost.classList.add('hidden');
+          if (btnManageMembers) btnManageMembers.classList.remove('hidden');
           guestReqBar.classList.add('hidden');
+          if (dockIcon) dockIcon.innerText = '➕';
+          if (dockLabel) dockLabel.innerText = '게임추가';
         } else if (isHost) {
-          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-bold bg-pink-500/20 text-pink-300 border border-pink-500/40";
+          roleBadge.className = "px-2.5 py-0.5 text-[11px] rounded-full font-bold bg-pink-500/20 text-pink-300 border border-pink-500/40";
           roleBadge.innerText = "👑 호스트 모드";
 
           btnAddGame.classList.remove('hidden');
           btnFinishRoom.classList.remove('hidden');
           btnToggleHost.classList.remove('hidden');
-          btnToggleHost.innerHTML = '<i data-lucide="shield" class="w-4 h-4"></i> 슈퍼관리자 전환';
+          btnToggleHost.innerHTML = '<i data-lucide="shield" class="w-3.5 h-3.5"></i> 슈퍼관리자 전환';
+          if (btnManageMembers) btnManageMembers.classList.remove('hidden');
           guestReqBar.classList.add('hidden');
+          if (dockIcon) dockIcon.innerText = '➕';
+          if (dockLabel) dockLabel.innerText = '게임추가';
         } else {
-          roleBadge.className = "px-2.5 py-0.5 text-xs rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
+          roleBadge.className = "px-2.5 py-0.5 text-[11px] rounded-full font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-500/40";
           roleBadge.innerText = "👀 초대 멤버(게스트)";
 
           btnAddGame.classList.add('hidden');
           btnFinishRoom.classList.add('hidden');
           btnToggleHost.classList.remove('hidden');
-          btnToggleHost.innerHTML = '<i data-lucide="key" class="w-4 h-4"></i> 호스트 / 슈퍼관리자 권한';
+          btnToggleHost.innerHTML = '<i data-lucide="key" class="w-3.5 h-3.5"></i> 호스트 / 슈퍼관리자 권한';
+          if (btnManageMembers) btnManageMembers.classList.add('hidden');
           hostReqBar.classList.add('hidden');
           guestReqBar.classList.remove('hidden');
+          if (dockIcon) dockIcon.innerText = '📝';
+          if (dockLabel) dockLabel.innerText = '점수요청';
         }
 
         if ((isHost || isSuperAdmin) && pendingCount > 0) {
@@ -2048,23 +2866,23 @@
         setRoomHost(room.id);
         isHost = true;
         updateSuperAdminLobbyBtn();
-        alert('⚡ 슈퍼관리자 최고 권한이 승인되었습니다! 모든 모임 제어 및 즉시 삭제가 가능합니다.');
+        showToast('⚡ 슈퍼관리자 최고 권한이 승인되었습니다!', 'gold');
         updateRoleUI();
         renderTabs();
         renderAll();
       } else if (pin === (room.hostPin || '1234') || pin === 'admin') {
         setRoomHost(room.id);
         isHost = true;
-        alert('👑 호스트 권한이 승인되었습니다! 게임 추가, 세트 관리 및 점수 수정이 가능합니다.');
+        showToast('👑 호스트 권한이 승인되었습니다! 점수 및 게임 관리가 가능합니다.', 'success');
         updateRoleUI();
         renderTabs();
         renderAll();
       } else {
-        alert('비밀번호가 일치하지 않습니다.');
+        showToast('비밀번호가 일치하지 않습니다.', 'warn');
       }
     }
 
-    // 지저분한 해시(#)가 전혀 없는 깔끔한 링크 + 귀여운 초대장 문구!
+    // --- KAKAO / LINK SHARE ---
     function shareViaKakaoOrLink() {
       broadcastGlobalState();
       var targetUrl = window.location.origin + window.location.pathname;
@@ -2072,14 +2890,23 @@
       var compCnt = (appData.rooms || []).filter(function(r) { return r.status === 'completed'; }).length;
 
       var cuteMessage = 
-        "🎪✨ 띵동! [세미니의 놀이터] 초대장이 도착했어요! 💌\n" +
-        "━━━━━━━━━━━━━━━━━━\n" +
-        "🔥 진행 중인 모임: " + activeCnt + "개\n" +
-        "🏆 명예의 전당(종료): " + compCnt + "개\n" +
-        "━━━━━━━━━━━━━━━━━━\n" +
-        "친구들과 불꽃 튀는 미니게임 한 판! 🎮\n" +
-        "우리 모임의 최종 우승 챔피언은 누구일까요? 👑\n\n" +
-        "👇 아래 링크를 터치해 지금 바로 놀러오세요! 🥳🎈\n" +
+        "🎪✨ 띵동! [세미니의 놀이터] 초대장이 도착했어요! 💌
+" +
+        "━━━━━━━━━━━━━━━━━━
+" +
+        "🔥 진행 중인 모임: " + activeCnt + "개
+" +
+        "🏆 명예의 전당(종료): " + compCnt + "개
+" +
+        "━━━━━━━━━━━━━━━━━━
+" +
+        "친구들과 불꽃 튀는 미니게임 한 판! 🎮
+" +
+        "우리 모임의 최종 우승 챔피언은 누구일까요? 👑
+
+" +
+        "👇 아래 링크를 터치해 지금 바로 놀러오세요! 🥳🎈
+" +
         targetUrl;
 
       if (navigator.share) {
@@ -2103,17 +2930,27 @@
       var isComp = (room.status === 'completed');
       var leader = getCurrentLeader(room);
       var leaderLine = (leader && leader.totalRP > 0) 
-        ? (isComp ? ("👑 최종 우승 챔피언: " + leader.member + "님 (" + leader.totalRP + " RP) 🎉\n") : ("🥇 현재 1위 선두: " + leader.member + "님 (" + leader.totalRP + " RP) 🚀\n"))
+        ? (isComp ? ("👑 최종 우승 챔피언: " + leader.member + "님 (" + leader.totalRP + " RP) 🎉
+") : ("🥇 현재 1위 선두: " + leader.member + "님 (" + leader.totalRP + " RP) 🚀
+"))
         : "";
 
       var cuteMessage = 
-        (isComp ? "🏆🎊 [" + room.name + "] 최종 우승 결과 발표! ✨\n" : "🎮💖 [" + room.name + "] 미니게임 방으로 모여라! 💌\n") +
-        "━━━━━━━━━━━━━━━━━━\n" +
-        "👥 함께하는 친구들: " + room.members.join(', ') + "\n" +
+        (isComp ? "🏆🎊 [" + room.name + "] 최종 우승 결과 발표! ✨
+" : "🎮💖 [" + room.name + "] 미니게임 방으로 모여라! 💌
+") +
+        "━━━━━━━━━━━━━━━━━━
+" +
+        "👥 함께하는 친구들: " + room.members.join(', ') + "
+" +
         leaderLine +
-        "━━━━━━━━━━━━━━━━━━\n" +
-        (isComp ? "전설로 남을 우리의 명승부 기록을 확인해보세요! 🏅\n" : "두근두근 실시간 점수판이 열렸어요! 누가 1등할까? 🥳\n") +
-        "👇 아래 링크를 톡! 누르면 바로 입장됩니다 🎈\n" +
+        "━━━━━━━━━━━━━━━━━━
+" +
+        (isComp ? "전설로 남을 우리의 명승부 기록을 확인해보세요! 🏅
+" : "두근두근 실시간 점수판이 열렸어요! 누가 1등할까? 🥳
+") +
+        "👇 아래 링크를 톡! 누르면 바로 입장됩니다 🎈
+" +
         targetUrl;
 
       if (navigator.share) {
@@ -2137,7 +2974,7 @@
     function copyToClipboardFallback(text) {
       if (navigator.clipboard && navigator.clipboard.writeText) {
         navigator.clipboard.writeText(text).then(function() {
-          alert('카카오톡 초대 메시지와 링크가 클립보드에 복사되었습니다!\n카카오톡 단톡방이나 친구에게 바로 붙여넣기(Ctrl+V) 하세요! 💬');
+          showToast('초대 메시지와 링크가 클립보드에 복사되었습니다! 단톡방에 붙여넣기 하세요 💬', 'success');
         }).catch(function() {
           prompt('아래 링크와 메시지를 복사해서 카카오톡에 공유하세요:', text);
         });
@@ -2147,7 +2984,6 @@
     }
 
     // --- DYNAMIC TABS NAVIGATION SYSTEM ---
-    // [🏆 종합 순위표] [🎯 게임 1] [⚔️ 게임 2] ...
     function renderTabs() {
       var room = getActiveRoom();
       var container = document.getElementById('dashboard-tabs-container');
@@ -2157,10 +2993,11 @@
       // 1. [🏆 실시간 종합 순위표] Tab
       var isLeadActive = (activeTab === 'leaderboard');
       var leadTabBtn = document.createElement('button');
-      leadTabBtn.className = "pb-2.5 px-4 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer " + 
+      leadTabBtn.setAttribute('data-tab-id', 'leaderboard');
+      leadTabBtn.className = "py-2 px-3.5 sm:px-4 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer " + 
         (isLeadActive 
-          ? 'bg-gradient-to-r from-pink-500/20 to-purple-500/20 text-pink-400 border-2 border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.3)]' 
-          : 'text-gray-400 hover:text-gray-200 border border-transparent hover:border-gray-700 bg-gray-900/60');
+          ? 'bg-gradient-to-r from-pink-500/25 to-purple-500/25 text-pink-300 border-2 border-pink-500 shadow-[0_0_15px_rgba(236,72,153,0.35)]' 
+          : 'text-gray-400 hover:text-gray-200 border border-transparent hover:border-gray-700 bg-gray-900/70');
       leadTabBtn.innerHTML = '<i data-lucide="trophy" class="w-4 h-4"></i> 🏆 종합 순위표';
       leadTabBtn.addEventListener('click', function() {
         switchTab('leaderboard');
@@ -2169,26 +3006,26 @@
 
       // 2. Dynamic tabs for each game
       if (room.games && room.games.length > 0) {
-        room.games.forEach(function(game, idx) {
+        room.games.forEach(function(game) {
           var isGameActive = (activeTab === game.id);
 
-          var iconName = 'gamepad-2';
           var typePrefix = '🎯 ';
-          if (game.type === 'winloss') { iconName = 'swords'; typePrefix = '⚔️ '; }
-          else if (game.type === 'elimination') { iconName = 'shield'; typePrefix = '🪵 '; }
-          else if (game.type === 'time') { iconName = 'timer'; typePrefix = '⏱️ '; }
+          if (game.type === 'winloss') { typePrefix = '⚔️ '; }
+          else if (game.type === 'elimination') { typePrefix = '🪵 '; }
+          else if (game.type === 'time') { typePrefix = '⏱️ '; }
 
           var setCount = (game.sets && game.sets.length > 0) ? game.sets.length : 1;
 
           var gameTabBtn = document.createElement('button');
+          gameTabBtn.setAttribute('data-tab-id', game.id);
           gameTabBtn.className = "py-2 px-3 sm:px-4 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap cursor-pointer text-xs sm:text-sm " + 
             (isGameActive 
-              ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-300 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
-              : 'text-gray-400 hover:text-gray-200 border border-transparent hover:border-gray-700 bg-gray-900/60');
+              ? 'bg-gradient-to-r from-cyan-500/25 to-blue-500/25 text-cyan-200 border-2 border-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.35)]' 
+              : 'text-gray-400 hover:text-gray-200 border border-transparent hover:border-gray-700 bg-gray-900/70');
           var badgeSub = (game.type === 'winloss') ? '대진표' : (setCount + '세트');
           gameTabBtn.innerHTML = 
             '<span>' + typePrefix + game.name + '</span>' +
-            '<span class="text-[10px] px-1.5 py-0.5 rounded-md font-mono ' + (isGameActive ? 'bg-cyan-500/30 text-cyan-200' : 'bg-gray-800 text-gray-400') + '">' + badgeSub + '</span>';
+            '<span class="text-[10px] px-1.5 py-0.5 rounded-md font-mono ' + (isGameActive ? 'bg-cyan-500/30 text-cyan-100' : 'bg-gray-800 text-gray-400') + '">' + badgeSub + '</span>';
 
           gameTabBtn.addEventListener('click', function() {
             switchTab(game.id);
@@ -2200,7 +3037,7 @@
       // 3. Quick [+ 게임 추가] tab button (Host Only, Active Only)
       if (isHost && room.status !== 'completed') {
         var addTabBtn = document.createElement('button');
-        addTabBtn.className = "pb-2.5 px-3 rounded-xl text-gray-400 hover:text-white border border-dashed border-gray-700 hover:border-pink-500 transition flex items-center gap-1 whitespace-nowrap text-xs cursor-pointer";
+        addTabBtn.className = "py-2 px-3 rounded-xl text-gray-400 hover:text-white border border-dashed border-gray-700 hover:border-pink-500 transition flex items-center gap-1 whitespace-nowrap text-xs cursor-pointer";
         addTabBtn.innerHTML = '<i data-lucide="plus" class="w-3.5 h-3.5"></i> 새 게임 추가';
         addTabBtn.addEventListener('click', function() {
           openAddGameModal();
@@ -2208,11 +3045,20 @@
         container.appendChild(addTabBtn);
       }
 
+      // Auto-center active pill on mobile horizontal scroll
+      var activePill = container.querySelector('[data-tab-id="' + activeTab + '"]');
+      if (activePill && typeof activePill.scrollIntoView === 'function') {
+        try {
+          activePill.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+        } catch (e) {}
+      }
+
       if (window.lucide) lucide.createIcons();
     }
 
     function switchTab(tabId) {
       activeTab = tabId;
+      triggerHaptic(12);
       renderTabs();
 
       var leadContent = document.getElementById('tab-content-leaderboard');
@@ -2256,17 +3102,17 @@
       if (type === 'points') {
         container.innerHTML = 
           '<div class="text-xs text-cyan-300 font-bold mb-1">🎯 점수 집계 설정 (볼링, 다트 등)</div>' +
-          '<div class="grid grid-cols-2 gap-3">' +
+          '<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">' +
             '<div>' +
               '<label class="block text-[11px] text-gray-300 mb-1">순위 판정 기준</label>' +
-              '<select id="sub-opt-points-order" class="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs">' +
+              '<select id="sub-opt-points-order" class="w-full px-2.5 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs">' +
                 '<option value="desc">높은 점수가 1등 (볼링, 다트)</option>' +
                 '<option value="asc">낮은 점수가 1등 (골프, 벌점)</option>' +
               '</select>' +
             '</div>' +
             '<div>' +
               '<label class="block text-[11px] text-gray-300 mb-1">종합 점수 반영 방식</label>' +
-              '<select id="sub-opt-points-calc" class="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs">' +
+              '<select id="sub-opt-points-calc" class="w-full px-2.5 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs">' +
                 '<option value="rank_rp">순위별 승점(RP) 부여 (추천)</option>' +
                 '<option value="raw_score">모든 세트 합산점수 그대로 종합 누적</option>' +
               '</select>' +
@@ -2320,7 +3166,7 @@
           '<div class="text-xs text-emerald-300 font-bold mb-1">⏱️ 타임어택 / 시간 측정 설정</div>' +
           '<div>' +
             '<label class="block text-[11px] text-gray-300 mb-1">순위 판정 기준</label>' +
-            '<select id="sub-opt-time-order" class="w-full px-2 py-1.5 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs">' +
+            '<select id="sub-opt-time-order" class="w-full px-2.5 py-2 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs">' +
               '<option value="asc">초가 적을수록 1등 (스피드 레이스, 챌린지 성공 초)</option>' +
               '<option value="desc">오래 버틸수록 1등 (플랭크, 숨참기, 봉 매달리기)</option>' +
             '</select>' +
@@ -2331,7 +3177,7 @@
     function openAddGameModal() {
       var room = getActiveRoom();
       if (!canManageRoom(room)) {
-        alert('게임 추가는 모임이 진행 중일 때 호스트만 가능합니다.');
+        showToast('게임 추가는 모임이 진행 중일 때 호스트만 가능합니다.', 'warn');
         return;
       }
       document.getElementById('modal-game-name').value = '';
@@ -2354,7 +3200,7 @@
       var gameType = document.getElementById('modal-game-type').value;
 
       if (!gameName) {
-        alert('게임 이름을 입력해주세요!');
+        showToast('게임 이름을 입력해주세요!', 'warn');
         nameInput.focus();
         return;
       }
@@ -2399,12 +3245,13 @@
 
       saveData();
       closeAddGameModal();
+      triggerHaptic(22);
 
-      // 생성된 새 게임 탭으로 즉시 전환!
       activeTab = gameId;
-      renderTabs();
-      renderAll();
+      switchTab(gameId);
+      showToast('[' + gameName + '] 게임 탭이 생성되었습니다! 🎮', 'success');
     }
+
 
     // --- 토너먼트 사다리 트리 생성기 & 풀리그전 대진표 생성기 ---
     function shuffleArray(arr) {
@@ -2441,7 +3288,6 @@
       var matchCount = size / 2;
 
       if (target >= 2 && n < size) {
-        // 중복 참가 균등 배분 (예: 4명 -> 16강 시 인당 4회, 32강 시 인당 8회 출전)
         var fullWaves = Math.floor(size / n);
         var rem = size % n;
         var pool = [];
@@ -2456,7 +3302,6 @@
         var p1List = pool.slice(0, matchCount);
         var p2List = pool.slice(matchCount);
 
-        // 1라운드에서 동일 인물끼리 맞붙지 않도록 자동 스왑 보정
         if (n >= 2) {
           for (var i = 0; i < matchCount; i++) {
             if (p1List[i] === p2List[i]) {
@@ -2484,7 +3329,6 @@
           }
         }
 
-        // 중복 참가 엔트리 번호(#1, #2...) 부여
         var entryCounter = {};
         for (var m = 0; m < matchCount; m++) {
           var name1 = p1List[m];
@@ -2629,7 +3473,6 @@
         ? (curMatch.winnerSide === targetSide)
         : (curMatch.winner === winnerName);
 
-      // 토글 지원 및 다음 라운드 사다리 자동 진출 업데이트
       if (isSameSelection) {
         curMatch.winner = null;
         curMatch.winnerSide = null;
@@ -2640,7 +3483,6 @@
         curMatch.winnerTag = (targetSide === 'p2') ? (curMatch.p2Tag || null) : (curMatch.p1Tag || null);
       }
 
-      // 이후 라운드 연쇄 업데이트
       for (var r = roundIdx + 1; r < game.tournamentRounds.length; r++) {
         var prevRoundMatches = game.tournamentRounds[r - 1].matches;
         var nextRoundMatches = game.tournamentRounds[r].matches;
@@ -2673,8 +3515,13 @@
         }
       }
 
+      triggerHaptic(18);
       if (roundIdx === game.tournamentRounds.length - 1 && curMatch.winner) {
         playRandomFanfare();
+        if (window.confetti) {
+          confetti({ particleCount: 70, spread: 80, origin: { y: 0.6 }, zIndex: 10001 });
+        }
+        showToast('👑 [' + curMatch.winner + '] 님이 토너먼트 최종 우승을 차지했습니다!', 'gold');
       }
       saveData();
       renderAll();
@@ -2705,7 +3552,6 @@
       if (game.battleMode === 'tournament') {
         game.tournamentRounds = buildTournamentLadder(room.members, game.bracketSize);
       } else {
-        // 1:1 랜덤 매치업 섞기
         var pool = shuffleArray(room.members);
         var pairs = [];
         for (var i = 0; i < pool.length; i += 2) {
@@ -2720,8 +3566,10 @@
         }
         game.leagueMatches = pairs;
       }
+      triggerHaptic(20);
       saveData();
       renderAll();
+      showToast('대진표가 랜덤으로 새롭게 섞였습니다! 🎲', 'info');
     }
 
     function resetFullLeagueMatches(gameId) {
@@ -2732,6 +3580,7 @@
       game.leagueMatches = buildFullLeagueMatches(room.members);
       saveData();
       renderAll();
+      showToast('전체 풀리그 대진표가 생성되었습니다!', 'info');
     }
 
     function addCustomLeagueMatch(gameId) {
@@ -2764,6 +3613,7 @@
       var mt = game.leagueMatches.find(function(m) { return m.id === matchId; });
       if (!mt) return;
       mt.winner = winnerSide;
+      triggerHaptic(15);
       saveData();
       renderAll();
     }
@@ -2793,9 +3643,11 @@
       if (!room.scores[gameId]) room.scores[gameId] = {};
       room.scores[gameId][newSetId] = {};
 
+      triggerHaptic(16);
       saveData();
       renderTabs();
       renderAll();
+      showToast(nextSetNum + '세트가 추가되었습니다!', 'success');
     }
 
     function deleteSetFromGame(gameId, setId) {
@@ -2804,7 +3656,7 @@
 
       var game = room.games.find(function(g) { return g.id === gameId; });
       if (!game || !game.sets || game.sets.length <= 1) {
-        alert('최소 1개의 세트는 유지되어야 합니다.');
+        showToast('최소 1개의 세트는 유지되어야 합니다.', 'warn');
         return;
       }
 
@@ -2817,20 +3669,32 @@
       }
     }
 
+    function resetSetScores(gameId, setId) {
+      var room = getActiveRoom();
+      if (!room || !canManageRoom(room)) return;
+      if (confirm('이 세트의 모든 점수를 초기화하시겠습니까?')) {
+        if (!room.scores[gameId]) room.scores[gameId] = {};
+        room.scores[gameId][setId] = {};
+        saveData();
+        renderAll();
+        showToast('해당 세트 점수가 초기화되었습니다.', 'info');
+      }
+    }
+
     function deleteGame(gameId) {
       var room = getActiveRoom();
       if (!room || !canManageRoom(room)) {
-        alert('게임 삭제는 모임 진행 중 호스트만 가능합니다.');
+        showToast('게임 삭제는 모임 진행 중 호스트만 가능합니다.', 'warn');
         return;
       }
       if (confirm('이 게임을 탭과 목록에서 완전히 삭제하시겠습니까?')) {
         room.games = room.games.filter(function(g) { return g.id !== gameId; });
         if (room.scores) delete room.scores[gameId];
         saveData();
-        // 삭제 후 종합 순위표 탭으로 이동
         activeTab = 'leaderboard';
         renderTabs();
         renderAll();
+        showToast('게임 탭이 삭제되었습니다.', 'info');
       }
     }
 
@@ -2840,12 +3704,12 @@
       if (!room) return;
 
       if (room.status === 'completed') {
-        alert('종료된 모임은 점수 수정을 요청할 수 없습니다.');
+        showToast('종료된 모임은 점수 수정을 요청할 수 없습니다.', 'warn');
         return;
       }
 
       if (!room.games || room.games.length === 0) {
-        alert('아직 등록된 게임이 없습니다. 호스트가 게임을 추가한 후 요청해주세요.');
+        showToast('아직 등록된 게임이 없습니다. 호스트가 게임을 추가한 후 요청해주세요.', 'warn');
         return;
       }
 
@@ -2886,7 +3750,7 @@
       var reason = (document.getElementById('req-reason-val').value || '').trim();
 
       if (!scoreVal) {
-        alert('수정 요청할 점수나 결과를 입력해주세요!');
+        showToast('수정 요청할 점수나 결과를 입력해주세요!', 'warn');
         return;
       }
 
@@ -2906,7 +3770,8 @@
 
       saveData();
       closeScoreRequestModal();
-      alert('호스트에게 점수 수정 요청이 성공적으로 전송되었습니다!\n호스트가 승인하면 점수판에 즉시 반영됩니다.');
+      triggerHaptic(20);
+      showToast('호스트에게 점수 수정 요청이 전송되었습니다! 📝', 'success');
       updateRoleUI();
     }
 
@@ -2925,7 +3790,7 @@
 
       room.requests.forEach(function(req) {
         var item = document.createElement('div');
-        item.className = "bg-gray-800/90 border border-gray-700 rounded-xl p-4 space-y-2";
+        item.className = "bg-gray-900/90 border border-gray-700 rounded-2xl p-4 space-y-2";
         item.innerHTML = 
           '<div class="flex items-center justify-between">' +
             '<div class="flex items-center gap-2">' +
@@ -2934,13 +3799,13 @@
             '</div>' +
             '<span class="text-xs text-gray-500 font-mono">' + req.createdAt + '</span>' +
           '</div>' +
-          '<div class="text-sm text-pink-300 font-bold bg-gray-900/60 p-2 rounded-lg">' +
+          '<div class="text-sm text-pink-300 font-bold bg-gray-950/70 p-2.5 rounded-xl">' +
             '요청 내용: <span class="text-white">' + req.scoreVal + '</span>' +
           '</div>' +
           (req.reason ? '<div class="text-xs text-gray-400">사유: ' + req.reason + '</div>' : '') +
           '<div class="flex gap-2 pt-2">' +
-            '<button type="button" class="btn-approve flex-1 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold transition cursor-pointer">승인 완료</button>' +
-            '<button type="button" class="btn-reject flex-1 py-1.5 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-lg text-xs font-bold transition cursor-pointer">반려 (거절)</button>' +
+            '<button type="button" class="btn-approve flex-1 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-bold transition cursor-pointer">승인 완료</button>' +
+            '<button type="button" class="btn-reject flex-1 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-xl text-xs font-bold transition cursor-pointer">반려 (거절)</button>' +
           '</div>';
 
         item.querySelector('.btn-approve').addEventListener('click', function() {
@@ -2971,9 +3836,9 @@
 
       var req = room.requests[reqIndex];
       if (isApproved) {
-        alert(req.member + '님의 점수 수정 요청이 승인되었습니다. 해당 게임 탭에서 직접 수정해 적용하세요!');
+        showToast(req.member + '님의 요청 승인됨! 해당 게임 탭에서 점수를 반영하세요.', 'success');
       } else {
-        alert(req.member + '님의 점수 수정 요청이 반려되었습니다.');
+        showToast(req.member + '님의 점수 수정 요청이 반려되었습니다.', 'info');
       }
 
       room.requests.splice(reqIndex, 1);
@@ -3040,7 +3905,6 @@
           var hasAny = false;
           var tourneyStage = 0;
 
-          // 1) 토너먼트 사다리에서 승/패 및 진출 단계 계산
           if (bMode === 'tournament' && Array.isArray(game.tournamentRounds)) {
             game.tournamentRounds.forEach(function(rnd, rIdx) {
               (rnd.matches || []).forEach(function(mt) {
@@ -3059,7 +3923,6 @@
             });
           }
 
-          // 2) 리그전 매치업에서 승/패 계산
           if (bMode === 'league' && Array.isArray(game.leagueMatches)) {
             game.leagueMatches.forEach(function(mt) {
               if (!mt.winner) return;
@@ -3073,7 +3936,6 @@
             });
           }
 
-          // 3) 개별 세트 수동 승/패 기록도 합산
           sets.forEach(function(s) {
             var st = gameScores[s.id] ? gameScores[s.id][m] : null;
             if (st === 'win') { wins++; hasAny = true; }
@@ -3189,12 +4051,13 @@
 
     function toggleStopwatch() {
       var btn = document.getElementById('btn-sw-toggle');
+      triggerHaptic(15);
       if (!stopwatchRunning) {
         stopwatchRunning = true;
         stopwatchStartTime = Date.now() - stopwatchElapsed;
         if (btn) {
           btn.innerText = '⏸ 일시정지';
-          btn.className = 'px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
+          btn.className = 'px-4 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
         }
         stopwatchInterval = setInterval(function() {
           stopwatchElapsed = Date.now() - stopwatchStartTime;
@@ -3206,7 +4069,7 @@
         clearInterval(stopwatchInterval);
         if (btn) {
           btn.innerText = '▶ 타이머 시작';
-          btn.className = 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
+          btn.className = 'px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
         }
       }
     }
@@ -3220,7 +4083,7 @@
       var btn = document.getElementById('btn-sw-toggle');
       if (btn) {
         btn.innerText = '▶ 타이머 시작';
-        btn.className = 'px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
+        btn.className = 'px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-black shadow cursor-pointer';
       }
     }
 
@@ -3229,10 +4092,11 @@
       if (!room || !canManageRoom(room)) return;
       var sec = Number((stopwatchElapsed / 1000).toFixed(2));
       if (sec <= 0) {
-        alert('먼저 스톱워치 타이머를 측정해주세요!');
+        showToast('먼저 스톱워치 타이머를 측정해주세요!', 'warn');
         return;
       }
       updateSetScore(gameId, setId, member, sec);
+      showToast(member + ' 님에게 ' + sec + '초 기록이 적용되었습니다!', 'success');
     }
 
     // 생존/탈락형 원터치 탈락 순서 자동 배정
@@ -3243,7 +4107,6 @@
       if (!room.scores[gameId][setId]) room.scores[gameId][setId] = {};
 
       var setScores = room.scores[gameId][setId];
-      // 이미 탈락 순위가 있으면 생존 상태로 복구
       if (setScores[member]) {
         delete setScores[member];
         saveData();
@@ -3251,19 +4114,22 @@
         return;
       }
 
-      // 아직 순위가 정해지지 않은 인원 중 가장 낮은 등수(첫 탈락자 = 전체 인원수 등수)부터 자동 부여
       var usedRanks = Object.keys(setScores).map(function(k) { return Number(setScores[k]); }).filter(function(n) { return !isNaN(n) && n > 0; });
       var nextRank = room.members.length;
       while (usedRanks.indexOf(nextRank) !== -1 && nextRank > 1) {
         nextRank--;
       }
       setScores[member] = nextRank;
+      triggerHaptic(22);
 
-      // 만약 남은 생존자가 딱 1명뿐이라면 그 1명에게 자동으로 1등(최종 생존) 부여!
       var survivors = room.members.filter(function(m) { return !setScores[m]; });
       if (survivors.length === 1) {
         setScores[survivors[0]] = 1;
         playRandomFanfare();
+        if (window.confetti) {
+          confetti({ particleCount: 65, spread: 75, origin: { y: 0.65 }, zIndex: 10001 });
+        }
+        showToast('👑 [' + survivors[0] + '] 님이 최후의 생존 1위를 차지했습니다!', 'gold');
       } else if (nextRank === 1) {
         playRandomFanfare();
       }
@@ -3279,6 +4145,7 @@
         room.scores[gameId][setId] = {};
         saveData();
         renderAll();
+        showToast('전원 생존 상태로 초기화되었습니다.', 'info');
       }
     }
 
@@ -3303,13 +4170,13 @@
       }
 
       var card = document.createElement('div');
-      card.className = "bg-gray-900/95 rounded-2xl border " + (!editable ? 'border-gray-800' : 'border-cyan-500/30') + " p-5 md:p-6 shadow-2xl space-y-5";
+      card.className = "glass-card rounded-2xl sm:rounded-3xl border " + (!editable ? 'border-gray-800' : 'border-cyan-500/35') + " p-4 sm:p-6 shadow-2xl space-y-5";
 
       var typeBadge = '';
-      if (game.type === 'points') typeBadge = '<span class="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-xs font-bold">🎯 점수 집계형 (퀵 가감점 & MVP)</span>';
-      else if (game.type === 'winloss') typeBadge = '<span class="px-2.5 py-1 bg-pink-500/20 text-pink-300 border border-pink-500/30 rounded-lg text-xs font-bold">⚔️ 승패/격투 대진표</span>';
-      else if (game.type === 'elimination') typeBadge = '<span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-xs font-bold">🪵 생존/탈락 서바이벌</span>';
-      else if (game.type === 'time') typeBadge = '<span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-bold">⏱️ 타임어택 & 스톱워치</span>';
+      if (game.type === 'points') typeBadge = '<span class="px-2.5 py-1 bg-blue-500/20 text-blue-300 border border-blue-500/30 rounded-lg text-[11px] sm:text-xs font-bold">🎯 점수 집계형</span>';
+      else if (game.type === 'winloss') typeBadge = '<span class="px-2.5 py-1 bg-pink-500/20 text-pink-300 border border-pink-500/30 rounded-lg text-[11px] sm:text-xs font-bold">⚔️ 승패/격투 대진표</span>';
+      else if (game.type === 'elimination') typeBadge = '<span class="px-2.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] sm:text-xs font-bold">🪵 생존/탈락 서바이벌</span>';
+      else if (game.type === 'time') typeBadge = '<span class="px-2.5 py-1 bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 rounded-lg text-[11px] sm:text-xs font-bold">⏱️ 타임어택 & 스톱워치</span>';
 
       var gameResult = calculateGamePoints(room, game);
 
@@ -3317,19 +4184,24 @@
       var topHeader = document.createElement('div');
       topHeader.className = "flex flex-wrap items-center justify-between gap-3 border-b border-gray-800 pb-4";
 
+      var rpTable = game.rpTable || { 1: 10, 2: 7, 3: 5, others: 1 };
+      var rpSummaryHtml = (game.type === 'points' && game.calcMethod === 'raw_score')
+        ? '<span class="text-[11px] text-amber-300 font-semibold">점수 합산 그대로 종합 반영</span>'
+        : ('<span class="text-[11px] text-gray-400">🥇 ' + rpTable[1] + 'RP · 🥈 ' + rpTable[2] + 'RP · 🥉 ' + rpTable[3] + 'RP</span>');
+
       var subDesc = (game.type === 'winloss') 
         ? '상하 대진표 및 리그전 매치업으로 승패 자동 집계' 
-        : ('총 ' + game.sets.length + '개 세트/라운드 진행 중');
+        : ('총 ' + game.sets.length + '개 세트 진행 중 • ' + rpSummaryHtml);
 
       var leftHeader = document.createElement('div');
       leftHeader.className = "flex items-center gap-3";
       leftHeader.innerHTML = 
-        '<div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-300 flex items-center justify-center font-bold text-lg shadow">' +
+        '<div class="w-11 h-11 rounded-2xl bg-cyan-500/20 border border-cyan-500/30 text-cyan-300 flex items-center justify-center font-bold text-lg shadow flex-shrink-0">' +
           '<i data-lucide="gamepad-2" class="w-5 h-5"></i>' +
         '</div>' +
         '<div>' +
-          '<h3 class="font-bold text-white text-xl flex items-center gap-2.5 flex-wrap">' + game.name + ' ' + typeBadge + '</h3>' +
-          '<span class="text-xs text-gray-400">' + subDesc + '</span>' +
+          '<h3 class="font-black text-white text-lg sm:text-xl flex items-center gap-2 flex-wrap">' + game.name + ' ' + typeBadge + '</h3>' +
+          '<div class="text-xs text-gray-400 mt-0.5">' + subDesc + '</div>' +
         '</div>';
       topHeader.appendChild(leftHeader);
 
@@ -3337,12 +4209,11 @@
       rightActions.className = "flex items-center gap-2";
 
       if (editable) {
-        // 격투/승패형(winloss)은 대진표에서 바로 승패를 가르므로 불필요한 세트 추가 버튼을 숨김!
         if (game.type !== 'winloss') {
           var addSetBtn = document.createElement('button');
           addSetBtn.type = 'button';
-          addSetBtn.className = "px-3.5 py-2 bg-purple-600/30 hover:bg-purple-600/50 text-purple-200 border border-purple-500/40 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer";
-          addSetBtn.innerHTML = '<i data-lucide="plus" class="w-4 h-4"></i> 세트/라운드 추가';
+          addSetBtn.className = "px-3.5 py-2.5 bg-purple-600/35 hover:bg-purple-600/55 text-purple-200 border border-purple-500/45 rounded-xl text-xs font-extrabold transition flex items-center gap-1.5 cursor-pointer active:scale-95";
+          addSetBtn.innerHTML = '<i data-lucide="plus" class="w-4 h-4"></i> 세트 추가';
           addSetBtn.addEventListener('click', function() {
             addNewSetToGame(game.id);
           });
@@ -3351,7 +4222,7 @@
 
         var delGameBtn = document.createElement('button');
         delGameBtn.type = 'button';
-        delGameBtn.className = "text-gray-500 hover:text-red-400 p-2 transition cursor-pointer";
+        delGameBtn.className = "text-gray-500 hover:text-red-400 p-2 rounded-xl hover:bg-gray-800 transition cursor-pointer";
         delGameBtn.title = "게임 탭 삭제";
         delGameBtn.innerHTML = '<i data-lucide="trash-2" class="w-4 h-4"></i>';
         delGameBtn.addEventListener('click', function() {
@@ -3363,9 +4234,7 @@
       topHeader.appendChild(rightActions);
       card.appendChild(topHeader);
 
-      // =========================================================================
-      // [특성화 요소 1]: ⚔️ 격투/승패형 (상하 방향 수직 사다리 토너먼트 & 풀리그전, 하단 세트 스코어 제거!)
-      // =========================================================================
+      // [특성화 요소 1]: ⚔️ 격투/승패형
       if (game.type === 'winloss') {
         if (!game.battleMode) game.battleMode = 'tournament';
         if (!game.tournamentRounds || game.tournamentRounds.length === 0) {
@@ -3376,18 +4245,18 @@
         }
 
         var battleContainer = document.createElement('div');
-        battleContainer.className = "bg-gradient-to-br from-pink-950/30 via-gray-900 to-purple-950/30 border border-pink-500/40 rounded-2xl p-4 md:p-5 space-y-4 shadow-xl";
+        battleContainer.className = "bg-gradient-to-br from-pink-950/30 via-gray-900/90 to-purple-950/30 border border-pink-500/40 rounded-2xl p-3.5 sm:p-5 space-y-4 shadow-xl";
 
         var bTopBar = document.createElement('div');
-        bTopBar.className = "flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-pink-500/20";
+        bTopBar.className = "flex flex-wrap items-center justify-between gap-2.5 pb-3 border-b border-pink-500/20";
 
         var modeSwitch = document.createElement('div');
-        modeSwitch.className = "flex items-center gap-1.5 bg-gray-950 p-1 rounded-xl border border-gray-800";
+        modeSwitch.className = "flex items-center gap-1 bg-gray-950 p-1 rounded-xl border border-gray-800";
 
         var btnModeTourney = document.createElement('button');
         btnModeTourney.type = 'button';
-        btnModeTourney.className = "px-3 py-1.5 rounded-lg text-xs font-black transition cursor-pointer " + (game.battleMode === 'tournament' ? 'bg-pink-600 text-white shadow' : 'text-gray-400 hover:text-white');
-        btnModeTourney.innerHTML = '🪜 상하 토너먼트 대진표';
+        btnModeTourney.className = "px-3 py-2 rounded-lg text-xs font-black transition cursor-pointer " + (game.battleMode === 'tournament' ? 'bg-pink-600 text-white shadow' : 'text-gray-400 hover:text-white');
+        btnModeTourney.innerHTML = '🪜 상하 토너먼트';
         btnModeTourney.addEventListener('click', function() {
           if (editable) {
             game.battleMode = 'tournament';
@@ -3398,7 +4267,7 @@
 
         var btnModeLeague = document.createElement('button');
         btnModeLeague.type = 'button';
-        btnModeLeague.className = "px-3 py-1.5 rounded-lg text-xs font-black transition cursor-pointer " + (game.battleMode === 'league' ? 'bg-cyan-600 text-white shadow' : 'text-gray-400 hover:text-white');
+        btnModeLeague.className = "px-3 py-2 rounded-lg text-xs font-black transition cursor-pointer " + (game.battleMode === 'league' ? 'bg-cyan-600 text-white shadow' : 'text-gray-400 hover:text-white');
         btnModeLeague.innerHTML = '🔄 리그전 / 풀리그';
         btnModeLeague.addEventListener('click', function() {
           if (editable) {
@@ -3418,14 +4287,14 @@
 
           if (game.battleMode === 'tournament') {
             var sizeSelect = document.createElement('select');
-            sizeSelect.className = "px-2.5 py-1.5 bg-gray-900 border border-amber-400/60 text-amber-300 rounded-xl text-xs font-black cursor-pointer focus:outline-none";
+            sizeSelect.className = "px-2.5 py-2 bg-gray-900 border border-amber-400/60 text-amber-300 rounded-xl text-xs font-black cursor-pointer focus:outline-none";
             sizeSelect.title = "토너먼트 강수 규모 선택 (중복 참가 허용)";
             var sizeOptions = [
-              { val: 'auto', label: '🏟️ 자동 (' + room.members.length + '명 기준)' },
-              { val: '4', label: '🏟️ 4강 (중복참가)' },
-              { val: '8', label: '🏟️ 8강 (중복참가)' },
-              { val: '16', label: '🏟️ 16강 (중복참가)' },
-              { val: '32', label: '🏟️ 32강 (중복참가)' }
+              { val: 'auto', label: '🏟️ 자동 (' + room.members.length + '명)' },
+              { val: '4', label: '🏟️ 4강' },
+              { val: '8', label: '🏟️ 8강' },
+              { val: '16', label: '🏟️ 16강' },
+              { val: '32', label: '🏟️ 32강' }
             ];
             var curBSize = (game.bracketSize && game.bracketSize !== 'auto') ? String(game.bracketSize) : 'auto';
             sizeOptions.forEach(function(opt) {
@@ -3443,8 +4312,8 @@
 
           var btnShuffle = document.createElement('button');
           btnShuffle.type = 'button';
-          btnShuffle.className = "px-3 py-1.5 bg-amber-400 hover:bg-amber-300 text-gray-950 rounded-xl text-xs font-black shadow transition flex items-center gap-1 cursor-pointer active:scale-95";
-          btnShuffle.innerHTML = '🎲 대진표 랜덤 섞기';
+          btnShuffle.className = "px-3 py-2 bg-amber-400 hover:bg-amber-300 text-gray-950 rounded-xl text-xs font-black shadow transition flex items-center gap-1 cursor-pointer active:scale-95";
+          btnShuffle.innerHTML = '🎲 랜덤 섞기';
           btnShuffle.addEventListener('click', function() {
             shuffleBattleBracket(game.id);
           });
@@ -3453,8 +4322,8 @@
           if (game.battleMode === 'league') {
             var btnFullLeague = document.createElement('button');
             btnFullLeague.type = 'button';
-            btnFullLeague.className = "px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer active:scale-95";
-            btnFullLeague.innerHTML = '🔄 풀리그 전체 생성';
+            btnFullLeague.className = "px-3 py-2 bg-cyan-600 hover:bg-cyan-500 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer active:scale-95";
+            btnFullLeague.innerHTML = '🔄 풀리그 생성';
             btnFullLeague.addEventListener('click', function() {
               resetFullLeagueMatches(game.id);
             });
@@ -3462,8 +4331,8 @@
 
             var btnAddMatch = document.createElement('button');
             btnAddMatch.type = 'button';
-            btnAddMatch.className = "px-3 py-1.5 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer active:scale-95";
-            btnAddMatch.innerHTML = '➕ 1:1 대진 추가';
+            btnAddMatch.className = "px-3 py-2 bg-pink-600 hover:bg-pink-500 text-white rounded-xl text-xs font-bold shadow transition cursor-pointer active:scale-95";
+            btnAddMatch.innerHTML = '➕ 1:1 추가';
             btnAddMatch.addEventListener('click', function() {
               addCustomLeagueMatch(game.id);
             });
@@ -3475,7 +4344,6 @@
 
         battleContainer.appendChild(bTopBar);
 
-        // MODE A: 🪜 상하 방향(수직 피라미드/사다리) 토너먼트 대진표 (하단 32강/16강/8강/4강 -> 상단 결승 & 최종 우승 챔피언!)
         if (game.battleMode === 'tournament') {
           var firstRoundSlots = (game.tournamentRounds[0] && game.tournamentRounds[0].matches)
             ? (game.tournamentRounds[0].matches.length * 2)
@@ -3494,7 +4362,6 @@
           var ladderWrap = document.createElement('div');
           ladderWrap.className = "bracket-vertical-wrapper";
 
-          // 1) 최상단: 👑 최종 우승 챔피언 왕좌 박스
           var lastRound = game.tournamentRounds[game.tournamentRounds.length - 1];
           var finalMatch = (lastRound && lastRound.matches && lastRound.matches[0]) ? lastRound.matches[0] : null;
           var champName = (finalMatch && finalMatch.winner) ? finalMatch.winner : '결승 대기 중';
@@ -3513,7 +4380,6 @@
             '</div>';
           ladderWrap.appendChild(champTier);
 
-          // 2) 결승전부터 1라운드(32강/16강/8강/4강)까지 위에서 아래(상하 피라미드 방향)로 배치
           for (var rIdx = game.tournamentRounds.length - 1; rIdx >= 0; rIdx--) {
             (function(roundIndex) {
               var roundObj = game.tournamentRounds[roundIndex];
@@ -3587,7 +4453,6 @@
 
           battleContainer.appendChild(ladderWrap);
         } else {
-          // MODE B: 🔄 리그전 / 풀리그 매치업 리스트 뷰
           var lGuide = document.createElement('div');
           lGuide.className = "text-xs text-gray-300";
           lGuide.innerHTML = '💡 각 매치에서 승리한 선수를 터치하면 <b>🏆 승 / 💀 패</b>가 즉시 기록됩니다 (무승부 없음).';
@@ -3633,7 +4498,7 @@
             if (editable) {
               var delM = document.createElement('button');
               delM.type = 'button';
-              delM.className = "text-gray-500 hover:text-red-400 text-xs px-1 cursor-pointer";
+              delM.className = "text-gray-500 hover:text-red-400 text-xs px-1.5 py-1 cursor-pointer";
               delM.innerText = "✕";
               delM.addEventListener('click', function() {
                 deleteLeagueMatch(game.id, mt.id);
@@ -3650,12 +4515,10 @@
         card.appendChild(battleContainer);
       }
 
-      // =========================================================================
       // [특성화 요소 2]: ⏱️ 타임어택 전용 실시간 디지털 스톱워치 위젯
-      // =========================================================================
       if (game.type === 'time' && editable) {
         var swBanner = document.createElement('div');
-        swBanner.className = "bg-gradient-to-r from-emerald-950/50 via-gray-900 to-teal-950/50 border border-emerald-500/40 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-4 shadow-lg";
+        swBanner.className = "bg-gradient-to-r from-emerald-950/60 via-gray-900 to-teal-950/60 border border-emerald-500/45 rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg";
         swBanner.innerHTML = 
           '<div class="flex items-center gap-3">' +
             '<div class="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-2xl">⏱️</div>' +
@@ -3665,26 +4528,23 @@
             '</div>' +
           '</div>' +
           '<div class="flex items-center gap-2">' +
-            '<button id="btn-sw-toggle" type="button" onclick="toggleStopwatch()" class="px-4 py-2 ' + (stopwatchRunning ? 'bg-rose-600' : 'bg-emerald-600 hover:bg-emerald-500') + ' text-white rounded-xl text-xs font-black shadow cursor-pointer">' + (stopwatchRunning ? '⏸ 일시정지' : '▶ 타이머 시작') + '</button>' +
-            '<button type="button" onclick="resetStopwatch()" class="px-3 py-2 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-bold border border-gray-700 cursor-pointer">🔄 리셋</button>' +
+            '<button id="btn-sw-toggle" type="button" onclick="toggleStopwatch()" class="px-4 py-2.5 ' + (stopwatchRunning ? 'bg-rose-600' : 'bg-emerald-600 hover:bg-emerald-500') + ' text-white rounded-xl text-xs font-black shadow cursor-pointer active:scale-95 transition">' + (stopwatchRunning ? '⏸ 일시정지' : '▶ 타이머 시작') + '</button>' +
+            '<button type="button" onclick="resetStopwatch()" class="px-3.5 py-2.5 bg-gray-800 hover:bg-gray-700 text-gray-300 rounded-xl text-xs font-bold border border-gray-700 cursor-pointer active:scale-95 transition">🔄 리셋</button>' +
           '</div>';
         card.appendChild(swBanner);
       }
 
-      // =========================================================================
-      // [세트/라운드 컨테이너]: 격투/승패형(winloss)이 아닐 때만 표시!
-      // =========================================================================
+      // [세트/라운드 컨테이너]
       if (game.type !== 'winloss') {
         var setsWrapper = document.createElement('div');
         setsWrapper.className = "space-y-4 pt-1";
 
         game.sets.forEach(function(setObj, sIndex) {
           var setBox = document.createElement('div');
-          setBox.className = "bg-gray-800/60 border border-gray-700/70 rounded-2xl p-4 space-y-3 shadow";
+          setBox.className = "glass-subcard border border-gray-700/70 rounded-2xl p-3.5 sm:p-4 space-y-3 shadow";
 
           var setScores = (room.scores[game.id] && room.scores[game.id][setObj.id]) ? room.scores[game.id][setObj.id] : {};
 
-          // 점수 집계형일 때 현재 세트 최고 득점자(MVP) 계산
           var maxSetPts = null;
           if (game.type === 'points') {
             room.members.forEach(function(m) {
@@ -3701,8 +4561,8 @@
           setHeader.className = "flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-gray-300 pb-2 border-b border-gray-700/60";
           setHeader.innerHTML = 
             '<div class="flex items-center gap-2">' +
-              '<span class="px-2.5 py-1 bg-gray-700 rounded-lg text-pink-300 font-mono font-bold">' + (sIndex + 1) + ' SET</span>' +
-              '<span class="text-white text-sm">' + setObj.name + (game.type === 'elimination' ? ' (탈락한 순서대로 터치하면 순위 자동 부여!)' : '') + '</span>' +
+              '<span class="px-2.5 py-1 bg-pink-500/20 border border-pink-500/30 rounded-lg text-pink-300 font-mono font-extrabold">' + (sIndex + 1) + ' SET</span>' +
+              '<span class="text-white text-sm font-extrabold">' + setObj.name + (game.type === 'elimination' ? ' (탈락한 순서대로 터치하면 순위 자동 부여!)' : '') + '</span>' +
             '</div>';
 
           var setRightBtns = document.createElement('div');
@@ -3712,11 +4572,20 @@
             var resetElimBtn = document.createElement('button');
             resetElimBtn.type = 'button';
             resetElimBtn.className = "px-2.5 py-1 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 rounded-lg text-xs font-bold cursor-pointer";
-            resetElimBtn.innerText = "🔄 전원 생존으로 리셋";
+            resetElimBtn.innerText = "🔄 전원 생존 리셋";
             resetElimBtn.addEventListener('click', function() {
               resetEliminationSet(game.id, setObj.id);
             });
             setRightBtns.appendChild(resetElimBtn);
+          } else if (editable) {
+            var resetSetBtn = document.createElement('button');
+            resetSetBtn.type = 'button';
+            resetSetBtn.className = "px-2 py-1 bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 rounded-lg text-[11px] font-bold cursor-pointer";
+            resetSetBtn.innerText = "초기화";
+            resetSetBtn.addEventListener('click', function() {
+              resetSetScores(game.id, setObj.id);
+            });
+            setRightBtns.appendChild(resetSetBtn);
           }
 
           if (editable && game.sets.length > 1) {
@@ -3739,29 +4608,34 @@
           room.members.forEach(function(member) {
             var curVal = setScores[member] !== undefined ? setScores[member] : '';
             var isMvp = (game.type === 'points' && maxSetPts !== null && curVal !== '' && Number(curVal) === maxSetPts && maxSetPts > 0);
+            var mRes = gameResult[member];
+            var rankBadge = '';
+            if (mRes && mRes.rank === 1) rankBadge = '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-400/20 text-amber-300 font-black">🥇 1위</span>';
+            else if (mRes && mRes.rank === 2) rankBadge = '<span class="text-[10px] px-1.5 py-0.5 rounded bg-slate-400/20 text-slate-300 font-bold">🥈 2위</span>';
+            else if (mRes && mRes.rank === 3) rankBadge = '<span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-700/25 text-amber-400 font-bold">🥉 3위</span>';
 
             var memItem = document.createElement('div');
-            memItem.className = "bg-gray-900/90 border " + (isMvp ? 'border-amber-400 shadow-[0_0_15px_rgba(250,204,21,0.25)]' : 'border-gray-700/70') + " rounded-xl p-3 flex flex-col justify-between gap-2.5 shadow";
+            memItem.className = "bg-gray-950/85 border " + (isMvp ? 'border-amber-400 shadow-[0_0_16px_rgba(250,204,21,0.25)]' : 'border-gray-800') + " rounded-xl p-3 flex flex-col justify-between gap-2.5 shadow";
 
             var topRow = document.createElement('div');
             topRow.className = "flex items-center justify-between gap-2";
 
             var nameSpan = document.createElement('span');
-            nameSpan.className = "text-sm font-bold text-white truncate flex items-center gap-1.5";
-            nameSpan.innerHTML = member + (isMvp ? ' <span class="text-[10px] px-1.5 py-0.5 bg-amber-400 text-gray-950 rounded font-black">🔥 최고기록</span>' : '');
+            nameSpan.className = "text-sm font-extrabold text-white truncate flex items-center gap-1.5";
+            nameSpan.innerHTML = member + rankBadge + (isMvp ? ' <span class="text-[10px] px-1.5 py-0.5 bg-amber-400 text-gray-950 rounded font-black">🔥 MVP</span>' : '');
             topRow.appendChild(nameSpan);
 
             var inputWidget = document.createElement('div');
 
             if (editable) {
               if (game.type === 'points') {
-                // 점수 집계형: 직접 입력 + 원터치 퀵 가감점 버튼 바
                 inputWidget.className = "flex items-center gap-1";
                 var inPts = document.createElement('input');
                 inPts.type = 'number';
+                inPts.inputMode = 'decimal';
                 inPts.value = curVal;
                 inPts.placeholder = '0';
-                inPts.className = "w-20 px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-amber-300 text-sm text-center font-black font-mono focus:border-pink-500 focus:outline-none";
+                inPts.className = "w-20 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-amber-300 text-base sm:text-sm text-center font-black font-mono focus:border-pink-500 focus:outline-none";
                 inPts.addEventListener('change', function() {
                   updateSetScore(game.id, setObj.id, member, this.value);
                 });
@@ -3773,17 +4647,17 @@
                 topRow.appendChild(inputWidget);
                 memItem.appendChild(topRow);
 
-                // 퀵 가감점 버튼 바 (+1, +5, +10, +50, -5)
                 var quickBar = document.createElement('div');
-                quickBar.className = "grid grid-cols-5 gap-1 pt-1 border-t border-gray-800";
+                quickBar.className = "grid grid-cols-5 gap-1.5 pt-1.5 border-t border-gray-800/80";
                 [-5, -1, 1, 5, 10].forEach(function(delta) {
                   var qBtn = document.createElement('button');
                   qBtn.type = 'button';
-                  qBtn.className = "py-1 rounded-md text-[11px] font-extrabold transition cursor-pointer active:scale-95 " + 
-                    (delta > 0 ? 'bg-cyan-950/80 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/30' : 'bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-500/30');
+                  qBtn.className = "py-1.5 rounded-lg text-xs font-extrabold transition cursor-pointer active:scale-90 " + 
+                    (delta > 0 ? 'bg-cyan-950/90 hover:bg-cyan-900 text-cyan-300 border border-cyan-500/35' : 'bg-rose-950/70 hover:bg-rose-900 text-rose-300 border border-rose-500/35');
                   qBtn.innerText = (delta > 0 ? '+' + delta : delta);
                   qBtn.addEventListener('click', function() {
                     var base = (curVal !== '' && !isNaN(Number(curVal))) ? Number(curVal) : 0;
+                    triggerHaptic(10);
                     updateSetScore(game.id, setObj.id, member, base + delta);
                   });
                   quickBar.appendChild(qBtn);
@@ -3791,12 +4665,11 @@
                 memItem.appendChild(quickBar);
 
               } else if (game.type === 'elimination') {
-                // 생존/탈락형: 원터치 생존/탈락 버튼 + 순위 직접 선택
                 var isOut = (curVal !== '' && curVal !== undefined);
                 var isWinner1 = (Number(curVal) === 1);
 
                 var selEl = document.createElement('select');
-                selEl.className = "px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-white text-xs font-bold focus:outline-none cursor-pointer";
+                selEl.className = "px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-white text-xs font-bold focus:outline-none cursor-pointer";
                 var opt0 = document.createElement('option');
                 opt0.value = '';
                 opt0.innerText = '🟢 생존 중';
@@ -3816,8 +4689,8 @@
 
                 var outBtn = document.createElement('button');
                 outBtn.type = 'button';
-                outBtn.className = "w-full py-1.5 rounded-lg text-xs font-black transition cursor-pointer active:scale-95 " + 
-                  (isWinner1 ? 'bg-amber-500 text-gray-950 shadow' : (isOut ? 'bg-gray-800 text-rose-400 border border-rose-500/40' : 'bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow'));
+                outBtn.className = "w-full py-2 rounded-xl text-xs font-black transition cursor-pointer active:scale-95 " + 
+                  (isWinner1 ? 'bg-amber-400 text-gray-950 shadow' : (isOut ? 'bg-gray-800 text-rose-400 border border-rose-500/40' : 'bg-gradient-to-r from-amber-600 to-rose-600 text-white shadow'));
                 outBtn.innerText = isWinner1 ? '👑 최종 생존 1위! (클릭 시 해제)' : (isOut ? ('💀 ' + curVal + '위 기록됨 (클릭 시 복구)') : '🪵 탈락(OUT) 터치! (순위 자동부여)');
                 outBtn.addEventListener('click', function() {
                   triggerEliminationOut(game.id, setObj.id, member);
@@ -3825,16 +4698,16 @@
                 memItem.appendChild(outBtn);
 
               } else if (game.type === 'time') {
-                // 타임어택형: 초 입력 + 스톱워치 측정값 원터치 적용 버튼
                 inputWidget.className = "flex items-center gap-1";
                 var inTime = document.createElement('input');
                 inTime.type = 'number';
+                inTime.inputMode = 'decimal';
                 inTime.step = '0.01';
                 inTime.value = curVal;
                 inTime.placeholder = '0.00';
-                inTime.className = "w-20 px-2 py-1 bg-gray-800 border border-gray-700 rounded-lg text-emerald-300 text-sm text-center font-black font-mono focus:border-emerald-500 focus:outline-none";
+                inTime.className = "w-20 px-2 py-1.5 bg-gray-900 border border-gray-700 rounded-lg text-emerald-300 text-base sm:text-sm text-center font-black font-mono focus:border-emerald-500 focus:outline-none";
                 inTime.addEventListener('change', function() {
-                  updateSetScore(game.id, setObj.id, member, this.value);
+                  updateSetScore(game.id, setId, member, this.value);
                 });
                 inputWidget.appendChild(inTime);
                 var unitSec = document.createElement('span');
@@ -3846,7 +4719,7 @@
 
                 var applySwBtn = document.createElement('button');
                 applySwBtn.type = 'button';
-                applySwBtn.className = "w-full py-1.5 bg-emerald-950/80 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 rounded-lg text-[11px] font-bold transition cursor-pointer active:scale-95";
+                applySwBtn.className = "w-full py-2 bg-emerald-950/85 hover:bg-emerald-900 border border-emerald-500/40 text-emerald-300 rounded-xl text-[11px] font-bold transition cursor-pointer active:scale-95";
                 applySwBtn.innerText = "⏱️ 현재 스톱워치 초 가져오기";
                 applySwBtn.addEventListener('click', function() {
                   applyStopwatchToMember(game.id, setObj.id, member);
@@ -3855,7 +4728,6 @@
               }
 
             } else {
-              // READ ONLY
               var valDisplay = '-';
               if (curVal !== undefined && curVal !== '') {
                 if (game.type === 'points') valDisplay = curVal + '점';
@@ -3880,26 +4752,26 @@
 
       // Game Total Standings & Earned RP for this specific game
       var summaryRow = document.createElement('div');
-      summaryRow.className = "bg-gradient-to-r from-purple-950/40 to-gray-900 border border-purple-500/40 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4";
+      summaryRow.className = "bg-gradient-to-r from-purple-950/50 to-gray-900/90 border border-purple-500/40 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-3";
       
       var sumTitle = document.createElement('div');
-      sumTitle.className = "text-sm font-bold text-purple-200 flex items-center gap-2";
+      sumTitle.className = "text-xs sm:text-sm font-extrabold text-purple-200 flex items-center gap-2";
       sumTitle.innerHTML = '<i data-lucide="award" class="w-5 h-5 text-amber-400"></i> [' + game.name + '] 종목 종합 결과 (RP 승점 반영)';
       summaryRow.appendChild(sumTitle);
 
       var sumScoresList = document.createElement('div');
-      sumScoresList.className = "flex flex-wrap items-center gap-2.5 text-xs md:text-sm";
+      sumScoresList.className = "flex flex-wrap items-center justify-center md:justify-end gap-2 text-xs md:text-sm";
 
       room.members.forEach(function(m) {
         var res = gameResult[m];
         var rpText = (res ? res.earnedRP : 0) + ' RP';
 
         var badgeItem = document.createElement('div');
-        badgeItem.className = "px-3 py-1.5 bg-gray-900/90 border border-gray-700/80 rounded-xl flex items-center gap-2 shadow";
+        badgeItem.className = "px-3 py-1.5 bg-gray-950/90 border border-gray-700/80 rounded-xl flex items-center gap-1.5 shadow";
         badgeItem.innerHTML = 
           '<span class="font-bold text-white">' + m + ':</span>' +
           '<span class="text-cyan-300 font-mono font-semibold">' + (res ? res.displayVal : '-') + '</span>' +
-          '<span class="text-pink-400 font-bold font-mono">(' + rpText + ')</span>';
+          '<span class="text-pink-400 font-extrabold font-mono">(' + rpText + ')</span>';
         sumScoresList.appendChild(badgeItem);
       });
 
@@ -3925,7 +4797,7 @@
       renderAll();
     }
 
-    // LEADERBOARD RENDER
+    // LEADERBOARD RENDER (올림픽 2-1-3 포디움 + RP 게이지 바 + 1위 역전 감지)
     function renderLeaderboard(room) {
       var totalStats = room.members.map(function(member) {
         var totalRP = 0;
@@ -3953,48 +4825,65 @@
         totalStats[i].rank = rank;
       }
 
-      // Podium (모바일 3열 한눈에 보기 최적화)
+      var maxRP = (totalStats.length > 0 && totalStats[0].totalRP > 0) ? totalStats[0].totalRP : 1;
+
+      // 1위 선두 변경(역전) 감지 알림
+      if (totalStats.length > 0 && totalStats[0].totalRP > 0) {
+        var currentTopName = totalStats[0].member;
+        if (lastKnownLeaderName && lastKnownLeaderName !== currentTopName && room.status !== 'completed') {
+          showToast('🔥 역전 발생! [' + currentTopName + '] 님이 종합 1위로 올라섰습니다!', 'gold');
+          if (window.confetti) {
+            confetti({ particleCount: 40, spread: 60, origin: { y: 0.5 }, zIndex: 10001 });
+          }
+        }
+        lastKnownLeaderName = currentTopName;
+      }
+
+      // Podium (모바일 & 데스크톱 2위 - 1위 - 3위 올림픽 포디움 배치!)
       var podium = document.getElementById('podium-container');
       podium.innerHTML = '';
 
       var top3 = totalStats.slice(0, 3);
-      top3.forEach(function(item) {
+      top3.forEach(function(item, idx) {
         var card = document.createElement('div');
         var rankClass = "rank-1";
         var badge = "🥇";
-        var rankColor = "text-amber-400";
-        if (item.rank === 2) {
+        var rankColor = "text-amber-300";
+        var orderClass = "order-2 min-h-[145px] sm:min-h-[185px]";
+        if (idx === 1) {
           rankClass = "rank-2";
           badge = "🥈";
-          rankColor = "text-slate-300";
-        } else if (item.rank === 3) {
+          rankColor = "text-slate-200";
+          orderClass = "order-1 min-h-[128px] sm:min-h-[162px]";
+        } else if (idx === 2) {
           rankClass = "rank-3";
           badge = "🥉";
-          rankColor = "text-amber-600";
+          rankColor = "text-amber-500";
+          orderClass = "order-3 min-h-[120px] sm:min-h-[152px]";
         }
 
         var isWinner = (room.status === 'completed' && item.rank === 1);
 
-        card.className = rankClass + " p-2.5 sm:p-5 rounded-xl sm:rounded-2xl flex flex-col justify-between bg-gray-900/95 relative overflow-hidden text-center sm:text-left";
+        card.className = rankClass + " " + orderClass + " p-2.5 sm:p-5 rounded-2xl flex flex-col justify-between relative overflow-hidden text-center sm:text-left transition-transform";
         card.innerHTML = 
           '<div class="flex flex-col sm:flex-row items-center justify-between mb-1.5 sm:mb-3 gap-1">' +
-            '<span class="text-2xl sm:text-3xl leading-none">' + badge + '</span>' +
-            '<span class="text-[10px] sm:text-xs uppercase font-extrabold px-1.5 py-0.5 bg-black/40 rounded-md text-gray-200 truncate max-w-full">' + 
+            '<span class="text-2xl sm:text-4xl leading-none drop-shadow">' + badge + '</span>' +
+            '<span class="text-[10px] sm:text-xs uppercase font-black px-2 py-0.5 bg-black/45 rounded-full text-gray-100 truncate max-w-full border border-white/10">' + 
               (isWinner ? '🏆 우승' : item.rank + '위') + 
             '</span>' +
           '</div>' +
           '<div>' +
             '<div class="text-sm sm:text-2xl font-black text-white truncate">' + item.member + '</div>' +
-            '<div class="text-[10px] sm:text-xs text-gray-400 mt-0.5 hidden sm:block">' + item.gamesPlayed + '개 종목 승점 획득</div>' +
+            '<div class="text-[10px] sm:text-xs text-gray-300 mt-0.5 hidden sm:block">' + item.gamesPlayed + '개 종목 승점 획득</div>' +
           '</div>' +
-          '<div class="mt-2 sm:mt-4 pt-1.5 sm:pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center sm:items-baseline justify-between">' +
-            '<span class="text-[10px] sm:text-xs text-gray-400 hidden sm:inline">종합 승점</span>' +
+          '<div class="mt-2 sm:mt-4 pt-1.5 sm:pt-3 border-t border-white/15 flex flex-col sm:flex-row items-center sm:items-baseline justify-between">' +
+            '<span class="text-[10px] sm:text-xs text-gray-300 hidden sm:inline">종합 승점</span>' +
             '<span class="text-lg sm:text-3xl font-game ' + rankColor + ' leading-tight">' + item.totalRP + ' <span class="text-[10px] sm:text-xs font-sans text-gray-300">RP</span></span>' +
           '</div>';
         podium.appendChild(card);
       });
 
-      // Leaderboard Table (모바일 가로 스크롤 제거 & 컴팩트 행)
+      // Leaderboard Table (모바일 가로 스크롤 제거 & RP 게이지 바 시각화)
       var tbody = document.getElementById('leaderboard-table-body');
       tbody.innerHTML = '';
 
@@ -4003,25 +4892,35 @@
         row.className = "hover:bg-white/5 transition";
 
         var badgeHtml = '<span class="font-bold text-gray-400 text-xs sm:text-sm">' + item.rank + '등</span>';
-        if (item.rank === 1) badgeHtml = '<span class="px-1.5 sm:px-2.5 py-0.5 bg-amber-500/25 text-amber-300 border border-amber-500/40 rounded-md font-bold text-xs sm:text-sm">1등 👑</span>';
-        else if (item.rank === 2) badgeHtml = '<span class="px-1.5 sm:px-2.5 py-0.5 bg-slate-400/25 text-slate-300 border border-slate-400/40 rounded-md font-bold text-xs sm:text-sm">2등 🥈</span>';
-        else if (item.rank === 3) badgeHtml = '<span class="px-1.5 sm:px-2.5 py-0.5 bg-amber-700/25 text-amber-500 border border-amber-700/40 rounded-md font-bold text-xs sm:text-sm">3등 🥉</span>';
+        if (item.rank === 1) badgeHtml = '<span class="px-2 sm:px-2.5 py-0.5 bg-amber-500/25 text-amber-300 border border-amber-500/45 rounded-lg font-black text-xs sm:text-sm">1등 👑</span>';
+        else if (item.rank === 2) badgeHtml = '<span class="px-2 sm:px-2.5 py-0.5 bg-slate-400/25 text-slate-200 border border-slate-400/40 rounded-lg font-bold text-xs sm:text-sm">2등 🥈</span>';
+        else if (item.rank === 3) badgeHtml = '<span class="px-2 sm:px-2.5 py-0.5 bg-amber-700/25 text-amber-400 border border-amber-700/40 rounded-lg font-bold text-xs sm:text-sm">3등 🥉</span>';
 
         var status = '<span class="text-gray-400">추격중 🔥</span>';
         if (room.status === 'completed') {
-          status = (item.rank === 1) ? '<span class="text-amber-400 font-bold">🏆 우승</span>' : '<span class="text-gray-400">완주</span>';
+          status = (item.rank === 1) ? '<span class="text-amber-300 font-black">🏆 우승</span>' : '<span class="text-gray-400">완주</span>';
         } else if (item.rank === 1 && item.totalRP > 0) {
-          status = '<span class="text-amber-400 font-bold">선두 🚀</span>';
+          status = '<span class="text-amber-300 font-black">선두 🚀</span>';
         } else if (item.rank === totalStats.length && totalStats.length > 2) {
-          status = '<span class="text-rose-400 font-medium">벌칙위기 💀</span>';
+          status = '<span class="text-rose-400 font-semibold">벌칙위기 💀</span>';
         }
 
+        var pct = item.totalRP > 0 ? Math.max(8, Math.round((item.totalRP / maxRP) * 100)) : 0;
+        var barColor = item.rank === 1
+          ? 'from-amber-400 to-yellow-300'
+          : (item.rank === 2 ? 'from-cyan-400 to-blue-400' : 'from-pink-500 to-purple-500');
+
         row.innerHTML = 
-          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 whitespace-nowrap">' + badgeHtml + '</td>' +
-          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 font-bold text-white text-sm sm:text-base truncate max-w-[100px] sm:max-w-none">' + item.member + '</td>' +
-          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 text-pink-400 font-game text-lg sm:text-2xl text-right sm:text-left whitespace-nowrap">' + item.totalRP + ' <span class="text-[10px] sm:text-xs font-sans text-gray-400">RP</span></td>' +
-          '<td class="py-2.5 sm:py-3.5 px-3 text-gray-400 text-xs sm:text-sm hidden sm:table-cell">' + item.gamesPlayed + ' / ' + (room.games ? room.games.length : 0) + ' 종목</td>' +
-          '<td class="py-2.5 sm:py-3.5 px-2 sm:px-4 text-[11px] sm:text-xs font-medium text-right sm:text-left whitespace-nowrap">' + status + '</td>';
+          '<td class="py-3 sm:py-3.5 px-2 sm:px-4 whitespace-nowrap">' + badgeHtml + '</td>' +
+          '<td class="py-3 sm:py-3.5 px-2 sm:px-4">' +
+            '<div class="font-extrabold text-white text-sm sm:text-base truncate max-w-[115px] sm:max-w-none">' + item.member + '</div>' +
+            '<div class="w-24 sm:w-36 h-1.5 bg-gray-800 rounded-full overflow-hidden mt-1">' +
+              '<div class="h-full bg-gradient-to-r ' + barColor + ' rounded-full transition-all duration-500" style="width:' + pct + '%"></div>' +
+            '</div>' +
+          '</td>' +
+          '<td class="py-3 sm:py-3.5 px-2 sm:px-4 text-pink-400 font-game text-lg sm:text-2xl text-right sm:text-left whitespace-nowrap">' + item.totalRP + ' <span class="text-[10px] sm:text-xs font-sans text-gray-400">RP</span></td>' +
+          '<td class="py-3 sm:py-3.5 px-3 text-gray-400 text-xs sm:text-sm hidden sm:table-cell">' + item.gamesPlayed + ' / ' + (room.games ? room.games.length : 0) + ' 종목</td>' +
+          '<td class="py-3 sm:py-3.5 px-2 sm:px-4 text-[11px] sm:text-xs font-bold text-right sm:text-left whitespace-nowrap">' + status + '</td>';
 
         tbody.appendChild(row);
       });
@@ -4033,6 +4932,7 @@
         localStorage.removeItem(HOST_SESSION_KEY);
         appData = { rooms: [] };
         initApp();
+        showToast('모든 로컬 데이터가 초기화되었습니다.', 'info');
       }
     }
 
