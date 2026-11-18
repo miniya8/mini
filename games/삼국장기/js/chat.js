@@ -41,9 +41,7 @@ if(d.k==='meteor'){meteorFire(d.by||side2(me));return true}
 if(d.k==='alien'){alienFire(d.by||side2(me));return true}
 if(d.k==='kame'){kameFire(d.by||side2(me));return true}
 if(d.k==='kame2'){kame2Fire(d.by||side2(me),d.sd);return true}
-if(d.k==='fist'){fistFire(d.by||side2(me),d.sd);return true}
-if(d.k==='hammer'){hammerFire(d.by||side2(me),d.sd);return true}
-if(d.k==='gun'){gunFire(d.by||side2(me),d.sd);return true}
+if(d.k==='warlord'){if(window.warlordPunishFire)window.warlordPunishFire(d.by||side2(me),d.wid||window.JG_OPP_WARLORD,d.sd);return true}
 if(d.k==='sdraw'){if(d.s)specStrokes.push(Object.assign({},d.s,{t0:performance.now()}));return true}
 if(d.k==='dmg_sync'&&d.DMG){window.DMG={c:+d.DMG.c||0,h:+d.DMG.h||0};rzK='';try{resize()}catch(e){}return true}
 if(d.k==='bd_sync'&&typeof d.idx==='number'){if(window.pickRandomBoard)window.pickRandomBoard(d.idx);return true}
@@ -85,13 +83,13 @@ el('xrd').style.display='flex'};
 el('xrc').onclick=()=>el('xrd').style.display='none';
 const SW=['아 진짜 답답해 죽겠네!!','이 느림보야 빨리 둬라 ㅅㅂ!!','장기 두다 날 새겠다 ㅅㅂ!!','손이 없냐 발이 없냐!! 빨리 둬!!','야 ㅅㅂ 잠들었냐!! 빨리 둬라!!','아 뭐하냐고 진짜 ㅅㅂ!!'];
 let punishCnt=0;
-function updPunishBtn(){const pb=el('xpbar'),ct=el('xpcnt');if(!pb)return;if(inGame&&!over&&!isSpec&&punishCnt>0){pb.style.display='flex';if(ct)ct.textContent='(보유: '+punishCnt+'회)'}else{pb.style.display='none'}}
+function updPunishBtn(){const pb=el('xpbar'),ct=el('xpcnt');if(!pb)return;if(window.updateWarlordPunishBtn)try{window.updateWarlordPunishBtn()}catch(e){}if(inGame&&!over&&!isSpec&&punishCnt>0){pb.style.display='flex';if(ct)ct.textContent='(보유: '+punishCnt+'회)'}else{pb.style.display='none'}}
 window.jgTO=function(s){if(over||!inGame)return;if(cfg.mode!=='mp'&&s!==me)return;const n=++TO[s];xsave();try{commTO(s,n)}catch(e){}const t=el('xto'),m=el('xtm'),f=el('xfl');
 m.textContent=n==1?'⏰ 시간초과!!':SW[(n-2)%SW.length];m.className=n==1?'':'xsm';el('xts').textContent=nm(s)+'나라 시간초과 '+n+'회';
 try{const r=cv.getBoundingClientRect();t.style.left=(r.left+OX+4*CX)+'px';t.style.top=(r.top+OY+4.5*CY)+'px'}catch(e){}
 t.style.display='flex';[t,f].forEach(x=>{x.classList.remove('xgo');void x.offsetWidth;x.classList.add('xgo')});try{boom();snd('clash',3)}catch(e){}
 if(!isSpec&&s!==me){punishCnt++;updPunishBtn();toast('⚡ 상대가 시간초과했습니다! 우측/하단 [응징 발동] 버튼으로 랜덤 공격을 날리세요!',3800)}
-else if(cfg.mode==='ai'&&s===me){setTimeout(()=>{if(!inGame||over||nkBusy)return;const sk=['nuke','meteor','alien','kame','kame2','fist','hammer','gun'][Math.random()*8|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(sk==='fist')fistFire(side2(me));else if(sk==='hammer')hammerFire(side2(me));else gunFire(side2(me))},1200)}};
+else if(cfg.mode==='ai'&&s===me){setTimeout(()=>{if(!inGame||over||nkBusy)return;const sk=['nuke','meteor','alien','kame','kame2','warlord'][Math.random()*6|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(window.warlordPunishFire)window.warlordPunishFire(side2(me),window.JG_OPP_WARLORD)},1200)}};
 el('xto').onanimationend=()=>{el('xto').style.display='none'};
 const EN=[],EH=[],EM=new Set(),eb=el('xemo');
 function emoSlot(){return inGame&&!over&&cfg.time>0&&tleft/cfg.time<.4&&(cfg.mode==='mp'||turn===me)}
@@ -116,7 +114,7 @@ if(vc&&vc.t==='R'&&pc&&pc.s!==vc.s){
     toast('🔥 상대 차(車)를 잡았습니다! 응징 파괴 스킬 1회 충전!',3200);
   }else if(cfg.mode==='ai'&&pc.s!==me){
     sysLog('😱 AI가 내 차(車)를 포획하여 응징 스킬을 발동합니다!','xs xr');
-    setTimeout(()=>{if(!inGame||over)return;const sk=['nuke','meteor','alien','kame','kame2','fist','hammer','gun'][Math.random()*8|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(sk==='fist')fistFire(side2(me));else if(sk==='hammer')hammerFire(side2(me));else gunFire(side2(me))},900);
+    setTimeout(()=>{if(!inGame||over)return;const sk=['nuke','meteor','alien','kame','kame2','warlord'][Math.random()*6|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(window.warlordPunishFire)window.warlordPunishFire(side2(me),window.JG_OPP_WARLORD)},900);
   }
 }}catch(e){}UH.push(snap(turn));if(UH.length>40)UH.shift();xsave();if(UI){UI=null;el('xcf').style.display='none';toast('상대가 수를 두어 무르기 요청이 취소됐어요',2500)}}return _dm.apply(this,arguments)};
 const _pl=play;play=function(){if(UQ){toast('무르기 응답을 기다리는 중이에요',2000);return}return _pl.apply(this,arguments)};
@@ -1822,7 +1820,8 @@ function kame2(A,seed){
 function kame2Fire(A,sd){try{comm(fill(pick(CB.kame2,'k2'+Date.now()%97),{A:tag(A),V:tag(side2(A))}),'nuke',.3)}catch(e){}kame2(A,sd)}
 
 /* ---- 응징 스킬(핵폭탄 / 메테오 / 외계인 / 에네르기파 / 에네르기파 2 / 주먹 / 망치 / 총격) 직접 선택 발동 버튼 ---- */
-['xp_nuke','xp_meteor','xp_alien','xp_kame','xp_kame2','xp_fist','xp_hammer','xp_gun'].forEach(id=>{
+window.jgPunishBusy=v=>{if(typeof v==='boolean')nkBusy=v;return nkBusy};
+['xp_nuke','xp_meteor','xp_alien','xp_kame','xp_kame2','xp_warlord'].forEach(id=>{
   const b=el(id);if(!b)return;
   b.onpointerdown=ev=>ev.preventDefault();
   b.onclick=()=>{
@@ -1831,15 +1830,13 @@ function kame2Fire(A,sd){try{comm(fill(pick(CB.kame2,'k2'+Date.now()%97),{A:tag(
     if(nkBusy)return toast('이미 공격 이펙트가 진행 중이에요!',1500);
     const sk=b.getAttribute('data-sk'),sd=(Date.now()^(Math.random()*0x7fffffff))>>>0;
     punishCnt--;updPunishBtn();
-    if(cfg.mode==='mp')snd2({k:sk,by:me,sd});
+    if(cfg.mode==='mp')snd2(sk==='warlord'?{k:'warlord',by:me,wid:window.JG_MY_WARLORD,sd}:{k:sk,by:me,sd});
     if(sk==='nuke')nukeFire(me);
     else if(sk==='meteor')meteorFire(me);
     else if(sk==='alien')alienFire(me);
     else if(sk==='kame')kameFire(me);
     else if(sk==='kame2')kame2Fire(me,sd);
-    else if(sk==='fist')fistFire(me,sd);
-    else if(sk==='hammer')hammerFire(me,sd);
-    else if(sk==='gun')gunFire(me,sd);
+    else if(sk==='warlord'&&window.warlordPunishFire)window.warlordPunishFire(me,window.JG_MY_WARLORD,sd);
   };
 });
 
@@ -2123,13 +2120,87 @@ function drawCampDamage(g,side,lv,debrisOnly){
         g.beginPath();mid2.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
 
         // 최심부 코어 (스킬 속성별 잔류 열기/에너지)
-        const cCol = sk==='alien'?'#00e676':sk==='hammer'?'#80d8ff':sk==='fist'?'#ff5252':'#ff6d00';
+        const cCol = sk==='alien'?'#00e676':sk==='hammer'||sk==='warlord_sunquan'?'#38bdf8':sk==='warlord_simayi'?'#818cf8':sk==='warlord_liubei'?'#10b981':sk==='warlord_lvbu'?'#d946ef':sk==='warlord_zhuge'?'#fde047':sk==='warlord_caocao'||sk==='fist'?'#f43f5e':'#ff6d00';
         const lg=g.createRadialGradient(cx,cy+dir*C*.07,1,cx,cy+dir*C*.07,rx*0.36);
         lg.addColorStop(0,cCol);
         lg.addColorStop(0.55,'#2b0902');
         lg.addColorStop(1,'#080301');
         g.fillStyle=lg;
         g.beginPath();deep.forEach(([x,y],i)=>i?g.lineTo(x,y):g.moveTo(x,y));g.closePath();g.fill();
+
+        // 군주별 고유 공격 형태에 따른 특화 파손 흔적 오버레이
+        if(sk==='warlord_zhuge'){
+          // 제갈량(백우선 공명빔 + 팔괘): 8방향 팔괘 방사형 직선 균열
+          g.strokeStyle='rgba(253, 224, 71, 0.72)';
+          g.lineWidth=1.4;
+          for(let k=0;k<8;k++){
+            const a=(k*Math.PI)/4;
+            g.beginPath();
+            g.moveTo(cx+Math.cos(a)*rx*0.35,cy+Math.sin(a)*ry*0.35);
+            g.lineTo(cx+Math.cos(a)*rx*1.45,cy+Math.sin(a)*ry*1.45);
+            g.stroke();
+          }
+        }else if(sk==='warlord_sunquan'){
+          // 손권(고정도 수압 검기): 3중 평행 초승달 단층 절단 참격홈
+          for(let sIdx=-1;sIdx<=1;sIdx++){
+            const off=sIdx*C*0.26;
+            g.strokeStyle='#071926';
+            g.lineWidth=3.6;
+            g.beginPath();
+            g.moveTo(cx-rx*1.25+off,cy-ry*0.75-off*0.5);
+            g.quadraticCurveTo(cx+off,cy-off*0.2,cx+rx*1.25+off,cy+ry*0.75-off*0.5);
+            g.stroke();
+            g.strokeStyle='rgba(56, 189, 248, 0.85)';
+            g.lineWidth=1.3;
+            g.stroke();
+          }
+        }else if(sk==='warlord_caocao'){
+          // 조조(분신 검무 난무 봉황난무): 6방향 교차 성형(星形) 참격 흉터
+          for(let k=0;k<3;k++){
+            const a=-0.5+k*1.05;
+            g.strokeStyle='#14060a';
+            g.lineWidth=3.4;
+            g.beginPath();
+            g.moveTo(cx-Math.cos(a)*rx*1.35,cy-Math.sin(a)*ry*1.35);
+            g.lineTo(cx+Math.cos(a)*rx*1.35,cy+Math.sin(a)*ry*1.35);
+            g.stroke();
+            g.strokeStyle='rgba(244, 63, 94, 0.82)';
+            g.lineWidth=1.2;
+            g.stroke();
+          }
+        }else if(sk==='warlord_liubei'){
+          // 유비(자웅일대검 쌍검 연격): 나란히 파인 2중 평행 쌍검 절단선
+          [-C*0.14, C*0.14].forEach((off, idx)=>{
+            g.strokeStyle='#051b11';
+            g.lineWidth=3.5;
+            g.beginPath();
+            g.moveTo(cx-rx*1.2+off,cy-ry*0.8);
+            g.lineTo(cx+rx*1.2+off,cy+ry*0.8);
+            g.stroke();
+            g.strokeStyle=idx===0?'rgba(16, 185, 129, 0.85)':'rgba(253, 224, 71, 0.85)';
+            g.lineWidth=1.2;
+            g.stroke();
+          });
+        }else if(sk==='warlord_lvbu'){
+          // 여포(방천화극 전방위 지진 충격파): 초대형 외곽 파쇄 링 & 거대 균열
+          g.strokeStyle='rgba(217, 70, 239, 0.78)';
+          g.lineWidth=2.0;
+          g.beginPath();
+          g.ellipse(cx,cy,rx*1.35,ry*1.35,0,0,Math.PI*2);
+          g.stroke();
+        }else if(sk==='warlord_simayi'){
+          // 사마의(우선 중력파 & 연쇄 뇌전): 동심원 중력 함몰 링 + 주변 4방위 연쇄 감전 소분화구
+          g.strokeStyle='rgba(129, 140, 248, 0.82)';
+          g.lineWidth=1.6;
+          g.beginPath();g.ellipse(cx,cy,rx*0.72,ry*0.72,0,0,Math.PI*2);g.stroke();
+          for(let s=0;s<4;s++){
+            const sa=s*Math.PI*0.5+0.4;
+            const sx=cx+Math.cos(sa)*rx*1.25, sy=cy+Math.sin(sa)*ry*1.25;
+            g.fillStyle='#0b0f29';
+            g.beginPath();g.arc(sx,sy,C*0.13,0,Math.PI*2);g.fill();
+            g.strokeStyle='#38bdf8';g.lineWidth=1.1;g.stroke();
+          }
+        }
       }
       g.restore();
     });

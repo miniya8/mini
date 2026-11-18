@@ -112,9 +112,13 @@
     alien:  { pal: 'green', flame: true, tint: 'g', life: 11, n0: 8,  rad: 1.9, r: .44, spread: false, maxN: 22, smoke: .5,  bubbles: true, arcs: true, scorch: 1.9, pieces: true, pr: 2.3, txt: ['👽 지지직!', '🛸 광선 직격!', '☣️ 녹아내린다!'], col: '150,255,120' },
     kame:   { pal: 'blue',  flame: true, tint: 'b', life: 10, n0: 7,  rad: 1.7, r: .44, spread: false, maxN: 18, smoke: .3,  arcs: true,    scorch: 1.7, pieces: true, pr: 2.1, txt: ['🐉 파앗!', '⚡ 에네르기 폭발!', '💥 기가 폭발한다!'], col: '120,200,255' },
     kame2:  { pal: 'blue',  flame: true, tint: 'b', life: 13, n0: 9,  rad: 2.3, r: .5,  spread: false, maxN: 24, smoke: .4,  arcs: true, line: 4, scorch: 2.3, pieces: true, pr: 2.7, txt: ['🌌 콰아앙!!', '💫 파괴 광선!', '⚡ 장기판이 갈라진다!'], col: '130,215,255' },
-    fist:   { pal: 'dust',  flame: false, life: 6, n0: 0, rad: 1.0, r: .34, spread: false, maxN: 0, smoke: .6, scorch: 0, pieces: false, pr: 0, txt: ['👊 퍽!', '💢 한 방!', '🥊 KO!'], col: '220,190,150' },
-    hammer: { pal: 'frost', life: 10, n0: 3,  rad: 1.4, r: .38, spread: false, maxN: 10, mist: true, scorch: 1.4, pieces: false, pr: 0, txt: ['🔨 쾅!', '🧊 얼어붙는다!', '⚡ 철퇴 직격!'], col: '170,225,255' },
-    gun:    { pal: 'spark', flame: false, life: 5, n0: 0, rad: .9, r: .28, spread: false, maxN: 0, smoke: .8, sparks: true, scorch: 0, pieces: false, pr: 0, txt: ['🔫 타다다!', '💥 명중!', '🎯 정조준!'], col: '255,215,120' }
+    warlord:         { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.5, r: .42, spread: false, maxN: 0, smoke: .35, scorch: 0, pieces: false, pr: 0, txt: ['💥 콰광!!', '⚔️ 군주 필살!', '🌪️ 진영 파쇄!'], col: '253,224,71' },
+    warlord_liubei:  { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.5, r: .42, spread: false, maxN: 0, smoke: .25, scorch: 0, pieces: false, pr: 0, txt: ['⚔️ 쌍검합벽!', '🐉 도원천공참!', '✨ 인의의 일격!'], col: '16,185,129' },
+    warlord_lvbu:    { pal: 'frost', flame: false, life: 8, n0: 0, rad: 1.8, r: .48, spread: false, maxN: 0, smoke: .45, scorch: 0, pieces: false, pr: 0, txt: ['⚡ 천하무쌍!', '🔱 방천귀신격!', '💥 대지 붕괴!'], col: '217,70,239' },
+    warlord_simayi:  { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.6, r: .44, spread: false, maxN: 0, smoke: .30, scorch: 0, pieces: false, pr: 0, txt: ['🐺 낭고빙결!', '❄️ 암영파쇄진!', '👁️ 천명 간파!'], col: '129,140,248' },
+    warlord_caocao:  { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.7, r: .45, spread: false, maxN: 0, smoke: .35, scorch: 0, pieces: false, pr: 0, txt: ['⚡ 패왕뇌전!', '⚔️ 천하호령!', '💥 위왕 강림!'], col: '248,113,113' },
+    warlord_sunquan: { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.6, r: .44, spread: false, maxN: 0, smoke: .30, scorch: 0, pieces: false, pr: 0, txt: ['🌊 파천노도!', '⚔️ 강동수군참!', '🌀 해일 강타!'], col: '56,189,248' },
+    warlord_zhuge:   { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.6, r: .44, spread: false, maxN: 0, smoke: .25, scorch: 0, pieces: false, pr: 0, txt: ['🌌 팔진천기!', '🪶 와룡성광포!', '✨ 천기누설!'], col: '253,224,71' }
   };
 
 
@@ -153,9 +157,21 @@
     kame2:  [['mid', 1, 0, 1.1], ['net', 3, 2.7, 1.1], ['small', 2, 2.1, .9]],
     fist:   [['mid', 1, 0, 1.05], ['net', 2, 1.7, .9]],
     hammer: [['net', 2, 0, 1.2], ['mid', 1, 1.3, .8], ['net', 2, 2.1, 1]],
-    gun:    [['small', 1, 0, .85]]
+    gun:    [['small', 1, 0, .85]],
+    warlord:         [['big', 1, 0, 0.95], ['mid', 2, 1.8, 0.9], ['net', 3, 2.4, 0.95]],
+    warlord_zhuge:   [['big', 1, 0, 0.95], ['net', 4, 2.4, 1.05], ['small', 4, 2.8, 0.9]],
+    warlord_sunquan: [['mid', 3, 1.4, 1.05], ['net', 3, 2.2, 1.0]],
+    warlord_caocao:  [['mid', 3, 1.6, 1.00], ['net', 4, 2.4, 1.05], ['small', 3, 2.6, 0.85]],
+    warlord_liubei:  [['mid', 2, 1.2, 1.00], ['net', 3, 2.1, 0.95], ['small', 2, 2.4, 0.85]],
+    warlord_lvbu:    [['big', 1, 0, 1.22], ['mid', 3, 2.3, 1.05], ['net', 5, 3.0, 1.10]],
+    warlord_simayi:  [['big', 1, 0, 0.92], ['small', 4, 2.2, 0.95], ['net', 3, 2.5, 1.00]]
   };
-  const HOTCOL = { nuke: '255,110,40', meteor: '255,100,35', alien: '120,255,110', kame: '110,190,255', kame2: '120,200,255', hammer: '200,235,255' };
+  const HOTCOL = {
+    nuke: '255,110,40', meteor: '255,100,35', alien: '120,255,110',
+    kame: '110,190,255', kame2: '120,200,255', hammer: '200,235,255',
+    warlord_zhuge: '253,224,71', warlord_sunquan: '56,189,248', warlord_caocao: '244,63,94',
+    warlord_liubei: '16,185,129', warlord_lvbu: '217,70,239', warlord_simayi: '129,140,248'
+  };
   function spawnCracks(side, sk, gx, gy, rot) {
     (CRACKSPEC[sk] || []).forEach(([cls, cnt, spread, scl]) => {
       for (let i = 0; i < cnt; i++) {
