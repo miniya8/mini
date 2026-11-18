@@ -1846,20 +1846,19 @@ function arena(a, b, tok, done){
 
     g.restore();
 
-    /* 필살기 컷인: 사선 띠 + 닉네임 + 기술 이름 */
+    /* 필살기 기술명 배너: 장수들의 공방을 가리지 않도록 하단 대화창 바로 위에 컴팩트 배치 */
     banners = banners.filter(q => t - q.t0 < q.dur);
     for(const q of banners){
       const u = (t - q.t0) / q.dur, inU = Math.min(1, u / .16), outU = u > .8 ? (u - .8) / .2 : 0, slide = (1 - Math.pow(1 - inU, 3)) * (1 - outU);
-      const fromL = q.who === 0, y0 = 90, hh = 34, off = (1 - slide) * (DW + 60) * (fromL ? -1 : 1);
-      g.save(); g.translate(off, 0); g.globalAlpha = .93 * (1 - outU * .6);
-      const gr = g.createLinearGradient(0, 0, DW, 0); gr.addColorStop(0, 'rgba(8,10,20,.88)'); gr.addColorStop(.5, 'rgba(20,12,24,.94)'); gr.addColorStop(1, 'rgba(8,10,20,.88)');
-      g.fillStyle = gr; g.beginPath(); g.moveTo(-20, y0 + 8); g.lineTo(DW + 20, y0 - 6); g.lineTo(DW + 20, y0 - 6 + hh); g.lineTo(-20, y0 + 8 + hh); g.closePath(); g.fill();
-      g.strokeStyle = q.col; g.lineWidth = 2.4; g.beginPath(); g.moveTo(-20, y0 + 8); g.lineTo(DW + 20, y0 - 6); g.moveTo(-20, y0 + 8 + hh); g.lineTo(DW + 20, y0 - 6 + hh); g.stroke();
-      g.globalAlpha = .35; g.strokeStyle = '#fff'; g.lineWidth = 1; for(let k = 0; k < 9; k++){ const yy = y0 - 4 + ((k * 13 + t * 400) % (hh + 10)); g.beginPath(); g.moveTo(((k * 71 + t * 700) % (DW + 80)) - 40, yy); g.lineTo(((k * 71 + t * 700) % (DW + 80)) + 30, yy - 1.2); g.stroke(); }
-      g.globalAlpha = 1; g.translate(DW / 2, y0 + hh / 2 + 1); g.rotate(-.0634);
-      const label = `${shortN(nameOf(q.who))}  ⚔  ${q.name}!!`; g.font = "italic 900 19px 'Malgun Gothic',sans-serif"; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
-      g.lineWidth = 5; g.strokeStyle = '#1a0500'; g.strokeText(label, 0, 0);
-      const tg = g.createLinearGradient(0, -10, 0, 10); tg.addColorStop(0, '#ffffff'); tg.addColorStop(.5, '#ffe38a'); tg.addColorStop(1, q.col); g.fillStyle = tg; g.fillText(label, 0, 0);
+      const fromL = q.who === 0, y0 = DH - 56, hh = 21, off = (1 - slide) * (DW + 60) * (fromL ? -1 : 1);
+      g.save(); g.translate(off, 0); g.globalAlpha = .92 * (1 - outU * .6);
+      const gr = g.createLinearGradient(14, 0, DW - 14, 0); gr.addColorStop(0, 'rgba(8,10,20,.88)'); gr.addColorStop(.5, 'rgba(20,12,24,.94)'); gr.addColorStop(1, 'rgba(8,10,20,.88)');
+      g.fillStyle = gr; rr(g, 14, y0, DW - 28, hh, 6); g.fill();
+      g.strokeStyle = q.col; g.lineWidth = 1.6; rr(g, 14, y0, DW - 28, hh, 6); g.stroke();
+      g.globalAlpha = 1; g.translate(DW / 2, y0 + hh / 2 + 0.5);
+      const label = `${shortN(nameOf(q.who))}  ⚔  ${q.name}!!`; g.font = "italic 900 13.5px 'Malgun Gothic',sans-serif"; g.textAlign = 'center'; g.textBaseline = 'middle'; g.lineJoin = 'round';
+      g.lineWidth = 4; g.strokeStyle = '#1a0500'; g.strokeText(label, 0, 0);
+      const tg = g.createLinearGradient(0, -8, 0, 8); tg.addColorStop(0, '#ffffff'); tg.addColorStop(.5, '#ffe38a'); tg.addColorStop(1, q.col); g.fillStyle = tg; g.fillText(label, 0, 0);
       g.restore();
     }
     /* 임팩트 프레임: 강타 순간 만화처럼 어두워졌다가 번쩍 */
