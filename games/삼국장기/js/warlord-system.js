@@ -1858,21 +1858,91 @@
       }
       .jg-wl-confirm:hover { transform: scale(1.03); }
 
+      /* 일기토 모달(#dc)이 군주 초상화로 인해 세로로 넘치지 않도록 컴팩트 & 반응형 정렬 */
+      #dc {
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 6px 10px !important;
+        overflow-y: auto !important;
+      }
+      #dc .card {
+        max-height: calc(100dvh - 14px) !important;
+        max-width: 450px !important;
+        width: 95vw !important;
+        padding: 10px 12px !important;
+        margin: auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        overflow-y: auto !important;
+        box-sizing: border-box !important;
+      }
+      #dc .card h2 {
+        font-size: clamp(14px, 3.6vw, 17px) !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
+      }
+      #dc #dp {
+        font-size: 11.5px !important;
+        margin: 0 !important;
+        line-height: 1.25 !important;
+      }
+      #dc #da {
+        width: 100% !important;
+        max-width: 410px !important;
+        height: auto !important;
+        max-height: min(29dvh, 195px) !important;
+        margin: 0 auto !important;
+        flex-shrink: 1 !important;
+      }
+      #dc .nm {
+        width: 100% !important;
+        max-width: 410px !important;
+        margin: 0 auto !important;
+        font-size: 12px !important;
+      }
+      #dc #dres {
+        min-height: 20px !important;
+        font-size: clamp(13px, 3.4vw, 16px) !important;
+        margin: 2px 0 !important;
+      }
+      #dc #dpk {
+        width: 100% !important;
+        max-width: 410px !important;
+        margin: 2px 0 !important;
+      }
+      #dc .card button {
+        padding: 7px 14px !important;
+        font-size: 14px !important;
+        margin: 1px 0 !important;
+      }
       #jg_duel_vs_bar {
-        display: flex; align-items: center; justify-content: space-between; gap: 8px;
-        max-width: 440px; margin: 0 auto 8px; padding: 8px 10px;
-        border-radius: 12px; background: rgba(15, 23, 42, 0.92);
-        border: 1.5px solid #d4af37;
+        display: flex; align-items: center; justify-content: space-between; gap: 6px;
+        width: 100%; max-width: 410px; margin: 0 auto 2px; padding: 4px 8px;
+        border-radius: 10px; background: rgba(15, 23, 42, 0.92);
+        border: 1.5px solid #d4af37; flex-shrink: 0;
       }
       .jg-duel-side {
-        flex: 1; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px;
+        flex: 1; min-width: 0; display: flex; flex-direction: row; align-items: center; gap: 7px; text-align: left;
+      }
+      .jg-duel-side.opp {
+        flex-direction: row-reverse; text-align: right;
       }
       .jg-duel-side img {
-        width: 42px; height: 42px; border-radius: 50%; object-fit: cover;
-        border: 2px solid #fde047; margin-bottom: 2px;
+        width: 34px; height: 34px; border-radius: 50%; object-fit: cover;
+        border: 1.5px solid #fde047; flex-shrink: 0;
       }
-      .jg-duel-side b { font-size: 13px; color: #fff; }
-      .jg-duel-side span { font-size: 10.5px; color: #fde047; font-weight: 700; }
+      .jg-duel-txt {
+        min-width: 0; display: flex; flex-direction: column; gap: 1px;
+      }
+      .jg-duel-side b {
+        font-size: 12px; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
+      .jg-duel-side span {
+        font-size: 10px; color: #fde047; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+      }
 
       #jg_warlord_panel {
         margin: 4px 0; padding: 7px 9px; border-radius: 10px;
@@ -2121,14 +2191,18 @@
       vsBar.innerHTML = `
         <div class="jg-duel-side">
           <img src="${getPortraitSrc(myW.id)}" ${getPortraitFallbackAttr(myW.id)} style="border-color:${myW.secondary};object-position:${getPortraitPos(myW.id)};">
-          <b>${myW.icon} ${myW.name} (${myW.hanja})</b>
-          <span>${myW.duelSkill}</span>
+          <div class="jg-duel-txt">
+            <b>${myW.icon} ${myW.name} (${myW.hanja})</b>
+            <span>${myW.duelSkill}</span>
+          </div>
         </div>
-        <div style="font-size:18px;font-weight:900;color:#fde047;padding:0 6px;">VS</div>
-        <div class="jg-duel-side">
+        <div style="font-size:14px;font-weight:900;color:#fde047;padding:0 3px;flex-shrink:0;">VS</div>
+        <div class="jg-duel-side opp">
           <img src="${getPortraitSrc(oppW.id)}" ${getPortraitFallbackAttr(oppW.id)} style="border-color:${oppW.secondary};object-position:${getPortraitPos(oppW.id)};">
-          <b>${oppW.icon} ${oppW.name} (${oppW.hanja})</b>
-          <span>${oppW.duelSkill}</span>
+          <div class="jg-duel-txt">
+            <b>${oppW.icon} ${oppW.name} (${oppW.hanja})</b>
+            <span>${oppW.duelSkill}</span>
+          </div>
         </div>
       `;
     }
@@ -2694,22 +2768,282 @@
   }
 
   /* --------------------------------------------------------------------------
-   * 12. 기존 게임 함수(startAI, begin, doMove, fin, end, onData, jgExtra, #dc 감시) 안전 후킹
+   * 12. 일기토 전 비중복 군주 선택(AI · 멀티 · 재대국) 및 게임 라이프사이클 후킹
    * -------------------------------------------------------------------------- */
+  const MP_DRAFT = {
+    active: false,
+    isHost: false,
+    myConfirmed: false,
+    oppConfirmed: false,
+    myId: null,
+    oppId: null,
+    oppHoverId: null,
+    onBothReady: null
+  };
+
+  function handleMpWarlordDraftPacket(d) {
+    if (!d || typeof d !== 'object') return false;
+
+    if (d.k === 'wl_draft_open') {
+      const ov = document.getElementById('ov');
+      if (ov) ov.style.display = 'none';
+      const inv = document.getElementById('inv_mdl');
+      if (inv) inv.style.display = 'none';
+      const rm = document.getElementById('rm');
+      if (rm) rm.style.display = 'none';
+      if (!MP_DRAFT.active) {
+        startMpWarlordDraft({ isHost: false });
+      }
+      return true;
+    }
+
+    if (d.k === 'wl_draft_hover' && d.id) {
+      MP_DRAFT.oppHoverId = d.id;
+      if (typeof window.__refreshWarlordDraftUi === 'function') {
+        window.__refreshWarlordDraftUi();
+      }
+      return true;
+    }
+
+    if (d.k === 'wl_draft_confirm' && d.id) {
+      // 동시 선택 충돌 시 방장(Host) 우선권으로 중복 차단
+      if (MP_DRAFT.myConfirmed && MP_DRAFT.myId === d.id && !MP_DRAFT.isHost) {
+        MP_DRAFT.myConfirmed = false;
+        MP_DRAFT.myId = null;
+        MP_DRAFT.oppConfirmed = true;
+        MP_DRAFT.oppId = d.id;
+        window.JG_OPP_WARLORD = d.id;
+        if (typeof toast === 'function') {
+          toast('⚠️ 상대방이 먼저 선택한 군주입니다! 다른 군주를 선택해 주세요.', 3200);
+        }
+        if (typeof window.__refreshWarlordDraftUi === 'function') {
+          window.__refreshWarlordDraftUi();
+        }
+        return true;
+      }
+
+      MP_DRAFT.oppConfirmed = true;
+      MP_DRAFT.oppId = d.id;
+      window.JG_OPP_WARLORD = d.id;
+
+      if (MP_DRAFT.isHost && MP_DRAFT.myConfirmed && MP_DRAFT.myId === d.id) {
+        if (typeof bcast === 'function') {
+          try { bcast({ k: 'wl_draft_confirm', id: MP_DRAFT.myId }); } catch (e) {}
+        }
+      }
+
+      if (typeof window.__refreshWarlordDraftUi === 'function') {
+        window.__refreshWarlordDraftUi();
+      }
+      checkBothMpWarlordsReady();
+      return true;
+    }
+
+    return false;
+  }
+
+  function checkBothMpWarlordsReady() {
+    if (!MP_DRAFT.active || !MP_DRAFT.myConfirmed || !MP_DRAFT.oppConfirmed) return;
+    if (!MP_DRAFT.myId || !MP_DRAFT.oppId || MP_DRAFT.myId === MP_DRAFT.oppId) return;
+
+    window.JG_MY_WARLORD = MP_DRAFT.myId;
+    window.JG_OPP_WARLORD = MP_DRAFT.oppId;
+    window.__JG_WARLORD_MATCH_READY__ = true;
+    MP_DRAFT.active = false;
+
+    const modal = document.getElementById('jg_wl_modal');
+    if (modal) modal.style.display = 'none';
+
+    if (typeof MP_DRAFT.onBothReady === 'function') {
+      const fn = MP_DRAFT.onBothReady;
+      MP_DRAFT.onBothReady = null;
+      fn();
+    }
+  }
+
+  function startMpWarlordDraft(opts = {}) {
+    MP_DRAFT.active = true;
+    MP_DRAFT.isHost = !!opts.isHost;
+    MP_DRAFT.myConfirmed = false;
+    MP_DRAFT.oppConfirmed = false;
+    MP_DRAFT.myId = null;
+    MP_DRAFT.oppId = null;
+    MP_DRAFT.oppHoverId = null;
+    MP_DRAFT.onBothReady = opts.onReady || null;
+
+    if (MP_DRAFT.isHost && typeof bcast === 'function') {
+      try { bcast({ k: 'wl_draft_open' }); } catch (e) {}
+    }
+
+    openPreDuelWarlordDraftModal({
+      mode: 'mp_draft',
+      onConfirm: (pickedId) => {
+        if (MP_DRAFT.oppConfirmed && MP_DRAFT.oppId === pickedId) {
+          if (typeof toast === 'function') {
+            toast('⚠️ 상대가 이미 선택한 군주입니다. 다른 군주를 선택해 주세요!', 2800);
+          }
+          return false;
+        }
+        MP_DRAFT.myConfirmed = true;
+        MP_DRAFT.myId = pickedId;
+        window.JG_MY_WARLORD = pickedId;
+        if (typeof bcast === 'function') {
+          try { bcast({ k: 'wl_draft_confirm', id: pickedId }); } catch (e) {}
+        }
+        checkBothMpWarlordsReady();
+        return 'keep_open_until_opp';
+      }
+    });
+  }
+
+  function openPreDuelWarlordDraftModal(opts = {}) {
+    window.openWarlordSelectModal(opts);
+    const modal = document.getElementById('jg_wl_modal');
+    const grid = document.getElementById('jg_wl_grid');
+    const subEl = document.getElementById('jg_wl_modal_sub');
+    if (!modal || !grid) return;
+
+    const isMpDraft = opts.mode === 'mp_draft';
+    const isAiMode = opts.mode === 'ai' || opts.mode === 'coach';
+    let currentPick = window.JG_MY_WARLORD || 'zhuge';
+
+    if (isMpDraft && MP_DRAFT.oppConfirmed && MP_DRAFT.oppId === currentPick) {
+      currentPick = pickDistinctAiWarlord(MP_DRAFT.oppId);
+    }
+    let previewAiOppId = isAiMode ? pickDistinctAiWarlord(currentPick) : null;
+
+    function refreshDraftUi() {
+      if (isMpDraft && MP_DRAFT.oppConfirmed && MP_DRAFT.oppId === currentPick && !MP_DRAFT.myConfirmed) {
+        currentPick = pickDistinctAiWarlord(MP_DRAFT.oppId);
+      }
+      if (isAiMode && (!previewAiOppId || previewAiOppId === currentPick)) {
+        previewAiOppId = pickDistinctAiWarlord(currentPick);
+      }
+
+      if (subEl) {
+        if (isMpDraft) {
+          subEl.textContent = MP_DRAFT.myConfirmed
+            ? '내 군주 확정 완료! 상대방이 중복되지 않는 군주를 선택하면 즉시 일기토가 시작됩니다…'
+            : '선공 결정 일기토 직전입니다! 출전할 군주를 선택하세요 (상대와 중복 선택 불가).';
+        } else if (isAiMode) {
+          const oppW = getWarlord(previewAiOppId);
+          subEl.textContent = `선공 결정 일기토 직전입니다! 출전할 군주를 선택하세요 (상대 AI: ${oppW.name} 출진 예정)`;
+        }
+      }
+
+      grid.querySelectorAll('.jg-wl-card').forEach(card => {
+        const wid = card.getAttribute('data-wl');
+        const lockedByOpp = isMpDraft && MP_DRAFT.oppConfirmed && MP_DRAFT.oppId === wid;
+        const lockedByAi = isAiMode && previewAiOppId === wid;
+        const isSelected = wid === currentPick;
+
+        card.classList.toggle('active', isSelected);
+        card.style.opacity = lockedByOpp ? '0.42' : '1';
+        card.style.filter = lockedByOpp ? 'grayscale(0.85)' : '';
+        card.style.pointerEvents = (lockedByOpp || (isMpDraft && MP_DRAFT.myConfirmed)) ? 'none' : 'auto';
+
+        let badge = card.querySelector('.jg-wl-dup-badge');
+        if (!badge) {
+          badge = document.createElement('div');
+          badge.className = 'jg-wl-dup-badge';
+          badge.style.cssText = 'position:absolute;top:8px;right:8px;padding:2px 8px;border-radius:999px;font-size:10.5px;font-weight:900;z-index:2;';
+          card.appendChild(badge);
+        }
+
+        if (lockedByOpp) {
+          badge.style.display = 'block';
+          badge.style.background = '#991b1b';
+          badge.style.color = '#fef08a';
+          badge.style.border = '1px solid #fca5a5';
+          badge.textContent = '🔒 상대 선택 (중복 불가)';
+        } else if (lockedByAi) {
+          badge.style.display = 'block';
+          badge.style.background = '#1e3a8a';
+          badge.style.color = '#93c5fd';
+          badge.style.border = '1px solid #60a5fa';
+          badge.textContent = '🤖 상대 AI 출진';
+        } else if (isSelected) {
+          badge.style.display = 'block';
+          badge.style.background = '#15803d';
+          badge.style.color = '#fef08a';
+          badge.style.border = '1px solid #86efac';
+          badge.textContent = '👑 내 선택 군주';
+        } else {
+          badge.style.display = 'none';
+        }
+
+        card.onclick = () => {
+          if (lockedByOpp || (isMpDraft && MP_DRAFT.myConfirmed)) return;
+          currentPick = wid;
+          if (isAiMode) previewAiOppId = pickDistinctAiWarlord(currentPick);
+          if (isMpDraft && typeof bcast === 'function') {
+            try { bcast({ k: 'wl_draft_hover', id: currentPick }); } catch (e) {}
+          }
+          playWarlordSfx('select');
+          refreshDraftUi();
+        };
+      });
+
+      const confirmBtn = document.getElementById('jg_wl_confirm_btn');
+      const selW = getWarlord(currentPick);
+      if (confirmBtn && selW) {
+        if (isMpDraft && MP_DRAFT.myConfirmed) {
+          confirmBtn.disabled = true;
+          confirmBtn.textContent = `⏳ ${selW.name} 확정 완료 · 상대 선택 대기 중…`;
+        } else {
+          confirmBtn.disabled = false;
+          confirmBtn.textContent = opts.previewOnly
+            ? '👑 이 군주로 기본 설정'
+            : `⚔️ ${selW.name} 선택 완료 · 일기토 출진!`;
+        }
+
+        confirmBtn.onclick = () => {
+          if (isMpDraft && MP_DRAFT.oppConfirmed && MP_DRAFT.oppId === currentPick) {
+            if (typeof toast === 'function') toast('⚠️ 상대가 이미 선택한 군주입니다! 다른 군주를 선택하세요.', 2800);
+            return;
+          }
+          window.JG_MY_WARLORD = currentPick;
+          if (isAiMode) {
+            window.JG_OPP_WARLORD = previewAiOppId || pickDistinctAiWarlord(currentPick);
+          }
+          try { localStorage.setItem('jg_selected_warlord', currentPick); } catch (e) {}
+          playWarlordSfx('action');
+          updateLobbyWarlordBadge();
+          window.updateWarlordPunishBtn();
+
+          if (typeof opts.onConfirm === 'function') {
+            const ret = opts.onConfirm(currentPick, window.JG_OPP_WARLORD);
+            if (ret === 'keep_open_until_opp') {
+              refreshDraftUi();
+              return;
+            }
+          }
+          modal.style.display = 'none';
+        };
+      }
+    }
+
+    window.__refreshWarlordDraftUi = refreshDraftUi;
+    refreshDraftUi();
+  }
+
   function hookGameLifecycle() {
     updateLobbyWarlordBadge();
     window.updateWarlordPunishBtn();
     initWarlordBoardFxLoop();
 
+    // 1) AI 대전 및 재대국 시작 시 일기토 전 군주 선택 모달 표시
     if (typeof window.startAI === 'function' && !window.startAI.__wlHooked) {
       const origStartAI = window.startAI;
       const wrappedStartAI = function(isCoach) {
         if (!window.__JG_WARLORD_MATCH_READY__) {
-          window.openWarlordSelectModal({
+          const ov = document.getElementById('ov');
+          if (ov) ov.style.display = 'none';
+          openPreDuelWarlordDraftModal({
             mode: isCoach ? 'coach' : 'ai',
-            onConfirm: (pickedId) => {
+            onConfirm: (pickedId, oppId) => {
               window.JG_MY_WARLORD = pickedId;
-              window.JG_OPP_WARLORD = pickDistinctAiWarlord(pickedId);
+              window.JG_OPP_WARLORD = (oppId && oppId !== pickedId) ? oppId : pickDistinctAiWarlord(pickedId);
               window.__JG_WARLORD_MATCH_READY__ = true;
               origStartAI.call(this, isCoach);
             }
@@ -2722,6 +3056,38 @@
       window.startAI = wrappedStartAI;
     }
 
+    // 2) 멀티 대전(최초 대국 및 대국 종료 후 재대국) 시 일기토 직전 양측 군주 선택 모달 표시
+    if (typeof window.hostStart === 'function' && !window.hostStart.__wlHooked) {
+      const origHostStart = window.hostStart;
+      const wrappedHostStart = function() {
+        if (typeof conn === 'undefined' || !conn || !conn.open) return;
+        const ov = document.getElementById('ov');
+        if (ov) ov.style.display = 'none';
+        const rm = document.getElementById('rm');
+        if (rm) rm.style.display = 'none';
+        startMpWarlordDraft({
+          isHost: true,
+          onReady: () => origHostStart.apply(this, arguments)
+        });
+      };
+      wrappedHostStart.__wlHooked = true;
+      window.hostStart = wrappedHostStart;
+    }
+
+    // 3) 대국 종료 후 [다시하기(#oa)] 버튼 보강: 종료 오버레이(#ov) 숨김 후 군주 선택 창을 먼저 띄움
+    const oaBtn = document.getElementById('oa');
+    if (oaBtn && !oaBtn.dataset.wlRematchHooked) {
+      oaBtn.dataset.wlRematchHooked = '1';
+      oaBtn.addEventListener('click', () => {
+        window.__JG_WARLORD_MATCH_READY__ = false;
+        const ov = document.getElementById('ov');
+        if (ov && typeof cfg !== 'undefined' && cfg.mode === 'ai') {
+          ov.style.display = 'none';
+        }
+      }, true);
+    }
+
+    // 4) 일기토 모달(#dc) 표시 감시: 스크롤을 최상단(0)으로 고정하여 잘림 없이 정중앙 노출
     const dc = document.getElementById('dc');
     if (dc && !dc.dataset.wlObserved) {
       dc.dataset.wlObserved = '1';
@@ -2732,6 +3098,8 @@
         if (rm) rm.style.display = 'none';
         const inv = document.getElementById('inv_mdl');
         if (inv) inv.style.display = 'none';
+        const ov = document.getElementById('ov');
+        if (ov) ov.style.display = 'none';
         if (typeof cfg === 'undefined' || cfg.mode !== 'mp') {
           if (!window.JG_OPP_WARLORD || window.JG_OPP_WARLORD === window.JG_MY_WARLORD) {
             window.JG_OPP_WARLORD = pickDistinctAiWarlord(window.JG_MY_WARLORD);
@@ -2740,10 +3108,14 @@
           try { bcast({ k: 'warlord_pick', id: window.JG_MY_WARLORD }); } catch (e) {}
         }
         enhanceDuelModalWithWarlords();
+        dc.scrollTop = 0;
+        const card = dc.querySelector('.card');
+        if (card) card.scrollTop = 0;
       });
       obs.observe(dc, { attributes: true, attributeFilter: ['style'] });
     }
 
+    // 5) 대국 시작(begin) 후킹: 다음 대국/재대국 시 군주 선택이 다시 열리도록 플래그 초기화
     if (typeof window.begin === 'function' && !window.begin.__wlHooked) {
       const origBegin = window.begin;
       const wrappedBegin = function(m, sc, sh, mode) {
@@ -2782,7 +3154,6 @@
 
         setTimeout(() => {
           if (isMp) {
-            // 멀티대전 시 게임 시작 멘트는 상대방의 군주 멘트로 표시
             const curOppW = getWarlord(window.JG_OPP_WARLORD);
             window.__JG_MP_START_QUOTE_SHOWN__ = curOppW.id;
             window.showWarlordCutin(curOppW.id, `적군 출진! (상대 군주: ${curOppW.name})`, curOppW.quotes.start, 4, m === 'h' ? 8 : 1, 1.5);
@@ -2841,6 +3212,7 @@
     if (typeof window.end === 'function' && !window.end.__wlHooked) {
       const origEnd = window.end;
       const wrappedEnd = function(wSide, msg) {
+        window.__JG_WARLORD_MATCH_READY__ = false;
         const res = origEnd.apply(this, arguments);
         if (wSide === 'c' || wSide === 'h') {
           const isMeWin = (typeof me !== 'undefined' && wSide === me);
@@ -2868,6 +3240,7 @@
     if (typeof window.onData === 'function' && !window.onData.__wlHooked) {
       const origOnData = window.onData;
       const wrappedOnData = function(d) {
+        if (handleMpWarlordDraftPacket(d)) return;
         if (d && (d.k === 'start' || d.k === 'ready' || d.k === 'inv_accept') && typeof bcast === 'function') {
           try { bcast({ k: 'warlord_pick', id: window.JG_MY_WARLORD }); } catch (e) {}
         }
@@ -2881,6 +3254,7 @@
     if (typeof window.jgExtra === 'function' && !window.jgExtra.__wlHooked) {
       const origJgExtra = window.jgExtra;
       const wrappedJgExtra = function(d) {
+        if (handleMpWarlordDraftPacket(d)) return true;
         if (handleWarlordSyncPayload(d)) return true;
         return origJgExtra.apply(this, arguments);
       };
