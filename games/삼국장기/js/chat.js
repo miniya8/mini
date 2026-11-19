@@ -41,6 +41,8 @@ if(d.k==='meteor'){meteorFire(d.by||side2(me));return true}
 if(d.k==='alien'){alienFire(d.by||side2(me));return true}
 if(d.k==='kame'){kameFire(d.by||side2(me));return true}
 if(d.k==='kame2'){kame2Fire(d.by||side2(me),d.sd);return true}
+if(d.k==='skyfall'){if(window.jgSkyfallFire)window.jgSkyfallFire(d.by||side2(me),d.sd);return true}
+if(d.k==='vortex'){if(window.jgVortexFire)window.jgVortexFire(d.by||side2(me),d.sd);return true}
 if(d.k==='warlord'){if(window.warlordPunishFire)window.warlordPunishFire(d.by||side2(me),d.wid||window.JG_OPP_WARLORD,d.sd);return true}
 if(d.k==='sdraw'){if(d.s)specStrokes.push(Object.assign({},d.s,{t0:performance.now()}));return true}
 if(d.k==='dmg_sync'&&d.DMG){window.DMG={c:+d.DMG.c||0,h:+d.DMG.h||0};rzK='';try{resize()}catch(e){}return true}
@@ -89,7 +91,7 @@ m.textContent=n==1?'⏰ 시간초과!!':SW[(n-2)%SW.length];m.className=n==1?'':
 try{const r=cv.getBoundingClientRect();t.style.left=(r.left+OX+4*CX)+'px';t.style.top=(r.top+OY+4.5*CY)+'px'}catch(e){}
 t.style.display='flex';[t,f].forEach(x=>{x.classList.remove('xgo');void x.offsetWidth;x.classList.add('xgo')});try{boom();snd('clash',3)}catch(e){}
 if(!isSpec&&s!==me){punishCnt++;updPunishBtn();toast('⚡ 상대가 시간초과했습니다! 우측/하단 [응징 발동] 버튼으로 랜덤 공격을 날리세요!',3800)}
-else if(cfg.mode==='ai'&&s===me){setTimeout(()=>{if(!inGame||over||nkBusy)return;const sk=['nuke','meteor','alien','kame','kame2','warlord'][Math.random()*6|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(window.warlordPunishFire)window.warlordPunishFire(side2(me),window.JG_OPP_WARLORD)},1200)}};
+else if(cfg.mode==='ai'&&s===me){setTimeout(()=>{if(!inGame||over||nkBusy)return;const sk=['nuke','meteor','alien','kame','kame2','warlord','skyfall','vortex'][Math.random()*8|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(sk==='skyfall'&&window.jgSkyfallFire)window.jgSkyfallFire(side2(me));else if(sk==='vortex'&&window.jgVortexFire)window.jgVortexFire(side2(me));else if(window.warlordPunishFire)window.warlordPunishFire(side2(me),window.JG_OPP_WARLORD)},1200)}};
 el('xto').onanimationend=()=>{el('xto').style.display='none'};
 const EN=[],EH=[],EM=new Set(),eb=el('xemo');
 function emoSlot(){return inGame&&!over&&cfg.time>0&&tleft/cfg.time<.4&&(cfg.mode==='mp'||turn===me)}
@@ -114,7 +116,7 @@ if(vc&&vc.t==='R'&&pc&&pc.s!==vc.s){
     toast('🔥 상대 차(車)를 잡았습니다! 응징 파괴 스킬 1회 충전!',3200);
   }else if(cfg.mode==='ai'&&pc.s!==me){
     sysLog('😱 AI가 내 차(車)를 포획하여 응징 스킬을 발동합니다!','xs xr');
-    setTimeout(()=>{if(!inGame||over)return;const sk=['nuke','meteor','alien','kame','kame2','warlord'][Math.random()*6|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(window.warlordPunishFire)window.warlordPunishFire(side2(me),window.JG_OPP_WARLORD)},900);
+    setTimeout(()=>{if(!inGame||over)return;const sk=['nuke','meteor','alien','kame','kame2','warlord','skyfall','vortex'][Math.random()*8|0];if(sk==='nuke')nukeFire(side2(me));else if(sk==='meteor')meteorFire(side2(me));else if(sk==='alien')alienFire(side2(me));else if(sk==='kame')kameFire(side2(me));else if(sk==='kame2')kame2Fire(side2(me));else if(sk==='skyfall'&&window.jgSkyfallFire)window.jgSkyfallFire(side2(me));else if(sk==='vortex'&&window.jgVortexFire)window.jgVortexFire(side2(me));else if(window.warlordPunishFire)window.warlordPunishFire(side2(me),window.JG_OPP_WARLORD)},900);
   }
 }}catch(e){}UH.push(snap(turn));if(UH.length>40)UH.shift();xsave();if(UI){UI=null;el('xcf').style.display='none';toast('상대가 수를 두어 무르기 요청이 취소됐어요',2500)}}return _dm.apply(this,arguments)};
 const _pl=play;play=function(){if(UQ){toast('무르기 응답을 기다리는 중이에요',2000);return}return _pl.apply(this,arguments)};
@@ -1821,7 +1823,7 @@ function kame2Fire(A,sd){try{comm(fill(pick(CB.kame2,'k2'+Date.now()%97),{A:tag(
 
 /* ---- 응징 스킬(핵폭탄 / 메테오 / 외계인 / 에네르기파 / 에네르기파 2 / 주먹 / 망치 / 총격) 직접 선택 발동 버튼 ---- */
 window.jgPunishBusy=v=>{if(typeof v==='boolean')nkBusy=v;return nkBusy};
-['xp_nuke','xp_meteor','xp_alien','xp_kame','xp_kame2','xp_warlord'].forEach(id=>{
+['xp_nuke','xp_meteor','xp_alien','xp_kame','xp_kame2','xp_warlord','xp_skyfall','xp_vortex'].forEach(id=>{
   const b=el(id);if(!b)return;
   b.onpointerdown=ev=>ev.preventDefault();
   b.onclick=()=>{
@@ -1836,6 +1838,8 @@ window.jgPunishBusy=v=>{if(typeof v==='boolean')nkBusy=v;return nkBusy};
     else if(sk==='alien')alienFire(me);
     else if(sk==='kame')kameFire(me);
     else if(sk==='kame2')kame2Fire(me,sd);
+    else if(sk==='skyfall'&&window.jgSkyfallFire)window.jgSkyfallFire(me,sd);
+    else if(sk==='vortex'&&window.jgVortexFire)window.jgVortexFire(me,sd);
     else if(sk==='warlord'&&window.warlordPunishFire)window.warlordPunishFire(me,window.JG_MY_WARLORD,sd);
   };
 });

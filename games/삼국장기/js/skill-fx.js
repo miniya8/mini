@@ -118,7 +118,9 @@
     warlord_simayi:  { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.6, r: .44, spread: false, maxN: 0, smoke: .30, scorch: 0, pieces: false, pr: 0, txt: ['🐺 낭고빙결!', '❄️ 암영파쇄진!', '👁️ 천명 간파!'], col: '129,140,248' },
     warlord_caocao:  { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.7, r: .45, spread: false, maxN: 0, smoke: .35, scorch: 0, pieces: false, pr: 0, txt: ['⚡ 패왕뇌전!', '⚔️ 천하호령!', '💥 위왕 강림!'], col: '248,113,113' },
     warlord_sunquan: { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.6, r: .44, spread: false, maxN: 0, smoke: .30, scorch: 0, pieces: false, pr: 0, txt: ['🌊 파천노도!', '⚔️ 강동수군참!', '🌀 해일 강타!'], col: '56,189,248' },
-    warlord_zhuge:   { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.6, r: .44, spread: false, maxN: 0, smoke: .25, scorch: 0, pieces: false, pr: 0, txt: ['🌌 팔진천기!', '🪶 와룡성광포!', '✨ 천기누설!'], col: '253,224,71' }
+    warlord_zhuge:   { pal: 'frost', flame: false, life: 7, n0: 0, rad: 1.6, r: .44, spread: false, maxN: 0, smoke: .25, scorch: 0, pieces: false, pr: 0, txt: ['🌌 팔진천기!', '🪶 와룡성광포!', '✨ 천기누설!'], col: '253,224,71' },
+    skyfall: { pal: 'frost', flame: false, life: 9, n0: 0, rad: 2.0, r: .46, spread: false, maxN: 0, smoke: .35, scorch: 0, pieces: false, pr: 0, txt: ['⚡ 천벌성창!', '🌟 성광 낙뢰!', '💥 대지 분쇄!'], col: '253,224,71' },
+    vortex:  { pal: 'blue',  flame: false, life: 9, n0: 0, rad: 2.1, r: .46, spread: false, maxN: 0, smoke: .30, scorch: 0, pieces: false, pr: 0, txt: ['🌀 차원와류포!', '💫 삼각 초신성!', '⚡ 시공 파쇄!'], col: '56,189,248' }
   };
 
 
@@ -164,13 +166,15 @@
     warlord_caocao:  [['mid', 3, 1.6, 1.00], ['net', 4, 2.4, 1.05], ['small', 3, 2.6, 0.85]],
     warlord_liubei:  [['mid', 2, 1.2, 1.00], ['net', 3, 2.1, 0.95], ['small', 2, 2.4, 0.85]],
     warlord_lvbu:    [['big', 1, 0, 1.22], ['mid', 3, 2.3, 1.05], ['net', 5, 3.0, 1.10]],
-    warlord_simayi:  [['big', 1, 0, 0.92], ['small', 4, 2.2, 0.95], ['net', 3, 2.5, 1.00]]
+    warlord_simayi:  [['big', 1, 0, 0.92], ['small', 4, 2.2, 0.95], ['net', 3, 2.5, 1.00]],
+    skyfall: [['big', 1, 0, 1.15], ['mid', 3, 2.2, 1.05], ['net', 4, 2.8, 1.05]],
+    vortex:  [['big', 1, 0, 1.10], ['mid', 2, 1.8, 1.00], ['net', 4, 2.6, 1.05], ['small', 4, 2.5, 0.90]]
   };
   const HOTCOL = {
     nuke: '255,110,40', meteor: '255,100,35', alien: '120,255,110',
     kame: '110,190,255', kame2: '120,200,255', hammer: '200,235,255',
     warlord_zhuge: '253,224,71', warlord_sunquan: '56,189,248', warlord_caocao: '244,63,94',
-    warlord_liubei: '16,185,129', warlord_lvbu: '217,70,239', warlord_simayi: '129,140,248'
+    warlord_liubei: '16,185,129', warlord_lvbu: '217,70,239', warlord_simayi: '129,140,248', skyfall: '253,224,71', vortex: '56,189,248'
   };
   function spawnCracks(side, sk, gx, gy, rot) {
     (CRACKSPEC[sk] || []).forEach(([cls, cnt, spread, scl]) => {
