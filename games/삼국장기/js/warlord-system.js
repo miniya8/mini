@@ -2851,9 +2851,35 @@
     }
   };
 
+  const WARLORD_ACT_MILESTONES = [30, 60, 90];
+
+  function getWarlordCurrentMoves() {
+    if (typeof hist !== 'undefined' && Array.isArray(hist)) return hist.length;
+    if (Array.isArray(window.hist)) return window.hist.length;
+    return 0;
+  }
+
+  function getWarlordActionRemain() {
+    const moves = getWarlordCurrentMoves();
+    if (moves === 0) window.__JG_WARLORD_ACT_USED_CNT__ = 0;
+    const unlocked = WARLORD_ACT_MILESTONES.filter(m => moves >= m).length;
+    const usedCnt = window.__JG_WARLORD_ACT_USED_CNT__ || 0;
+    return { moves, unlocked, usedCnt, remain: Math.max(0, unlocked - usedCnt) };
+  }
+
   window.triggerMyWarlordAction = function() {
-    if (window.__JG_WARLORD_ACT_USED__) return;
-    window.__JG_WARLORD_ACT_USED__ = true;
+    const st = getWarlordActionRemain();
+    if (st.remain <= 0) {
+      const nextM = WARLORD_ACT_MILESTONES.find(m => m > st.moves);
+      if (typeof toast === 'function') {
+        toast(nextM ? `⏳ ${nextM}수 달성 시 스킬이 해금됩니다! (현재 ${st.moves}수)` : '모든 스킬(30/60/90수)을 사용했습니다.', 2200);
+      }
+      return;
+    }
+
+    window.__JG_WARLORD_ACT_USED_CNT__ = (window.__JG_WARLORD_ACT_USED_CNT__ || 0) + 1;
+    window.__JG_WARLORD_ACT_USED__ = (getWarlordActionRemain().remain <= 0);
+
     const mySide = (typeof me !== 'undefined' && (me === 'h' || me === 'c')) ? me : 'c';
     const oppSide = mySide === 'c' ? 'h' : 'c';
     const w = getWarlord(window.JG_MY_WARLORD);
@@ -2898,7 +2924,13 @@
     }
 
     const w = getWarlord(window.JG_MY_WARLORD);
-    const used = !!window.__JG_WARLORD_ACT_USED__;
+    const st = getWarlordActionRemain();
+    const canUse = st.remain > 0;
+    const nextM = WARLORD_ACT_MILESTONES.find(m => m > st.moves);
+    const btnLabel = canUse
+      ? `${w.actionName} (${st.remain}회)`
+      : (nextM ? `🔒 ${nextM}수 해금 (${st.moves}/${nextM})` : '✓ 90수 사용완료');
+
     panel.innerHTML = `
       <div class="jg-wp-info">
         <img class="jg-wp-avatar" src="${getPortraitSrc(w.id)}" ${getPortraitFallbackAttr(w.id)} style="border-color:${w.secondary};object-position:${getPortraitPos(w.id)};" alt="${w.name}">
@@ -2908,8 +2940,8 @@
         </div>
       </div>
       <div class="jg-wp-btns">
-        <button type="button" class="jg-wp-btn" id="jg_wl_act_btn" ${used ? 'disabled' : ''} style="background:${w.bgGrad};border-color:${w.secondary};">
-          ${used ? '✓ 발동완료' : w.actionName}
+        <button type="button" class="jg-wp-btn" id="jg_wl_act_btn" ${canUse ? '' : 'disabled'} style="background:${canUse ? w.bgGrad : '#1e293b'};border-color:${canUse ? w.secondary : '#475569'};opacity:${canUse ? '1' : '0.58'};">
+          ${btnLabel}
         </button>
         <button type="button" class="jg-wp-btn" id="jg_wl_shout_btn" style="background:#1e293b;border-color:#fde047;color:#fef08a;">
           💬 명언 호령
@@ -2919,6 +2951,17 @@
     document.getElementById('jg_wl_act_btn').onclick = window.triggerMyWarlordAction;
     document.getElementById('jg_wl_shout_btn').onclick = window.triggerMyWarlordShout;
     window.updateWarlordPunishBtn();
+  }
+
+  if (!window.__JG_WL_MILESTONE_TIMER__) {
+    let lastCheckedMoves = -1;
+    window.__JG_WL_MILESTONE_TIMER__ = setInterval(() => {
+      const cur = getWarlordCurrentMoves();
+      if (cur !== lastCheckedMoves) {
+        lastCheckedMoves = cur;
+        updateInGameWarlordPanel();
+      }
+    }, 350);
   }
 
   function initWarlordBoardFxLoop() {
@@ -4123,7 +4166,7 @@
   }
 
   /* ------------------------------------------------------------------------
-   * 1) ⚡ 천벌성창 (skyfall): 상대 진영에 황금 천공 윤환과 성광 창격 투하 + 장기판 파손
+   * 1) ⚡ 천벌성창 (skyfall): 중앙 대형 + 좌·우 소형 3군데 발동 & 묵직한 타격감
    * ------------------------------------------------------------------------ */
   window.jgSkyfallFire = function(attackerSide, seed) {
     if (typeof window.jgPunishBusy === 'function' && window.jgPunishBusy()) return;
@@ -4143,49 +4186,132 @@
     document.body.appendChild(cvFx);
     const g = cvFx.getContext('2d');
 
-    const totalDur = 2150;
-    const impactAt = 520;
-    let damaged = false;
+    const totalDur = 2350;
+    const baseScale = Math.max(130, Math.min(m.bw * 0.74, m.bh * 0.66));
+    const spreadX = Math.max(72, m.bw * 0.25);
+
+    const spears = [
+      { key: 'left',   cx: camp.cx - spreadX, cy: camp.cy + 14, scale: 0.64, delay: 0,   impactAt: 410, fxOff: -0.15, hit: false },
+      { key: 'right',  cx: camp.cx + spreadX, cy: camp.cy + 14, scale: 0.64, delay: 110, impactAt: 520, fxOff:  0.15, hit: false },
+      { key: 'center', cx: camp.cx,           cy: camp.cy - 6,  scale: 1.35, delay: 220, impactAt: 650, fxOff:  0.00, hit: false }
+    ];
+
+    const sparks = [];
+    let shakePower = 0;
+    let flashAlpha = 0;
+    let hitStopUntil = 0;
     const t0 = performance.now();
+
+    function spawnSpearSparks(x, y, count, power) {
+      for (let i = 0; i < count; i++) {
+        const ang = -Math.PI * (0.12 + Math.random() * 0.76);
+        const spd = power * (0.45 + Math.random() * 0.9);
+        sparks.push({
+          x, y,
+          vx: Math.cos(ang) * spd * (Math.random() < 0.5 ? 1 : -1),
+          vy: Math.sin(ang) * spd - 1.6,
+          life: 1,
+          decay: 0.024 + Math.random() * 0.025,
+          size: 2.2 + Math.random() * 3.6
+        });
+      }
+    }
 
     function step(now) {
       const elapsed = now - t0;
-      const p = Math.min(1, elapsed / totalDur);
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, m.W, m.H);
 
-      if (elapsed >= impactAt && !damaged) {
-        damaged = true;
-        applyBoardAndScreenDamage(V, 'skyfall', camp.fx, camp.fy, 0);
-        try { if (typeof playWarlordSfx === 'function') playWarlordSfx('impact'); } catch (e) {}
+      if (shakePower > 0.2) {
+        g.translate((Math.random() * 2 - 1) * shakePower, (Math.random() * 2 - 1) * shakePower);
+        shakePower *= 0.85;
       }
 
-      const fade = p < 0.72 ? 1 : Math.max(0, 1 - (p - 0.72) / 0.28);
-      const baseScale = Math.max(120, Math.min(m.bw * 0.72, m.bh * 0.65));
-      const dw = baseScale * 0.92;
-      const dh = baseScale * 1.08;
-      const drawY = camp.cy - dh * 0.16;
+      spears.forEach((sp) => {
+        if (elapsed >= sp.impactAt && !sp.hit) {
+          sp.hit = true;
+          const isCenter = sp.key === 'center';
+          applyBoardAndScreenDamage(
+            V,
+            'skyfall',
+            Math.max(0.15, Math.min(0.85, camp.fx + sp.fxOff)),
+            camp.fy,
+            isCenter ? 0 : (sp.fxOff * 0.4)
+          );
+          try { if (typeof playWarlordSfx === 'function') playWarlordSfx('impact'); } catch (e) {}
+          shakePower = Math.max(shakePower, isCenter ? 24 : 11);
+          flashAlpha = Math.max(flashAlpha, isCenter ? 0.44 : 0.18);
+          if (isCenter) hitStopUntil = now + 60;
+          spawnSpearSparks(sp.cx, sp.cy, isCenter ? 30 : 12, isCenter ? 11.5 : 6);
+        }
+      });
+
+      spears.forEach((sp) => {
+        const localElapsed = elapsed - sp.delay;
+        if (localElapsed < 0) return;
+        const localDur = totalDur - sp.delay;
+        const p = Math.min(1, localElapsed / localDur);
+        const fade = p < 0.72 ? 1 : Math.max(0, 1 - (p - 0.72) / 0.28);
+
+        const dw = baseScale * 0.92 * sp.scale;
+        const dh = baseScale * 1.08 * sp.scale;
+        const drawY = sp.cy - dh * 0.16;
+
+        g.save();
+        g.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < 3; i++) {
+          const rp = Math.max(0, Math.min(1, (localElapsed - i * 80) / 780));
+          if (rp > 0 && rp < 1) {
+            const radX = baseScale * sp.scale * (0.18 + rp * 0.62);
+            const radY = radX * 0.28;
+            g.strokeStyle = `rgba(253, 224, 71, ${(1 - rp) * 0.8 * fade})`;
+            g.lineWidth = Math.max(1.5, (1 - rp) * 5 * sp.scale);
+            g.beginPath();
+            g.ellipse(sp.cx, sp.cy - dh * 0.42 - i * 12 * sp.scale, radX, radY, 0, 0, Math.PI * 2);
+            g.stroke();
+          }
+        }
+        if (sp.hit) {
+          const impP = Math.min(1, (elapsed - sp.impactAt) / 460);
+          if (impP < 1) {
+            const shockR = baseScale * sp.scale * (0.15 + impP * 0.78);
+            g.strokeStyle = `rgba(255, 245, 180, ${(1 - impP) * 0.88})`;
+            g.lineWidth = (1 - impP) * 7.5 * sp.scale;
+            g.beginPath();
+            g.ellipse(sp.cx, sp.cy + 8, shockR, shockR * 0.34, 0, 0, Math.PI * 2);
+            g.stroke();
+          }
+        }
+        g.restore();
+
+        const effectiveElapsed = (now < hitStopUntil && sp.key === 'center') ? (sp.impactAt - sp.delay) : localElapsed;
+        const frameFloat = effectiveElapsed / 62;
+        const ok = drawAtlasFrame(g, skImg, 7, 2, 14, frameFloat, sp.cx, drawY, dw, dh, fade, 0, false);
+        if (ok) {
+          drawAtlasFrame(g, skImg, 7, 2, 14, frameFloat, sp.cx, drawY, dw * 1.04, dh * 1.04, fade * 0.48, 0, true);
+        }
+      });
 
       g.save();
       g.globalCompositeOperation = 'lighter';
-      for (let i = 0; i < 3; i++) {
-        const rp = Math.max(0, Math.min(1, (elapsed - i * 90) / 850));
-        if (rp > 0 && rp < 1) {
-          const radX = baseScale * (0.18 + rp * 0.58);
-          const radY = radX * 0.28;
-          g.strokeStyle = `rgba(253, 224, 71, ${(1 - rp) * 0.75 * fade})`;
-          g.lineWidth = Math.max(1.5, (1 - rp) * 4.5);
-          g.beginPath();
-          g.ellipse(camp.cx, camp.cy - dh * 0.42 - i * 14, radX, radY, 0, 0, Math.PI * 2);
-          g.stroke();
-        }
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const pt = sparks[i];
+        pt.x += pt.vx;
+        pt.y += pt.vy;
+        pt.vy += 0.38;
+        pt.life -= pt.decay;
+        if (pt.life <= 0) { sparks.splice(i, 1); continue; }
+        g.fillStyle = `rgba(255, 230, 120, ${pt.life})`;
+        g.beginPath();
+        g.arc(pt.x, pt.y, pt.size * pt.life, 0, Math.PI * 2);
+        g.fill();
       }
       g.restore();
 
-      const frameFloat = (elapsed / 65);
-      const ok = drawAtlasFrame(g, skImg, 7, 2, 14, frameFloat, camp.cx, drawY, dw, dh, fade, 0, false);
-      if (ok) {
-        drawAtlasFrame(g, skImg, 7, 2, 14, frameFloat, camp.cx, drawY, dw, dh, fade * 0.42, 0, true);
+      if (flashAlpha > 0.01) {
+        g.fillStyle = `rgba(255, 248, 210, ${flashAlpha})`;
+        g.fillRect(-30, -30, m.W + 60, m.H + 60);
+        flashAlpha *= 0.78;
       }
 
       if (elapsed < totalDur) {
@@ -4199,7 +4325,7 @@
   };
 
   /* ------------------------------------------------------------------------
-   * 2) 🌀 차원와류포 (vortex): 공격 진영에서 차원 삼각 와류 발사 -> 상대 진영 돔 폭발 & 파손
+   * 2) 🌀 차원와류포 (vortex): "팡! 팡! 콰앙!" 연쇄 기폭 스펙타클 연출
    * ------------------------------------------------------------------------ */
   window.jgVortexFire = function(attackerSide, seed) {
     if (typeof window.jgPunishBusy === 'function' && window.jgPunishBusy()) return;
@@ -4220,44 +4346,151 @@
     document.body.appendChild(cvFx);
     const g = cvFx.getContext('2d');
 
-    const totalDur = 2350;
-    const travelEnd = 820;
-    let damaged = false;
+    const totalDur = 2550;
+    const travelEnd = 660;
+
+    const bursts = [
+      { at: travelEnd,       ox: -38, oy: -18, scale: 0.88, shake: 16, flash: 0.36, color: 'rgba(125, 211, 252, ', fired: false },
+      { at: travelEnd + 165, ox:  40, oy:  16, scale: 1.04, shake: 21, flash: 0.44, color: 'rgba(192, 132, 252, ', fired: false },
+      { at: travelEnd + 340, ox:   0, oy:   0, scale: 1.50, shake: 32, flash: 0.68, color: 'rgba(255, 255, 255, ', fired: false }
+    ];
+
+    const shards = [];
+    let shakePower = 0;
+    let flashAlpha = 0;
+    let flashTint = 'rgba(220, 240, 255, ';
+    let hitStopUntil = 0;
     const t0 = performance.now();
+
+    function spawnVortexShards(x, y, count, power) {
+      for (let i = 0; i < count; i++) {
+        const ang = Math.random() * Math.PI * 2;
+        const spd = power * (0.4 + Math.random() * 0.9);
+        shards.push({
+          x, y,
+          vx: Math.cos(ang) * spd,
+          vy: Math.sin(ang) * spd,
+          rot: ang,
+          len: 10 + Math.random() * 18,
+          life: 1,
+          decay: 0.028 + Math.random() * 0.025,
+          hue: Math.random() < 0.5 ? '125, 211, 252' : '216, 180, 254'
+        });
+      }
+    }
 
     function step(now) {
       const elapsed = now - t0;
       g.setTransform(dpr, 0, 0, dpr, 0, 0);
       g.clearRect(0, 0, m.W, m.H);
 
+      if (shakePower > 0.2) {
+        g.translate((Math.random() * 2 - 1) * shakePower, (Math.random() * 2 - 1) * shakePower);
+        shakePower *= 0.85;
+      }
+
       const flyP = Math.min(1, elapsed / travelEnd);
-      const easeFly = 1 - Math.pow(1 - flyP, 2.2);
+      const easeFly = 1 - Math.pow(1 - flyP, 2.5);
       const curX = atkCamp.cx + (tgtCamp.cx - atkCamp.cx) * easeFly;
       const curY = atkCamp.cy + (tgtCamp.cy - atkCamp.cy) * easeFly;
       const aimAngle = Math.atan2(tgtCamp.cy - atkCamp.cy, tgtCamp.cx - atkCamp.cx);
-
-      const sz = Math.max(130, Math.min(m.bw * 0.68, m.bh * 0.58));
+      const sz = Math.max(145, Math.min(m.bw * 0.72, m.bh * 0.62));
 
       if (elapsed < travelEnd) {
-        const orbFrame = (elapsed / 55) % 11;
-        const orbSize = sz * (0.58 + 0.18 * Math.sin(flyP * Math.PI));
-        drawAtlasFrame(g, vxImg, 5, 4, 20, orbFrame, curX, curY, orbSize, orbSize, 0.96, aimAngle * 0.25, false);
-        drawAtlasFrame(g, vxImg, 5, 4, 20, orbFrame, curX, curY, orbSize * 1.05, orbSize * 1.05, 0.45, aimAngle * 0.25, true);
-      } else {
-        if (!damaged) {
-          damaged = true;
-          applyBoardAndScreenDamage(V, 'vortex', tgtCamp.fx, tgtCamp.fy, aimAngle);
-          try { if (typeof playWarlordSfx === 'function') playWarlordSfx('impact'); } catch (e) {}
+        g.save();
+        g.globalCompositeOperation = 'lighter';
+        for (let t = 1; t <= 4; t++) {
+          const tp = Math.max(0, flyP - t * 0.045);
+          const te = 1 - Math.pow(1 - tp, 2.5);
+          const tx = atkCamp.cx + (tgtCamp.cx - atkCamp.cx) * te;
+          const ty = atkCamp.cy + (tgtCamp.cy - atkCamp.cy) * te;
+          g.fillStyle = `rgba(147, 197, 253, ${(0.28 - t * 0.05)})`;
+          g.beginPath();
+          g.arc(tx, ty, sz * (0.24 - t * 0.03), 0, Math.PI * 2);
+          g.fill();
         }
-        const expElapsed = elapsed - travelEnd;
-        const expDur = totalDur - travelEnd;
-        const ep = Math.min(1, expElapsed / expDur);
-        const fade = ep < 0.68 ? 1 : Math.max(0, 1 - (ep - 0.68) / 0.32);
-        const expFrame = 11 + Math.min(8, Math.floor((ep / 0.85) * 9));
-        const expSize = sz * (0.95 + ep * 0.35);
+        g.restore();
 
-        drawAtlasFrame(g, vxImg, 5, 4, 20, expFrame, tgtCamp.cx, tgtCamp.cy, expSize, expSize, fade * 0.95, 0, false);
-        drawAtlasFrame(g, vxImg, 5, 4, 20, expFrame, tgtCamp.cx, tgtCamp.cy, expSize * 1.04, expSize * 1.04, fade * 0.4, 0, true);
+        const orbFrame = (elapsed / 48) % 11;
+        const orbSize = sz * (0.64 + 0.22 * Math.sin(flyP * Math.PI));
+        drawAtlasFrame(g, vxImg, 5, 4, 20, orbFrame, curX, curY, orbSize, orbSize, 0.98, aimAngle * 0.35, false);
+        drawAtlasFrame(g, vxImg, 5, 4, 20, orbFrame, curX, curY, orbSize * 1.12, orbSize * 1.12, 0.52, aimAngle * 0.35, true);
+      } else {
+        bursts.forEach((b, idx) => {
+          if (elapsed >= b.at && !b.fired) {
+            b.fired = true;
+            if (idx === 0 || idx === 2) {
+              applyBoardAndScreenDamage(
+                V,
+                'vortex',
+                Math.max(0.15, Math.min(0.85, tgtCamp.fx + (b.ox / Math.max(200, m.bw)))),
+                tgtCamp.fy,
+                aimAngle + (idx - 1) * 0.2
+              );
+            }
+            try { if (typeof playWarlordSfx === 'function') playWarlordSfx('impact'); } catch (e) {}
+            shakePower = Math.max(shakePower, b.shake);
+            flashAlpha = Math.max(flashAlpha, b.flash);
+            flashTint = b.color;
+            if (idx === 2) hitStopUntil = now + 70;
+            spawnVortexShards(tgtCamp.cx + b.ox, tgtCamp.cy + b.oy, idx === 2 ? 34 : 16, idx === 2 ? 14 : 9);
+          }
+        });
+
+        bursts.forEach((b, idx) => {
+          if (!b.fired) return;
+          const bElapsed = elapsed - b.at;
+          const bDur = totalDur - b.at;
+          const ep = Math.min(1, bElapsed / bDur);
+          const fade = ep < 0.65 ? 1 : Math.max(0, 1 - (ep - 0.65) / 0.35);
+
+          const ringP = Math.min(1, bElapsed / 420);
+          if (ringP < 1) {
+            g.save();
+            g.globalCompositeOperation = 'lighter';
+            const r = sz * b.scale * (0.2 + ringP * 0.88);
+            g.strokeStyle = `${b.color}${(1 - ringP) * 0.92})`;
+            g.lineWidth = (1 - ringP) * (idx === 2 ? 10 : 6);
+            g.beginPath();
+            g.arc(tgtCamp.cx + b.ox, tgtCamp.cy + b.oy, r, 0, Math.PI * 2);
+            g.stroke();
+            g.restore();
+          }
+
+          const effectiveB = (now < hitStopUntil && idx === 2) ? 40 : bElapsed;
+          const expFrame = 11 + Math.min(8, Math.floor((effectiveB / Math.max(450, bDur * 0.78)) * 9));
+          const expSize = sz * b.scale * (0.95 + ep * 0.42);
+          const bx = tgtCamp.cx + b.ox;
+          const by = tgtCamp.cy + b.oy;
+
+          drawAtlasFrame(g, vxImg, 5, 4, 20, expFrame, bx, by, expSize, expSize, fade * 0.96, idx * 0.7, false);
+          drawAtlasFrame(g, vxImg, 5, 4, 20, expFrame, bx, by, expSize * 1.1, expSize * 1.1, fade * 0.5, idx * 0.7, true);
+        });
+      }
+
+      g.save();
+      g.globalCompositeOperation = 'lighter';
+      for (let i = shards.length - 1; i >= 0; i--) {
+        const s = shards[i];
+        s.x += s.vx;
+        s.y += s.vy;
+        s.vx *= 0.94;
+        s.vy *= 0.94;
+        s.life -= s.decay;
+        if (s.life <= 0) { shards.splice(i, 1); continue; }
+        g.strokeStyle = `rgba(${s.hue}, ${s.life})`;
+        g.lineWidth = 2.5 * s.life;
+        g.beginPath();
+        g.moveTo(s.x, s.y);
+        g.lineTo(s.x - Math.cos(s.rot) * s.len * s.life, s.y - Math.sin(s.rot) * s.len * s.life);
+        g.stroke();
+      }
+      g.restore();
+
+      if (flashAlpha > 0.01) {
+        g.fillStyle = `${flashTint}${flashAlpha})`;
+        g.fillRect(-30, -30, m.W + 60, m.H + 60);
+        flashAlpha *= 0.76;
       }
 
       if (elapsed < totalDur) {
