@@ -48,13 +48,6 @@
     alien:  { c: 'g', flame: 'g', rune: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .5, rain: 'g', title: '異星  光線', sub: '외계인', charge: 1 },
     kame:   { c: 'b', flame: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 0, arc: 6, big: 1.2, smoke: .3, rain: 'b', title: '氣功波', sub: '에네르기파', charge: 1 },
     kame2:  { c: 'b', flame: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .4, rain: 'b', title: '破壞  光線', sub: '에네르기파 2', charge: 1 },
-    warlord:         { c: 'y', rune: 'y', rays: 'y', bolt: 'y', sky: 2, arc: 4, big: 1.25, smoke: .3, rain: 'y', title: '君主  必殺', sub: '군주 필살응징', charge: 1 },
-    warlord_liubei:  { c: 'g', rune: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .25, rain: 'g', title: '仁義  雙劍', sub: '쌍검합벽', charge: 1 },
-    warlord_lvbu:    { c: 'p', flame: 'p', rune: 'p', rays: 'p', bolt: 'p', sky: 3, arc: 6, big: 1.45, smoke: .6, rain: 'p', title: '天下  無雙', sub: '방천귀신격', charge: 1 },
-    warlord_simayi:  { c: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 5, big: 1.2, smoke: .3, rain: 'b', title: '狼顧  氷結', sub: '낭고빙결', charge: 1 },
-    warlord_caocao:  { c: 'o', flame: 'o', rune: 'o', rays: 'y', bolt: 'y', sky: 3, arc: 5, big: 1.35, smoke: .4, rain: 'o', title: '霸王  雷電', sub: '패왕뇌전', charge: 1 },
-    warlord_sunquan: { c: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 5, big: 1.25, smoke: .3, rain: 'b', title: '破天  怒濤', sub: '파천노도', charge: 1 },
-    warlord_zhuge:   { c: 'y', rune: 'y', rays: 'y', bolt: 'y', sky: 2, arc: 5, big: 1.25, smoke: .25, rain: 'y', title: '八陣  天機', sub: '와룡성광포', charge: 1 },
     skyfall: { c: 'y', rune: 'y', rays: 'y', bolt: 'y', sky: 5, arc: 6, big: 1.5, smoke: .4, rain: 'y', title: '天罰  星槍', sub: '천벌성창', charge: 1 },
     vortex:  { c: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .3, rain: 'b', title: '次元  渦流砲', sub: '차원와류포', charge: 1 },
     /* 주먹·망치·총: 불 없이 충격파와 파편 위주 */
