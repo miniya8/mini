@@ -14,6 +14,8 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/three-kingdoms-main-screen.js: 메인 화면 효과
 - js/board-theme-hud.js: 테마 HUD 동작
 - js/remaster-v1.js, js/remaster-v2.js, js/board-effects-v4.js: 추가 패치와 보드 효과
+- js/board-env-v5.js: 5개 전장별 환경 풍경 레이어(바닥 질감·구름·오로라·눈보라·낙엽·반딧불·혼령·횃불·깃발·이벤트·기물 잡기 반응). 끄려면 jgEnv5.enabled=false
+- assets/images/fx/env_*.webp: board-env-v5.js가 쓰는 환경 이미지
 - js/skill-fx.js: 응징 스킬 불·균열·그을음 효과
 - js/skill-fx-v2.js: 응징 스킬 화려함 레이어(충전 마법진·충격파·낙뢰·불기둥·성광·기술명 배너). 끄려면 jgSkillFx2.enabled=false
 - assets/images/fx/v2_*.webp: skill-fx-v2.js가 쓰는 생성 이미지(충격파·번개·불꽃·마법진·성광·글로우·불똥·연기·비네트)
