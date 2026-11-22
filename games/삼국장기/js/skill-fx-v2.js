@@ -11,7 +11,7 @@
 (function jgSkillFx2Module() {
   if (window.__JG_SKILLFX2__) return;
   window.__JG_SKILLFX2__ = true;
-  const F2 = window.jgSkillFx2 = { enabled: true };
+  const F2 = window.jgSkillFx2 = { enabled: true, bloom: 1 };
   const TAU = Math.PI * 2;
   const rnd = (a, b) => a + Math.random() * (b - a);
   const pick = a => a[(Math.random() * a.length) | 0];
@@ -189,7 +189,7 @@
       g.globalCompositeOperation = 'lighter';
       g.globalAlpha = clamp(Math.pow(1 - k, 1.4) * (str || .85), 0, 1);
       g.drawImage(t, RC.left, RC.top, RC.width, RC.height);
-      if (k < .2) { g.globalAlpha = (1 - k / .2) * .28 * (str || 1); g.fillStyle = `rgb(${RGB[c]})`; g.fillRect(RC.left, RC.top, RC.width, RC.height); }
+      if (k < .3) { const cx = RC.left + RC.width / 2, cy = RC.top + RC.height / 2, Rr = Math.hypot(RC.width, RC.height) * .55, gr = g.createRadialGradient(cx, cy, 0, cx, cy, Rr); const aa = Math.pow(1 - k / .3, 1.6) * .3 * (str || 1); gr.addColorStop(0, `rgba(${RGB[c]},${aa})`); gr.addColorStop(1, `rgba(${RGB[c]},0)`); g.globalAlpha = 1; g.fillStyle = gr; g.fillRect(RC.left, RC.top, RC.width, RC.height); }
     } });
   }
   /* 기술명 배너 */
@@ -386,6 +386,18 @@
     go.save(); go.beginPath(); go.rect(RC.left, RC.top, RC.width, RC.height); go.clip();
     draw(go, performance.now(), dt);
     go.restore();
+    bloomPass();
+  }
+  /* 부드러운 빛번짐: 저해상도로 줄였다가 확대해 가산 합성 (iOS 사파리에서도 동작) */
+  let smA = null, smB = null;
+  function bloomPass() {
+    if (!cvO || cvO.width < 8) return; const pw = cvO.width, ph = cvO.height, a1 = Math.max(2, Math.round(pw / 5)), b1 = Math.max(2, Math.round(ph / 5)), a2 = Math.max(2, Math.round(pw / 14)), b2 = Math.max(2, Math.round(ph / 14));
+    if (!smA) { smA = document.createElement('canvas'); smB = document.createElement('canvas'); }
+    if (smA.width !== a1 || smA.height !== b1) { smA.width = a1; smA.height = b1; } if (smB.width !== a2 || smB.height !== b2) { smB.width = a2; smB.height = b2; }
+    const sa = smA.getContext('2d'), sb = smB.getContext('2d'); sa.imageSmoothingQuality = 'high'; sb.imageSmoothingQuality = 'high';
+    sa.clearRect(0, 0, a1, b1); sa.drawImage(cvO, 0, 0, a1, b1); sb.clearRect(0, 0, a2, b2); sb.drawImage(smA, 0, 0, a2, b2);
+    go.save(); go.setTransform(1, 0, 0, 1, 0, 0); go.globalCompositeOperation = 'lighter'; go.imageSmoothingEnabled = true; go.imageSmoothingQuality = 'high';
+    go.globalAlpha = .3 * (F2.bloom == null ? 1 : F2.bloom); go.drawImage(smA, 0, 0, pw, ph); go.globalAlpha = .26 * (F2.bloom == null ? 1 : F2.bloom); go.drawImage(smB, 0, 0, pw, ph); go.restore();
   }
 
   /* ---------- 훅 연결 (다른 모듈이 덮어써도 다시 연결) ---------- */

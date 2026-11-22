@@ -14,7 +14,7 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/three-kingdoms-main-screen.js: 메인 화면 효과
 - js/board-theme-hud.js: 테마 HUD 동작
 - js/remaster-v1.js, js/remaster-v2.js, js/board-effects-v4.js: 추가 패치와 보드 효과
-- js/warlord-punish-v6.js: 군주 6명 응징 스킬 완전 차별화(제갈량·손권·조조·유비·여포·사마의). 기존 연출 복귀: jgWarlordPunish6.enabled=false
+- js/warlord-punish-v6.js: 군주 6명 응징 스킬 완전 차별화 v6.1(제갈량·손권·조조·유비·여포·사마의) + 블룸·슬로모션·줌펀치로 화려하고 부드럽게. 기존 연출 복귀: jgWarlordPunish6.enabled=false, 빛번짐 세기: jgWarlordPunish6.bloom / jgSkillFx2.bloom
 - assets/images/fx/wl_*.webp: warlord-punish-v6.js가 쓰는 군주 전용 이미지
 - js/board-env-v5.js: 5개 전장별 환경 풍경 레이어(바닥 질감·구름·오로라·눈보라·낙엽·반딧불·혼령·횃불·깃발·이벤트·기물 잡기 반응). 끄려면 jgEnv5.enabled=false
 - assets/images/fx/env_*.webp: board-env-v5.js가 쓰는 환경 이미지

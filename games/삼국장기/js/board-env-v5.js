@@ -105,7 +105,7 @@
     g.restore();
   }
   function drawGround(g, now) {
-    if (!active() || !gameVisible()) return;
+    if (!active() || !gameVisible() || E5.noGround) return;
     const t = (window.curBoardIdx || 0), s = now * .001, bx = OX - CX * .3, by = OY - CY * .3, bw = 8 * CX + CX * .6, bh = 9 * CY + CY * .6, C0 = cl();
     g.save();
     if (t === 0) {          /* 사막: 바람에 밀리는 모래 물결 + 열기 */
@@ -330,7 +330,7 @@
     requestAnimationFrame(loop);
     if (!ensureCanvas()) return;
     const dt = Math.min(.05, Math.max(.001, (now - (lastT || now)) / 1000)); lastT = now;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5), Wn = window.innerWidth, Hn = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 1) * .8, Wn = window.innerWidth, Hn = window.innerHeight;
     if (cvO.width !== Math.round(Wn * dpr) || cvO.height !== Math.round(Hn * dpr)) { cvO.width = Math.round(Wn * dpr); cvO.height = Math.round(Hn * dpr); }
     W = Wn; H = Hn; go.setTransform(dpr, 0, 0, dpr, 0, 0); go.clearRect(0, 0, W, H);
     if (window.jgEnv3 && window.jgEnv3.ambient !== false) window.jgEnv3.ambient = false;   /* 구 상시환경 대체 */
@@ -343,8 +343,7 @@
     if (inPlay && tn > nextSet) { startSet(t, B); nextSet = tn + rnd(26000, 52000); }
     if (sealPulse) { const k = (tn - sealPulse.t0) / 2200; if (k >= 1) sealPulse = null; else { sealPulse.k = Math.sin(k * Math.PI); } }
     go.save(); go.beginPath(); go.rect(RC.left, RC.top + hudH, RC.width, RC.height - hudH); go.clip();
-    drawAir(go, B, t, tn, dt);
-    drawSets(go, B, tn);
+    if (!E5.noAir) { drawAir(go, B, t, tn, dt); drawSets(go, B, tn); }
     if (sealPulse) {       /* 인장 맥동: 중앙에서 황금 파동 */
       const k = (tn - sealPulse.t0) / 2200, im = IM.shock_y; if (ok(im)) { const f = Math.min(7, (k * 8) | 0), z = B.w * 1.5; go.globalCompositeOperation = 'lighter'; go.save(); go.translate(B.x + B.w / 2, B.y + B.h * .5); addDraw(go, im, (f % 4) * 256, ((f / 4) | 0) * 256, 256, 256, -z / 2, -z / 2, z, z, .55 * (1 - k * .5)); go.restore(); go.globalCompositeOperation = 'source-over'; }
     }
