@@ -25,7 +25,16 @@
   let burstScale = 1; const combo = { n: 0, t: 0 };
   const amb = {};
   E3.ambient = true;
+  E3.api = { sp: (...a) => sp(...a), ring: (...a) => ring(...a), bolt: (...a) => bolt(...a), glow: (...a) => glow(...a), hueKey: c => hueKey(c), tintI: (...a) => tintI(...a), okI: im => okI(im) };
 
+  /* ---------- 이미지 스프라이트 (선·도형으로 그리던 입자를 생성 이미지로 교체) ---------- */
+  const IMGS = E3.img = {}, ldI = n => { const i = new Image(); i.src = 'assets/images/fx/' + n + '.webp'; return i; };
+  ['butterfly', 'bat', 'vine', 'drop', 'arrow', 'meteor', 'rainbow', 'oasis', 'camel', 'shroom', 'lantern', 'funnel', 'snow', 'leaf', 'cloud', 'bird', 'wisp', 'smoke'].forEach(n => IMGS[n] = ldI('env_' + n));
+  ['petal', 'ice', 'slash', 'net', 'ribbon', 'bokeh', 'foam'].forEach(n => IMGS['wl_' + n] = ldI('wl_' + n));
+  ['sparks', 'shock_o', 'shock_b', 'shock_g', 'shock_y', 'shock_p', 'bolt_b', 'bolt_y', 'bolt_g', 'bolt_p', 'glow_o', 'glow_b', 'glow_g', 'glow_y', 'glow_p', 'rays_y', 'rays_o', 'flame_o', 'flame_p', 'rune_p', 'rune_g', 'vignette'].forEach(n => IMGS['v2_' + n] = ldI('v2_' + n));
+  const okI = im => !!im && im.complete && im.naturalWidth > 0, tcI = {};
+  function tintI(img, key, col, a) { const id = key + '|' + col + '|' + a; if (tcI[id]) return tcI[id]; const c = document.createElement('canvas'); c.width = img.naturalWidth; c.height = img.naturalHeight; const g = c.getContext('2d'); g.drawImage(img, 0, 0); g.globalCompositeOperation = 'source-atop'; g.fillStyle = `rgba(${col},${a})`; g.fillRect(0, 0, c.width, c.height); return (tcI[id] = c); }
+  const hueKey = col => { const [r, g, b] = String(col).split(',').map(Number); if (b > r + 25 && b >= g - 10) return (r > 150 && g < 160) ? 'p' : 'b'; if (g > r + 25 && g >= b) return 'g'; if (r > 170 && g > 175 && b < 170) return 'y'; if (r > 160 && b > 140 && g < 150) return 'p'; return 'o'; };
   /* ---------- 부드러운 원형 스프라이트 캐시 (고성능 파티클) ---------- */
   const spriteCache = {};
   function puffSprite(col) {
@@ -116,7 +125,7 @@
 
   /* ---------- 파티클 ---------- */
   function sp(type, x, y, o) {
-    const p = Object.assign({ type, x, y, vx: 0, vy: 0, ay: 0, drag: 1, age: 0, life: 1, size: 4, a: 1, grow: 0, rot: 0, vr: 0, col: [255, 255, 255], add: false, len: 0, sway: 0, swf: 1, ph: 0, k: burstScale, wob: 0, wf: 5 }, o || {});
+    const p = Object.assign({ type, x, y, vx: 0, vy: 0, ay: 0, drag: 1, age: 0, life: 1, size: 4, a: 1, grow: 0, rot: 0, vr: 0, col: [255, 255, 255], add: false, len: 0, sway: 0, swf: 1, ph: Math.random() * 6, k: burstScale, wob: 0, wf: 5 }, o || {});
     if (PS.length > 520) PS.shift();
     PS.push(p); return p;
   }
@@ -127,14 +136,23 @@
     g.globalAlpha = a;
     switch (p.type) {
       case 'puff': { const sp0 = puffSprite(p.col); g.drawImage(sp0, p.x - s, p.y - s, s * 2, s * 2); break; }
-      case 'dot': { g.fillStyle = `rgb(${p.col})`; g.beginPath(); g.arc(p.x, p.y, Math.max(.6, s), 0, TAU); g.fill(); break; }
-      case 'streak': { g.strokeStyle = `rgb(${p.col})`; g.lineWidth = Math.max(.8, s); g.lineCap = 'round'; const l = p.len, m = Math.hypot(p.vx, p.vy) || 1; g.beginPath(); g.moveTo(p.x, p.y); g.lineTo(p.x - p.vx / m * l, p.y - p.vy / m * l); g.stroke(); break; }
-      case 'shard': { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.fillStyle = `rgb(${p.col})`; g.beginPath(); g.moveTo(s, 0); g.lineTo(-s * .6, s * .55); g.lineTo(-s * .35, -s * .6); g.closePath(); g.fill(); g.strokeStyle = 'rgba(255,255,255,.8)'; g.lineWidth = .8; g.stroke(); g.restore(); break; }
-      case 'leaf': { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.fillStyle = `rgb(${p.col})`; g.beginPath(); g.ellipse(0, 0, s, s * .46, 0, 0, TAU); g.fill(); g.strokeStyle = 'rgba(20,60,20,.45)'; g.lineWidth = .7; g.beginPath(); g.moveTo(-s, 0); g.lineTo(s, 0); g.stroke(); g.restore(); break; }
-      case 'crystal': { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.strokeStyle = `rgb(${p.col})`; g.lineWidth = Math.max(.9, s * .16); g.lineCap = 'round'; g.beginPath(); for (let i = 0; i < 3; i++) { const an = i * Math.PI / 3; g.moveTo(Math.cos(an) * s, Math.sin(an) * s); g.lineTo(-Math.cos(an) * s, -Math.sin(an) * s); } g.stroke(); g.restore(); break; }
-      case 'butterfly': { const fl = Math.abs(Math.sin(p.age * 16 + p.ph)); g.save(); g.translate(p.x, p.y); g.rotate(Math.atan2(p.vy, p.vx) * .25); g.fillStyle = `rgb(${p.col})`; g.beginPath(); g.ellipse(-s * .32, 0, s * .6, s * (.12 + .9 * fl), .35, 0, TAU); g.ellipse(s * .32, 0, s * .6, s * (.12 + .9 * fl), -.35, 0, TAU); g.fill(); g.fillStyle = 'rgba(40,20,20,.85)'; g.fillRect(-s * .06, -s * .35, s * .12, s * .7); g.restore(); break; }
-      case 'bat': { const fl = Math.sin(p.age * 18 + p.ph); g.save(); g.translate(p.x, p.y); g.fillStyle = `rgb(${p.col})`; g.beginPath(); g.moveTo(0, -s * .25); g.lineTo(s * 1.1, -s * (.2 + .7 * fl)); g.lineTo(s * .55, s * .1); g.lineTo(0, s * .35); g.lineTo(-s * .55, s * .1); g.lineTo(-s * 1.1, -s * (.2 + .7 * fl)); g.closePath(); g.fill(); g.fillStyle = 'rgba(255,60,60,.9)'; g.fillRect(-s * .18, -s * .12, s * .1, s * .08); g.fillRect(s * .08, -s * .12, s * .1, s * .08); g.restore(); break; }
-      case 'petal': { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.fillStyle = `rgb(${p.col})`; g.beginPath(); g.ellipse(0, 0, s, s * .55, 0, 0, TAU); g.fill(); g.restore(); break; }
+      case 'dot': { const im = IMGS.sparks; if (okI(im)) { const r = Math.max(2.4, s * 2.3); g.drawImage(tintI(im, 'sp', String(p.col), .85), (p.add ? 6 : 7) * 64, 0, 64, 64, p.x - r, p.y - r, r * 2, r * 2); } else { g.fillStyle = `rgb(${p.col})`; g.beginPath(); g.arc(p.x, p.y, Math.max(.6, s), 0, TAU); g.fill(); } break; }
+      case 'streak': {
+        const sk = p.spr; if (!sk) break; const m = Math.hypot(p.vx, p.vy) || 1, ang = Math.atan2(p.vy, p.vx) - Math.PI / 2; let im = null, cw = 32, ch = 96, cn = 0, L = p.len * 1.15, W = 0;
+        if (sk === 'drop' || sk === 'firedrop') { im = IMGS.drop; cn = sk === 'drop' ? 0 : 1; L = Math.max(p.len * 1.7, 12); W = L * .32; }
+        else if (sk === 'arrow' || sk === 'firearrow') { im = IMGS.arrow; ch = 160; cn = sk === 'arrow' ? 0 : 1; L = Math.max(p.len * 3, 40); W = L * .22; }
+        else if (sk === 'meteor') { im = IMGS.meteor; cw = 128; ch = 320; L = p.len * 2.6; W = L * .4; }
+        else if (sk === 'sand' || sk === 'soft') { im = IMGS.cloud; cw = 256; ch = 256; cn = (p.ph * 7 | 0) % 4; L = p.len * 2.4; W = Math.max(5, p.size * 4); }
+        if (!okI(im)) break; g.save(); g.translate(p.x, p.y); g.rotate(ang);
+        if (sk === 'sand' || sk === 'soft') { g.rotate(Math.PI / 2); g.globalAlpha *= .55; g.drawImage(tintI(im, 'sk', String(p.col), .9), cn * cw, 0, cw, ch, -L, -W, L, W * 2); }
+        else g.drawImage(sk === 'drop' || sk === 'firedrop' || sk === 'arrow' || sk === 'firearrow' ? im : tintI(im, 'sm', '255,255,255', .0), cn * cw, 0, cw, ch, -W / 2, -L * (sk === 'meteor' ? .82 : .5), W, L);
+        g.restore(); break; }
+      case 'shard': { const im = IMGS.wl_ice; if (okI(im)) { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); const r = s * 2.2; g.drawImage(tintI(im, 'ic', String(p.col), .5), ((p.ph * 5) | 0) % 4 * 128, 0, 128, 128, -r, -r, r * 2, r * 2); g.restore(); } break; }
+      case 'leaf': { const im = IMGS.leaf; if (okI(im)) { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); const r = s * 2.5; g.drawImage(tintI(im, 'lf', String(p.col), .78), ((p.ph * 7) | 0) % 6 * 64, 0, 64, 64, -r, -r, r * 2, r * 2); g.restore(); } break; }
+      case 'crystal': { const im = IMGS.snow; if (okI(im)) { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); const r = s * 1.9; g.drawImage(tintI(im, 'cr', String(p.col), .55), ((p.ph * 5) | 0) % 4 * 64, 0, 64, 64, -r, -r, r * 2, r * 2); g.restore(); } break; }
+      case 'butterfly': { const im = IMGS.butterfly; if (okI(im)) { const f = ((p.age * 11 + p.ph) | 0) & 3; g.save(); g.translate(p.x, p.y); g.rotate(Math.atan2(p.vy, p.vx) * .25); const r = s * 2.6; g.drawImage(tintI(im, 'bf', String(p.col), .7), f * 64, 0, 64, 64, -r, -r, r * 2, r * 2); g.restore(); } break; }
+      case 'bat': { const im = IMGS.bat; if (okI(im)) { const f = ((p.age * 12 + p.ph) | 0) & 3; g.save(); g.translate(p.x, p.y); const r = s * 2.2; g.drawImage(im, f * 64, 0, 64, 48, -r, -r * .75, r * 2, r * 1.5); g.restore(); } break; }
+      case 'petal': { const im = IMGS.wl_petal; if (okI(im)) { g.save(); g.translate(p.x, p.y); g.rotate(p.rot); const r = s * 2.2; g.drawImage(tintI(im, 'pt', String(p.col), .5), ((p.ph * 5) | 0) % 5 * 64, 0, 64, 64, -r, -r, r * 2, r * 2); g.restore(); } break; }
     }
   }
   function updateParticles(dt) {
@@ -177,35 +195,31 @@
   function drawFX(g, f) {
     const k = f.age / f.life; if (k < 0 || k > 1) return;
     if (f.k === 'ring') {
-      const e = 1 - Math.pow(1 - k, 3), r = f.r0 + (f.r1 - f.r0) * e;
-      g.save(); g.translate(f.x, f.y); g.scale(1, f.flat); g.strokeStyle = `rgba(${f.col},${(1 - k) * .9})`; g.lineWidth = Math.max(1, f.lw * (1 - k * .7)); g.beginPath(); g.arc(0, 0, r, 0, TAU); g.stroke();
-      g.fillStyle = `rgba(${f.col},${(1 - k) * .08})`; g.fill(); g.restore();
+      const key = 'shock_' + hueKey(f.col), im = IMGS['v2_' + key], e = 1 - Math.pow(1 - k, 2.2);
+      if (okI(im)) { const fr = Math.min(7, (e * 7.999) | 0), fr2 = Math.min(7, fr + 1), mix = e * 7.999 - fr, D = f.r1 * 2.18, a = (1 - k * k) * .95;
+        g.save(); g.globalCompositeOperation = 'lighter'; g.translate(f.x, f.y); g.scale(1, f.flat);
+        g.globalAlpha = Math.max(0, a * (1 - mix)); g.drawImage(im, (fr % 4) * 256, ((fr / 4) | 0) * 256, 256, 256, -D / 2, -D / 2, D, D);
+        g.globalAlpha = Math.max(0, a * mix); g.drawImage(im, (fr2 % 4) * 256, ((fr2 / 4) | 0) * 256, 256, 256, -D / 2, -D / 2, D, D); g.restore();
+      }
     } else if (f.k === 'bolt') {
-      g.save(); g.globalCompositeOperation = 'lighter'; g.lineJoin = 'round'; g.lineCap = 'round';
-      const a = (1 - k) * (Math.random() < .25 ? .55 : 1);
-      g.strokeStyle = `rgba(${f.col},${a * .35})`; g.lineWidth = f.w * 4; g.beginPath(); f.pts.forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.stroke();
-      g.strokeStyle = `rgba(255,255,255,${a})`; g.lineWidth = f.w; g.beginPath(); f.pts.forEach((q, i) => i ? g.lineTo(q[0], q[1]) : g.moveTo(q[0], q[1])); g.stroke(); g.restore();
+      const key = hueKey(f.col), im = IMGS['v2_bolt_' + (key === 'o' ? 'y' : key)] || IMGS.v2_bolt_y; if (!okI(im)) return;
+      const p0 = f.pts[0], p1 = f.pts[f.pts.length - 1], dx = p1[0] - p0[0], dy = p1[1] - p0[1], Lh = Math.hypot(dx, dy) || 1, fr = ((f.fr0 == null ? (f.fr0 = (Math.random() * 6) | 0) : f.fr0) + ((f.age / .05) | 0)) % 6;
+      const a = (1 - k) * (.55 + .45 * Math.abs(Math.sin(f.age * 60)));
+      g.save(); g.globalCompositeOperation = 'lighter'; g.translate(p0[0], p0[1]); g.rotate(Math.atan2(dy, dx) - Math.PI / 2); g.globalAlpha = Math.max(0, a);
+      const w = Math.max(Lh * .5, 40) * (f.w / 2.8 + .6); g.drawImage(im, fr * 256, 0, 256, 512, -w / 2, 0, w, Lh); g.globalAlpha = Math.max(0, a * .5); g.drawImage(im, fr * 256, 0, 256, 512, -w / 2, 0, w, Lh); g.restore();
     } else if (f.k === 'vine') {
-      const grow = Math.min(1, f.age / (f.life * .45)), a = f.age < f.life * .6 ? 1 : 1 - (f.age - f.life * .6) / (f.life * .4);
-      g.save(); g.lineCap = 'round'; g.globalAlpha = Math.max(0, a);
-      f.arms.forEach(m => {
-        const steps = 14, L = m.len * grow; g.strokeStyle = '#3fae4e'; g.lineWidth = Math.max(1.6, L * .07); g.beginPath(); g.moveTo(f.x, f.y);
-        for (let i = 1; i <= steps; i++) { const t = i / steps, an = m.ang + m.curl * t * 1.4, r = L * t; g.lineTo(f.x + Math.cos(an) * r, f.y + Math.sin(an) * r * .75); }
-        g.stroke();
-        g.strokeStyle = '#a5f58a'; g.lineWidth = Math.max(.8, L * .02); g.stroke();
-        const ex = f.x + Math.cos(m.ang + m.curl * 1.4) * L, ey = f.y + Math.sin(m.ang + m.curl * 1.4) * L * .75;
-        g.fillStyle = '#c8ff9e'; g.beginPath(); g.arc(ex, ey, Math.max(1.5, L * .05), 0, TAU); g.fill();
-      }); g.restore();
+      const im = IMGS.vine; if (!okI(im)) return; const grow = Math.min(1, f.age / (f.life * .45)), a = f.age < f.life * .6 ? 1 : 1 - (f.age - f.life * .6) / (f.life * .4);
+      g.save(); g.globalAlpha = Math.max(0, a);
+      f.arms.forEach(m => { const Lh = m.len * (.25 + .75 * grow) * 1.25, w = Lh * .9; g.save(); g.translate(f.x, f.y); g.rotate(m.ang + Math.PI / 2 + m.curl * .25); if (m.curl < 0) g.scale(-1, 1); g.drawImage(im, -w / 2, -Lh * .96, w, Lh); g.restore(); });
+      g.restore();
     } else if (f.k === 'pillar') {
       const e = Math.min(1, k * 3.2), a = (1 - k) * (1 - k), h = f.h * e, w = f.w * (1 - k * .4);
       g.save(); g.globalCompositeOperation = 'lighter';
       const lg = g.createLinearGradient(0, f.y, 0, f.y - h); lg.addColorStop(0, `rgba(${f.col},${.8 * a})`); lg.addColorStop(.6, `rgba(${f.col},${.28 * a})`); lg.addColorStop(1, `rgba(${f.col},0)`);
       g.fillStyle = lg; g.beginPath(); g.moveTo(f.x - w, f.y); g.lineTo(f.x - w * .3, f.y - h); g.lineTo(f.x + w * .3, f.y - h); g.lineTo(f.x + w, f.y); g.closePath(); g.fill(); g.restore();
     } else if (f.k === 'slash') {
-      g.save(); g.translate(f.x, f.y); g.rotate(f.ang); g.globalCompositeOperation = 'lighter';
-      const e = 1 - Math.pow(1 - Math.min(1, k * 2.2), 3), L = f.len * e, a = 1 - k;
-      const lg = g.createLinearGradient(-L, 0, L, 0); lg.addColorStop(0, `rgba(${f.col},0)`); lg.addColorStop(.5, `rgba(255,255,255,${a})`); lg.addColorStop(1, `rgba(${f.col},0)`);
-      g.fillStyle = lg; g.beginPath(); g.moveTo(-L, 0); g.quadraticCurveTo(0, -f.len * .16 * (1 - k * .6), L, 0); g.quadraticCurveTo(0, f.len * .04, -L, 0); g.fill(); g.restore();
+      const im = IMGS.wl_slash; if (!okI(im)) return; const e = 1 - Math.pow(1 - Math.min(1, k * 2.2), 3), L = f.len * e, a = 1 - k;
+      g.save(); g.translate(f.x, f.y); g.rotate(f.ang); g.globalCompositeOperation = 'lighter'; g.globalAlpha = Math.max(0, a); g.drawImage(tintI(im, 'sl', String(f.col), .45), 0, (((f.x * 7) | 0) & 3) * 128, 512, 128, -L, -L * .17, L * 2, L * .34); g.restore();
     }
   }
 
@@ -319,11 +333,11 @@
     { const br = [[255, 225, 160], [200, 245, 255], [190, 255, 190], [255, 120, 170], [255, 225, 130]][theme]; FX.push({ k: 'pillar', x: kx, y: ky + C * .2, h: C * 5, w: C * .6, life: .9, age: 0, col: br.join(',') }); glow(go, br, .0, kx, ky, 1); sp('puff', kx, ky, { col: br, size: C * 2.6, a: .7, life: .6, grow: .6, add: true }); }
     try { SFX.check[theme](); } catch (e) {}
     if (theme === 0) { /* 모래폭풍 돌풍 */
-      addSpawner(2.4 * big, (dt, k) => { for (let i = 0; i < 6; i++) sp('streak', B0.x - 30, rnd(B0.y, B0.y + B0.h), { col: [225, 180, 110], size: rnd(1, 2.4), len: S * rnd(.07, .16), a: .7, life: rnd(.55, .9), vx: S * rnd(1.4, 2.3), vy: S * rnd(.02, .18) }); if (Math.random() < .4) sp('puff', B0.x - 20, rnd(B0.y, B0.y + B0.h), { col: [215, 170, 100], size: S * rnd(.09, .16), a: .35, life: 1, vx: S * 1.5, grow: 1 }); });
+      addSpawner(2.4 * big, (dt, k) => { for (let i = 0; i < 6; i++) sp('streak', B0.x - 30, rnd(B0.y, B0.y + B0.h), { col: [225, 180, 110], spr: 'sand', size: rnd(1, 2.4), len: S * rnd(.07, .16), a: .7, life: rnd(.55, .9), vx: S * rnd(1.4, 2.3), vy: S * rnd(.02, .18) }); if (Math.random() < .4) sp('puff', B0.x - 20, rnd(B0.y, B0.y + B0.h), { col: [215, 170, 100], size: S * rnd(.09, .16), a: .35, life: 1, vx: S * 1.5, grow: 1 }); });
       tintA = Math.max(tintA, .22); tintCol = '210,160,90';
       ring(kx, ky, C * .3, C * 1.6, .9, '240,200,130', C * .07, .5);
     } else if (theme === 1) { /* 눈보라 돌풍 + 서리 */
-      addSpawner(2.4 * big, (dt) => { for (let i = 0; i < 7; i++) sp('streak', rnd(B0.x - S * .1, B0.x + B0.w), B0.y - 20, { col: [235, 252, 255], size: rnd(1, 2.2), len: S * rnd(.06, .13), a: .85, life: rnd(.6, 1), vx: S * rnd(.55, .95), vy: S * rnd(.7, 1.2) }); });
+      addSpawner(2.4 * big, (dt) => { for (let i = 0; i < 7; i++) sp('streak', rnd(B0.x - S * .1, B0.x + B0.w), B0.y - 20, { col: [235, 252, 255], spr: 'soft', size: rnd(1, 2.2), len: S * rnd(.06, .13), a: .85, life: rnd(.6, 1), vx: S * rnd(.55, .95), vy: S * rnd(.7, 1.2) }); });
       ring(kx, ky, C * .3, C * 1.7, .9, '190,240,255', C * .08, .6); flash = .22; flashCol = '200,240,255'; tintA = Math.max(tintA, .2); tintCol = '170,225,255';
       for (let i = 0; i < 8; i++) sp('crystal', kx, ky, { col: [235, 252, 255], size: rnd(C * .1, C * .2), a: 1, life: 1.1, vx: rnd(-90, 90), vy: rnd(-90, 20), ay: 70, vr: rnd(-4, 4), add: true });
     } else if (theme === 2) { /* 숲바람 낙엽 군무 */
@@ -352,7 +366,10 @@
       { name: '⚡ 모래 번개가 내리칩니다!', dur: 7.5, draw: 'sandthunder', grand: 1 },
       { name: '🌅 황금빛 황혼이 사막을 물들입니다', dur: 9, draw: 'sunset' },
       { name: '☁️ 구름 그림자가 장기판을 스쳐갑니다', dur: 9, draw: 'cloudshadow' },
-      { name: '🌀 먼지 회오리 행렬!', dur: 7, draw: 'dustdevils' }],
+      { name: '🌀 먼지 회오리 행렬!', dur: 7, draw: 'dustdevils' },
+      { name: '🐪 대상(隊商)의 행렬이 지나갑니다', dur: 13, draw: 's7_caravan' },
+      { name: '🌪️ 거대한 모래 회오리가 줄지어 섭니다', dur: 10, draw: 's7_funnels' },
+      { name: '🦅 독수리 떼가 사막 위를 맴돕니다', dur: 11, draw: 's7_vultures' }],
     [ // 설원
       { name: '🌨️ 눈보라가 휘몰아칩니다!', dur: 7, draw: 'blizzard' },
       { name: '🏔️ 눈사태가 쏟아집니다!', dur: 7, draw: 'avalanche', grand: 1 },
@@ -362,7 +379,10 @@
       { name: '🥶 서리가 장기판을 뒤덮습니다', dur: 8, draw: 'frostbloom' },
       { name: '🌌 오로라 대폭발!', dur: 10, draw: 'auroraburst', grand: 1 },
       { name: '🌌 오로라가 하늘을 수놓습니다', dur: 8, draw: 'aurora' },
-      { name: '💎 다이아몬드 더스트가 반짝입니다', dur: 5.5, draw: 'glints' }],
+      { name: '💎 다이아몬드 더스트가 반짝입니다', dur: 5.5, draw: 'glints' },
+      { name: '✨ 눈의 정령들이 춤춥니다', dur: 11, draw: 's7_snowspirits' },
+      { name: '❄️ 함박눈이 소복소복 내립니다', dur: 11, draw: 's7_heavysnow' },
+      { name: '☄️ 얼음 유성이 설원에 떨어집니다', dur: 8, draw: 's7_icemeteor' }],
     [ // 숲
       { name: '🌧️ 숲에 소나기가 내립니다', dur: 7, draw: 'rain' },
       { name: '⛈️ 뇌우가 숲을 흔듭니다!', dur: 8, draw: 'thunderrain', grand: 1 },
@@ -372,7 +392,10 @@
       { name: '🌳 신목의 정령이 깨어납니다!', dur: 10, draw: 'spirittree', grand: 1 },
       { name: '🍃 숲바람이 휘몰아칩니다', dur: 7, draw: 'windleaves' },
       { name: '🌫️ 안개가 숲길을 감쌉니다', dur: 9, draw: 'mist' },
-      { name: '✨ 반딧불 정령들의 군무!', dur: 8, draw: 'fireflies' }],
+      { name: '✨ 반딧불 정령들의 군무!', dur: 8, draw: 'fireflies' },
+      { name: '🍄 발광 버섯 군락이 깨어납니다', dur: 11, draw: 's7_shrooms' },
+      { name: '🌤️ 나뭇잎 사이로 빛줄기가 내립니다', dur: 11, draw: 's7_sunbeams' },
+      { name: '🌿 정령의 덩굴이 자라납니다', dur: 9, draw: 's7_vinegrow' }],
     [ // 암흑
       { name: '⚡ 번개 폭풍이 성채를 강타합니다!', dur: 6.5, draw: 'storm' },
       { name: '🔥 지옥불 기둥이 솟구칩니다!', dur: 7, draw: 'firepillars', grand: 1 },
@@ -382,7 +405,10 @@
       { name: '🌀 마기 폭풍이 소용돌이칩니다!', dur: 9, draw: 'darkaura', grand: 1 },
       { name: '🩸 붉은 번개가 내리칩니다!', dur: 7.5, draw: 'redlightning' },
       { name: '🌋 용암 지맥이 분출합니다!', dur: 6, draw: 'geyser' },
-      { name: '🌑 핏빛 달이 떠오릅니다', dur: 8, draw: 'bloodmoon' }],
+      { name: '🌑 핏빛 달이 떠오릅니다', dur: 8, draw: 'bloodmoon' },
+      { name: '🔥 혼불이 떠오릅니다', dur: 11, draw: 's7_soulfire' },
+      { name: '🐦‍⬛ 까마귀 떼가 몰려옵니다', dur: 10, draw: 's7_crows' },
+      { name: '🔮 마법진이 솟아오릅니다', dur: 10, draw: 's7_runes' }],
     [ // 고성
       { name: '🏹 화살비가 쏟아집니다!', dur: 4.8, draw: 'arrows' },
       { name: '🔥 봉화가 타오릅니다', dur: 9, draw: 'beacon' },
@@ -392,7 +418,10 @@
       { name: '📣 천지를 울리는 함성!', dur: 8, draw: 'warcry', grand: 1 },
       { name: '🌋 전운이 하늘을 붉게 물들입니다', dur: 9, draw: 'redsky' },
       { name: '🥁 출정 북소리가 울립니다!', dur: 6.5, draw: 'drums' },
-      { name: '🌇 노을이 성을 물들입니다', dur: 8, draw: 'dusk' }]
+      { name: '🌇 노을이 성을 물들입니다', dur: 8, draw: 'dusk' },
+      { name: '🏮 하늘등이 떠오릅니다', dur: 13, draw: 's7_lanterns' },
+      { name: '🕊️ 백학이 성 위를 날아갑니다', dur: 11, draw: 's7_cranes' },
+      { name: '🌸 벚꽃잎이 성벽 위로 흩날립니다', dur: 11, draw: 's7_petals' }]
   ];
   function startWeather(theme, idx) {
     const list = WX[theme] || WX[0], def = list[idx == null ? (Math.random() * list.length) | 0 : idx];
@@ -412,7 +441,7 @@
     const every = (sec, fn) => { sec *= E3.pace; while (wx.acc >= sec) { wx.acc -= sec; fn(); } };
     if (kind === 'sandstorm') {
       tint('210,160,90', .26 * env);
-      for (let i = 0; i < Math.ceil(6 * env); i++) sp('streak', B0.x - 30, rnd(B0.y, B0.y + B0.h), { col: [230, 185, 115], size: rnd(1, 2.4), len: S * rnd(.07, .16), a: .6, life: rnd(.6, 1), vx: S * rnd(1.2, 2.2), vy: S * rnd(.02, .2) });
+      for (let i = 0; i < Math.ceil(6 * env); i++) sp('streak', B0.x - 30, rnd(B0.y, B0.y + B0.h), { col: [230, 185, 115], spr: 'sand', size: rnd(1, 2.4), len: S * rnd(.07, .16), a: .6, life: rnd(.6, 1), vx: S * rnd(1.2, 2.2), vy: S * rnd(.02, .2) });
       if (Math.random() < .3 * env) sp('puff', B0.x - 30, rnd(B0.y, B0.y + B0.h), { col: [215, 170, 100], size: S * rnd(.1, .18), a: .3, life: 1.2, vx: S * 1.3, grow: 1 });
     } else if (kind === 'cloudshadow') {
       const gs = puffSprite([0, 0, 0]);
@@ -425,7 +454,7 @@
       }
     } else if (kind === 'blizzard') {
       tint('215,238,255', .2 * env);
-      for (let i = 0; i < Math.ceil(7 * env); i++) sp('streak', rnd(B0.x - S * .2, B0.x + B0.w), B0.y - 20, { col: [240, 252, 255], size: rnd(1, 2.2), len: S * rnd(.04, .1), a: .8, life: rnd(.7, 1.2), vx: S * rnd(.45, .9), vy: S * rnd(.55, 1.1) });
+      for (let i = 0; i < Math.ceil(7 * env); i++) sp('streak', rnd(B0.x - S * .2, B0.x + B0.w), B0.y - 20, { col: [240, 252, 255], spr: 'soft', size: rnd(1, 2.2), len: S * rnd(.04, .1), a: .8, life: rnd(.7, 1.2), vx: S * rnd(.45, .9), vy: S * rnd(.55, 1.1) });
     } else if (kind === 'aurora') {
       g.save(); g.globalCompositeOperation = 'lighter';
       for (let i = 0; i < 7; i++) {
@@ -438,7 +467,7 @@
       every(.07, () => { sp('crystal', rnd(B0.x, B0.x + B0.w), rnd(B0.y, B0.y + B0.h), { col: [240, 253, 255], size: rnd(C * .07, C * .17), a: 1, life: rnd(.5, .9), vr: rnd(-2, 2), add: true }); });
     } else if (kind === 'rain') {
       tint('40,70,70', .17 * env);
-      for (let i = 0; i < Math.ceil(11 * env); i++) sp('streak', rnd(B0.x - S * .1, B0.x + B0.w + S * .1), B0.y - 20, { col: [190, 225, 245], size: 1, len: S * .05, a: .55, life: rnd(.45, .7), vx: -S * .25, vy: S * 1.5 });
+      for (let i = 0; i < Math.ceil(11 * env); i++) sp('streak', rnd(B0.x - S * .1, B0.x + B0.w + S * .1), B0.y - 20, { col: [190, 225, 245], spr: 'drop', size: 1, len: S * .05, a: .55, life: rnd(.45, .7), vx: -S * .25, vy: S * 1.5 });
       every(.09, () => ring(rnd(B0.x, B0.x + B0.w), rnd(B0.y, B0.y + B0.h), 1, C * rnd(.2, .35), .5, '190,230,255', 1.2, .5));
     } else if (kind === 'mist') {
       every(.4, () => sp('puff', B0.x - S * .1, rnd(B0.y, B0.y + B0.h), { col: [225, 245, 232], size: S * rnd(.22, .4), a: .22 * env, life: 6, vx: S * rnd(.06, .12), grow: .5 }));
@@ -462,7 +491,7 @@
       g.fillStyle = `rgba(190,20,30,${.75 * env})`; g.beginPath(); g.arc(mx, my, mr, 0, TAU); g.fill();
       every(.12, () => sp('dot', rnd(B0.x, B0.x + B0.w), B0.y - 10, { col: [120, 110, 110], size: rnd(1, 2), a: .7, life: rnd(2, 3.2), vx: rnd(-12, 12), vy: rnd(24, 52) }));
     } else if (kind === 'arrows') {
-      every(.07, () => { const ax = rnd(B0.x - S * .1, B0.x + B0.w), ay = B0.y - 30; sp('streak', ax, ay, { col: [240, 225, 170], size: 1.4, len: S * .09, a: .55, life: .6, vx: S * .42, vy: S * 1.25 }); });
+      every(.07, () => { const ax = rnd(B0.x - S * .1, B0.x + B0.w), ay = B0.y - 30; sp('streak', ax, ay, { col: [240, 225, 170], spr: 'arrow', size: 1.4, len: S * .09, a: .55, life: .6, vx: S * .42, vy: S * 1.25 }); });
     } else if (kind === 'drums') {
       const beat = Math.floor(el / .9);
       if (beat !== wx.lastBeat) { wx.lastBeat = beat; ring(B0.x, B0.y + B0.h * .5, C * .3, B0.w * .55, .85, '255,215,110', C * .12, 1.7); ring(B0.x + B0.w, B0.y + B0.h * .5, C * .3, B0.w * .55, .85, '255,215,110', C * .12, 1.7); flash = Math.max(flash, .08); flashCol = '255,190,90'; tone('sine', 110, 50, .3, .2); }
@@ -482,7 +511,7 @@
     const pickc = a => a[(Math.random() * a.length) | 0];
     if (theme === 0) {
       tick('m', .09, () => sp('puff', B0.x - S * .05, rnd(B0.y, B0.y + B0.h), { col: [236, 202, 142], size: rnd(S * .008, S * .02), a: .24, life: rnd(4, 7), vx: S * rnd(.05, .12), vy: rnd(-6, 6), sway: rnd(4, 12), swf: rnd(.8, 2), ph: rnd(0, 6), add: true, fadeIn: true }));
-      tick('s', 2.0, () => sp('streak', B0.x - 20, rnd(B0.y, B0.y + B0.h), { col: [240, 206, 142], size: 1.4, len: S * rnd(.1, .2), a: .16, life: 2.6, vx: S * .28, vy: S * .015 }));
+      tick('s', 2.0, () => sp('streak', B0.x - 20, rnd(B0.y, B0.y + B0.h), { col: [240, 206, 142], spr: 'sand', size: 1.4, len: S * rnd(.1, .2), a: .16, life: 2.6, vx: S * .28, vy: S * .015 }));
     } else if (theme === 1) {
       tick('f1', .06, () => sp('puff', rnd(B0.x - S * .1, B0.x + B0.w + S * .1), B0.y - 12, { col: [240, 252, 255], size: rnd(S * .006, S * .011), a: .75, life: rnd(7, 11), vy: S * rnd(.05, .085), vx: S * rnd(-.012, .02), sway: rnd(6, 16), swf: rnd(.7, 1.6), ph: rnd(0, 6), add: true, fadeIn: true }));
       tick('f2', .4, () => sp('puff', rnd(B0.x, B0.x + B0.w), B0.y - 20, { col: [220, 244, 255], size: rnd(S * .018, S * .034), a: .3, life: 10, vy: S * rnd(.045, .07), sway: rnd(8, 18), swf: rnd(.5, 1), ph: rnd(0, 6), add: true, fadeIn: true }));
@@ -547,6 +576,7 @@
 
   /* ---------- 환경 이벤트 확장 (사막·설원·숲·암흑·고성 각 6종 추가) ---------- */
   function drawWeatherX(g, now, dt, kind, env, k, el, B0, S, tint, every) {
+    if (kind.indexOf('s7_') === 0) { if (window.jgScenes7) { try { window.jgScenes7.draw(kind, g, now, dt, env, k, el, B0, S, tint, every, wx, C); } catch (e) {} } return; }
     const ev = (n, sec, fn) => { sec *= E3.pace; wx[n] = (wx[n] || 0) + dt; let c = 0; while (wx[n] >= sec && c++ < 4) { wx[n] -= sec; fn(); } };
     const bx = () => rnd(B0.x, B0.x + B0.w), by = () => rnd(B0.y, B0.y + B0.h), cx = B0.x + B0.w / 2, cy = B0.y + B0.h / 2;
     const pc = pick;
@@ -554,15 +584,15 @@
       /* ===== 🏜️ 사막 ===== */
       case 'meteor':
         tint('8,16,58', .24 * env);
-        ev('m', .2, () => { const x0 = rnd(B0.x - S * .1, B0.x + B0.w), y0 = B0.y - 30; sp('streak', x0, y0, { col: [255, 240, 200], size: rnd(1.6, 3.2), len: S * rnd(.16, .32), a: .95, life: rnd(.8, 1.2), vx: S * rnd(.5, .8), vy: S * rnd(.9, 1.4), add: true }); sp('puff', x0, y0, { col: [255, 220, 150], size: C * .55, a: .6, life: .9, vx: S * .6, vy: S * 1.1, add: true }); });
+        ev('m', .2, () => { const x0 = rnd(B0.x - S * .1, B0.x + B0.w), y0 = B0.y - 30; sp('streak', x0, y0, { col: [255, 240, 200], spr: 'meteor', size: rnd(1.6, 3.2), len: S * rnd(.16, .32), a: .95, life: rnd(.8, 1.2), vx: S * rnd(.5, .8), vy: S * rnd(.9, 1.4), add: true }); sp('puff', x0, y0, { col: [255, 220, 150], size: C * .55, a: .6, life: .9, vx: S * .6, vy: S * 1.1, add: true }); });
         ev('g', 1.15, () => { const x = bx(), y = by(); ring(x, y, C * .1, C * 1.3, .8, '255,200,120', C * .08, .5); sp('puff', x, y, { col: [255, 235, 180], size: C * 1.4, a: .85, life: .4, add: true }); for (let i = 0; i < 14; i++) sp('dot', x, y, { col: [255, 200, 110], size: rnd(1, 2.4), a: 1, life: rnd(.6, 1.2), vx: rnd(-140, 140), vy: rnd(-160, -20), ay: 320, add: true }); for (let i = 0; i < 5; i++) sp('puff', x + rnd(-8, 8), y, { col: [220, 178, 108], size: C * rnd(.2, .35), a: .5, life: 1.3, vx: rnd(-50, 50), vy: rnd(-30, -6), grow: 1.4 }); flashX = x; flashY = y; flash = Math.max(flash, .12); flashCol = '255,225,170'; });
         break;
       case 'mirage': {
         tint('110,190,220', .1 * env);
-        for (let i = 0; i < 8; i++) {
-          const y = B0.y + B0.h * (.28 + i * .06); g.save(); g.strokeStyle = `rgba(205,238,248,${.22 * env * (1 - i * .06)})`; g.lineWidth = 2.2; g.beginPath();
-          for (let j = 0; j <= 28; j++) { const xx = B0.x + B0.w * j / 28, yy = y + Math.sin(el * 1.7 + j * .85 + i) * C * .08; j ? g.lineTo(xx, yy) : g.moveTo(xx, yy); } g.stroke(); g.restore();
-        }
+        { const im = IMGS.oasis; if (okI(im)) { const w = B0.w * 1.02, h = w * .5, x0 = B0.x + (B0.w - w) / 2, y0 = B0.y + B0.h * .5 - h / 2, N = 28;
+          g.save(); g.beginPath(); g.rect(B0.x - C, B0.y - C, B0.w + 2 * C, B0.h + 2 * C); g.clip();
+          for (let i = 0; i < N; i++) { const sy = im.naturalHeight * i / N, sh = im.naturalHeight / N + 1, wob = Math.sin(el * 2.2 + i * .55) * C * .12 * (1 - i / N * .4); g.globalAlpha = .66 * env * (.72 + .28 * Math.sin(el * 1.3 + i)); g.drawImage(im, 0, sy, im.naturalWidth, sh, x0 + wob, y0 + h * i / N, w, h / N + 1); }
+          g.restore(); glow(g, [200, 235, 245], .12 * env, cx, y0 + h * .8, B0.w * .5); } }
         ev('s', .1, () => sp('dot', bx(), B0.y + B0.h * rnd(.28, .76), { col: [235, 250, 255], size: rnd(1, 2.2), a: .9, life: rnd(.7, 1.3), add: true }));
         break; }
       case 'heatwave':
@@ -575,7 +605,7 @@
         break;
       case 'sandthunder':
         tint('210,160,90', .24 * env);
-        for (let i = 0; i < Math.ceil(4 * env); i++) sp('streak', B0.x - 30, by(), { col: [230, 185, 115], size: rnd(1, 2.4), len: S * rnd(.07, .15), a: .6, life: rnd(.6, .95), vx: S * rnd(1.2, 2), vy: S * rnd(.02, .15) });
+        for (let i = 0; i < Math.ceil(4 * env); i++) sp('streak', B0.x - 30, by(), { col: [230, 185, 115], spr: 'sand', size: rnd(1, 2.4), len: S * rnd(.07, .15), a: .6, life: rnd(.6, .95), vx: S * rnd(1.2, 2), vy: S * rnd(.02, .15) });
         wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.7, 1.5) * E3.pace; const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .85), .45, '255,230,150', 2.8); flash = Math.max(flash, .32); flashCol = '255,235,170'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(.9, 'lowpass', 1400, 90, .18, 1); } catch (e) {} }
         break;
       case 'sunset': {
@@ -597,11 +627,7 @@
         ev('s', .07, () => { const x = bx(), y = by(); ring(x, y, 1, C * .32, .5, '210,240,255', 1.4, .5); for (let i = 0; i < 3; i++) sp('dot', x, y, { col: [235, 250, 255], size: rnd(.9, 1.8), a: .95, life: .6, vx: rnd(-60, 60), vy: rnd(-90, -20), ay: 260, add: true }); });
         break;
       case 'icecrack': {
-        if (!wx.cr) { wx.cr = []; for (let i = 0; i < 10; i++) { const a = i / 10 * TAU + rnd(-.2, .2), n = 7, len = rnd(.35, .62) * Math.max(B0.w, B0.h); let x = 0, y = 0; const pts = [[0, 0]]; for (let j = 1; j <= n; j++) { const aa = a + rnd(-.38, .38); x += Math.cos(aa) * len / n; y += Math.sin(aa) * len / n * 1.1; pts.push([x, y]); } wx.cr.push(pts); } }
-        const grow = ease(Math.min(1, el / 3));
-        g.save(); g.translate(cx, cy); g.lineCap = 'round'; g.lineJoin = 'round'; g.shadowColor = 'rgba(130,220,255,.9)'; g.shadowBlur = 10;
-        wx.cr.forEach(pts => { const upto = pts.length * grow; for (let pass = 0; pass < 2; pass++) { g.strokeStyle = pass ? `rgba(255,255,255,${.85 * env})` : `rgba(130,215,255,${.65 * env})`; g.lineWidth = pass ? 1.2 : 3; g.beginPath(); g.moveTo(0, 0); for (let j = 1; j < pts.length && j <= upto; j++) { const f = Math.min(1, upto - j + 1), q0 = pts[j - 1], q1 = pts[j]; g.lineTo(q0[0] + (q1[0] - q0[0]) * f, q0[1] + (q1[1] - q0[1]) * f); } g.stroke(); } });
-        g.restore();
+        { const grow = ease(Math.min(1, el / 2.6)), im = IMGS.wl_net; if (okI(im)) { const z = Math.max(B0.w, B0.h) * (.25 + 1.05 * grow); g.save(); g.globalCompositeOperation = 'lighter'; g.translate(cx, cy); g.globalAlpha = .9 * env; g.drawImage(tintI(im, 'icn', '110,220,255', .55), -z / 2, -z / 2, z, z); g.globalAlpha = .45 * env * (.6 + .4 * Math.sin(el * 5)); g.drawImage(im, -z * .35, -z * .35, z * .7, z * .7); g.restore(); } }
         ev('c', .12, () => sp('crystal', cx + rnd(-B0.w * .4, B0.w * .4), cy + rnd(-B0.h * .4, B0.h * .4), { col: [225, 250, 255], size: rnd(C * .1, C * .22), a: 1, life: rnd(.7, 1.3), vr: rnd(-2, 2), add: true }));
         tint('150,220,255', .1 * env);
         break; }
@@ -629,15 +655,13 @@
       /* ===== 🌲 숲 ===== */
       case 'thunderrain':
         tint('30,60,50', .22 * env);
-        for (let i = 0; i < Math.ceil(10 * env); i++) sp('streak', rnd(B0.x - S * .1, B0.x + B0.w + S * .1), B0.y - 20, { col: [190, 228, 245], size: 1, len: S * .05, a: .55, life: rnd(.45, .7), vx: -S * .25, vy: S * 1.5 });
+        for (let i = 0; i < Math.ceil(10 * env); i++) sp('streak', rnd(B0.x - S * .1, B0.x + B0.w + S * .1), B0.y - 20, { col: [190, 228, 245], spr: 'drop', size: 1, len: S * .05, a: .55, life: rnd(.45, .7), vx: -S * .25, vy: S * 1.5 });
         wx.bolts -= dt; if (wx.bolts <= 0) { wx.bolts = rnd(.9, 1.8) * E3.pace; const x = bx(); bolt(x, B0.y - C, x + rnd(-C * 2, C * 2), rnd(B0.y + B0.h * .3, B0.y + B0.h * .9), .45, '170,255,200', 2.6); flash = Math.max(flash, .34); flashCol = '215,255,225'; flashX = x; flashY = B0.y + B0.h * .4; try { noiseBurst(1, 'lowpass', 1100, 80, .2, 1); } catch (e) {} }
         ev('r', .1, () => ring(bx(), by(), 1, C * rnd(.2, .35), .5, '190,230,255', 1.2, .5));
         break;
       case 'rainbow': {
-        const rc = [[255, 70, 70], [255, 150, 60], [255, 230, 80], [90, 220, 100], [70, 170, 255], [110, 110, 255], [190, 100, 255]];
-        g.save(); g.globalCompositeOperation = 'lighter'; const R0 = B0.w * .95;
-        rc.forEach((c, i) => { g.strokeStyle = `rgba(${c},${.24 * env})`; g.lineWidth = C * .34; g.beginPath(); g.arc(cx, B0.y + B0.h * 1.05, R0 - i * C * .32, Math.PI * 1.08, Math.PI * 1.92); g.stroke(); });
-        g.restore(); glow(g, [255, 250, 200], .18 * env, B0.x + B0.w * .1, B0.y, B0.w * .8);
+        { const im = IMGS.rainbow; if (okI(im)) { const w = B0.w * 1.3, h = w * .5; g.save(); g.globalAlpha = .82 * env; g.drawImage(im, cx - w / 2, B0.y + B0.h * .9 - h, w, h); g.restore(); } }
+        glow(g, [255, 250, 200], .18 * env, B0.x + B0.w * .1, B0.y, B0.w * .8);
         ev('s', .12, () => sp('dot', bx(), by(), { col: [255, 255, 220], size: rnd(1, 2.2), a: .9, life: rnd(.8, 1.4), add: true }));
         break; }
       case 'spores':
@@ -658,7 +682,7 @@
       case 'windleaves':
         tint('90,130,80', .1 * env);
         ev('l', .035, () => sp('leaf', B0.x - 20, by(), { col: pc([[90, 190, 80], [150, 215, 80], [215, 190, 70], [70, 160, 90]]), size: rnd(C * .08, C * .16), a: 1, life: rnd(1.2, 2), vx: S * rnd(.9, 1.7), vy: rnd(-70, 70), vr: rnd(-10, 10), rot: rnd(0, TAU) }));
-        ev('s', .2, () => sp('streak', B0.x - 20, by(), { col: [190, 235, 170], size: 1.2, len: S * .12, a: .3, life: .9, vx: S * 1.4, vy: S * .02 }));
+        ev('s', .2, () => sp('streak', B0.x - 20, by(), { col: [190, 235, 170], spr: 'soft', size: 1.2, len: S * .12, a: .3, life: .9, vx: S * 1.4, vy: S * .02 }));
         break;
       /* ===== 🏯 암흑 ===== */
       case 'firepillars':
@@ -678,7 +702,7 @@
         break;
       case 'lavarain':
         tint('90,12,10', .16 * env);
-        ev('l', .03, () => sp('streak', bx() + S * .04, B0.y - 20, { col: [255, 130, 50], size: 1.7, len: S * .05, a: .9, life: rnd(.5, .8), vx: -S * .05, vy: S * 1.2, add: true }));
+        ev('l', .03, () => sp('streak', bx() + S * .04, B0.y - 20, { col: [255, 130, 50], spr: 'firedrop', size: 1.7, len: S * .05, a: .9, life: rnd(.5, .8), vx: -S * .05, vy: S * 1.2, add: true }));
         ev('s', .12, () => { const x = bx(), y = by(); ring(x, y, 1, C * rnd(.25, .4), .5, '255,110,50', 1.5, .5); for (let i = 0; i < 4; i++) sp('dot', x, y, { col: [255, 160, 60], size: rnd(1, 2.2), a: 1, life: .7, vx: rnd(-60, 60), vy: rnd(-100, -20), ay: 300, add: true }); });
         break;
       case 'bats':
@@ -719,7 +743,7 @@
         ev('c', .05, () => { const y = B0.y + B0.h * rnd(.12, .96); sp('puff', B0.x - 20, y, { col: [205, 185, 155], size: S * rnd(.03, .06), a: .42, life: 1.3, vx: S * rnd(.9, 1.5), vy: rnd(-14, 14), grow: 1.2, fadeIn: true }); if (Math.random() < .5) sp('streak', B0.x - 20, y, { col: [255, 230, 170], size: 1.3, len: S * .1, a: .35, life: .8, vx: S * 1.6, vy: 0, add: true }); });
         break;
       case 'firearrows':
-        ev('a', .09, () => { const x = rnd(B0.x - S * .1, B0.x + B0.w); sp('streak', x, B0.y - 30, { col: [255, 190, 90], size: 2, len: S * .11, a: .95, life: .65, vx: S * .4, vy: S * 1.2, add: true }); sp('puff', x, B0.y - 30, { col: [255, 140, 50], size: C * .32, a: .5, life: .65, vx: S * .4, vy: S * 1.2, add: true }); });
+        ev('a', .09, () => { const x = rnd(B0.x - S * .1, B0.x + B0.w); sp('streak', x, B0.y - 30, { col: [255, 190, 90], spr: 'firearrow', size: 2, len: S * .11, a: .95, life: .65, vx: S * .4, vy: S * 1.2, add: true }); sp('puff', x, B0.y - 30, { col: [255, 140, 50], size: C * .32, a: .5, life: .65, vx: S * .4, vy: S * 1.2, add: true }); });
         ev('i', .45, () => { const x = bx(), y = by(); for (let i = 0; i < 9; i++) sp('dot', x, y, { col: [255, 190, 90], size: rnd(1, 2.2), a: 1, life: rnd(.4, .9), vx: rnd(-90, 90), vy: rnd(-110, -20), ay: 300, add: true }); ring(x, y, 1, C * .4, .5, '255,170,70', 1.5, .5); });
         break;
       case 'warcry':
