@@ -29,7 +29,7 @@
 
   /* ---------- 이미지 스프라이트 (선·도형으로 그리던 입자를 생성 이미지로 교체) ---------- */
   const IMGS = E3.img = {}, ldI = n => { const i = new Image(); i.src = 'assets/images/fx/' + n + '.webp'; return i; };
-  ['butterfly', 'bat', 'vine', 'drop', 'arrow', 'meteor', 'rainbow', 'oasis', 'camel', 'shroom', 'lantern', 'funnel', 'snow', 'leaf', 'cloud', 'bird', 'wisp', 'smoke'].forEach(n => IMGS[n] = ldI('env_' + n));
+  ['butterfly', 'bat', 'vine', 'drop', 'arrow', 'meteor', 'rainbow', 'oasis', 'camel', 'shroom', 'lantern', 'funnel', 'snow', 'leaf', 'cloud', 'bird', 'wisp', 'smoke', 'lava'].forEach(n => IMGS[n] = ldI('env_' + n));
   ['petal', 'ice', 'slash', 'net', 'ribbon', 'bokeh', 'foam'].forEach(n => IMGS['wl_' + n] = ldI('wl_' + n));
   ['sparks', 'shock_o', 'shock_b', 'shock_g', 'shock_y', 'shock_p', 'bolt_b', 'bolt_y', 'bolt_g', 'bolt_p', 'glow_o', 'glow_b', 'glow_g', 'glow_y', 'glow_p', 'rays_y', 'rays_o', 'flame_o', 'flame_p', 'rune_p', 'rune_g', 'vignette'].forEach(n => IMGS['v2_' + n] = ldI('v2_' + n));
   const okI = im => !!im && im.complete && im.naturalWidth > 0, tcI = {};
@@ -408,7 +408,7 @@
       { name: '🌑 핏빛 달이 떠오릅니다', dur: 8, draw: 'bloodmoon' },
       { name: '🔥 혼불이 떠오릅니다', dur: 11, draw: 's7_soulfire' },
       { name: '🐦‍⬛ 까마귀 떼가 몰려옵니다', dur: 10, draw: 's7_crows' },
-      { name: '🔮 마법진이 솟아오릅니다', dur: 10, draw: 's7_runes' }],
+      { name: '🌋 대지가 갈라지며 용암이 솟구칩니다', dur: 10, draw: 's7_lavacrack' }],
     [ // 고성
       { name: '🏹 화살비가 쏟아집니다!', dur: 4.8, draw: 'arrows' },
       { name: '🔥 봉화가 타오릅니다', dur: 9, draw: 'beacon' },

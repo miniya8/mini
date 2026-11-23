@@ -14,6 +14,9 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/three-kingdoms-main-screen.js: 메인 화면 효과
 - js/board-theme-hud.js: 테마 HUD 동작
 - js/remaster-v1.js, js/remaster-v2.js, js/board-effects-v4.js: 추가 패치와 보드 효과
+- js/skills-real-v8.js: 핵폭탄·메테오·외계인 사실적 업그레이드(원본과 같은 타이밍에 맞춰 연출, 핵·메테오는 원본 캔버스를 숨기고 대체). 끄기: jgSkillsReal8.enabled=false
+- js/board-tear-v8.js: 군주 검·창 스킬의 장기판 찢어짐(조조·유비·여포·손권). 이미지 tear_*.webp
+- 마법진은 군주 스킬(warlord-punish-v6.js)에서만 사용. 일반 스킬은 속성 효과(불·얼음·전기)
 - js/warlord-punish-v6.js: 군주 6명 응징 스킬 완전 차별화 v6.1(제갈량·손권·조조·유비·여포·사마의) + 블룸·슬로모션·줌펀치로 화려하고 부드럽게. 기존 연출 복귀: jgWarlordPunish6.enabled=false, 빛번짐 세기: jgWarlordPunish6.bloom / jgSkillFx2.bloom
 - assets/images/fx/wl_*.webp: warlord-punish-v6.js가 쓰는 군주 전용 이미지
 - js/board-scenes-v7.js: 맵 컨셉별 이미지 환경 장면 15종(대상·모래회오리·독수리 / 눈의 정령·함박눈·얼음유성 / 발광버섯·빛줄기·정령덩굴 / 혼불·까마귀·마법진 / 하늘등·백학·벚꽃). board-effects-v4.js의 선/도형 입자·링·번개·덩굴·참격도 이미지로 교체됨

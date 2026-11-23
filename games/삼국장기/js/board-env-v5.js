@@ -120,16 +120,13 @@
     } else if (t === 2) {   /* 숲: 잎 그림자·햇살 얼룩 + 신목 룬 */
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = .13; tile(g, IM.dapple_s, bx, by, bw, bh, C0 * 10, -s * 9, s * 4);
       g.globalCompositeOperation = 'lighter'; g.globalAlpha = .06 + .025 * Math.sin(s * .7); tile(g, IM.dapple_l, bx, by, bw, bh, C0 * 12, s * 6, -s * 3);
-      const r = IM.rune_g; if (ok(r)) { const z = 8 * CX * 1.05, cxp = OX + 4 * CX, cyp = OY + 4.5 * CY; g.save(); g.translate(cxp, cyp); g.rotate(s * .05); g.globalAlpha = .06 + .035 * Math.sin(s * .9); g.drawImage(r, -z / 2, -z / 2, z, z); g.restore(); }
     } else if (t === 3) {   /* 암흑: 갈라진 땅 틈의 용암 */
       const pulse = .6 + .4 * Math.sin(s * 1.4), z = C0 * 12;
       g.globalCompositeOperation = 'lighter'; g.globalAlpha = (.07 + .07 * pulse); tile(g, IM.lava, bx, by, bw, bh, z, s * 2, s * 1.2);
       g.globalAlpha = .035 * pulse; tile(g, IM.lava, bx, by, bw, bh, z * .6, -s * 3, 30);
-      const r = IM.rune_p; if (ok(r)) { const zz = 8 * CX * 1.0, cxp = OX + 4 * CX, cyp = OY + 4.5 * CY; g.save(); g.translate(cxp, cyp); g.rotate(-s * .06); g.globalAlpha = .05 + .03 * Math.sin(s * 1.1); g.drawImage(r, -zz / 2, -zz / 2, zz, zz); g.restore(); }
-    } else {                /* 고성: 황룡 인장 */
-      const z = 8.2 * CX, cxp = OX + 4 * CX, cyp = OY + 4.5 * CY, a = .07 + .03 * Math.sin(s * .8);
-      g.globalCompositeOperation = 'lighter';
-      if (ok(IM.seal)) { g.save(); g.translate(cxp, cyp); g.rotate(s * .06); g.globalAlpha = a + (sealPulse ? sealPulse.k * .16 : 0); g.drawImage(IM.seal, -z / 2, -z / 2, z, z); g.rotate(-s * .13); g.globalAlpha = a * .7; g.drawImage(IM.seal, -z * .3, -z * .3, z * .6, z * .6); g.restore(); }
+    } else {                /* 고성: 횃불 빛웅덩이 (바닥에 일렁이는 따뜻한 빛) */
+      const C1 = cl(); g.globalCompositeOperation = 'lighter';
+      [[-.6, 1.6], [8.6, 1.6], [-.6, 4.5], [8.6, 4.5], [-.6, 7.4], [8.6, 7.4]].forEach((q, i) => { const p2 = px(q[0], q[1]), fl = .7 + .3 * Math.sin(s * 7 + i * 2) * Math.sin(s * 3.1 + i); const gm = IM.glow_o; if (ok(gm)) { const z = C1 * 6.5; g.globalAlpha = .26 * fl; g.drawImage(gm, p2[0] - z / 2, p2[1] - z / 2, z, z); } });
     }
     g.restore();
   }
@@ -196,7 +193,6 @@
     } else if (t === 3) {                       /* 먼 번개 */
       SETS.push({ k: 'bolt', t0: now, life: 1.1, x: Math.random() < .5 ? B.x - C0 * .15 : B.x + B.w + C0 * .15, h: B.h * rnd(.35, .65), f0: (Math.random() * 6) | 0 }); flashA = .5; flashRGB = '190,120,255';
     }
-    if (t === 4 && Math.random() < .5) { sealPulse = { t0: now, k: 0 }; }
   }
   function drawSets(g, B, now) {
     for (let i = SETS.length - 1; i >= 0; i--) {
@@ -341,12 +337,8 @@
     pollAnim(t);
     const B = BR(), hudH = (document.getElementById('hud') || {}).offsetHeight || 0, tn = performance.now();
     if (inPlay && tn > nextSet) { startSet(t, B); nextSet = tn + rnd(26000, 52000); }
-    if (sealPulse) { const k = (tn - sealPulse.t0) / 2200; if (k >= 1) sealPulse = null; else { sealPulse.k = Math.sin(k * Math.PI); } }
     go.save(); go.beginPath(); go.rect(RC.left, RC.top + hudH, RC.width, RC.height - hudH); go.clip();
     if (!E5.noAir) { drawAir(go, B, t, tn, dt); drawSets(go, B, tn); }
-    if (sealPulse) {       /* 인장 맥동: 중앙에서 황금 파동 */
-      const k = (tn - sealPulse.t0) / 2200, im = IM.shock_y; if (ok(im)) { const f = Math.min(7, (k * 8) | 0), z = B.w * 1.5; go.globalCompositeOperation = 'lighter'; go.save(); go.translate(B.x + B.w / 2, B.y + B.h * .5); addDraw(go, im, (f % 4) * 256, ((f / 4) | 0) * 256, 256, 256, -z / 2, -z / 2, z, z, .55 * (1 - k * .5)); go.restore(); go.globalCompositeOperation = 'source-over'; }
-    }
     for (let i = FXL.length - 1; i >= 0; i--) { const f = FXL[i], age = (tn - f.t0) / 1000, k = age / f.life; if (k >= 1) { FXL.splice(i, 1); continue; } go.save(); try { f.fn(go, k, age); } catch (e) { FXL.splice(i, 1); } go.restore(); }
     if (flashA > .01) { go.globalCompositeOperation = 'lighter'; go.globalAlpha = flashA; if (ok(IM.vignette)) go.drawImage(tinted(IM.vignette, 'vg', flashRGB, 1), RC.left, RC.top, RC.width, RC.height); go.fillStyle = `rgba(${flashRGB},${flashA * .3})`; go.globalAlpha = 1; go.fillRect(RC.left, RC.top, RC.width, RC.height); flashA *= Math.pow(.03, dt); }
     go.restore(); go.globalAlpha = 1; go.globalCompositeOperation = 'source-over';

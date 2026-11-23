@@ -4,7 +4,7 @@
  *   🏜️ 사막   : 대상(낙타 행렬) · 모래 회오리 행렬 · 독수리 떼(그림자)
  *   ❄️ 설원   : 눈의 정령 · 함박눈(3겹) · 얼음 유성
  *   🌲 숲     : 발광 버섯 군락 · 나뭇잎 빛줄기 · 정령 덩굴
- *   🏯 암흑   : 혼불 · 까마귀 떼 · 마법진 솟구침
+ *   🏯 암흑   : 혼불 · 까마귀 떼 · 용암 균열
  *   ⚔️ 고성   : 하늘등 · 백학 · 벚꽃잎
  *  (선·원·타원으로만 그리던 기존 입자/번개/덩굴/링/참격도 board-effects-v4.js 에서 이미지로 교체되었습니다)
  * ============================================================================ */
@@ -126,16 +126,15 @@
         put(g, bd, f * 64, 0, 64, 48, x, y, sz, sz * .75, .95 * env, 0, dir < 0);
       }
     },
-    s7_runes(g, el, env, B0, S, C, wx, dt, tn) {
-      tn('60,10,90', .16 * env); const s = st(wx, 's7_runes'), api = API();
-      if (!s.list.length) for (let i = 0; i < 3; i++) s.list.push({ x: B0.x + B0.w * (.2 + .3 * i + (R(s.seed, i, 1) - .5) * .12), y: B0.y + B0.h * (.25 + .5 * R(s.seed, i, 2)), t: i * 1.6, sz: C * (4.2 + R(s.seed, i, 3) * 1.8), key: i % 2 ? 'v2_rune_g' : 'v2_rune_p', dir: i % 2 ? -1 : 1 });
-      s.list.forEach((r, i) => {
-        const q = clamp((el - r.t) / 1.2, 0, 1), out = 1 - ease(clamp((el - (wx.dur * .8 - r.t * .4)) / 1.5, 0, 1)), a = ease(q) * out * env, im = IM()[r.key]; if (a <= .01 || !ok(im)) return;
-        g.save(); g.globalCompositeOperation = 'lighter'; g.translate(r.x, r.y); g.scale(1, .55); g.rotate(el * .45 * r.dir); g.globalAlpha = a * .75; g.drawImage(im, -r.sz / 2, -r.sz / 2, r.sz, r.sz); g.rotate(-el * .9 * r.dir); g.globalAlpha = a * .5; g.drawImage(im, -r.sz * .3, -r.sz * .3, r.sz * .6, r.sz * .6); g.restore();
-        glowAt(g, r.key === 'v2_rune_g' ? 'v2_glow_g' : 'v2_glow_p', r.x, r.y, r.sz * .8, .35 * a);
-        const rb = IM().wl_ribbon; if (ok(rb)) { g.save(); g.globalCompositeOperation = 'lighter'; g.translate(r.x, r.y); g.rotate(-Math.PI / 2); g.globalAlpha = a * .35; g.drawImage(tint(rb, 'rr', r.key === 'v2_rune_g' ? '140,255,170' : '200,130,255', .8), 0, -C * .4, r.sz * .9, C * .8); g.restore(); }
-        if (Math.random() < .5 * a) api.sp('dot', r.x + rnd(-r.sz * .3, r.sz * .3), r.y + rnd(-r.sz * .1, r.sz * .1), { col: r.key === 'v2_rune_g' ? [140, 255, 170] : [200, 130, 255], size: rnd(1.2, 2.6), a: 1, life: rnd(1, 2), vy: -rnd(30, 90), add: true });
-      });
+    s7_lavacrack(g, el, env, B0, S, C, wx, dt, tn, every) {
+      tn('80,10,10', .14 * env); const lv = IM().lava, api = API(); if (ok(lv)) {
+        const q = ease(Math.min(1, el / 2.4)), pul = .6 + .4 * Math.sin(el * 1.6), z = Math.max(B0.w, B0.h) * 1.1;
+        g.save(); g.beginPath(); g.rect(B0.x - C * .3, B0.y - C * .3, B0.w + C * .6, B0.h + C * .6); g.clip(); g.globalCompositeOperation = 'lighter';
+        for (let l = 0; l < 2; l++) { g.globalAlpha = (.45 - l * .2) * pul * q * env; g.drawImage(lv, B0.x + B0.w / 2 - z / 2 + Math.sin(el * .3 + l) * C * .3, B0.y + B0.h / 2 - z / 2, z * (1 + l * .35), z * (1 + l * .35)); }
+        g.restore();
+      }
+      every(.12, () => api.sp('dot', rnd(B0.x, B0.x + B0.w), B0.y + B0.h * rnd(.2, 1), { col: [255, 130, 40], size: rnd(1.4, 3), a: 1, life: rnd(1.4, 2.6), vy: -rnd(30, 110), vx: rnd(-14, 14), add: true }));
+      every(.7, () => api.sp('puff', rnd(B0.x, B0.x + B0.w), B0.y + B0.h * rnd(.5, 1), { col: [60, 30, 40], size: S * rnd(.08, .14), a: .22, life: 4, vy: -rnd(14, 30), grow: 1, fadeIn: true }));
     },
     /* ---------------- ⚔️ 고성 ---------------- */
     s7_lanterns(g, el, env, B0, S, C, wx, dt, tn) {

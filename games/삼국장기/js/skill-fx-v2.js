@@ -27,7 +27,7 @@
   ['o', 'b', 'g', 'y', 'p'].forEach(k => { IM['shock_' + k] = load('v2_shock_' + k); IM['rays_' + k] = load('v2_rays_' + k); IM['rune_' + k] = load('v2_rune_' + k); IM['glow_' + k] = load('v2_glow_' + k); });
   ['b', 'y', 'g', 'p'].forEach(k => { IM['bolt_' + k] = load('v2_bolt_' + k); });
   ['o', 'b', 'g', 'p'].forEach(k => { IM['flame_' + k] = load('v2_flame_' + k); });
-  IM.sparks = load('v2_sparks'); IM.smoke = load('v2_smoke'); IM.vig = load('v2_vignette');
+  IM.ice = load('wl_ice'); IM.frost = load('env_frost'); IM.sparks = load('v2_sparks'); IM.smoke = load('v2_smoke'); IM.vig = load('v2_vignette');
   const ok = im => !!im && im.complete && im.naturalWidth > 0;
 
   const RGB = { o: '255,150,60', b: '90,190,255', g: '130,255,120', y: '255,215,80', p: '210,100,255' };
@@ -43,13 +43,13 @@
   /* ---------- 스킬별 테마 ----------
    * c: 색(o주황 b푸른 g녹색 y금색 p보라)  bolt: 번개색  flame: 불기둥색  rune: 마법진  rays: 성광  big: 규모 */
   const TH = {
-    nuke:   { c: 'o', flame: 'o', rune: 'o', rays: 'o', sky: 0, arc: 3, big: 1.5, smoke: 1.3, rain: 'o', title: '核  大爆發', sub: '핵폭탄', charge: 1 },
-    meteor: { c: 'o', flame: 'o', rune: 'o', rays: 'o', sky: 0, arc: 2, big: 1.35, smoke: 1.1, rain: 'o', title: '隕石  墜落', sub: '메테오', charge: 1 },
-    alien:  { c: 'g', flame: 'g', rune: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .5, rain: 'g', title: '異星  光線', sub: '외계인', charge: 1 },
-    kame:   { c: 'b', flame: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 0, arc: 6, big: 1.2, smoke: .3, rain: 'b', title: '氣功波', sub: '에네르기파', charge: 1 },
-    kame2:  { c: 'b', flame: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .4, rain: 'b', title: '破壞  光線', sub: '에네르기파 2', charge: 1 },
-    skyfall: { c: 'y', rune: 'y', rays: 'y', bolt: 'y', sky: 5, arc: 6, big: 1.5, smoke: .4, rain: 'y', title: '天罰  星槍', sub: '천벌성창', charge: 1 },
-    vortex:  { c: 'b', rune: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .3, rain: 'b', title: '次元  渦流砲', sub: '차원와류포', charge: 1 },
+    nuke:   { bannerOnly: 1, c: 'o', flame: 'o', rays: 'o', sky: 0, arc: 3, big: 1.5, smoke: 1.3, rain: 'o', title: '核  大爆發', sub: '핵폭탄', charge: 0 },
+    meteor: { bannerOnly: 1, c: 'o', flame: 'o', rays: 'o', sky: 0, arc: 2, big: 1.35, smoke: 1.1, rain: 'o', title: '隕石  墜落', sub: '메테오', charge: 0 },
+    alien:  { bannerOnly: 1, c: 'g', flame: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .5, rain: 'g', title: '異星  光線', sub: '외계인', charge: 0 },
+    kame:   { attr: 'elec', c: 'b', flame: 'b', rays: 'b', bolt: 'b', sky: 0, arc: 6, big: 1.2, smoke: .3, rain: 'b', title: '氣功波', sub: '에네르기파', charge: 1 },
+    kame2:  { attr: 'elec', c: 'b', flame: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .4, rain: 'b', title: '破壞  光線', sub: '에네르기파 2', charge: 1 },
+    skyfall: { attr: 'elec', c: 'y', rays: 'y', bolt: 'y', sky: 5, arc: 6, big: 1.5, smoke: .4, rain: 'y', title: '天罰  星槍', sub: '천벌성창', charge: 1 },
+    vortex:  { attr: 'ice', c: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .3, rain: 'b', title: '次元  渦流砲', sub: '차원와류포', charge: 1 },
     /* 주먹·망치·총: 불 없이 충격파와 파편 위주 */
     fist:   { c: 'y', sky: 0, arc: 0, big: .8, smoke: .8, small: 1 },
     hammer: { c: 'b', sky: 0, arc: 0, big: .85, smoke: .6, small: 1 },
@@ -192,6 +192,26 @@
       if (k < .3) { const cx = RC.left + RC.width / 2, cy = RC.top + RC.height / 2, Rr = Math.hypot(RC.width, RC.height) * .55, gr = g.createRadialGradient(cx, cy, 0, cx, cy, Rr); const aa = Math.pow(1 - k / .3, 1.6) * .3 * (str || 1); gr.addColorStop(0, `rgba(${RGB[c]},${aa})`); gr.addColorStop(1, `rgba(${RGB[c]},0)`); g.globalAlpha = 1; g.fillStyle = gr; g.fillRect(RC.left, RC.top, RC.width, RC.height); }
     } });
   }
+  /* 서리가 땅으로 번지는 얼음 속성 효과 */
+  function fxFrost(x, y, size, life, delay) {
+    addFx({ delay: delay || 0, life, fn(g, k) {
+      const im = IM.frost; if (!ok(im)) return; const r = size * (.3 + .7 * outCubic(Math.min(1, k * 2.4))), a = (1 - ease((k - .5) / .5)) * .55;
+      g.save(); g.beginPath(); g.arc(x, y, r, 0, TAU); g.clip(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = a; const T = size * 1.3; g.drawImage(im, x - T / 2, y - T / 2, T, T); g.restore();
+      const gr = IM.glow_b; if (ok(gr)) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = a * .5; g.drawImage(gr, x - r, y - r, r * 2, r * 2); g.restore(); }
+    } });
+  }
+  /* 속성별 추가 효과 : 얼음(결정·서리·냉기) / 전기(방사 아크·이온 섬광·스파크) */
+  function attrFx(th, x, y, c, pw, R, cl) {
+    if (th.attr === 'ice') {
+      fxFrost(x, y, R * 1.15, 2.6, .05); fxShock(x, y, 'b', R * 1.5, 1.1, .08);
+      for (let i = 0; i < Math.round(26 * pw); i++) { const a = rnd(0, TAU), v = rnd(90, 420); sp({ type: 'ice', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v * .8 - 90, ay: 420, drag: .985, life: rnd(.9, 1.8), size: cl * rnd(.16, .34), a: 1, rgb: '165,220,255', rot: rnd(0, TAU), vr: rnd(-7, 7), cellN: (Math.random() * 4) | 0 }); }
+      for (let i = 0; i < Math.round(8 * pw); i++) sp({ type: 'smoke', x: x + rnd(-1, 1) * cl, y, vx: rnd(-1, 1) * 40, vy: -rnd(14, 46), life: rnd(2, 3.4), size: cl * rnd(1.4, 2.2), grow: 1.2, a: .38, rot: rnd(0, TAU), vr: rnd(-.3, .3), cellN: (Math.random() * 4) | 0, add: false });
+    } else if (th.attr === 'elec') {
+      for (let i = 0; i < Math.round(8 * pw); i++) fxArc(x, y, th.bolt || 'b', rnd(0, TAU), cl * rnd(2.6, 5.2) * th.big, rnd(.04, .6));
+      [.1, .26, .44].forEach((d, i) => fxGlow(x, y, c === 'g' ? 'g' : 'b', R * (1.2 - i * .2), .2, d));
+      for (let i = 0; i < Math.round(30 * pw); i++) { const a = rnd(0, TAU), v = rnd(120, 520); sp({ type: 'spark', x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v * .8, drag: .98, ay: 160, life: rnd(.5, 1.3), size: cl * rnd(.1, .22), rgb: pick(['190,225,255', '255,255,255', '140,190,255']), cellN: pick([3, 4, 5, 0]), rot: rnd(0, TAU), vr: rnd(-8, 8) }); }
+    }
+  }
   /* 기술명 배너 */
   function fxBanner(title, sub, c, delay) {
     const FONT = '"Noto Serif KR","Nanum Myeongjo","Noto Serif CJK KR","Songti SC","Batang",serif';
@@ -250,6 +270,7 @@
     const sheet = IM.sparks, smk = IM.smoke;
     for (const p of PT) {
       const k = p.age / p.life;
+      if (p.type === 'ice') { if (!ok(IM.ice)) continue; const s2 = p.size * (1 - k * .25); g.globalCompositeOperation = 'lighter'; g.globalAlpha = clamp((1 - k) * p.a, 0, 1); g.save(); g.translate(p.x, p.y); g.rotate(p.rot); g.drawImage(tinted('ic', IM.ice, p.rgb, .5), p.cellN * 128, 0, 128, 128, -s2, -s2, s2 * 2, s2 * 2); g.restore(); continue; }
       if (p.type === 'smoke') {
         if (!ok(smk)) continue;
         g.globalCompositeOperation = 'source-over'; g.globalAlpha = clamp(p.a * (1 - k) * ease(k * 6), 0, 1);
@@ -297,13 +318,7 @@
     if (age > 6.5) { charge = null; return; }
     const th = charge.th, c = th.c, cr = campRect(charge.V), x = cr.x0 + cr.w / 2, y = cr.y0 + cr.h * .52, cl = cell();
     const a = ease(age / .9) * (1 - ease((age - 5.6) / .9));
-    const img = IM['rune_' + c];
     g.globalCompositeOperation = 'lighter';
-    if (ok(img)) {
-      const s = Math.min(cr.w * 1.02, cl * 8.2) * (.78 + .22 * outCubic(age / 1.1));
-      g.save(); g.translate(x, y); g.scale(1, .54); g.rotate(age * .6); addDraw(g, img, 0, 0, 512, 512, -s / 2, -s / 2, s, s, a * .75);
-      g.rotate(-age * 1.3); const s2 = s * .62; addDraw(g, img, 0, 0, 512, 512, -s2 / 2, -s2 / 2, s2, s2, a * .6); g.restore();
-    }
     const gl = IM['glow_' + c];
     if (ok(gl)) { const pulse = .7 + .3 * Math.sin(age * 9), s = cl * (1.2 + Math.min(age, 2.5) * 1.1) * pulse; addDraw(g, gl, 0, 0, 256, 256, x - s / 2, y - s / 2, s, s, a * .7); }
     charge.acc += dt * 38 * a;
@@ -322,6 +337,7 @@
     if (now - st.t > 3200) st.n = 0;
     st.t = now; const major = st.n === 0; st.n++;
     charge = null;
+    if (th.bannerOnly) { if (major) { const hh = (window.DMG_SK && window.DMG_SK[side]) || [], ll = hh[hh.length - 1] || { fx: .5, fy: .5 }; fxBanner(th.title, th.sub, th.c, .05); } return; }
     const hits = (window.DMG_SK && window.DMG_SK[side]) || [], last = hits[hits.length - 1] || { fx: .5, fy: .5, rot: 0 };
     const fx = extra && extra.fx != null ? extra.fx : last.fx, fy = extra && extra.fy != null ? extra.fy : last.fy;
     const cr = campRect(side), x = cr.x0 + fx * cr.w, y = cr.y0 + fy * cr.h, cl = cell(), c = th.c;
@@ -346,6 +362,7 @@
       }
     }
     burst(x, y, c, pw, th);
+    attrFx(th, x, y, c, pw, R, cl);
     if (major) {
       fxScreen(c, 1.5, th.small ? .45 : .9);
       if (!th.small) { fxBanner(th.title, th.sub, c, .05); if (th.rain) fxEmberRain(side, th.rain, 7); }
