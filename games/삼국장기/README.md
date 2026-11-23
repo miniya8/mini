@@ -20,6 +20,7 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/warlord-punish-v6.js: 군주 6명 응징 스킬 완전 차별화 v6.1(제갈량·손권·조조·유비·여포·사마의) + 블룸·슬로모션·줌펀치로 화려하고 부드럽게. 기존 연출 복귀: jgWarlordPunish6.enabled=false, 빛번짐 세기: jgWarlordPunish6.bloom / jgSkillFx2.bloom
 - assets/images/fx/wl_*.webp: warlord-punish-v6.js가 쓰는 군주 전용 이미지
 - js/board-scenes-v7.js: 맵 컨셉별 이미지 환경 장면 15종(대상·모래회오리·독수리 / 눈의 정령·함박눈·얼음유성 / 발광버섯·빛줄기·정령덩굴 / 혼불·까마귀·마법진 / 하늘등·백학·벚꽃). board-effects-v4.js의 선/도형 입자·링·번개·덩굴·참격도 이미지로 교체됨
+- js/board-ghibli-v9.js: 지브리풍 애니메이션 환경 장면 20종(맵마다 4개). 환경 이벤트 길이 4.4배(jgEnv3.wdur), 이벤트 사이 간격 단축
 - js/board-env-v5.js: 5개 전장별 환경 풍경 레이어(바닥 질감·구름·오로라·눈보라·낙엽·반딧불·혼령·횃불·깃발·이벤트·기물 잡기 반응). 끄려면 jgEnv5.enabled=false
 - assets/images/fx/env_*.webp: board-env-v5.js가 쓰는 환경 이미지
 - js/skill-fx.js: 응징 스킬 불·균열·그을음 효과

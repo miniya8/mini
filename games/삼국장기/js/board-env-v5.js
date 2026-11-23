@@ -184,12 +184,12 @@
   function startSet(t, B) {
     const C0 = cl(), now = performance.now();
     if (t === 0 && Math.random() < .55) {      /* 회전초 */
-      const y = B.y + B.h * rnd(.3, .75); SETS.push({ k: 'tumble', t0: now, life: rnd(11, 15), x0: B.x - C0, x1: B.x + B.w + C0, y, hop: rnd(.2, .5) * C0, sz: C0 * rnd(.7, .95) });
+      const y = B.y + B.h * rnd(.3, .75); SETS.push({ k: 'tumble', t0: now, life: rnd(18, 24), x0: B.x - C0, x1: B.x + B.w + C0, y, hop: rnd(.2, .5) * C0, sz: C0 * rnd(.7, .95) });
     } else if (t === 0 || t === 2 || t === 4) {  /* 새 그림자 무리 */
       const n = t === 4 ? 5 : 4, ltr = Math.random() < .5, yA = B.y + B.h * rnd(.1, .7), yB = yA + B.h * rnd(-.3, .3);
-      SETS.push({ k: 'birds', t0: now, life: rnd(9, 13), x0: ltr ? B.x - C0 * 2 : B.x + B.w + C0 * 2, x1: ltr ? B.x + B.w + C0 * 2 : B.x - C0 * 2, y0: yA, y1: yB, sz: t === 4 ? C0 * 1.0 : C0 * 1.5, fps: t === 4 ? 9 : 5, a: t === 2 ? .22 : .32, birds: Array.from({ length: n }, (_, i) => ({ dx: (i - n / 2) * C0 * rnd(.9, 1.5) * (ltr ? -1 : 1), dy: rnd(-.8, .8) * C0, s: rnd(.8, 1.15), ph: rnd(0, 6) })) });
+      SETS.push({ k: 'birds', t0: now, life: rnd(15, 21), x0: ltr ? B.x - C0 * 2 : B.x + B.w + C0 * 2, x1: ltr ? B.x + B.w + C0 * 2 : B.x - C0 * 2, y0: yA, y1: yB, sz: t === 4 ? C0 * 1.0 : C0 * 1.5, fps: t === 4 ? 9 : 5, a: t === 2 ? .22 : .32, birds: Array.from({ length: n }, (_, i) => ({ dx: (i - n / 2) * C0 * rnd(.9, 1.5) * (ltr ? -1 : 1), dy: rnd(-.8, .8) * C0, s: rnd(.8, 1.15), ph: rnd(0, 6) })) });
     } else if (t === 1) {                       /* 오로라 폭발 */
-      aurBoost = 1; SETS.push({ k: 'aur', t0: now, life: 14 });
+      aurBoost = 1; SETS.push({ k: 'aur', t0: now, life: 24 });
     } else if (t === 3) {                       /* 먼 번개 */
       SETS.push({ k: 'bolt', t0: now, life: 1.1, x: Math.random() < .5 ? B.x - C0 * .15 : B.x + B.w + C0 * .15, h: B.h * rnd(.35, .65), f0: (Math.random() * 6) | 0 }); flashA = .5; flashRGB = '190,120,255';
     }
@@ -336,7 +336,7 @@
     const inPlay = (typeof inGame !== 'undefined') && inGame && !over;
     pollAnim(t);
     const B = BR(), hudH = (document.getElementById('hud') || {}).offsetHeight || 0, tn = performance.now();
-    if (inPlay && tn > nextSet) { startSet(t, B); nextSet = tn + rnd(26000, 52000); }
+    if (inPlay && tn > nextSet) { startSet(t, B); nextSet = tn + rnd(14000, 30000); }
     go.save(); go.beginPath(); go.rect(RC.left, RC.top + hudH, RC.width, RC.height - hudH); go.clip();
     if (!E5.noAir) { drawAir(go, B, t, tn, dt); drawSets(go, B, tn); }
     for (let i = FXL.length - 1; i >= 0; i--) { const f = FXL[i], age = (tn - f.t0) / 1000, k = age / f.life; if (k >= 1) { FXL.splice(i, 1); continue; } go.save(); try { f.fn(go, k, age); } catch (e) { FXL.splice(i, 1); } go.restore(); }

@@ -10,7 +10,7 @@
 (function jgEnvSpecialV3(){
   if (window.__JG_ENV3__) return;
   window.__JG_ENV3__ = true;
-  const E3 = window.jgEnv3 = { enabled: true, sfx: true, weather: true, dur: 2.4, wdur: 2.8, pace: 1.8 };
+  const E3 = window.jgEnv3 = { enabled: true, sfx: true, weather: true, dur: 2.4, wdur: 4.4, pace: 1.8 };
   const TAU = Math.PI * 2;
   const rnd = (a, b) => a + Math.random() * (b - a);
   const pick = a => a[(Math.random() * a.length) | 0];
@@ -369,7 +369,11 @@
       { name: '🌀 먼지 회오리 행렬!', dur: 7, draw: 'dustdevils' },
       { name: '🐪 대상(隊商)의 행렬이 지나갑니다', dur: 13, draw: 's7_caravan' },
       { name: '🌪️ 거대한 모래 회오리가 줄지어 섭니다', dur: 10, draw: 's7_funnels' },
-      { name: '🦅 독수리 떼가 사막 위를 맴돕니다', dur: 11, draw: 's7_vultures' }],
+      { name: '🦅 독수리 떼가 사막 위를 맴돕니다', dur: 11, draw: 's7_vultures' },
+      { name: '🎈 열기구 행렬이 느긋하게 떠갑니다', dur: 11, draw: 's9_balloons' },
+      { name: '🌌 사막의 밤하늘에 은하수가 흐릅니다', dur: 12, draw: 's9_nightsky' },
+      { name: '🌼 모래언덕에 들꽃이 일제히 피어납니다', dur: 11, draw: 's9_superbloom' },
+      { name: '☁️ 뭉게구름 그림자가 언덕을 지나갑니다', dur: 12, draw: 's9_cloudshade' }],
     [ // 설원
       { name: '🌨️ 눈보라가 휘몰아칩니다!', dur: 7, draw: 'blizzard' },
       { name: '🏔️ 눈사태가 쏟아집니다!', dur: 7, draw: 'avalanche', grand: 1 },
@@ -382,7 +386,11 @@
       { name: '💎 다이아몬드 더스트가 반짝입니다', dur: 5.5, draw: 'glints' },
       { name: '✨ 눈의 정령들이 춤춥니다', dur: 11, draw: 's7_snowspirits' },
       { name: '❄️ 함박눈이 소복소복 내립니다', dur: 11, draw: 's7_heavysnow' },
-      { name: '☄️ 얼음 유성이 설원에 떨어집니다', dur: 8, draw: 's7_icemeteor' }],
+      { name: '☄️ 얼음 유성이 설원에 떨어집니다', dur: 8, draw: 's7_icemeteor' },
+      { name: '🐾 눈 위에 작은 발자국이 이어집니다', dur: 11, draw: 's9_footprints' },
+      { name: '🌸 노을빛 눈구름이 흘러갑니다', dur: 11, draw: 's9_snowcloud' },
+      { name: '❄️ 눈꽃 축제가 열립니다', dur: 11, draw: 's9_snowfestival' },
+      { name: '🏮 눈마을의 등불이 하나둘 켜집니다', dur: 11, draw: 's9_icelamps' }],
     [ // 숲
       { name: '🌧️ 숲에 소나기가 내립니다', dur: 7, draw: 'rain' },
       { name: '⛈️ 뇌우가 숲을 흔듭니다!', dur: 8, draw: 'thunderrain', grand: 1 },
@@ -395,7 +403,11 @@
       { name: '✨ 반딧불 정령들의 군무!', dur: 8, draw: 'fireflies' },
       { name: '🍄 발광 버섯 군락이 깨어납니다', dur: 11, draw: 's7_shrooms' },
       { name: '🌤️ 나뭇잎 사이로 빛줄기가 내립니다', dur: 11, draw: 's7_sunbeams' },
-      { name: '🌿 정령의 덩굴이 자라납니다', dur: 9, draw: 's7_vinegrow' }],
+      { name: '🌿 정령의 덩굴이 자라납니다', dur: 9, draw: 's7_vinegrow' },
+      { name: '🌼 민들레 홀씨가 바람을 타고 날아갑니다', dur: 11, draw: 's9_dandelions' },
+      { name: '🧚 잎사귀 요정들이 숲을 날아다닙니다', dur: 11, draw: 's9_fairies' },
+      { name: '🌾 바람이 풀밭을 쓸고 지나갑니다', dur: 11, draw: 's9_meadowwind' },
+      { name: '🌈 소나기가 그치고 무지개가 뜹니다', dur: 12, draw: 's9_rainbowshower' }],
     [ // 암흑
       { name: '⚡ 번개 폭풍이 성채를 강타합니다!', dur: 6.5, draw: 'storm' },
       { name: '🔥 지옥불 기둥이 솟구칩니다!', dur: 7, draw: 'firepillars', grand: 1 },
@@ -408,7 +420,11 @@
       { name: '🌑 핏빛 달이 떠오릅니다', dur: 8, draw: 'bloodmoon' },
       { name: '🔥 혼불이 떠오릅니다', dur: 11, draw: 's7_soulfire' },
       { name: '🐦‍⬛ 까마귀 떼가 몰려옵니다', dur: 10, draw: 's7_crows' },
-      { name: '🌋 대지가 갈라지며 용암이 솟구칩니다', dur: 10, draw: 's7_lavacrack' }],
+      { name: '🌋 대지가 갈라지며 용암이 솟구칩니다', dur: 10, draw: 's7_lavacrack' },
+      { name: '🌕 커다란 달이 떠오르고 박쥐가 날아갑니다', dur: 12, draw: 's9_bigmoon' },
+      { name: '🏮 밤의 등불 행렬이 지나갑니다', dur: 11, draw: 's9_nightparade' },
+      { name: '🌫️ 보랏빛 안개 속에 별가루가 내립니다', dur: 11, draw: 's9_stardust' },
+      { name: '🍂 낙엽이 회오리치며 날아오릅니다', dur: 10, draw: 's9_leafwhirl' }],
     [ // 고성
       { name: '🏹 화살비가 쏟아집니다!', dur: 4.8, draw: 'arrows' },
       { name: '🔥 봉화가 타오릅니다', dur: 9, draw: 'beacon' },
@@ -421,7 +437,11 @@
       { name: '🌇 노을이 성을 물들입니다', dur: 8, draw: 'dusk' },
       { name: '🏮 하늘등이 떠오릅니다', dur: 13, draw: 's7_lanterns' },
       { name: '🕊️ 백학이 성 위를 날아갑니다', dur: 11, draw: 's7_cranes' },
-      { name: '🌸 벚꽃잎이 성벽 위로 흩날립니다', dur: 11, draw: 's7_petals' }]
+      { name: '🌸 벚꽃잎이 성벽 위로 흩날립니다', dur: 11, draw: 's7_petals' },
+      { name: '🕊️ 종이학이 하늘 높이 날아오릅니다', dur: 11, draw: 's9_origami' },
+      { name: '🪁 연이 바람에 춤춥니다', dur: 11, draw: 's9_kites' },
+      { name: '🏮 연등 배가 강물 위를 흘러갑니다', dur: 12, draw: 's9_lanternriver' },
+      { name: '🌸 벚꽃 가지가 바람에 흔들립니다', dur: 11, draw: 's9_cherrybranch' }]
   ];
   function startWeather(theme, idx) {
     const list = WX[theme] || WX[0], def = list[idx == null ? (Math.random() * list.length) | 0 : idx];
@@ -434,7 +454,7 @@
   function drawWeather(g, now, dt) {
     if (!wx) return;
     const el = Math.max(0, (now - wx.t0) / 1000), k = el / wx.dur;
-    if (k >= 1) { wx = null; nextWx = now + rnd(32000, 55000); return; }
+    if (k >= 1) { wx = null; nextWx = now + rnd(12000, 26000); return; }
     const env = ease(Math.min(1, Math.min(k / .2, (1 - k) / .28))), B0 = BR(), S = Math.min(Wd, Hd), kind = wx.def.draw;
     const tint = (col, a) => atmo(g, col, a, B0.x + B0.w / 2, B0.y + B0.h / 2, B0.w * 1.08, B0.h * .84);
     wx.acc += dt;
@@ -576,6 +596,7 @@
 
   /* ---------- 환경 이벤트 확장 (사막·설원·숲·암흑·고성 각 6종 추가) ---------- */
   function drawWeatherX(g, now, dt, kind, env, k, el, B0, S, tint, every) {
+    if (kind.indexOf('s9_') === 0) { if (window.jgScenes9) { try { window.jgScenes9.draw(kind, g, now, dt, env, k, el, B0, S, tint, every, wx, C); } catch (e) {} } return; }
     if (kind.indexOf('s7_') === 0) { if (window.jgScenes7) { try { window.jgScenes7.draw(kind, g, now, dt, env, k, el, B0, S, tint, every, wx, C); } catch (e) {} } return; }
     const ev = (n, sec, fn) => { sec *= E3.pace; wx[n] = (wx[n] || 0) + dt; let c = 0; while (wx[n] >= sec && c++ < 4) { wx[n] -= sec; fn(); } };
     const bx = () => rnd(B0.x, B0.x + B0.w), by = () => rnd(B0.y, B0.y + B0.h), cx = B0.x + B0.w / 2, cy = B0.y + B0.h / 2;
@@ -843,7 +864,7 @@
     } catch (e) {}
 
     /* 환경 이벤트 스케줄 */
-    if (E3.weather && inPlay && !wx) { if (!nextWx) nextWx = now + rnd(24000, 38000); else if (now >= nextWx) startWeather(theme); }
+    if (E3.weather && inPlay && !wx) { if (!nextWx) nextWx = now + rnd(12000, 22000); else if (now >= nextWx) startWeather(theme); }
     if (!inPlay) { nextWx = 0; }
 
     /* 클리핑: 장기판 캔버스 영역(상단 HUD 제외) */
