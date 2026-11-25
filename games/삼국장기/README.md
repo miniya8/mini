@@ -14,6 +14,10 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/three-kingdoms-main-screen.js: 메인 화면 효과
 - js/board-theme-hud.js: 테마 HUD 동작
 - js/remaster-v1.js, js/remaster-v2.js, js/board-effects-v4.js: 추가 패치와 보드 효과
+- js/perf-governor.js: 기기 성능에 맞춰 효과 품질(jgPerf.q)을 자동 조절(느리면 입자·블룸·해상도 감소). 수동: jgPerf.auto=false; jgPerf.q=0.5
+- js/piece-mask.js: 환경 효과가 장기알을 가리지 않도록 기물 위치를 비움. 끄기: jgPieceMask.enabled=false
+- warlord-punish-v6.js: 군주 스킬(30/60/90수 해금) 필살기 컷신 포함. 끄기: jgWarlordPunish6.ultimate=false
+- warlord-system.js: 수 카운터가 항상 0이던 문제 수정(mc 사용)
 - js/skills-real-v8.js: 핵폭탄·메테오·외계인 사실적 업그레이드(원본과 같은 타이밍에 맞춰 연출, 핵·메테오는 원본 캔버스를 숨기고 대체). 끄기: jgSkillsReal8.enabled=false
 - js/board-tear-v8.js: 군주 검·창 스킬의 장기판 찢어짐(조조·유비·여포·손권). 이미지 tear_*.webp
 - 마법진은 군주 스킬(warlord-punish-v6.js)에서만 사용. 일반 스킬은 속성 효과(불·얼음·전기)
