@@ -44,13 +44,13 @@
 
   /* ---------- 파티클 ---------- */
   const SHEET = { billow: ['fx_billow', 256, 256], spark: ['v2_sparks', 64, 64], rock: ['wl_rock', 64, 64], ash: ['fx_ash', 32, 32] };
-  function sp(run, o) { if (run.P.length > 520) run.P.shift(); run.P.push(Object.assign({ kind: 'billow', cell: 0, x: 0, y: 0, vx: 0, vy: 0, ay: 0, drag: 1, rot: 0, vr: 0, size: 20, a: 1, life: 2, age: 0, rgb: null, ta: .5, add: false, grow: 0, fadeIn: .15, sway: 0, swf: 1, ph: Math.random() * 6 }, o)); }
+  function sp(run, o) { const q = window.jgPerf ? window.jgPerf.q : 1; if (q < .95 && o && o.kind !== 'rock' && Math.random() > Math.max(.25, q * .9)) return; if (run.P.length >= Math.round(420 * Math.max(.45, q))) return; run.P.push(Object.assign({ kind: 'billow', cell: 0, x: 0, y: 0, vx: 0, vy: 0, ay: 0, drag: 1, rot: 0, vr: 0, size: 20, a: 1, life: 2, age: 0, rgb: null, ta: .5, add: false, grow: 0, fadeIn: .15, sway: 0, swf: 1, ph: Math.random() * 6 }, o)); }
   function stepPT(run, g, dt) {
     for (let i = run.P.length - 1; i >= 0; i--) {
       const p = run.P[i]; p.age += dt; if (p.age >= p.life) { run.P.splice(i, 1); continue; }
       const dg = Math.pow(p.drag, dt * 60); p.vx *= dg; p.vy = p.vy * dg + p.ay * dt; p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
       const sh = SHEET[p.kind], img = IM[sh[0]]; if (!ok(img)) continue; const k = p.age / p.life, a = p.a * (p.fadeIn ? smooth(p.age / p.fadeIn) : 1) * (1 - smooth((k - .5) / .5)); if (a <= .008) continue;
-      const s = p.size * (1 + p.grow * k), src = p.rgb ? tinted(img, p.kind, p.rgb, p.ta) : img;
+      const s = p.size * (1 + p.grow * k), src = p._src || (p._src = p.rgb ? tinted(img, p.kind, p.rgb, p.ta) : img);
       g.globalCompositeOperation = p.add ? 'lighter' : 'source-over'; g.globalAlpha = clamp(a, 0, 1);
       g.save(); g.translate(p.x + p.sway * Math.sin(p.age * p.swf + p.ph), p.y); if (p.rot) g.rotate(p.rot); g.drawImage(src, p.cell * sh[1], 0, sh[1], sh[2], -s / 2, -s / 2, s, s * sh[2] / sh[1]); g.restore();
     }
@@ -99,8 +99,8 @@
           const e = clamp(ti, 0, 99);
           if (!this._d) {
             this._d = 1;
-            for (let i = 0; i < 40; i++) { const a = rnd(0, TAU), v = S * rnd(.35, 1.25); sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx + Math.cos(a) * S * .05, y: by + Math.sin(a) * S * .015, vx: Math.cos(a) * v, vy: Math.sin(a) * v * .32, drag: .975, size: S * rnd(.12, .24), a: .55, life: rnd(2, 3.4), rgb: '150,118,84', ta: .5, grow: 1.1, fadeIn: .12 }); }
-            for (let i = 0; i < 100; i++) { const a = -Math.PI * (.05 + .9 * Math.random()), v = S * rnd(.4, 1.6); sp(R.run, { kind: 'spark', cell: pick([0, 1, 3, 4]), x: bx, y: by - S * .02, vx: Math.cos(a) * v, vy: Math.sin(a) * v, ay: S * 1.7, drag: .99, size: S * rnd(.012, .03), a: 1, life: rnd(1, 2.6), rgb: pick(['255,200,90', '255,120,40', '255,230,170']), add: true, fadeIn: 0 }); }
+            for (let i = 0; i < 28; i++) { const a = rnd(0, TAU), v = S * rnd(.35, 1.25); sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx + Math.cos(a) * S * .05, y: by + Math.sin(a) * S * .015, vx: Math.cos(a) * v, vy: Math.sin(a) * v * .32, drag: .975, size: S * rnd(.12, .24), a: .55, life: rnd(2, 3.4), rgb: '150,118,84', ta: .5, grow: 1.1, fadeIn: .12 }); }
+            for (let i = 0; i < 64; i++) { const a = -Math.PI * (.05 + .9 * Math.random()), v = S * rnd(.4, 1.6); sp(R.run, { kind: 'spark', cell: pick([0, 1, 3, 4]), x: bx, y: by - S * .02, vx: Math.cos(a) * v, vy: Math.sin(a) * v, ay: S * 1.7, drag: .99, size: S * rnd(.012, .03), a: 1, life: rnd(1, 2.6), rgb: pick(['255,200,90', '255,120,40', '255,230,170']), add: true, fadeIn: 0 }); }
             for (let i = 0; i < 22; i++) { const a = -Math.PI * (.12 + .76 * Math.random()), v = S * rnd(.4, 1.2); sp(R.run, { kind: 'rock', cell: (Math.random() * 4) | 0, x: bx, y: by, vx: Math.cos(a) * v, vy: Math.sin(a) * v, ay: S * 1.8, rot: rnd(0, TAU), vr: rnd(-8, 8), size: S * rnd(.018, .045), a: 1, life: rnd(1.4, 2.4), fadeIn: 0 }); }
           }
           /* 섬광 */
@@ -119,13 +119,13 @@
           if (ok(IM.fx_vapor) && va > .01) { g.save(); g.globalCompositeOperation = 'lighter'; g.translate(bx, by + S * .01); g.scale(1, .34); g.globalAlpha = va * .85; const vs = S * (.2 + 1.7 * vk); g.drawImage(IM.fx_vapor, -vs / 2, -vs / 2, vs, vs); g.restore(); }
           shock(g, 'v2_shock_o', bx, by, S * 2.0, kk(e, 0, 1.3), (1 - kk(e, .6, 1.3)) * .9, .34); shock(g, 'v2_shock_y', bx, by, S * 1.3, kk(e, .08, 1.0), .6, .34);
           /* 버섯구름 : 기둥 */
-          if (e < 1.9) { stemAcc += dt * 26; while (stemAcc >= 1) { stemAcc -= 1; const h = clamp(e / 1.9, 0, 1); sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx + rnd(-1, 1) * S * .035, y: by - S * .02, vx: rnd(-1, 1) * S * .03, vy: -S * rnd(.42, .62) * (1.1 - h * .5), drag: .985, size: S * rnd(.1, .16), a: .75, life: rnd(2.6, 3.8), grow: .55, fadeIn: .2, sway: S * .006, swf: 2 }); } }
+          if (e < 1.9) { stemAcc += dt * 18; while (stemAcc >= 1) { stemAcc -= 1; const h = clamp(e / 1.9, 0, 1); sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx + rnd(-1, 1) * S * .035, y: by - S * .02, vx: rnd(-1, 1) * S * .03, vy: -S * rnd(.42, .62) * (1.1 - h * .5), drag: .985, size: S * rnd(.1, .16), a: .75, life: rnd(2.6, 3.8), grow: .55, fadeIn: .2, sway: S * .006, swf: 2 }); } }
           /* 버섯구름 : 갓이 말려 올라감 */
           if (e > .55 && e < 1.7) { const h = ease((e - .55) / 1.15); for (let i = 0; i < 2; i++) { const a = rnd(0, TAU); sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx + Math.cos(a) * S * .06, y: by - S * (.16 + .52 * h), vx: Math.cos(a) * S * rnd(.16, .3), vy: -S * rnd(.04, .14) + Math.sin(a) * S * .03, ay: S * .1, drag: .97, size: S * rnd(.13, .2), a: .85, life: rnd(2.4, 3.4), grow: .5, fadeIn: .15 }); } }
           /* 불길 층(가산) : 갓 · 기둥 안쪽이 달궈짐 */
           const hot = (1 - smooth(kk(e, .8, 3))) * .5; glow(g, 'v2_glow_o', bx, by - S * (.2 + .45 * smooth(kk(e, .3, 1.9))), S * .9, hot);
           /* 열기 색조 */
-          vignette(g, M, '255,120,30', .3 * (1 - smooth(kk(e, .2, 3.0)))); flash(g, M.W / 2, M.H / 2, Math.max(M.W, M.H) * 1.6, '255,130,40', (1 - smooth(kk(e, .15, 2.6))) * .3);
+          vignette(g, M, '255,120,30', .3 * (1 - smooth(kk(e, .2, 3.0))));
           /* 낙진 */
           if (e > 1.4 && e < 3.6) { ashAcc += dt * 40; while (ashAcc >= 1) { ashAcc -= 1; sp(R.run, { kind: 'ash', cell: (Math.random() * 4) | 0, x: rnd(M.br.left, M.br.left + M.br.width), y: M.br.top - 10, vx: rnd(-10, 14), vy: S * rnd(.05, .13), rot: rnd(0, TAU), vr: rnd(-2, 2), size: S * rnd(.012, .03), a: .85, life: rnd(3, 5), fadeIn: .3, sway: 14, swf: 2 }); } }
         }
@@ -138,20 +138,20 @@
    *  ☄️ 메테오 — 주 충돌 1.5s · 종료 6.3s
    * ==================================================================== */
   function meteor(R, M) {
-    const T = 1.5, END = 6.3, S = M.S, cx = M.cx, cy = M.cy, dir = { x: .5, y: .866 }, ms = [{ main: 1, tx: cx, ty: cy, t1: T, dur: 1.45, r: S * .105 }];
+    let frameNo = 0; const T = 1.5, END = 6.3, S = M.S, cx = M.cx, cy = M.cy, dir = { x: .5, y: .866 }, ms = [{ main: 1, tx: cx, ty: cy, t1: T, dur: 1.45, r: S * .105 }];
     for (let i = 0; i < 9; i++) ms.push({ main: 0, tx: M.camp.x0 + M.camp.w * (.1 + .8 * Math.random()), ty: M.camp.y0 + M.camp.h * (.1 + .8 * Math.random()), t1: .55 + i * .1 + Math.random() * .07, dur: .9 + .3 * Math.random(), r: S * (.026 + .03 * Math.random()) });
     ms.forEach(m => { m.L = (m.ty + S * .3) / dir.y; m.fired = false; m.fb = null; });
     return {
       END, bloom: .55,
       frame(g, t, dt) {
-        vignette(g, M, '70,8,0', .4 * smooth(kk(t, 0, .7)) * (1 - smooth(kk(t, END - 1.4, END))));
+        frameNo++; vignette(g, M, '70,8,0', .4 * smooth(kk(t, 0, .7)) * (1 - smooth(kk(t, END - 1.4, END))));
         const lit = { v: 0 };
         ms.forEach(m => {
           const p0 = m.t1 - m.dur, k = kk(t, p0, m.t1);
           if (k > 0 && k < 1) {
             const dist = m.L * (1 - k), x = m.tx - dir.x * dist, y = m.ty - dir.y * dist, hs = m.r * (m.main ? 3.1 : 3.4), tail = Math.atan2(dir.y, dir.x);
             /* 화염 꼬리 + 연기 꼬리 */
-            const n = m.main ? 3 : 1; for (let i = 0; i < n; i++) { sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: x - dir.x * m.r * rnd(.5, 1.6), y: y - dir.y * m.r * rnd(.5, 1.6), vx: -dir.x * S * .08 + rnd(-20, 20), vy: -dir.y * S * .05, size: m.r * rnd(1.4, 2.6), a: .55, life: rnd(.9, 1.6), rgb: pick(['255,150,60', '90,80,75']), ta: .45, grow: 1.2, fadeIn: .08, add: Math.random() < .35 }); }
+            const n = m.main ? 2 : ((frameNo & 1) ? 1 : 0); for (let i = 0; i < n; i++) { sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: x - dir.x * m.r * rnd(.5, 1.6), y: y - dir.y * m.r * rnd(.5, 1.6), vx: -dir.x * S * .08 + rnd(-20, 20), vy: -dir.y * S * .05, size: m.r * rnd(1.4, 2.6), a: .55, life: rnd(.9, 1.6), rgb: pick(['255,150,60', '90,80,75']), ta: .45, grow: 1.2, fadeIn: .08, add: Math.random() < .35 }); }
             sp(R.run, { kind: 'spark', cell: pick([0, 1, 3]), x: x - dir.x * m.r, y: y - dir.y * m.r, vx: rnd(-80, 80) - dir.x * S * .2, vy: rnd(-80, 80) - dir.y * S * .2, size: m.r * rnd(.25, .55), a: 1, life: rnd(.4, .9), rgb: '255,190,90', add: true, fadeIn: 0 });
             glow(g, 'v2_glow_o', x, y, hs * 2.6, .75); glow(g, 'v2_glow_y', x, y, hs * 1.1, .8);
             if (ok(IM.fx_meteor_rock)) { g.save(); g.translate(x, y); g.rotate(tail - Math.PI / 2 + k * 3); g.globalAlpha = 1; g.drawImage(IM.fx_meteor_rock, -hs / 2, -hs / 2, hs, hs); g.restore(); }
@@ -175,7 +175,7 @@
               lit.v = Math.max(lit.v, (1 - smooth(kk(e, .2, 3.4))) * .3); }
           }
         });
-        if (lit.v > .01) { vignette(g, M, '255,110,30', lit.v); flash(g, M.W / 2, M.H / 2, Math.max(M.W, M.H) * 1.5, '255,120,40', lit.v * .8); }
+        if (lit.v > .01) vignette(g, M, '255,110,30', lit.v);
         stepPT(R.run, g, dt);
       }
     };
@@ -206,8 +206,8 @@
             for (let i = 0; i < 16; i++) { sp(R.run, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx + rnd(-1, 1) * S * .06, y: by + rnd(-.4, .4) * S * .05, vx: rnd(-1, 1) * S * .05, vy: -S * rnd(.06, .2), size: S * rnd(.1, .2), a: .6, life: rnd(2.4, 3.8), rgb: '60,200,110', ta: .55, grow: 1, fadeIn: .2, add: false }); }
           }
           fireball(g, 'fx_plasma_burst', bx, by - S * .03, S * (.3 + .6 * outCubic(kk(e, 0, 1.0))), kk(e, 0, 1.5), 1 - smooth(kk(e, .9, 1.8)), true);
-          fireball(g, 'fx_plasma_burst', bx - S * .1, by + S * .06, S * (.22 + .3 * outCubic(kk(e, .15, 1))), kk(e, .15, 1.5), (1 - smooth(kk(e, .9, 1.7))) * .9, true);
-          fireball(g, 'fx_plasma_burst', bx + S * .11, by - S * .07, S * (.2 + .28 * outCubic(kk(e, .3, 1.1))), kk(e, .3, 1.6), (1 - smooth(kk(e, 1, 1.8))) * .85, true);
+          if (!window.jgPerf || window.jgPerf.q >= .6) fireball(g, 'fx_plasma_burst', bx - S * .1, by + S * .06, S * (.22 + .3 * outCubic(kk(e, .15, 1))), kk(e, .15, 1.5), (1 - smooth(kk(e, .9, 1.7))) * .9, true);
+          if (!window.jgPerf || window.jgPerf.q >= .6) fireball(g, 'fx_plasma_burst', bx + S * .11, by - S * .07, S * (.2 + .28 * outCubic(kk(e, .3, 1.1))), kk(e, .3, 1.6), (1 - smooth(kk(e, 1, 1.8))) * .85, true);
           flash(g, bx, by, S * 2.4, '190,255,210', Math.pow(Math.max(0, 1 - e / .4), 1.5) * .9); flash(g, bx, by, S * 1.1, '255,255,255', Math.pow(Math.max(0, 1 - e / .22), 1.5));
           shock(g, 'v2_shock_g', bx, by, S * 1.7, kk(e, 0, 1.1), (1 - kk(e, .5, 1.1)) * .9, .55);
           /* 전기 아크 */
@@ -235,14 +235,14 @@
       if (done) return;
       const dt = Math.min(.05, Math.max(.001, (now - last) / 1000)); last = now; const t = (now - t0) / 1000;
       if (!R8.enabled) { cleanup(); return; }
-      const Mx = metrics(V); Object.assign(M, { W: Mx.W, H: Mx.H, S: Mx.S, br: Mx.br }); const dpr = Math.min(window.devicePixelRatio || 1, 1.25), pw = Math.round(M.W * dpr), ph = Math.round(M.H * dpr);
+      const Mx = metrics(V); Object.assign(M, { W: Mx.W, H: Mx.H, S: Mx.S, br: Mx.br }); const dpr = (window.jgPerf ? window.jgPerf.dpr(1) : 1), pw = Math.round(M.W * dpr), ph = Math.round(M.H * dpr);
       if (ov.width !== pw || ov.height !== ph) { ov.width = pw; ov.height = ph; }
       const a1 = Math.max(2, Math.round(pw / 5)), b1 = Math.max(2, Math.round(ph / 5)), a2 = Math.max(2, Math.round(pw / 14)), b2 = Math.max(2, Math.round(ph / 14)); if (sm.width !== a1 || sm.height !== b1) { sm.width = a1; sm.height = b1; } if (sm2.width !== a2 || sm2.height !== b2) { sm2.width = a2; sm2.height = b2; }
       g.setTransform(dpr, 0, 0, dpr, 0, 0); g.clearRect(0, 0, M.W, M.H);
       try { scene.frame(g, t, dt); } catch (e) { console.warn('real8', e); }
       g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
       const bl = clamp((scene.bloom || .5) * R8.bloom * 2, 0, 1);
-      if (bl > .01) { if ((fno++ & 1) === 0) { sg.imageSmoothingQuality = 'high'; sg.clearRect(0, 0, a1, b1); sg.drawImage(ov, 0, 0, a1, b1); sg2.imageSmoothingQuality = 'high'; sg2.clearRect(0, 0, a2, b2); sg2.drawImage(sm, 0, 0, a2, b2); }
+      if (bl > .01 && (!window.jgPerf || window.jgPerf.bloomOK())) { if ((fno++ & 1) === 0) { sg.imageSmoothingQuality = 'high'; sg.clearRect(0, 0, a1, b1); sg.drawImage(ov, 0, 0, a1, b1); sg2.imageSmoothingQuality = 'high'; sg2.clearRect(0, 0, a2, b2); sg2.drawImage(sm, 0, 0, a2, b2); }
         g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'lighter'; g.imageSmoothingEnabled = true; g.globalAlpha = bl * .6; g.drawImage(sm, 0, 0, pw, ph); g.globalAlpha = bl * .5; g.drawImage(sm2, 0, 0, pw, ph); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
       if (t < scene.END + .4) requestAnimationFrame(frame); else cleanup();
     }
@@ -250,7 +250,7 @@
     if (!scene.over) hide = { n: 1, until: performance.now() + 900 };   /* 핵·메테오 : 원본 캔버스 숨김 */
   }
   /* 원본이 만드는 z-index:9 캔버스를 숨김(진동·사운드·피해 처리는 그대로 진행) */
-  try { new MutationObserver(list => { for (const m of list) for (const n of m.addedNodes) { if (n && n.tagName === 'CANVAS' && n.style && n.style.zIndex === '9' && n.id !== 'jg_real8_cv' && hide.n > 0 && performance.now() < hide.until) { hide.n--; n.width = 1; n.height = 1; n.style.display = 'none'; } } }).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
+  try { new MutationObserver(list => { for (const m of list) for (const n of m.addedNodes) { if (n && n.tagName === 'CANVAS' && n.style && n.style.zIndex === '9' && n.id !== 'jg_real8_cv' && hide.n > 0 && performance.now() < hide.until) { hide.n--; n.style.display = 'none'; try { const c2 = n.getContext('2d'); n.width = 1; n.height = 1; const noop = () => {}, gr = () => ({ addColorStop: noop }); ['drawImage', 'fillRect', 'strokeRect', 'clearRect', 'fill', 'stroke', 'fillText', 'strokeText', 'arc', 'ellipse', 'beginPath', 'closePath', 'moveTo', 'lineTo', 'quadraticCurveTo', 'bezierCurveTo', 'rect', 'clip', 'save', 'restore', 'translate', 'rotate', 'scale', 'transform', 'setTransform', 'putImageData', 'setLineDash'].forEach(k => { c2[k] = noop; }); c2.createRadialGradient = gr; c2.createLinearGradient = gr; c2.createPattern = () => null; c2.measureText = () => ({ width: 0 }); } catch (e2) {} } } }).observe(document.documentElement, { childList: true, subtree: true }); } catch (e) {}
 
   /* ---------- 훅 ---------- */
   function hook() {

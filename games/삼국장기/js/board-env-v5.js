@@ -20,7 +20,7 @@
   /* ---------- 이미지 ---------- */
   const DIR = 'assets/images/fx/', IM = {};
   const load = n => { const im = new Image(); im.src = DIR + n + '.webp'; return im; };
-  ['cloud', 'snow', 'leaf', 'aurora', 'dapple_s', 'dapple_l', 'wisp', 'bird', 'tumble', 'lava', 'seal', 'ripple', 'frost'].forEach(n => IM[n] = load('env_' + n));
+  ['cloud', 'snow', 'leaf', 'aurora', 'dapple_s', 'dapple_l', 'wisp', 'bird', 'tumble', 'lava', 'ripple_a', 'frost'].forEach(n => IM[n === 'ripple_a' ? 'rippleA' : n] = load('env_' + n));
   ['flame_o', 'flame_p', 'glow_o', 'glow_y', 'glow_g', 'glow_p', 'glow_b', 'sparks', 'shock_y', 'shock_o', 'shock_g', 'shock_p', 'shock_b', 'rays_y', 'rays_o', 'rune_g', 'rune_p', 'bolt_p', 'vignette'].forEach(n => IM[n] = load('v2_' + n));
   const ok = im => !!im && im.complete && im.naturalWidth > 0;
   const SH = { snow: [64, 64], leaf: [64, 64], spark: [64, 64], cloud: [256, 256], wisp: [128, 128] };
@@ -38,7 +38,7 @@
   function ensureCanvas() {
     if (cvO) return true; if (!document.body) return false;
     cvO = document.createElement('canvas'); cvO.id = 'jg_env5_cv';
-    cvO.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:10;';
+    cvO.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:10;opacity:.72;';
     document.body.appendChild(cvO); go = cvO.getContext('2d'); return true;
   }
   const gameVisible = () => { const g = document.getElementById('g'); return !!g && g.style.display !== 'none' && typeof cv !== 'undefined' && !!cv && cv.offsetWidth > 0 && cv.offsetHeight > 0; };
@@ -51,7 +51,7 @@
   const PS = [], FXL = [], CB = [], FF = [], WS = [], SETS = [];
   const acc = {};
   let flashA = 0, flashRGB = '190,120,255', aurBoost = 0, sealPulse = null, nextSet = 0;
-  const tick = (key, sec, fn, dt) => { acc[key] = (acc[key] || 0) + dt; let n = 0; while (acc[key] >= sec && n++ < 3) { acc[key] -= sec; fn(); } if (acc[key] > sec * 3) acc[key] = 0; };
+  const tick = (key, sec, fn, dt) => { acc[key] = (acc[key] || 0) + dt * Math.max(.4, window.jgPerf ? window.jgPerf.q : 1); let n = 0; while (acc[key] >= sec && n++ < 3) { acc[key] -= sec; fn(); } if (acc[key] > sec * 3) acc[key] = 0; };
 
   function sp(o) {
     if (PS.length > 300) PS.shift();
@@ -109,7 +109,7 @@
     const t = (window.curBoardIdx || 0), s = now * .001, bx = OX - CX * .3, by = OY - CY * .3, bw = 8 * CX + CX * .6, bh = 9 * CY + CY * .6, C0 = cl();
     g.save();
     if (t === 0) {          /* 사막: 바람에 밀리는 모래 물결 + 열기 */
-      g.globalCompositeOperation = 'soft-light'; g.globalAlpha = .34; tile(g, IM.ripple, bx, by, bw, bh, C0 * 6.5, s * 7, s * 1.5);
+      g.globalCompositeOperation = 'source-over'; g.globalAlpha = .3; tile(g, IM.rippleA, bx, by, bw, bh, C0 * 6.5, s * 7, s * 1.5);
       g.globalCompositeOperation = 'source-over'; g.globalAlpha = .09 + .03 * Math.sin(s * .5); g.fillStyle = 'rgb(255,214,140)'; g.fillRect(bx, by, bw, bh * .5);
     } else if (t === 1) {   /* 설원: 서리 결정 + 얼음 광택 스윕 */
       g.globalCompositeOperation = 'lighter'; g.globalAlpha = .045 + .02 * Math.sin(s * .8); tile(g, IM.frost, bx, by, bw, bh, C0 * 8, 0, 0);
@@ -322,11 +322,13 @@
   }
 
   /* ---------- 메인 루프 ---------- */
+  let skipN = 0;
   function loop(now) {
     requestAnimationFrame(loop);
     if (!ensureCanvas()) return;
+    if (window.jgPerf && window.jgPerf.q < .8 && ((skipN++) & 1)) return;
     const dt = Math.min(.05, Math.max(.001, (now - (lastT || now)) / 1000)); lastT = now;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1) * .8, Wn = window.innerWidth, Hn = window.innerHeight;
+    const dpr = (window.jgPerf ? window.jgPerf.dpr(1) : Math.min(window.devicePixelRatio || 1, 1)) * .8, Wn = window.innerWidth, Hn = window.innerHeight;
     if (cvO.width !== Math.round(Wn * dpr) || cvO.height !== Math.round(Hn * dpr)) { cvO.width = Math.round(Wn * dpr); cvO.height = Math.round(Hn * dpr); }
     W = Wn; H = Hn; go.setTransform(dpr, 0, 0, dpr, 0, 0); go.clearRect(0, 0, W, H);
     if (window.jgEnv3 && window.jgEnv3.ambient !== false) window.jgEnv3.ambient = false;   /* 구 상시환경 대체 */
@@ -342,6 +344,7 @@
     for (let i = FXL.length - 1; i >= 0; i--) { const f = FXL[i], age = (tn - f.t0) / 1000, k = age / f.life; if (k >= 1) { FXL.splice(i, 1); continue; } go.save(); try { f.fn(go, k, age); } catch (e) { FXL.splice(i, 1); } go.restore(); }
     if (flashA > .01) { go.globalCompositeOperation = 'lighter'; go.globalAlpha = flashA; if (ok(IM.vignette)) go.drawImage(tinted(IM.vignette, 'vg', flashRGB, 1), RC.left, RC.top, RC.width, RC.height); go.fillStyle = `rgba(${flashRGB},${flashA * .3})`; go.globalAlpha = 1; go.fillRect(RC.left, RC.top, RC.width, RC.height); flashA *= Math.pow(.03, dt); }
     go.restore(); go.globalAlpha = 1; go.globalCompositeOperation = 'source-over';
+    if (window.jgPieceMask) window.jgPieceMask.carve(go, RC);
   }
   setInterval(hookGround, 1500); hookGround();
   E5.test = function (kind) { const B = BR(); const t = window.curBoardIdx || 0; if (kind === 'set') startSet(t, B); else if (kind === 'capture') onCapture(4, 4, t); };

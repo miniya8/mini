@@ -2854,6 +2854,8 @@
   const WARLORD_ACT_MILESTONES = [30, 60, 90];
 
   function getWarlordCurrentMoves() {
+    /* 수 카운터: 게임 코어의 mc(둔 수)를 사용. (예전 hist 배열은 분리된 구조에서 존재하지 않아 항상 0이었음) */
+    try { if (typeof mc === 'number' && isFinite(mc)) return mc; } catch (e) {}
     if (typeof hist !== 'undefined' && Array.isArray(hist)) return hist.length;
     if (Array.isArray(window.hist)) return window.hist.length;
     return 0;

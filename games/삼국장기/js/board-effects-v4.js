@@ -109,7 +109,7 @@
     if (!document.body) return false;
     cvO = document.createElement('canvas');
     cvO.id = 'jg_env3_cv';
-    cvO.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:12;';
+    cvO.style.cssText = 'position:fixed;left:0;top:0;width:100vw;height:100vh;pointer-events:none;z-index:12;opacity:.86;';
     document.body.appendChild(cvO);
     go = cvO.getContext('2d');
     return true;
@@ -458,7 +458,7 @@
     const env = ease(Math.min(1, Math.min(k / .2, (1 - k) / .28))), B0 = BR(), S = Math.min(Wd, Hd), kind = wx.def.draw;
     const tint = (col, a) => atmo(g, col, a, B0.x + B0.w / 2, B0.y + B0.h / 2, B0.w * 1.08, B0.h * .84);
     wx.acc += dt;
-    const every = (sec, fn) => { sec *= E3.pace; while (wx.acc >= sec) { wx.acc -= sec; fn(); } };
+    const every = (sec, fn) => { sec *= E3.pace / Math.max(.4, window.jgPerf ? window.jgPerf.q : 1); while (wx.acc >= sec) { wx.acc -= sec; fn(); } };
     if (kind === 'sandstorm') {
       tint('210,160,90', .26 * env);
       for (let i = 0; i < Math.ceil(6 * env); i++) sp('streak', B0.x - 30, rnd(B0.y, B0.y + B0.h), { col: [230, 185, 115], spr: 'sand', size: rnd(1, 2.4), len: S * rnd(.07, .16), a: .6, life: rnd(.6, 1), vx: S * rnd(1.2, 2.2), vy: S * rnd(.02, .2) });
@@ -596,8 +596,8 @@
 
   /* ---------- 환경 이벤트 확장 (사막·설원·숲·암흑·고성 각 6종 추가) ---------- */
   function drawWeatherX(g, now, dt, kind, env, k, el, B0, S, tint, every) {
-    if (kind.indexOf('s9_') === 0) { if (window.jgScenes9) { try { window.jgScenes9.draw(kind, g, now, dt, env, k, el, B0, S, tint, every, wx, C); } catch (e) {} } return; }
-    if (kind.indexOf('s7_') === 0) { if (window.jgScenes7) { try { window.jgScenes7.draw(kind, g, now, dt, env, k, el, B0, S, tint, every, wx, C); } catch (e) {} } return; }
+    if (kind.indexOf('s9_') === 0) { if (window.jgScenes9) { try { window.jgScenes9.draw(kind, g, now, dt, env, k, el, B0, S, (c, a) => tint(c, a * .6), every, wx, C); } catch (e) {} } return; }
+    if (kind.indexOf('s7_') === 0) { if (window.jgScenes7) { try { window.jgScenes7.draw(kind, g, now, dt, env, k, el, B0, S, (c, a) => tint(c, a * .6), every, wx, C); } catch (e) {} } return; }
     const ev = (n, sec, fn) => { sec *= E3.pace; wx[n] = (wx[n] || 0) + dt; let c = 0; while (wx[n] >= sec && c++ < 4) { wx[n] -= sec; fn(); } };
     const bx = () => rnd(B0.x, B0.x + B0.w), by = () => rnd(B0.y, B0.y + B0.h), cx = B0.x + B0.w / 2, cy = B0.y + B0.h / 2;
     const pc = pick;
@@ -823,11 +823,13 @@
   }
 
   /* ---------- 메인 루프 ---------- */
+  let skipN = 0;
   function frameLoop(now) {
     requestAnimationFrame(frameLoop);
     if (!ensureCanvas()) return;
+    if (window.jgPerf && window.jgPerf.q < .8 && ((skipN++) & 1)) return;   /* 느린 기기: 30fps 로 갱신 */
     const dt = Math.min(.05, Math.max(.001, (now - (lastT || now)) / 1000)); lastT = now;
-    const W = window.innerWidth, H = window.innerHeight, dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const W = window.innerWidth, H = window.innerHeight, dpr = window.jgPerf ? window.jgPerf.dpr(1.25) : Math.min(window.devicePixelRatio || 1, 1.5);
     if (cvO.width !== Math.round(W * dpr) || cvO.height !== Math.round(H * dpr)) { cvO.width = Math.round(W * dpr); cvO.height = Math.round(H * dpr); }
     Wd = W; Hd = H;
     go.setTransform(dpr, 0, 0, dpr, 0, 0); go.clearRect(0, 0, W, H);
@@ -881,6 +883,7 @@
     go.globalAlpha = 1;
     if (flash > .004) { const fx = flashX == null ? RC.left + RC.width / 2 : flashX, fy = flashY == null ? RC.top + RC.height / 2 : flashY; go.save(); go.globalCompositeOperation = 'lighter'; const fr = Math.max(RC.width, RC.height) * 1.1, fg = go.createRadialGradient(fx, fy, 0, fx, fy, fr); fg.addColorStop(0, `rgba(${flashCol},${Math.min(1, flash * 2.2)})`); fg.addColorStop(.35, `rgba(${flashCol},${flash * .8})`); fg.addColorStop(1, `rgba(${flashCol},${flash * .12})`); go.fillStyle = fg; go.fillRect(RC.left, RC.top, RC.width, RC.height); go.restore(); flash *= Math.pow(.02, dt / 1.6); }
     go.restore();
+    if (window.jgPieceMask) window.jgPieceMask.carve(go, RC);   /* 기물 위치는 효과를 비워 가리지 않음 */
 
     /* 환경 이벤트 안내 문구 */
     if (label) {

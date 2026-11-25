@@ -84,7 +84,8 @@
 
   function addFx(o) { if (FX.length > 90) FX.shift(); o.t0 = performance.now(); FX.push(o); return o; }
   function sp(o) {
-    if (PT.length > 420) PT.shift();
+    if (window.jgPerf && window.jgPerf.q < .95 && Math.random() > Math.max(.3, window.jgPerf.q)) return null;
+    if (PT.length > Math.round(420 * Math.max(.5, window.jgPerf ? window.jgPerf.q : 1))) PT.shift();
     const p = Object.assign({ type: 'spark', x: 0, y: 0, vx: 0, vy: 0, ay: 0, drag: 1, age: 0, life: 1, size: 8, a: 1, rgb: RGB.o, rot: 0, vr: 0, grow: 0, cellN: 0, add: true }, o);
     PT.push(p); return p;
   }
@@ -389,21 +390,23 @@
     runFx(g, now, true);   /* 기술명 배너는 맨 위에 */
     g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   }
+  let dirty = false;
   function loop(now) {
     requestAnimationFrame(loop);
     if (!ensureCanvas()) return;
     const dt = Math.min(.05, Math.max(.001, (now - (lastT || now)) / 1000)); lastT = now;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5), Wn = window.innerWidth, Hn = window.innerHeight;
+    /* 아무 효과도 없으면 캔버스를 매 프레임 지우지 않고(전체화면 클리어 비용 절약) 한 번만 지웁니다 */
+    if (!FX.length && !PT.length && !charge) { if (dirty && cvO) { go.setTransform(1, 0, 0, 1, 0, 0); go.clearRect(0, 0, cvO.width, cvO.height); dirty = false; } return; }
+    const dpr = window.jgPerf ? window.jgPerf.dpr(1.25) : Math.min(window.devicePixelRatio || 1, 1.5), Wn = window.innerWidth, Hn = window.innerHeight;
     if (cvO.width !== Math.round(Wn * dpr) || cvO.height !== Math.round(Hn * dpr)) { cvO.width = Math.round(Wn * dpr); cvO.height = Math.round(Hn * dpr); }
     W = Wn; H = Hn;
-    go.setTransform(dpr, 0, 0, dpr, 0, 0); go.clearRect(0, 0, W, H);
+    go.setTransform(dpr, 0, 0, dpr, 0, 0); go.clearRect(0, 0, W, H); dirty = true;
     if (!F2.enabled || !gameVisible()) { if (FX.length || PT.length || charge) { FX.length = 0; PT.length = 0; charge = null; } return; }
-    if (!FX.length && !PT.length && !charge) return;
     RC = cv.getBoundingClientRect();
     go.save(); go.beginPath(); go.rect(RC.left, RC.top, RC.width, RC.height); go.clip();
     draw(go, performance.now(), dt);
     go.restore();
-    bloomPass();
+    if (!window.jgPerf || window.jgPerf.bloomOK()) bloomPass();
   }
   /* 부드러운 빛번짐: 저해상도로 줄였다가 확대해 가산 합성 (iOS 사파리에서도 동작) */
   let smA = null, smB = null;
