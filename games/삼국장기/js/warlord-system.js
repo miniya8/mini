@@ -358,16 +358,16 @@
     {
       id: 'zhuge',
       name: '제갈량',
-      hanja: '諸葛亮',
-      sealText: '臥龍天機',
+      hanja: '',
+      sealText: '와룡천기',
       faction: '촉한 · 와룡 승상 공명',
       icon: '🪶',
-      weapon: '백우선 · 태극선(白羽扇)',
+      weapon: '백우선 · 태극선',
       cameraStyle: 'smash_cut',
-      duelSkill: '팔진도 · 천기누설(天機漏洩)',
+      duelSkill: '팔진도 · 천기누설',
       duelDesc: '북두칠성과 팔괘 진법을 소환해 하늘의 별빛 광선으로 제압합니다.',
       punishName: '🌌 팔진천기참 (스매시컷)',
-      punishFull: '백우선 · 공명광선 팔진참(孔明光線 八陣斬)',
+      punishFull: '백우선 · 공명광선 팔진참',
       attackStyle: '백우선 직선 에너지 광선(공명빔) 관통 + 팔괘 돌풍',
       destructionForm: '직선 광선 관통 융해 크레이터 + 8방향 팔괘 직선 균열',
       punishDesc: '스매시 컷 3연속 구도 전환 후 팔괘 태극진과 북두칠성 광선으로 장기판을 파쇄합니다. (불꽃 없음)',
@@ -389,32 +389,32 @@
         capture: '이미 세 수 전에 예측했던 포석이었소.',
         captureBig: '상대의 핵심 기물이 함정에 빠졌군. 대세는 이미 기울었소.',
         check: '장군! 팔진도의 출구는 어디에도 남아 있지 않소이다.',
-        defend: '금낭묘계(錦囊妙計)가 준비되어 있으니 당황할 것 없소.',
-        action: '국궁진력 사이후이(鞠躬盡瘁 死而後已) — 몸을 다해 승리를 이끌겠소!',
+        defend: '금낭묘계가 준비되어 있으니 당황할 것 없소.',
+        action: '국궁진력 사이후이 — 몸을 다해 승리를 이끌겠소!',
         punish: '천문이 열리고 태극 팔진도가 완성되었소! 북두의 별빛이여, 적진을 꿰뚫어라!',
-        shout: '담박명지 영정치원(淡泊明志 寧靜致遠), 고요한 마음으로 천하를 꿰뚫어 보오.',
+        shout: '담박명지 영정치원, 고요한 마음으로 천하를 꿰뚫어 보오.',
         victory: '천하삼분지계를 넘어 대통일의 위업을 달성하였소!'
       },
       generalQuotes: [
-        { general: '강유(姜維)', role: '기린아 · 대장군', quote: '승상의 북벌 유지를 이어받아 끝까지 중원의 심장을 도모하리라!' },
-        { general: '위연(魏延)', role: '선봉 대장', quote: '자오곡의 기습처럼 번개같이 적의 궁성을 들이치겠소!' },
-        { general: '마대(馬岱)', role: '서량 기병장', quote: '승상의 묘계대로 적의 퇴로는 이미 완벽히 차단되었습니다!' },
-        { general: '왕평(王平)', role: '무당비군 통솔자', quote: '한 치의 흔들림도 없이 승상의 진법을 사수하겠습니다!' }
+        { general: '강유', role: '기린아 · 대장군', quote: '승상의 북벌 유지를 이어받아 끝까지 중원의 심장을 도모하리라!' },
+        { general: '위연', role: '선봉 대장', quote: '자오곡의 기습처럼 번개같이 적의 궁성을 들이치겠소!' },
+        { general: '마대', role: '서량 기병장', quote: '승상의 묘계대로 적의 퇴로는 이미 완벽히 차단되었습니다!' },
+        { general: '왕평', role: '무당비군 통솔자', quote: '한 치의 흔들림도 없이 승상의 진법을 사수하겠습니다!' }
       ]
     },
     {
       id: 'sunquan',
       name: '손권',
-      hanja: '孫權',
-      sealText: '江東怒濤',
+      hanja: '',
+      sealText: '강동노도',
       faction: '동오 · 강동의 젊은 호랑이',
       icon: '🌊',
-      weapon: '고정도(古錠刀)',
+      weapon: '고정도',
       cameraStyle: 'smash_cut',
-      duelSkill: '적벽수군진 · 파천노도(破天怒濤)',
+      duelSkill: '적벽수군진 · 파천노도',
       duelDesc: '거대한 청룡 해일과 수압 칼날을 일으켜 고정도로 일섬합니다.',
       punishName: '🌊 파천노도참 (스매시컷)',
-      punishFull: '고정도 · 수압검기 파천노도(古錠刀 水壓劍氣)',
+      punishFull: '고정도 · 수압검기 파천노도',
       attackStyle: '고정도 3연속 원거리 수압 검기 발사 + 장강 해일 파동',
       destructionForm: '3중 평행 초승달 수압 검기 단층 절단 참격선',
       punishDesc: '스매시 컷 급줌·군기 컷인 전환 후 장강의 수압 해일과 고정도 참격으로 장기판을 분쇄합니다. (불꽃 없음)',
@@ -443,34 +443,34 @@
         victory: '삼국의 정립을 넘어 동오가 천하의 주인이 되었다!'
       },
       generalQuotes: [
-        { general: '주유(周瑜)', role: '대도독 · 미주랑', quote: '동남풍이 불어오니 강동의 수군 앞에 적의 대군은 한 줌의 물거품이 되리라!' },
-        { general: '감녕(甘寧)', role: '금범적 맹장', quote: '백 기의 기병으로도 적의 영채를 유린하기에 충분하다! 나를 따르라!' },
-        { general: '육손(陸遜)', role: '이릉의 지략가', quote: '적이 깊숙이 들어와 진을 쳤으니, 이제 일격으로 승부를 결정지을 때입니다!' },
-        { general: '태사자(太史慈)', role: '신의 명사수', quote: '대장부가 세상에 태어나 삼척 장검을 쥐었으니 공명을 세워야 하지 않겠소!' }
+        { general: '주유', role: '대도독 · 미주랑', quote: '동남풍이 불어오니 강동의 수군 앞에 적의 대군은 한 줌의 물거품이 되리라!' },
+        { general: '감녕', role: '금범적 맹장', quote: '백 기의 기병으로도 적의 영채를 유린하기에 충분하다! 나를 따르라!' },
+        { general: '육손', role: '이릉의 지략가', quote: '적이 깊숙이 들어와 진을 쳤으니, 이제 일격으로 승부를 결정지을 때입니다!' },
+        { general: '태사자', role: '신의 명사수', quote: '대장부가 세상에 태어나 삼척 장검을 쥐었으니 공명을 세워야 하지 않겠소!' }
       ]
     },
     {
       id: 'caocao',
       name: '조조',
-      hanja: '曹操',
-      sealText: '覇王天命',
+      hanja: '',
+      sealText: '패왕천명',
       faction: '위나라 · 난세의 패왕',
       icon: '⚡',
-      weapon: '의천검 · 청강검(倚天·靑釭)',
+      weapon: '의천검 · 청강검',
       cameraStyle: 'smash_cut',
-      duelSkill: '패왕위압 · 천하호령(天下號令)',
+      duelSkill: '패왕위압 · 천하호령',
       duelDesc: '진홍빛 패왕의 뇌전과 의천검의 검압으로 상대를 짓누릅니다.',
       punishName: '⚡ 패왕뇌전참 (스매시컷)',
-      punishFull: '의천검 · 그림자분신 봉황난무(分身 鳳凰亂舞)',
+      punishFull: '의천검 · 그림자분신 봉황난무',
       attackStyle: '3체 그림자 분신 교차 검무 난무 + 패왕 뇌전·빙결 일격',
-      destructionForm: '분신 6중 성형(星形) 교차 참격 흉터 + 암청 뇌전 균열망',
+      destructionForm: '분신 6중 성형 교차 참격 흉터 + 암청 뇌전 균열망',
       punishDesc: '스매시 컷 3연속 호령·돌격 컷인 후 의천검 참격과 진홍빛 뇌전으로 장기판을 격파합니다. (불꽃 없음)',
       primary: '#dc2626',
       secondary: '#f59e0b',
       glow: 'rgba(239, 68, 68, 0.92)',
       bgGrad: 'linear-gradient(135deg, #7f1d1d 0%, #1e1b4b 60%, #090d16 100%)',
       effectType: 'crimson_lightning',
-      actionName: '⚔️ 패왕 호령(威壓)',
+      actionName: '⚔️ 패왕 호령',
       actionDesc: '패왕의 위압을 내뿜어 장기판 전역에 조조의 환영과 진홍빛 뇌전 충격파를 내리꽂습니다.',
       duelLines: {
         intro: '오늘날 천하의 영웅은 오직 그대와 나 조맹덕뿐이다!',
@@ -490,25 +490,25 @@
         victory: '천하통일의 패업이 완성되었다! 승리의 술잔을 높이 들어라!'
       },
       generalQuotes: [
-        { general: '하후돈(夏侯惇)', role: '위나라 대장군', quote: '부모님께 물려받은 정혈을 어찌 버리겠느냐! 목숨을 걸고 적장을 베겠다!' },
-        { general: '장료(張遼)', role: '합비의 전신', quote: '합비의 위엄 앞에 감히 우는 아이조차 숨을 죽인다! 돌격하라!' },
-        { general: '허저(許褚)', role: '호치(虎痴) 친위대장', quote: '주공의 앞길을 막는 놈은 이 호치가 맨손으로도 찢어버리겠다!' },
-        { general: '순욱(荀彧)', role: '왕좌의 재목', quote: '대업을 이루기 위해서는 반드시 적의 급소부터 꿰뚫어야 합니다, 주공!' }
+        { general: '하후돈', role: '위나라 대장군', quote: '부모님께 물려받은 정혈을 어찌 버리겠느냐! 목숨을 걸고 적장을 베겠다!' },
+        { general: '장료', role: '합비의 전신', quote: '합비의 위엄 앞에 감히 우는 아이조차 숨을 죽인다! 돌격하라!' },
+        { general: '허저', role: '호치 친위대장', quote: '주공의 앞길을 막는 놈은 이 호치가 맨손으로도 찢어버리겠다!' },
+        { general: '순욱', role: '왕좌의 재목', quote: '대업을 이루기 위해서는 반드시 적의 급소부터 꿰뚫어야 합니다, 주공!' }
       ]
     },
     {
       id: 'liubei',
       name: '유비',
-      hanja: '劉備',
-      sealText: '桃園雙劍',
+      hanja: '',
+      sealText: '도원쌍검',
       faction: '촉한 · 인덕의 황숙',
       icon: '🐉',
-      weapon: '자웅일대검(雌雄一對劍)',
+      weapon: '자웅일대검',
       cameraStyle: 'fpv',
-      duelSkill: '쌍검합벽 · 도원결의(桃園結義)',
+      duelSkill: '쌍검합벽 · 도원결의',
       duelDesc: '자웅일대검의 비취·황금 쌍검기와 도원의 벚꽃 바람으로 적을 제압합니다.',
       punishName: '🐉 쌍검천공참 (FPV)',
-      punishFull: '자웅일대검 · 쌍룡회오리 연격(雌雄雙劍 連擊)',
+      punishFull: '자웅일대검 · 쌍룡회오리 연격',
       attackStyle: '자웅일대검 고속 회전 연격 + 비취·황금 2중 나선 돌풍',
       destructionForm: '자웅일대검 이중 평행 절단 참격홈 + 비취·황금 나선 파쇄흔',
       punishDesc: 'FPV 드론이 유비의 자웅일대검 궤적을 따라 급강하하며 비취·황금 쌍검기로 장기판을 파손합니다. (불꽃 없음)',
@@ -537,25 +537,25 @@
         victory: '천하가 안정을 되찾았도다! 모두 짐의 오호대장군과 용장들 덕분이오!'
       },
       generalQuotes: [
-        { general: '관우(關羽)', role: '오호대장군 수장', quote: '옥은 부서질지언정 그 흰빛을 바꾸지 않는다! 청룡언월도로 적진을 가르겠소!' },
-        { general: '장비(張飛)', role: '만인지적 맹장', quote: '내가 바로 연인 장비다! 누가 나와 결사항전하겠느냐!' },
-        { general: '조운(趙雲)', role: '상산의 상승장군', quote: '상산 조자룡이 여기 있다! 일신담(一身膽)으로 적의 포위를 뚫으리라!' },
-        { general: '황충(黃忠)', role: '백발백중 노장', quote: '이 늙은이의 화살은 아직 젊은 장수들의 창끝보다 날카롭다!' }
+        { general: '관우', role: '오호대장군 수장', quote: '옥은 부서질지언정 그 흰빛을 바꾸지 않는다! 청룡언월도로 적진을 가르겠소!' },
+        { general: '장비', role: '만인지적 맹장', quote: '내가 바로 연인 장비다! 누가 나와 결사항전하겠느냐!' },
+        { general: '조운', role: '상산의 상승장군', quote: '상산 조자룡이 여기 있다! 일신담으로 적의 포위를 뚫으리라!' },
+        { general: '황충', role: '백발백중 노장', quote: '이 늙은이의 화살은 아직 젊은 장수들의 창끝보다 날카롭다!' }
       ]
     },
     {
       id: 'lvbu',
       name: '여포',
-      hanja: '呂布',
-      sealText: '天下無雙',
+      hanja: '',
+      sealText: '천하무쌍',
       faction: '군웅 · 천하무쌍 비장',
       icon: '🔱',
-      weapon: '방천화극(方天畫戟)',
+      weapon: '방천화극',
       cameraStyle: 'fpv',
-      duelSkill: '귀신강림 · 방천무쌍격(方天無雙擊)',
+      duelSkill: '귀신강림 · 방천무쌍격',
       duelDesc: '적토마의 질주와 방천화극의 초거대 자색·진홍 참격으로 전장을 뒤흔듭니다.',
       punishName: '🔱 방천귀신격 (FPV)',
-      punishFull: '방천화극 · 전방위 지진파 귀신격(方天畫戟 地震擊)',
+      punishFull: '방천화극 · 전방위 지진파 귀신격',
       attackStyle: '적토마 수직 강하 내리찍기 + 전방위 지진 충격파 & 흑자색 뇌전',
       destructionForm: '초대형 분화구 크레이터 + 진영 외곽 거미줄 대균열',
       punishDesc: 'FPV 드론이 배럴롤 회전 후 적토마와 함께 수직 강하하여 방천화극의 자색 참격으로 장기판을 분쇄합니다. (불꽃 없음)',
@@ -564,7 +564,7 @@
       glow: 'rgba(192, 38, 211, 0.92)',
       bgGrad: 'linear-gradient(135deg, #581c87 0%, #881337 55%, #090d16 100%)',
       effectType: 'musou_slash',
-      actionName: '🔱 무쌍 포효(鬼神)',
+      actionName: '🔱 무쌍 포효',
       actionDesc: '방천화극을 내리찍어 여포의 귀신 영령과 화면을 뒤흔드는 무쌍 충격파를 폭발시킵니다.',
       duelLines: {
         intro: '사람 중에는 여포, 말 중에는 적토마! 내 앞에 설 자 누구냐!',
@@ -584,25 +584,25 @@
         victory: '천하무쌍 여봉선 앞에 세상의 모든 영웅이 무릎을 꿇었다!'
       },
       generalQuotes: [
-        { general: '고순(高順)', role: '함진영(陷陣營) 지휘관', quote: '함진영이 나아가는 곳에 무너지지 않는 성벽은 없다! 일사불란하게 돌격하라!' },
-        { general: '장료(張遼 · 선봉)', role: '북지 맹장', quote: '무인의 신의와 용맹은 오직 전장의 칼끝에서 증명되는 법!' },
-        { general: '진궁(陳宮)', role: '지략 참모', quote: '장군, 지금이야말로 적의 허를 찔러 단숨에 승기를 잡을 절호의 기회입니다!' },
-        { general: '성렴(成廉)', role: '여포군 돌격장', quote: '봉선 장군의 방천화극이 향하는 곳, 적진은 이미 초토화되었다!' }
+        { general: '고순', role: '함진영 지휘관', quote: '함진영이 나아가는 곳에 무너지지 않는 성벽은 없다! 일사불란하게 돌격하라!' },
+        { general: '장료(선봉)', role: '북지 맹장', quote: '무인의 신의와 용맹은 오직 전장의 칼끝에서 증명되는 법!' },
+        { general: '진궁', role: '지략 참모', quote: '장군, 지금이야말로 적의 허를 찔러 단숨에 승기를 잡을 절호의 기회입니다!' },
+        { general: '성렴', role: '여포군 돌격장', quote: '봉선 장군의 방천화극이 향하는 곳, 적진은 이미 초토화되었다!' }
       ]
     },
     {
       id: 'simayi',
       name: '사마의',
-      hanja: '司馬懿',
-      sealText: '狼顧氷獄',
+      hanja: '',
+      sealText: '낭고빙옥',
       faction: '위진 · 낭고의 지략가',
       icon: '🐺',
       weapon: '흑철우산 · 낭고비수',
       cameraStyle: 'fpv',
-      duelSkill: '낭고지상 · 암영빙옥(暗影氷獄)',
+      duelSkill: '낭고지상 · 암영빙옥',
       duelDesc: '황금빛 천명 륜과 암영 빙결 파동으로 상대의 틈을 차갑게 꿰뚫습니다.',
       punishName: '🐺 낭고빙결진 (FPV)',
-      punishFull: '흑철우선 · 중력암영 연쇄뇌전(重力暗影 連鎖雷電)',
+      punishFull: '흑철우선 · 중력암영 연쇄뇌전',
       attackStyle: '우선 지면 강타 중력 압축 파동 + 암영 구체 연쇄 뇌전 방출',
       destructionForm: '동심원 중력 압축 함몰 분화구 + 주변 4방위 연쇄 감전 소균열',
       punishDesc: 'FPV 드론이 빙결 소용돌이를 가르며 급강하해 사마의의 우산 일격으로 장기판을 얼려 파쇄합니다. (불꽃 없음)',
@@ -631,10 +631,10 @@
         victory: '모든 영웅이 사라진 자리, 최후의 승자는 나 사마의다!'
       },
       generalQuotes: [
-        { general: '등애(鄧艾)', role: '음평 돌파 명장', quote: '험준한 절벽을 넘어서라도 적의 허를 찔러 승리를 거머쥐겠다!' },
-        { general: '장합(張郃)', role: '위나라 오자양장', quote: '전장의 변화에 따라 기습을 가하는 것이 바로 용병의 극치다!' },
-        { general: '사마사(司馬師)', role: '무양후', quote: '아버님의 깊은 지략을 받들어 흔들림 없는 철벽의 진을 치겠습니다!' },
-        { general: '곽회(郭淮)', role: '옹주 자사', quote: '적의 공세는 이미 간파당했다! 빈틈을 노려 역습하라!' }
+        { general: '등애', role: '음평 돌파 명장', quote: '험준한 절벽을 넘어서라도 적의 허를 찔러 승리를 거머쥐겠다!' },
+        { general: '장합', role: '위나라 오자양장', quote: '전장의 변화에 따라 기습을 가하는 것이 바로 용병의 극치다!' },
+        { general: '사마사', role: '무양후', quote: '아버님의 깊은 지략을 받들어 흔들림 없는 철벽의 진을 치겠습니다!' },
+        { general: '곽회', role: '옹주 자사', quote: '적의 공세는 이미 간파당했다! 빈틈을 노려 역습하라!' }
       ]
     }
   ];
@@ -1311,7 +1311,7 @@
 
       ctx.fillStyle = w.secondary;
       ctx.font = `900 ${Math.max(11, Math.round(ribbonH * 0.14))}px monospace`;
-      ctx.fillText(`第${cutNum}式 // ${w.name} (${w.hanja})`, anchorX, -ribbonH * 0.14);
+      ctx.fillText(`제${cutNum}식 // ${w.name}`, anchorX, -ribbonH * 0.14);
 
       ctx.fillStyle = '#ffffff';
       ctx.shadowColor = 'rgba(0,0,0,0.9)';
@@ -2058,7 +2058,7 @@
     g.font = '900 11.5px "Malgun Gothic", sans-serif';
     g.textAlign = 'left';
     g.textBaseline = 'middle';
-    g.fillText(`${w.icon} ${w.name}(${w.hanja}) · ${w.punishName.replace(/\s*\([^)]*\)/, '')}`, tagX + 10, tagY + tagH * 0.5);
+    g.fillText(`${w.icon} ${w.name} · ${w.punishName.replace(/\s*\([^)]*\)/, '')}`, tagX + 10, tagY + tagH * 0.5);
 
     // 2) 타격 지점 팔방위 나침반 전술 조준진
     const lockU = Math.min(1, t / impactT);
@@ -2434,7 +2434,7 @@
         <img class="jg-wl-detail-portrait" src="${getPortraitSrc(selW.id)}" ${getPortraitFallbackAttr(selW.id)} style="border-color:${selW.secondary};object-position:${getPortraitPos(selW.id)};box-shadow:0 0 18px ${selW.glow};" alt="${selW.name}">
         <div style="flex:1;min-width:240px;">
           <div style="font-size:15.5px;font-weight:900;color:#fde047;margin-bottom:4px;">
-            ${selW.icon} ${selW.name}(${selW.hanja}) · ${camTag} · 무기: ${selW.weapon}
+            ${selW.icon} ${selW.name} · ${camTag} · 무기: ${selW.weapon}
           </div>
           <div style="font-size:12.5px;color:#e2e8f0;line-height:1.48;">
             • <b>검색 기반 공격 형태:</b> <span style="color:#7dd3fc;">${selW.attackStyle}</span><br>
@@ -2713,8 +2713,8 @@
         : (t < 2.7
           ? '⚔️ 일기토 격돌!'
           : (playerWon
-            ? `👑 ${leftW.name} 일기토 승리! — ${winS === 'c' ? '초(楚)' : '한(漢)'} 선공!`
-            : `🔥 ${rightW.name} 일기토 승리! — ${winS === 'c' ? '초(楚)' : '한(漢)'} 선공!`));
+            ? `👑 ${leftW.name} 일기토 승리! — ${winS === 'c' ? '초' : '한'} 선공!`
+            : `🔥 ${rightW.name} 일기토 승리! — ${winS === 'c' ? '초' : '한'} 선공!`));
       g.font = `900 ${Math.round(S * 0.036)}px 'Malgun Gothic', sans-serif`;
       g.strokeText(topText, W * 0.5, H * 0.08);
       g.fillText(topText, W * 0.5, H * 0.08);
@@ -2772,7 +2772,7 @@
     g.font = `900 ${Math.round(r * 0.27)}px 'Malgun Gothic', sans-serif`;
     g.textAlign = 'center';
     g.textBaseline = 'middle';
-    g.fillText(`${w.icon} ${w.name}(${w.hanja})`, x, y + r * 0.78 + tagH * 0.5);
+    g.fillText(`${w.icon} ${w.name}`, x, y + r * 0.78 + tagH * 0.5);
     g.restore();
   }
 
@@ -2937,7 +2937,7 @@
       <div class="jg-wp-info">
         <img class="jg-wp-avatar" src="${getPortraitSrc(w.id)}" ${getPortraitFallbackAttr(w.id)} style="border-color:${w.secondary};object-position:${getPortraitPos(w.id)};" alt="${w.name}">
         <div class="jg-wp-txt">
-          <b>${w.icon} ${w.name} (${w.hanja})</b>
+          <b>${w.icon} ${w.name}</b>
           <small>${w.weapon}</small>
         </div>
       </div>
@@ -3718,7 +3718,7 @@
         if (typeof jang !== 'undefined' && jang && attackerSide) {
           const isMeAtk = (typeof me !== 'undefined' && attackerSide === me);
           const atkW = getWarlord(isMeAtk ? window.JG_MY_WARLORD : window.JG_OPP_WARLORD);
-          window.showWarlordCutin(atkW.id, '장군(將軍) 호령!', atkW.quotes.check, 4, defenderSide === 'h' ? 1 : 8, 1.7);
+          window.showWarlordCutin(atkW.id, '장군(장군) 호령!', atkW.quotes.check, 4, defenderSide === 'h' ? 1 : 8, 1.7);
         }
         return res;
       };

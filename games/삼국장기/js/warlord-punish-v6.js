@@ -523,7 +523,7 @@
    * ==================================================================== */
   const hexRGB = h => { h = String(h || '#ffffff').replace('#', ''); if (h.length === 3) h = h.split('').map(c => c + c).join(''); const n = parseInt(h, 16); return `${(n >> 16) & 255},${(n >> 8) & 255},${n & 255}`; };
   const U_DUR = { zhuge: 3.9, sunquan: 3.9, caocao: 3.3, liubei: 3.9, lvbu: 3.7, simayi: 3.9 }, U_IMP = { zhuge: 2.4, sunquan: 1.5, caocao: 1.62, liubei: 1.6, lvbu: 1.35, simayi: 2.35 };
-  const U_SUB = { zhuge: '星 辰 落 下', sunquan: '怒 濤 滅 敵', caocao: '覇 王 亂 舞', liubei: '桃 園 雙 劍', lvbu: '無 雙 亂 擊', simayi: '氷 結 狼 顧' };
+  const U_SUB = { zhuge: '성 진 낙 하', sunquan: '노 도 멸 적', caocao: '패 왕 난 무', liubei: '도 원 쌍 검', lvbu: '무 쌍 난 격', simayi: '빙 결 낭 고' };
   function runUltimate(A, w, seed) {
     const V = A === 'c' ? 'h' : 'c', pc = hexRGB(w.primary), sc = hexRGB(w.secondary), CUT = 2.15, post = (U_DUR[w.id] || 3.8) + .7;
     if (typeof window.jgPunishBusy === 'function') window.jgPunishBusy(true);
@@ -560,7 +560,7 @@
         const by = py0 + ph + H * .075; if (ok(IM.ult_brush)) { g.save(); g.globalAlpha = .9 * ta; g.translate(cx, by); g.rotate(-.04); const bw = W * 1.0 * wipe; g.drawImage(tinted(IM.ult_brush, 'ubr', pc, .85), 0, 0, 1024, 256, -W * .5, -H * .07, bw, H * .14); g.restore(); }
         g.save(); g.beginPath(); g.rect(0, by - H * .09, W * wipe, H * .2); g.clip(); g.translate(cx, by); g.rotate(-.04); g.textAlign = 'center'; g.textBaseline = 'middle'; const fs = Math.min(W * .17, H * .1); g.font = `900 ${fs}px "Noto Serif KR","Nanum Myeongjo","Songti SC",serif`; g.lineJoin = 'round'; g.lineWidth = fs * .16; g.strokeStyle = 'rgba(10,6,0,.95)'; g.shadowColor = `rgba(${sc},.95)`; g.shadowBlur = fs * .45; g.globalAlpha = ta; g.strokeText(title, 0, 0); g.fillStyle = '#fff6d6'; g.fillText(title, 0, 0); g.shadowBlur = 0; const lg = g.createLinearGradient(0, -fs / 2, 0, fs / 2); lg.addColorStop(0, 'rgba(255,255,255,.0)'); lg.addColorStop(1, `rgba(${sc},.55)`); g.fillStyle = lg; g.fillText(title, 0, 0); g.restore();
         g.save(); g.globalAlpha = ta; g.textAlign = 'center'; g.textBaseline = 'middle'; const f2 = Math.min(W * .05, H * .03); g.font = `800 ${f2}px "Noto Serif KR",serif`; g.lineWidth = f2 * .25; g.strokeStyle = 'rgba(0,0,0,.9)'; g.lineJoin = 'round'; g.strokeText(`${w.name} · ${sub}`, cx, by + H * .095); g.fillStyle = `rgb(${sc})`; g.fillText(`${w.name} · ${sub}`, cx, by + H * .095);
-        g.font = `900 ${f2 * .9}px "Noto Serif KR",serif`; g.fillStyle = '#ff5a4a'; g.strokeText('必殺技', px0 + pw - sk * .6 - f2 * 1.8, py0 + f2 * 1.1); g.fillText('必殺技', px0 + pw - sk * .6 - f2 * 1.8, py0 + f2 * 1.1); g.restore();
+        g.font = `900 ${f2 * .9}px "Noto Serif KR",serif`; g.fillStyle = '#ff5a4a'; g.strokeText('필살기', px0 + pw - sk * .6 - f2 * 1.8, py0 + f2 * 1.1); g.fillText('필살기', px0 + pw - sk * .6 - f2 * 1.8, py0 + f2 * 1.1); g.restore();
       }
       /* 컷인 끝: 흰 섬광 후 본 공격 시작 */
       const fl = Math.max(0, 1 - Math.abs(t - CUT) * 5); if (fl > 0 && ok(IM.ult_burst)) { g.save(); g.globalCompositeOperation = 'lighter'; const gr = g.createRadialGradient(cx, cy, 0, cx, cy, Math.max(W, H) * .8); gr.addColorStop(0, `rgba(255,255,255,${fl * .9})`); gr.addColorStop(1, `rgba(${sc},0)`); g.fillStyle = gr; g.fillRect(0, 0, W, H); g.restore(); }
@@ -572,7 +572,7 @@
       const sT = CUT + (U_IMP[w.id] || 1.5) + .02, sq = t - sT;
       if (started && sq > -.01) { const a = (sq < 1.5 ? 1 : 1 - smooth(kk(sq, 1.5, 2.0))), pop = outBack(kk(sq, 0, .24)), z = S * .56 * (1 + (1 - pop) * 1.8); if (!sfx3) { sfx3 = true; tone('sine', 90, 36, .9, .3); noise(.4, 'lowpass', 1400, 120, .2); }
         g.save(); g.translate(W * .5 + (sq < .3 ? Math.sin(sq * 140) * 6 : 0), H * .27); g.rotate(-.14); g.globalAlpha = clamp(a, 0, 1) * smooth(kk(sq, 0, .08));
-        if (ok(IM.ult_seal)) g.drawImage(IM.ult_seal, -z / 2, -z / 2, z, z); g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `900 ${z * .42}px "Noto Serif KR","Songti SC",serif`; g.lineJoin = 'round'; g.lineWidth = z * .035; g.strokeStyle = 'rgba(60,0,0,.9)'; g.fillStyle = '#e8261c'; g.shadowColor = 'rgba(255,60,40,.9)'; g.shadowBlur = z * .08; g.strokeText('必殺', 0, -z * .02); g.fillText('必殺', 0, -z * .02); g.shadowBlur = 0; g.font = `800 ${z * .13}px "Noto Serif KR",serif`; g.fillStyle = '#ffe9c4'; g.fillText(U_SUB[w.id] || '', 0, z * .27); g.restore(); }
+        if (ok(IM.ult_seal)) g.drawImage(IM.ult_seal, -z / 2, -z / 2, z, z); g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `900 ${z * .42}px "Noto Serif KR","Songti SC",serif`; g.lineJoin = 'round'; g.lineWidth = z * .035; g.strokeStyle = 'rgba(60,0,0,.9)'; g.fillStyle = '#e8261c'; g.shadowColor = 'rgba(255,60,40,.9)'; g.shadowBlur = z * .08; g.strokeText('필살', 0, -z * .02); g.fillText('필살', 0, -z * .02); g.shadowBlur = 0; g.font = `800 ${z * .13}px "Noto Serif KR",serif`; g.fillStyle = '#ffe9c4'; g.fillText(U_SUB[w.id] || '', 0, z * .27); g.restore(); }
       if (t > CUT + post) { cleanup(); return; } requestAnimationFrame(frame);
     }
     requestAnimationFrame(frame); setTimeout(cleanup, (CUT + post + 4) * 1000);

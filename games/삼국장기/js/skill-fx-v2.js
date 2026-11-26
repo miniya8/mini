@@ -43,13 +43,13 @@
   /* ---------- 스킬별 테마 ----------
    * c: 색(o주황 b푸른 g녹색 y금색 p보라)  bolt: 번개색  flame: 불기둥색  rune: 마법진  rays: 성광  big: 규모 */
   const TH = {
-    nuke:   { bannerOnly: 1, c: 'o', flame: 'o', rays: 'o', sky: 0, arc: 3, big: 1.5, smoke: 1.3, rain: 'o', title: '核  大爆發', sub: '핵폭탄', charge: 0 },
-    meteor: { bannerOnly: 1, c: 'o', flame: 'o', rays: 'o', sky: 0, arc: 2, big: 1.35, smoke: 1.1, rain: 'o', title: '隕石  墜落', sub: '메테오', charge: 0 },
-    alien:  { bannerOnly: 1, c: 'g', flame: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .5, rain: 'g', title: '異星  光線', sub: '외계인', charge: 0 },
-    kame:   { attr: 'elec', c: 'b', flame: 'b', rays: 'b', bolt: 'b', sky: 0, arc: 6, big: 1.2, smoke: .3, rain: 'b', title: '氣功波', sub: '에네르기파', charge: 1 },
-    kame2:  { attr: 'elec', c: 'b', flame: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .4, rain: 'b', title: '破壞  光線', sub: '에네르기파 2', charge: 1 },
-    skyfall: { attr: 'elec', c: 'y', rays: 'y', bolt: 'y', sky: 5, arc: 6, big: 1.5, smoke: .4, rain: 'y', title: '天罰  星槍', sub: '천벌성창', charge: 1 },
-    vortex:  { attr: 'ice', c: 'b', rays: 'b', bolt: 'b', sky: 1, arc: 8, big: 1.5, smoke: .3, rain: 'b', title: '次元  渦流砲', sub: '차원와류포', charge: 1 },
+    nuke: { bannerOnly: 1, c: 'o', title: '화룡  강림', sub: '불타는 용의 숨결', charge: 0 },
+    meteor: { bannerOnly: 1, c: 'b', title: '뇌신  폭풍', sub: '하늘을 찢는 낙뢰', charge: 0 },
+    alien:  { bannerOnly: 1, c: 'g', flame: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .5, rain: 'g', title: '이성  광선', sub: '외계인', charge: 0 },
+    kame:   { attr: 'elec', c: 'b', flame: 'b', rays: 'b', bolt: 'b', sky: 0, arc: 6, big: 1.2, smoke: .3, rain: 'b', title: '기공파', sub: '에네르기파', charge: 1 },
+    kame2: { bannerOnly: 1, c: 'o', title: '대지  분쇄', sub: '갈라지는 땅과 용암', charge: 0 },
+    skyfall: { attr: 'elec', c: 'y', rays: 'y', bolt: 'y', sky: 5, arc: 6, big: 1.5, smoke: .4, rain: 'y', title: '천벌  성창', sub: '천벌성창', charge: 1 },
+    vortex: { bannerOnly: 1, c: 'b', title: '빙하  붕괴', sub: '떨어지는 얼음 산', charge: 0 },
     /* 주먹·망치·총: 불 없이 충격파와 파편 위주 */
     fist:   { c: 'y', sky: 0, arc: 0, big: .8, smoke: .8, small: 1 },
     hammer: { c: 'b', sky: 0, arc: 0, big: .85, smoke: .6, small: 1 },

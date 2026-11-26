@@ -367,7 +367,7 @@
       { name: '🌅 황금빛 황혼이 사막을 물들입니다', dur: 9, draw: 'sunset' },
       { name: '☁️ 구름 그림자가 장기판을 스쳐갑니다', dur: 9, draw: 'cloudshadow' },
       { name: '🌀 먼지 회오리 행렬!', dur: 7, draw: 'dustdevils' },
-      { name: '🐪 대상(隊商)의 행렬이 지나갑니다', dur: 13, draw: 's7_caravan' },
+      { name: '🐪 대상의 행렬이 지나갑니다', dur: 13, draw: 's7_caravan' },
       { name: '🌪️ 거대한 모래 회오리가 줄지어 섭니다', dur: 10, draw: 's7_funnels' },
       { name: '🦅 독수리 떼가 사막 위를 맴돕니다', dur: 11, draw: 's7_vultures' },
       { name: '🎈 열기구 행렬이 느긋하게 떠갑니다', dur: 11, draw: 's9_balloons' },

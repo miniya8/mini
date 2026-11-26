@@ -221,7 +221,7 @@
     };
   }
 
-  const SCN = { nuke, meteor, alien };
+  const SCN = { alien };   /* 핵폭탄·메테오는 삭제됨 → skills-new-v14.js 의 새 스킬이 그 자리를 사용 */
 
   /* ---------- 실행 틀 ---------- */
   let hide = { n: 0, until: 0 };

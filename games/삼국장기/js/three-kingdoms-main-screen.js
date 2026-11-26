@@ -29,13 +29,13 @@
     bar.className = 'lb-samguk-showcase';
     bar.innerHTML = `
       <div class="lb-sg-side">
-        <span class="lb-sg-badge han">漢 촉한 무장진</span>
-        <span class="lb-sg-names">유비(宮) · 관우(車) · 제갈량(士) · 조운(馬) · 황충(包) · 장비(象)</span>
+        <span class="lb-sg-badge han">한 촉한 무장진</span>
+        <span class="lb-sg-names">유비 · 관우 · 제갈량 · 조운 · 황충 · 장비</span>
       </div>
       <div class="lb-sg-center">🔥 천하쟁패 삼국지 대전 🔥</div>
       <div class="lb-sg-side">
-        <span class="lb-sg-names">조조(宮) · 하후돈(車) · 사마의(士) · 장료(馬) · 조인(包) · 허저(象)</span>
-        <span class="lb-sg-badge cho">楚 조위 무장진</span>
+        <span class="lb-sg-names">조조 · 하후돈 · 사마의 · 장료 · 조인 · 허저</span>
+        <span class="lb-sg-badge cho">초 조위 무장진</span>
       </div>
     `;
     homeView.appendChild(bar);

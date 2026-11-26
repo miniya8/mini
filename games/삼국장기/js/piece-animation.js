@@ -24,7 +24,7 @@ const SP={h:{},c:{}};
             cv.width=CELL;cv.height=CELL;
             const ctx=cv.getContext('2d');
             ctx.drawImage(sheetImg,c*CELL,r*CELL,CELL,CELL,0,0,CELL,CELL);
-            if(s==='c'&&r===0&&c===0){
+            if(false&&s==='c'&&r===0&&c===0){ /* 한글 말판으로 교체되어 글자 재색칠 불필요 */
               try{
                 const id=ctx.getImageData(0,0,CELL,CELL),d=id.data;
                 for(let py=33;py<=107;py++){
@@ -1293,7 +1293,7 @@ function drawDuelHUD(g, genL, genR, hpL, hpR, dialogTxt){
   g.font = "900 12px 'Malgun Gothic',sans-serif";
   g.fillStyle = '#ffe36b';
   g.textAlign = 'center';
-  g.fillText('一騎討', DW/2, 24);
+  g.fillText('일기토', DW/2, 24);
 
   // 하단 삼국지 일기토 대사 배너
   if(dialogTxt){
@@ -1386,7 +1386,7 @@ function arena(a, b, tok, done){
   const OW = 240, OH = 200, ocv = document.createElement('canvas'); ocv.width = OW * d; ocv.height = OH * d; const og = ocv.getContext('2d');
   const hitMsg = [
     '🐎 전속력 기마 돌격!',
-    `⚔️ 칼날이 맞부딪힙니다! 첫 합(合)!`,
+    `⚔️ 칼날이 맞부딪힙니다! 첫 합!`,
     `💥 [${genL.name === '' ? '' : (lo === 0 ? genL.name : genR.name)}] 선제 일격! [${wi === 0 ? genL.name : genR.name}] 장수가 휘청입니다!`,
     `⚔️ 불꽃 튀는 정면 공방!`,
     `🔥 [${wi === 0 ? genL.name : genR.name}] 반격! [${lo === 0 ? genL.name : genR.name}] 장수가 말 위에서 흔들립니다!`,
@@ -1575,7 +1575,7 @@ function arena(a, b, tok, done){
         sp.push({x: lx, y: ly, vx: Math.cos(an)*v, vy: Math.sin(an)*v - 55, l: 0.55 + Math.random()*0.4, m: 0.88, c: COL[k % 5], w: 2.2});
       }
       rg.push({t0: t, r: 6, x: lx, y: ly});
-      popWords.push({s: '낙마(落馬)!!', t0: t, x: DW/2, y: 80, rot: -0.05, big: true});
+      popWords.push({s: '낙마!!', t0: t, x: DW/2, y: 80, rot: -0.05, big: true});
       shake = 22; flash = 0.88;
       snd('clash', 3);
     }
@@ -1916,7 +1916,7 @@ function diceShow(a, b, manual, cb, onCancel){
   $('drx').textContent = manual ? '취소' : '❌ 대국 거절';
   $('drx').onclick = () => { cancelAnimationFrame(duelIdleRaf); dTok++; $('dc').style.display = 'none'; if(onCancel) onCancel(); };
   if(manual){
-    $('dp').textContent = `[${nick()}] 장수와 [${oppNick}] 장수의 일기토(一騎討) 대결로 선공/후공을 결정합니다!`;
+    $('dp').textContent = `[${nick}] 장수와 [${oppNick}] 장수의 일기토 대결로 선공/후공을 결정합니다!`;
     $('drb').style.display = '';
     $('drx').style.display = '';
     $('drb').onclick = go;
@@ -2311,7 +2311,7 @@ g.lineWidth=3;for(let i=0;i<28;i++){const a=i/28*6.283+t*.4,r0=C*1.4+t*C*2,r1=r0
 g.globalCompositeOperation='source-over';
 const f=(SP[jang.s][jang.t].atk||[])[0];if(f&&f.im.complete){const k=Math.min(W*.95/f.w,C*7.5/f.h)*(.85+.3*t);g.globalAlpha=Math.min(1,e*1.4)*.9;g.drawImage(f.im,xm-f.w*k/2,ym-f.h*k/2,f.w*k,f.h*k);g.globalAlpha=1}
 const pop=1+.5*Math.exp(-t*7)*Math.cos(t*20),tx=jang.mate?'외통!':'장군!';g.translate(xm,ym);g.scale(pop,pop);g.textAlign='center';g.textBaseline='middle';g.font=`900 ${C*2.6}px 'Malgun Gothic',sans-serif`;g.lineJoin='round';g.lineWidth=C*.3;g.strokeStyle='#200';g.shadowColor=`rgb(${col})`;g.shadowBlur=C*1.2;g.strokeText(tx,0,0);
-const gg=g.createLinearGradient(0,-C*1.2,0,C*1.2);gg.addColorStop(0,'#fff6b0');gg.addColorStop(.5,'#ffcf30');gg.addColorStop(1,'#ff7a1a');g.fillStyle=gg;g.fillText(tx,0,0);g.shadowBlur=0;g.font=`900 ${C*.95}px serif`;g.fillStyle=`rgb(${col})`;g.fillText(jang.mate?'詰':'將軍',0,-C*2);
+const gg=g.createLinearGradient(0,-C*1.2,0,C*1.2);gg.addColorStop(0,'#fff6b0');gg.addColorStop(.5,'#ffcf30');gg.addColorStop(1,'#ff7a1a');g.fillStyle=gg;g.fillText(tx,0,0);g.shadowBlur=0;g.font=`900 ${C*.95}px serif`;g.fillStyle=`rgb(${col})`;g.fillText(jang.mate?'외통':'장군',0,-C*2);
 g.restore();if(t<.1){g.fillStyle=`rgba(255,255,255,${.7*(1-t/.1)})`;g.fillRect(0,0,W,H)}}
 function easeMove(u){u=Math.max(0,Math.min(1,u));return u*u*u*(u*(u*6-15)+10)}
 function drawMoveTrail(x0,y0,x1,y1,u,dist,now,side){const g=cx2,rgb=side=='c'?'118,218,255':'255,194,92',point=v=>[x0+(x1-x0)*v,y0+(y1-y0)*v-Math.sin(v*Math.PI*(1+dist))*C*.075];g.save();g.globalCompositeOperation='lighter';g.lineCap='round';g.lineJoin='round';for(let i=7;i>=0;i--){const v1=Math.max(0,u-i*.035),v0=Math.max(0,v1-.045);if(v1<=0)continue;const a=(1-i/9)*Math.min(1,u*5)*.3,p0=point(v0),p1=point(v1);g.strokeStyle='rgba('+rgb+','+a+')';g.lineWidth=C*(.025+(1-i/8)*.075);g.beginPath();g.moveTo(p0[0],p0[1]);g.lineTo(p1[0],p1[1]);g.stroke()}const [tx,ty]=point(u),pulse=.5+.5*Math.sin(now/75);g.globalAlpha=.16+.18*pulse;const halo=g.createRadialGradient(tx,ty,0,tx,ty,C*.42);halo.addColorStop(0,'rgba('+rgb+',.65)');halo.addColorStop(1,'rgba('+rgb+',0)');g.fillStyle=halo;g.beginPath();g.arc(tx,ty,C*.42,0,Math.PI*2);g.fill();g.restore()}

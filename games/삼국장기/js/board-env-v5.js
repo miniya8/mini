@@ -306,7 +306,7 @@
       drawClouds(g, B, t, dt, '168,150,132', .09, .6, 1.0);
       tick('gd', .16 / E5.density, () => sp({ kind: 'spark', cell: pick([6, 7, 0]), x: rnd(B.x, B.x + B.w), y: B.y + B.h * rnd(.2, 1), vx: rnd(-6, 10), vy: -rnd(6, 22), sway: rnd(8, 16), swf: rnd(.8, 1.8), ph: rnd(0, 6), size: C0 * rnd(.06, .13), a: .75, life: rnd(5, 9), rgb: '255,216,120', fadeIn: true }), dt);
       torches(g, t, now, dt);
-      const fl = [[-.38, 3.25, -1, ['#b3201a', '#e4472a'], '漢'], [8.38, 3.25, 1, ['#b3201a', '#e4472a'], '漢'], [-.38, 5.75, -1, ['#0f7f7a', '#26b5a8'], '楚'], [8.38, 5.75, 1, ['#0f7f7a', '#26b5a8'], '楚']];
+      const fl = [[-.38, 3.25, -1, ['#b3201a', '#e4472a'], '한'], [8.38, 3.25, 1, ['#b3201a', '#e4472a'], '한'], [-.38, 5.75, -1, ['#0f7f7a', '#26b5a8'], '초'], [8.38, 5.75, 1, ['#0f7f7a', '#26b5a8'], '초']];
       fl.forEach((q, i) => { const [x, y] = PX(q[0], q[1]); flag(g, x, y, C0 * .6, C0 * 1.25, q[2], q[3], q[4], s, i * 1.3); });
     }
     g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';

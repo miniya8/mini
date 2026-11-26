@@ -101,7 +101,7 @@
     if (ok(IM.speed)) { g.save(); g.globalCompositeOperation = 'lighter'; g.translate(cx, cy); g.rotate(t * (style === 'shatter' ? 1.2 : .5) * (style === 'wave' ? -1 : 1)); const z = Math.max(W, H) * (LOW() ? 1.25 : 1.7); g.globalAlpha = .5 * smooth(kk(t, .05, .45)) * cutA; g.drawImage(tint(IM.speed, 'us', sc, .8), -z / 2, -z / 2, z, z); g.restore(); }
     /* 스타일별 배경 장식 */
     if (style === 'moon' && ok(IM.bagua)) { const z = S * 1.15 * outBack(kk(t, .1, .7)); img(g, tint(IM.bagua, 'bg', sc, .5), cx, cy, z, z, .8 * cutA, t * .6, true); for (let i = 0; i < (LOW() ? 3 : 9); i++) glow(g, 'glow_y', cx + Math.cos(i * .7 + t) * S * .5, cy + Math.sin(i * 1.3) * S * .4, S * .06, (.5 + .5 * Math.sin(t * 6 + i)) * cutA); }
-    if (style === 'banner') { g.save(); g.globalAlpha = .22 * cutA; g.fillStyle = `rgb(${sc})`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `900 ${S * .9}px "Noto Serif KR",serif`; g.fillText('魏', cx, cy); g.restore(); if (Math.random() < .2) bolt(g, 'bolt_y', cx + rnd(-.5, .5) * W, 0, cx + rnd(-.3, .3) * W, H * .5, S * .25, .5 * cutA, (Math.random() * 6) | 0); }
+    if (style === 'banner') { g.save(); g.globalAlpha = .22 * cutA; g.fillStyle = `rgb(${sc})`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `900 ${S * .9}px "Noto Serif KR",serif`; g.fillText('위', cx, cy); g.restore(); if (Math.random() < .2) bolt(g, 'bolt_y', cx + rnd(-.5, .5) * W, 0, cx + rnd(-.3, .3) * W, H * .5, S * .25, .5 * cutA, (Math.random() * 6) | 0); }
     if (style === 'shatter' && Math.random() < .3) bolt(g, 'bolt_p', rnd(0, W), 0, rnd(0, W), H * rnd(.3, .7), S * .25, .55 * cutA, (Math.random() * 6) | 0);
     if (ok(IM.burst)) { const q = outBack(kk(t, .12, .6)); img(g, tint(IM.burst, 'ub', sc, .7), cx, cy, S * 1.2 * q, S * 1.2 * q, .5 * cutA, -.12 + Math.sin(t * 4) * .02, true); }
     /* 초상 패널 */
@@ -147,7 +147,7 @@
    * ==================================================================== */
   const ULT = {
     /* 🌌 제갈량 : 동남풍 화공 + 칠성 별빛 기둥 + 팔괘 수렴 */
-    zhuge: { dur: 4.3, hits: [[1.7, .5, .5], [2.3, .25, .45], [2.9, .75, .55]], stamp: 2.35, sub: '東 南 風 火 攻',
+    zhuge: { dur: 4.3, hits: [[1.7, .5, .5], [2.3, .25, .45], [2.9, .75, .55]], stamp: 2.35, sub: '동 남 풍 화 공',
       frame(g, t, dt, M, st) {
         const C = M.camp, S = M.S, out = 1 - smooth(kk(t, 3.6, 4.3));
         wash(g, M, '4,10,40', .45 * smooth(kk(t, 0, .4)) * out); vig(g, M, '255,120,40', .35 * smooth(kk(t, .8, 1.4)) * out);
@@ -159,7 +159,7 @@
         if (ok(IM.bagua)) { const bq = kk(t, 2.4, 3.4), z = M.S * 1.2 * (1 - .75 * smooth(bq)), a = smooth(kk(t, 2.3, 2.6)) * (1 - smooth(kk(t, 3.3, 3.6))); img(g, tint(IM.bagua, 'zb', '120,220,255', .4), M.cx, M.cy, z, z * .62, a * .9, t * 2, true); if (t > 3.35 && t < 3.9) flash(g, M.cx, M.cy, S * 2, '255,240,200', (1 - kk(t, 3.35, 3.9)) * 1.2); }
       } },
     /* 🌊 손권 : 대소용돌이 + 용오름 3개 + 대해일 */
-    sunquan: { dur: 4.2, hits: [[1.3, .25, .5], [2.35, .5, .5], [2.9, .75, .45]], stamp: 2.4, sub: '赤 壁 怒 濤',
+    sunquan: { dur: 4.2, hits: [[1.3, .25, .5], [2.35, .5, .5], [2.9, .75, .45]], stamp: 2.4, sub: '적 벽 노 도',
       frame(g, t, dt, M, st) {
         const C = M.camp, S = M.S, out = 1 - smooth(kk(t, 3.5, 4.2)), cx = M.cx, cy = M.cy;
         wash(g, M, '0,40,60', .42 * smooth(kk(t, 0, .4)) * out); vig(g, M, '60,200,230', .5 * out);
@@ -170,7 +170,7 @@
           if (ok(IM.rainbow) && q > .6) img(g, IM.rainbow, cx, cy - S * .1, S * 1.4, S * .7, .35 * smooth(kk(q, .6, 1.2)) * out, 0, false); }
       } },
     /* ⚡ 조조 : 위압의 거대한 그림자 + 만 발의 화살비 + 황금 낙뢰 왕관 */
-    caocao: { dur: 4.2, hits: [[1.3, .5, .4], [2.6, .5, .55], [2.9, .3, .5]], stamp: 2.65, sub: '萬 箭 天 雷',
+    caocao: { dur: 4.2, hits: [[1.3, .5, .4], [2.6, .5, .55], [2.9, .3, .5]], stamp: 2.65, sub: '만 전 천 뇌',
       frame(g, t, dt, M, st) {
         const C = M.camp, S = M.S, out = 1 - smooth(kk(t, 3.5, 4.2)), cx = M.cx, cy = M.cy;
         wash(g, M, '20,0,6', .5 * smooth(kk(t, 0, .4)) * out); vig(g, M, '200,20,30', .55 * out);
@@ -179,11 +179,11 @@
             if (Math.random() < .9) for (let i = 0; i < 2; i++) { const x = C.x0 + Math.random() * C.w, y = C.y0 + Math.random() * C.h; sp(st.P, { kind: 'spark', cell: pick([3, 4]), x, y, vx: rnd(-60, 60), vy: -rnd(30, 120), size: S * rnd(.012, .022), life: .4, rgb: '255,220,160' }); } } }
         for (let i = 0; i < 5; i++) { const tb = 2.1 + i * .1, bq = kk(t, tb, tb + .45); if (bq > 0 && bq < 1) { const x = C.x0 + C.w * (.1 + i * .2); bolt(g, 'bolt_y', x, M.br.top - S * .1, x + rnd(-8, 8), C.y0 + C.h * (.3 + .4 * hash(i, 3)), S * .35, (1 - bq) * (.6 + .4 * Math.abs(Math.sin(t * 50 + i))), ((t / .05) | 0) + i); } }
         if (t > 2.6) { const q = t - 2.6; bolt(g, 'bolt_y', cx, M.br.top - S * .2, cx, cy, S * .7, (1 - smooth(kk(q, 0, .5))), ((t / .04) | 0)); flash(g, cx, cy, S * 2.6, '255,230,160', (1 - smooth(kk(q, 0, .5))) * 1.2); shock(g, 'shock_y', cx, cy, S * 2.0, kk(q, 0, 1.1), .9, .55); shock(g, 'shock_o', cx, cy, S * 1.3, kk(q, .1, 1.1), .8, .55);
-          g.save(); g.globalAlpha = (1 - smooth(kk(q, .9, 1.5))) * smooth(kk(q, 0, .12)); g.textAlign = 'center'; g.textBaseline = 'middle'; const fs = S * .5 * (1 + .25 * (1 - outBack(kk(q, 0, .25)))); g.font = `900 ${fs}px "Noto Serif KR",serif`; g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,200,90,.85)'; g.translate(cx, cy); g.scale(1, .62); g.fillText('魏', 0, 0); g.restore();
+          g.save(); g.globalAlpha = (1 - smooth(kk(q, .9, 1.5))) * smooth(kk(q, 0, .12)); g.textAlign = 'center'; g.textBaseline = 'middle'; const fs = S * .5 * (1 + .25 * (1 - outBack(kk(q, 0, .25)))); g.font = `900 ${fs}px "Noto Serif KR",serif`; g.globalCompositeOperation = 'lighter'; g.fillStyle = 'rgba(255,200,90,.85)'; g.translate(cx, cy); g.scale(1, .62); g.fillText('위', 0, 0); g.restore();
           if (!st.d1) { st.d1 = 1; burst(st.P, cx, cy, 60, { v0: S * .3, v1: S * 1.4, s0: S * .012, s1: S * .03, up: -S * .4, p: { kind: 'spark', rgb: '255,210,110', ay: S * 1.2 }, pf: j => ({ cell: [0, 1, 3, 4][j % 4] }) }); } }
       } },
     /* 🌸 유비 : 관우 언월도 횡참 → 장비 장팔사모 관통 → 유비 쌍검 X참 → 도원결의 세 기둥 */
-    liubei: { dur: 4.3, hits: [[1.05, .5, .45], [1.75, .5, .55], [2.5, .5, .5]], stamp: 2.55, sub: '三 兄 弟 合 擊',
+    liubei: { dur: 4.3, hits: [[1.05, .5, .45], [1.75, .5, .55], [2.5, .5, .5]], stamp: 2.55, sub: '삼 형 제 합 격',
       frame(g, t, dt, M, st) {
         const C = M.camp, S = M.S, out = 1 - smooth(kk(t, 3.6, 4.3)), cx = M.cx, cy = M.cy;
         wash(g, M, '20,10,20', .38 * smooth(kk(t, 0, .4)) * out); vig(g, M, '255,170,200', .45 * out);
@@ -201,7 +201,7 @@
         if (t > 2.6) { const q = t - 2.6, fa = (1 - smooth(kk(q, .8, 1.5))); [['60,240,170', -1], ['255,215,90', 0], ['255,120,120', 1]].forEach(([rgb, s]) => { const x = cx + s * S * .22; ribbon(g, x, M.br.top, x, cy, S * .14 * smooth(kk(q, 0, .2)), rgb, .8 * fa); ribbon(g, x, M.br.top, x, cy, S * .04, '255,255,255', .7 * fa); }); flash(g, cx, cy, S * 2.2, '255,200,220', (1 - smooth(kk(q, 0, .6))) * 1.1); }
       } },
     /* 🔱 여포 : 불타는 적토마 돌격 → 방천화극 회전 회오리 → 귀신 강림 대폭발 */
-    lvbu: { dur: 4.2, hits: [[1.1, .3, .5], [2.0, .5, .5], [2.65, .5, .5]], stamp: 2.7, sub: '赤 兎 無 雙',
+    lvbu: { dur: 4.2, hits: [[1.1, .3, .5], [2.0, .5, .5], [2.65, .5, .5]], stamp: 2.7, sub: '적 토 무 쌍',
       frame(g, t, dt, M, st) {
         const C = M.camp, S = M.S, out = 1 - smooth(kk(t, 3.5, 4.2)), cx = M.cx, cy = M.cy;
         wash(g, M, '30,0,8', .5 * smooth(kk(t, 0, .4)) * out); vig(g, M, '220,20,40', .55 * out);
@@ -220,7 +220,7 @@
           if (!st.d1) { st.d1 = 1; for (let i = 0; i < 4; i++) st.tear(M, { x: cx, y: cy, ang: i * TAU / 4 + .4, len: S * .55, gap: S * .04, mode: 'half', seed: 70 + i, rgb: '255,60,90' }, 2.65); burst(st.P, cx, cy, 22, { v0: S * .4, v1: S * 1.3, s0: S * .03, s1: S * .07, up: -S * .7, l0: 1.2, l1: 2.2, p: { kind: 'rock', ay: S * 2.4, add: false } }); burst(st.P, cx, cy, 50, { v0: S * .3, v1: S * 1.4, s0: S * .012, s1: S * .03, up: -S * .3, p: { kind: 'spark', rgb: '255,90,120', ay: S }, pf: j => ({ cell: [0, 3, 4][j % 3] }) }); } }
       } },
     /* 🐺 사마의 : 보름달 늑대 포효 → 진영 전체 얼음 기둥 감옥 → 산산이 깨지는 빙옥 */
-    simayi: { dur: 4.3, hits: [[1.9, .5, .45], [2.75, .5, .55], [3.0, .25, .5]], stamp: 2.8, sub: '氷 獄 封 印',
+    simayi: { dur: 4.3, hits: [[1.9, .5, .45], [2.75, .5, .55], [3.0, .25, .5]], stamp: 2.8, sub: '빙 옥 봉 인',
       frame(g, t, dt, M, st) {
         const C = M.camp, S = M.S, out = 1 - smooth(kk(t, 3.6, 4.3)), cx = M.cx, cy = M.cy;
         wash(g, M, '6,12,50', .5 * smooth(kk(t, 0, .4)) * out); vig(g, M, '120,190,255', .55 * out);
@@ -258,7 +258,7 @@
         while (hitI < sc0.hits.length && ta >= sc0.hits[hitI][0]) { const h = sc0.hits[hitI++]; try { if (typeof window.hitCamp === 'function' && !U.noHit && (!LOW() || hitI === 2)) window.hitCamp(V, 'warlord_' + w.id, { fx: h[1], fy: h[2], rot: (rn() - .5) * .3 }); } catch (e) {} if (hitI === 2) { try { if (typeof window.hitScreen === 'function' && Q() >= .6) window.hitScreen(V, 'warlord', h[1], h[2], 0, true); } catch (e) {} } punch = hitI === 2 ? 1.2 : .7; ptime = 0; try { navigator.vibrate && navigator.vibrate(hitI === 2 ? [80, 40, 160] : 40); } catch (e) {} if (hitI === 2) { tone('sine', 80, 30, 1.4, .3); noise(1.2, 'lowpass', 1500, 80, .24); } }
         /* 필살 도장 */
         const sq = ta - sc0.stamp; if (sq > -.01) { if (!stampSfx) { stampSfx = true; tone('sine', 90, 36, .9, .26); } const a = (sq < 1.4 ? 1 : 1 - smooth(kk(sq, 1.4, 1.9))), pop = outBack(kk(sq, 0, .24)), z = M.S * .52 * (1 + (1 - pop) * 1.8);
-          g.save(); g.translate(M.W * .5, M.H * .25); g.rotate(-.14); g.globalAlpha = clamp(a, 0, 1) * smooth(kk(sq, 0, .08)); if (ok(IM.seal)) g.drawImage(tint(IM.seal, 'se', st.sc, .55), -z / 2, -z / 2, z, z); g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `900 ${z * .42}px "Noto Serif KR","Songti SC",serif`; g.lineJoin = 'round'; g.lineWidth = z * .035; g.strokeStyle = 'rgba(30,0,0,.9)'; g.fillStyle = '#e8261c'; g.strokeText('必殺', 0, -z * .02); g.fillText('必殺', 0, -z * .02); g.font = `800 ${z * .12}px "Noto Serif KR",serif`; g.fillStyle = `rgb(${st.sc})`; g.fillText(sc0.sub, 0, z * .27); g.restore(); }
+          g.save(); g.translate(M.W * .5, M.H * .25); g.rotate(-.14); g.globalAlpha = clamp(a, 0, 1) * smooth(kk(sq, 0, .08)); if (ok(IM.seal)) g.drawImage(tint(IM.seal, 'se', st.sc, .55), -z / 2, -z / 2, z, z); g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `900 ${z * .42}px "Noto Serif KR","Songti SC",serif`; g.lineJoin = 'round'; g.lineWidth = z * .035; g.strokeStyle = 'rgba(30,0,0,.9)'; g.fillStyle = '#e8261c'; g.strokeText('필살', 0, -z * .02); g.fillText('필살', 0, -z * .02); g.font = `800 ${z * .12}px "Noto Serif KR",serif`; g.fillStyle = `rgb(${st.sc})`; g.fillText(sc0.sub, 0, z * .27); g.restore(); }
       }
       if (T < T1 + .5) drawCutin(g, M, w, T, T1, st);
       /* 시네마 바 */

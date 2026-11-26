@@ -387,7 +387,7 @@
       g.lineWidth = Math.max(4, S * 0.012);
       g.strokeStyle = '#000';
       g.fillStyle = '#ffd54a';
-      const titleTxt = t < 0.9 ? '⚔️ 선공 결정 장수 일기토!!' : (t < 2.6 ? '💥 관우(漢) vs 하후돈(楚) 진검승부!!' : (winS === 'h' ? '🔥 한(漢) 일기토 승리 — 한나라 선공!!' : '⚡ 초(楚) 일기토 승리 — 초나라 선공!!'));
+      const titleTxt = t < 0.9 ? '⚔️ 선공 결정 장수 일기토!!' : (t < 2.6 ? '💥 관우 vs 하후돈 진검승부!!' : (winS === 'h' ? '🔥 한 일기토 승리 — 한나라 선공!!' : '⚡ 초 일기토 승리 — 초나라 선공!!'));
       g.strokeText(titleTxt, W * 0.5, H * 0.14);
       g.fillText(titleTxt, W * 0.5, H * 0.14);
       g.restore();
