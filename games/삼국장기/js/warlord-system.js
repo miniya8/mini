@@ -4026,13 +4026,14 @@
   };
 
   function ensureCrispGridHooks() {
-    if (typeof window.jgDrawBoardThemeFX === 'function' && !window.jgDrawBoardThemeFX.__crispGridTop) {
+    const __hasHook=(f,t)=>{for(let i=0;f&&i<80;i++,f=f.__prev)if(f[t])return true;return false};
+    if (typeof window.jgDrawBoardThemeFX === 'function' && !__hasHook(window.jgDrawBoardThemeFX, '__crispGridTop')) {
       const prevThemeFX = window.jgDrawBoardThemeFX;
       const wrappedThemeFX = function(g, now) {
         prevThemeFX.apply(this, arguments);
         window.jgDrawCrispGridOverlay(g);
       };
-      wrappedThemeFX.__crispGridTop = true;
+      wrappedThemeFX.__crispGridTop = true; wrappedThemeFX.__prev = prevThemeFX;
       window.jgDrawBoardThemeFX = wrappedThemeFX;
     }
 

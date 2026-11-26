@@ -45,7 +45,7 @@
   const TH = {
     nuke: { bannerOnly: 1, c: 'o', title: '화룡  강림', sub: '불타는 용의 숨결', charge: 0 },
     meteor: { bannerOnly: 1, c: 'b', title: '뇌신  폭풍', sub: '하늘을 찢는 낙뢰', charge: 0 },
-    alien:  { bannerOnly: 1, c: 'g', flame: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .5, rain: 'g', title: '이성  광선', sub: '외계인', charge: 0 },
+    alien:  { bannerOnly: 1, c: 'g', flame: 'g', rays: 'g', bolt: 'g', sky: 1, arc: 5, big: 1.2, smoke: .5, rain: 'g', title: '외계  광선', sub: '외계인', charge: 0 },
     kame:   { attr: 'elec', c: 'b', flame: 'b', rays: 'b', bolt: 'b', sky: 0, arc: 6, big: 1.2, smoke: .3, rain: 'b', title: '기공파', sub: '에네르기파', charge: 1 },
     kame2: { bannerOnly: 1, c: 'o', title: '대지  분쇄', sub: '갈라지는 땅과 용암', charge: 0 },
     skyfall: { attr: 'elec', c: 'y', rays: 'y', bolt: 'y', sky: 5, arc: 6, big: 1.5, smoke: .4, rain: 'y', title: '천벌  성창', sub: '천벌성창', charge: 1 },
@@ -423,24 +423,24 @@
   /* ---------- 훅 연결 (다른 모듈이 덮어써도 다시 연결) ---------- */
   function hook() {
     const hc = window.hitCamp;
-    if (typeof hc === 'function' && !hc.__sfx2) {
+    if (typeof hc === 'function' && !__jgHas(hc, '__sfx2')) {
       const w = function (s, sk, extra) {
         const r = hc.apply(this, arguments);
         try { onHit(s, sk || 'nuke', extra); } catch (e) {}
         return r;
       };
-      w.__sfx2 = true; if (hc.__sfx) w.__sfx = true;
+      w.__sfx2 = true; w.__prev = hc; if (hc.__sfx) w.__sfx = true;
       window.hitCamp = w;
     }
     const S = window.jgSkillFx;
-    if (S && typeof S.start === 'function' && !S.start.__sfx2) {
+    if (S && typeof S.start === 'function' && !__jgHas(S.start, '__sfx2')) {
       const os = S.start;
       S.start = function (sk, V) {
         const r = os.apply(this, arguments);
         try { startCharge(sk, V); } catch (e) {}
         return r;
       };
-      S.start.__sfx2 = true;
+      S.start.__sfx2 = true; S.start.__prev = os;
     }
   }
   hook(); setInterval(hook, 1500);

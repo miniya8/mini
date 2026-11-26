@@ -560,8 +560,8 @@
     }
   }
   function hookGround() {
-    const orig = window.jgDrawBoardThemeFX;
-    if (orig && orig.__sfx) return;
+    const orig = window.jgDrawBoardThemeFX; const __hasHook=(f,t)=>{for(let i=0;f&&i<80;i++,f=f.__prev)if(f[t])return true;return false};
+    if (__hasHook(orig, '__sfx')) return;
     /* 그을음·균열은 매 프레임 다시 그리지 않고 캐시 캔버스에 주기적으로(빛날 땐 60~120ms, 식은 뒤엔 1초) 그려 두고 한 번만 복사 — 모바일 최적화 */
     let dc = null, dg = null, dLast = 0, dSig = '';
     window.jgDrawBoardThemeFX = function (g, now) {
@@ -580,7 +580,7 @@
         g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.drawImage(dc, 0, 0); g.restore();
       } catch (e) {}
     };
-    window.jgDrawBoardThemeFX.__sfx = true;
+    window.jgDrawBoardThemeFX.__sfx = true; window.jgDrawBoardThemeFX.__prev = orig;
   }
 
   /* ---------- 메인 루프 ---------- */
@@ -615,22 +615,22 @@
   };
   function hook() {
     const hc = window.hitCamp;
-    if (typeof hc === 'function' && !hc.__sfx) {
+    if (typeof hc === 'function' && !__jgHas(hc, '__sfx')) {
       window.hitCamp = function (s, sk, extra) {
         const r = hc.apply(this, arguments);
         try { if (ctx) ctx.V = s; onHit(s, sk || (ctx && ctx.sk) || 'nuke', extra); } catch (e) {}
         return r;
       };
-      window.hitCamp.__sfx = true;
+      window.hitCamp.__sfx = true; window.hitCamp.__prev = hc;
     }
     const hsr = window.hitScreen;
-    if (typeof hsr === 'function' && !hsr.__sfx) {
+    if (typeof hsr === 'function' && !__jgHas(hsr, '__sfx')) {
       window.hitScreen = function (targetSide, tp, fx, fy) {
         const r = hsr.apply(this, arguments);
         try { microHit(targetSide, fx, fy); } catch (e) {}
         return r;
       };
-      window.hitScreen.__sfx = true;
+      window.hitScreen.__sfx = true; window.hitScreen.__prev = hsr;
     }
   }
   hook(); hookGround();

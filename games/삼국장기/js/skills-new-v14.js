@@ -17,7 +17,7 @@
 
   /* ---------- 이미지 ---------- */
   const IM = {}, L = (k, n) => { const i = new Image(); i.src = 'assets/images/fx/' + n + '.webp'; IM[k] = i; };
-  ['dragonhead', 'scale', 'glacier', 'rockspike'].forEach(n => L(n, 'skl_' + n)); ['burn', 'lichten', 'ice', 'fault'].forEach(n => L('d_' + n, 'dmg_' + n));
+  ['dragonhead', 'scale', 'glacier', 'rockspike'].forEach(n => L(n, 'skl_' + n)); ['burn', 'lichten', 'ice', 'fault', 'acid', 'plasma', 'holy', 'bloom'].forEach(n => L('d_' + n, 'dmg_' + n)); L('petal', 'wl_petal'); L('smoke', 'env_smoke'); L('starflare', 'wl_starflare');
   ['sparks', 'glow_o', 'glow_b', 'glow_y', 'glow_p', 'shock_o', 'shock_b', 'shock_y', 'shock_p', 'bolt_b', 'bolt_y', 'bolt_p', 'flame_o', 'vignette'].forEach(n => L(n, 'v2_' + n));
   ['ice', 'rock', 'ribbon', 'softflash', 'fissure', 'net'].forEach(n => L(n, 'wl_' + n)); L('billow', 'fx_billow'); L('vapor', 'fx_vapor'); L('fireball', 'fx_fireball'); L('frost', 'env_frost'); L('firewall', 'ult_firewall');
   const ok = im => !!im && (im.tagName === 'CANVAS' ? im.width > 0 : (im.complete && im.naturalWidth > 0));
@@ -62,11 +62,11 @@
         wash(g, M, '30,6,0', .4 * smooth(kk(t, 0, .4)) * out); vig(g, M, '255,90,20', .5 * out);
         /* 용의 경로: 하늘 위에서 S자로 휘감아 내려와 진영을 가로지름 */
         const path = u => { const x = M.br.left + M.br.width * (1.15 - 1.3 * u), y = C.y0 + C.h * (.5 + .35 * Math.sin(u * 5.5)) - (1 - smooth(kk(u, 0, .35))) * M.H * .6; return [x, y]; };
-        const head = clamp((t - .1) / 2.3, 0, 1.2), segs = LOW() ? 14 : 24;
-        if (ok(IM.scale)) for (let i = segs; i >= 1; i--) { const u = head - i * .028; if (u < 0 || u > 1.05) continue; const [x, y] = path(u), s = S * (.13 - i * .0035) * (1 + .1 * Math.sin(t * 9 + i)); img(g, IM.scale, x, y, s, s, out, t * 3 + i, true); if (i % 4 === 0 && Math.random() < .5) sp(st.P, { kind: 'spark', cell: pick([0, 6, 7]), x, y, vx: rnd(-40, 40), vy: -rnd(30, 120), size: S * rnd(.012, .028), life: rnd(.6, 1.2), rgb: '255,150,60' }); }
-        if (head <= 1.05 && ok(IM.dragonhead)) { const [x, y] = path(head), [x2, y2] = path(Math.max(0, head - .02)), ang = Math.atan2(y - y2, x - x2), z = S * .42; glow(g, 'glow_o', x, y, z * 1.6, .7 * out); g.save(); g.globalCompositeOperation = 'lighter'; g.translate(x, y); g.rotate(ang); if (Math.cos(ang) < 0) g.scale(1, -1); g.globalAlpha = out; g.drawImage(IM.dragonhead, -z * .5, -z * .4, z, z * .8); g.restore();
+        const hr = clamp((t - .1) / 2.6, 0, 1.2), head = hr + .075 * Math.sin(Math.min(hr, 1) * TAU), segs = LOW() ? 14 : 24;
+        if (ok(IM.scale)) for (let i = segs; i >= 1; i--) { const u = head - i * .028; if (u < 0 || u > 1.05) continue; const [x, y] = path(u), s = S * (.13 - i * .0035) * (1 + .1 * Math.sin(t * 9 + i)); img(g, IM.scale, x, y, s, s, out, t * 3 + i, i % 3 === 0); if (i % 4 === 0 && Math.random() < .5) sp(st.P, { kind: 'spark', cell: pick([0, 6, 7]), x, y, vx: rnd(-40, 40), vy: -rnd(30, 120), size: S * rnd(.012, .028), life: rnd(.6, 1.2), rgb: '255,150,60' }); }
+        if (head <= 1.05 && ok(IM.dragonhead)) { const [x, y] = path(head), [x2, y2] = path(Math.max(0, head - .02)), ang = Math.atan2(y - y2, x - x2), z = S * .56; glow(g, 'glow_o', x, y, z * 1.6, .7 * out); g.save(); g.translate(x, y); g.rotate(ang); if (Math.cos(ang) < 0) g.scale(1, -1); g.globalAlpha = out; g.drawImage(IM.dragonhead, -z * .62, -z * .4, z, z * .667); g.restore();
           /* 화염 브레스: 진영을 향해 */
-          if (t > .85 && t < 2.6) { const bx = x + Math.cos(ang) * z * .45, by = y + Math.sin(ang) * z * .3, ta = Math.atan2(C.y0 + C.h * .55 - by, (M.cx + (x - M.cx) * .2) - bx); for (let i = 0; i < (LOW() ? 2 : 4); i++) sp(st.P, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx, y: by, vx: Math.cos(ta + rnd(-.25, .25)) * S * rnd(.7, 1.2), vy: Math.sin(ta + rnd(-.25, .25)) * S * rnd(.7, 1.2), drag: .96, size: S * rnd(.08, .16), grow: 1.4, life: rnd(.6, 1.0), rgb: pick(['255,150,40', '255,90,20', '255,210,120']), add: true });
+          if (t > .85 && t < 2.6) { const bx = x + Math.cos(ang) * z * .45, by = y + Math.sin(ang) * z * .3, ta = Math.atan2(C.y0 + C.h * .55 - by, (M.cx + (x - M.cx) * .2) - bx); for (let i = 0; i < (LOW() ? 2 : 4); i++) sp(st.P, { kind: 'billow', cell: (Math.random() * 4) | 0, x: bx, y: by, vx: Math.cos(ta + rnd(-.25, .25)) * S * rnd(.7, 1.2), vy: Math.sin(ta + rnd(-.25, .25)) * S * rnd(.7, 1.2), drag: .96, size: S * rnd(.07, .13), grow: 1.3, life: rnd(.55, .9), a: .7, rgb: pick(['255,150,40', '255,90,20', '255,190,90']), add: true });
             if (Math.random() < .6) st.burnPts.push([bx + Math.cos(ta) * S * .6, by + Math.sin(ta) * S * .6]); } }
         if (ok(IM.firewall) && t > 1.0) { const a = smooth(kk(t, 1.0, 1.3)) * (1 - smooth(kk(t, 2.8, 3.8))); g.save(); g.beginPath(); g.rect(C.x0, C.y0 - C.h * .5, C.w, C.h * 1.5); g.clip(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = a * .9; const off = (t * 220) % C.w; g.drawImage(IM.firewall, C.x0 - off, C.y0 + C.h * .25, C.w, C.h * .75); g.drawImage(IM.firewall, C.x0 - off + C.w, C.y0 + C.h * .25, C.w, C.h * .75); g.restore(); }
         if (t > this.impact) { const q = t - this.impact; flash(g, M.cx, M.cy, S * 2.4, '255,170,80', (1 - smooth(kk(q, 0, .5))) * 1.1); shock(g, 'shock_o', M.cx, M.cy, S * 1.6, kk(q, 0, 1.1), .9, .55); if (ok(IM.fireball)) { const fs = S * (.3 + .4 * outCubic(kk(q, 0, .8))), f = Math.min(7, (kk(q, 0, 1.4) * 8) | 0); g.save(); g.globalAlpha = 1 - smooth(kk(q, 1.0, 1.6)); g.drawImage(IM.fireball, (f % 4) * 256, ((f / 4) | 0) * 256, 256, 256, M.cx - fs / 2, M.cy - fs * .6, fs, fs); g.restore(); } }
@@ -78,9 +78,12 @@
         wash(g, M, '6,8,24', .55 * smooth(kk(t, 0, .5)) * out); vig(g, M, '90,120,255', .45 * out);
         if (ok(IM.billow)) for (let i = 0; i < (LOW() ? 5 : 9); i++) { const u = ((i * .137 + t * .03) % 1.2) - .1, x = M.br.left + M.br.width * u, y = M.br.top + S * (.04 + .05 * Math.sin(i * 1.7 + t)), z = S * (.45 + .2 * Math.sin(i)); g.save(); g.globalAlpha = .85 * smooth(kk(t, 0, .6)) * out; g.drawImage(tint(IM.billow, 'st', '40,40,70', .85), (i % 4) * 256, 0, 256, 256, x - z / 2, y - z / 2, z, z); g.restore(); }
         /* 연속 낙뢰 */
+        /* 비: 굵기·길이가 다른 빗줄기 (한 번의 경로로 그려 가벼움) */
+        { const n = LOW() ? 26 : 54, a = .32 * smooth(kk(t, .3, 1.0)) * out; if (a > .01) { g.save(); g.strokeStyle = `rgba(185,205,255,${a})`; g.lineWidth = Math.max(1, S * .0035); g.beginPath(); for (let i = 0; i < n; i++) { const hx = Math.sin(i * 91.7) * 43758.5, h1 = hx - Math.floor(hx), sp2 = .9 + h1 * .6, yy = ((t * S * 2.6 * sp2 + h1 * 9999) % (M.br.height + S * .2)) + M.br.top - S * .1, xx = M.br.left + (((i * .6180339) % 1) * M.br.width) - (yy - M.br.top) * .18, ln = S * (.04 + .04 * h1); g.moveTo(xx, yy); g.lineTo(xx - ln * .18, yy + ln); } g.stroke(); g.restore(); } }
+        const lit = st.bolts.reduce((m2, b) => Math.max(m2, Math.max(0, 1 - (t - b.t0) / .18) * (b.big ? 1.4 : .7)), 0); if (lit > .02) flash(g, M.W / 2, M.br.top + S * .05, S * 2.0, '205,215,255', lit * .32);
         st.next = st.next || .45; if (t > st.next && t < 4.2) { st.next = t + (t < 1.5 ? rnd(.08, .16) : rnd(.25, .5)); const x = C.x0 + C.w * rnd(.05, .95), y = C.y0 + C.h * rnd(.15, .9); st.bolts.push({ x, y, t0: t, f: (Math.random() * 6) | 0, big: false }); st.scars.push([x, y]); noise(.25, 'highpass', 5000, 900, .1); }
         if (t > 1.5 && !st.main) { st.main = 1; [-1, 0, 1].forEach(d => st.bolts.push({ x: M.cx + d * S * .12, y: M.cy, t0: t + Math.abs(d) * .05, f: (Math.random() * 6) | 0, big: true })); tone('sawtooth', 120, 30, 1.1, .16); noise(1, 'lowpass', 2000, 80, .22); }
-        for (let i = st.bolts.length - 1; i >= 0; i--) { const b = st.bolts[i], q = (t - b.t0) / (b.big ? .7 : .35); if (q < 0) continue; if (q >= 1) { st.bolts.splice(i, 1); continue; } const w = S * (b.big ? .55 : .26), a = (1 - q) * (.55 + .45 * Math.abs(Math.sin(t * 60 + i))); bolt(g, b.big ? 'bolt_y' : 'bolt_b', b.x + rnd(-3, 3), M.br.top - S * .05, b.x, b.y, w, a, b.f + ((t / .05) | 0)); glow(g, b.big ? 'glow_y' : 'glow_b', b.x, b.y, S * (b.big ? .9 : .35), a); if (q < .12) { flash(g, b.x, b.y, S * (b.big ? 2.4 : .9), '200,220,255', (b.big ? 1.2 : .6) * (1 - q / .12)); if (!b.sp) { b.sp = 1; for (let k = 0; k < (b.big ? 30 : 10); k++) sp(st.P, { kind: 'spark', cell: pick([3, 4, 5]), x: b.x, y: b.y, vx: rnd(-1, 1) * S * .6, vy: -rnd(.1, .7) * S, ay: S * 1.2, size: S * rnd(.01, .025), life: rnd(.4, .9), rgb: '180,210,255' }); } } }
+        for (let i = st.bolts.length - 1; i >= 0; i--) { const b = st.bolts[i], q = (t - b.t0) / (b.big ? .7 : .35); if (q < 0) continue; if (q >= 1) { st.bolts.splice(i, 1); continue; } const w = S * (b.big ? .55 : .26), a = (1 - q) * (.55 + .45 * Math.abs(Math.sin(t * 60 + i))); bolt(g, b.big ? 'bolt_y' : 'bolt_b', b.x + rnd(-3, 3), M.br.top - S * .05, b.x, b.y, w, a, b.f + ((t / .05) | 0)); glow(g, b.big ? 'glow_y' : 'glow_b', b.x, b.y, S * (b.big ? .5 : .32), a * (b.big ? .75 : 1)); if (q < .12) { flash(g, b.x, b.y, S * (b.big ? 1.8 : .8), '190,210,255', (b.big ? .65 : .45) * (1 - q / .12)); if (!b.sp) { b.sp = 1; for (let k = 0; k < (b.big ? 30 : 10); k++) sp(st.P, { kind: 'spark', cell: pick([3, 4, 5]), x: b.x, y: b.y, vx: rnd(-1, 1) * S * .6, vy: -rnd(.1, .7) * S, ay: S * 1.2, size: S * rnd(.01, .025), life: rnd(.4, .9), rgb: '180,210,255' }); } } }
         if (t > this.impact) { const q = t - this.impact; shock(g, 'shock_b', M.cx, M.cy, S * 1.8, kk(q, 0, 1.1), .9, .55); if (ok(IM.net)) img(g, tint(IM.net, 'sn', '140,180,255', .5), M.cx, M.cy, S * 1.3 * outCubic(kk(q, 0, .3)), S * 1.3 * outCubic(kk(q, 0, .3)) * .7, (1 - smooth(kk(q, .6, 1.6))) * .8, 0, true); }
       } },
     /* 🌋 대지 분쇄 */
@@ -116,19 +119,39 @@
    * ==================================================================== */
   const DEC = { c: [], h: [] };
   function campCv(side) { const isBottom = (typeof flip !== 'undefined' && flip) ? (side === 'h') : (side === 'c'); return { x0: OX - CX * .42, w: 8 * CX + CX * .84, y0: isBottom ? (OY + 4.55 * CY) : (OY - CY * .42), h: 4.42 * CY + CY * .42 }; }
-  function addDecal(side, type, fx, fy, rot) { const L2 = DEC[side]; if (!L2) return; L2.push({ type, fx, fy, rot: rot == null ? rnd(-.6, .6) : rot, s: rnd(.85, 1.15), seed: Math.random() * 1000 }); while (L2.length > 10) L2.shift(); dDirty = true; }
+  function addDecal(side, type, fx, fy, rot) { const L2 = DEC[side]; if (!L2) return; L2.push({ type, fx, fy, rot: rot == null ? rnd(-.6, .6) : rot, s: rnd(.85, 1.15), seed: Math.random() * 1000, born: performance.now() }); while (L2.length > 10) L2.shift(); dDirty = true; }
   let dc = null, dg = null, dDirty = true, dSig = '', lastMc = 0;
+  /* 속성별 잔류 효과: 불=일렁이는 잔불 · 번개=지지직 전기 · 얼음=반짝임과 냉기 · 용암=끓는 빛과 연기 · 산=부글거림 · 플라즈마=푸른 잔광 · 성창=떠오르는 빛가루 */
+  const LIN = { burn: 14, lichten: 8, ice: 12, fault: 14, acid: 12, plasma: 9, holy: 10, bloom: 10 };
+  const LIVE = {
+    burn(g, d, x, y, C, now, age, f, R) { const im = IM.flame_o; if (!ok(im)) return; const n = LOW() ? 3 : 6; g.save(); g.translate(x, y); g.rotate(d.rot); g.globalCompositeOperation = 'lighter'; for (let i = 0; i < n; i++) { const fx = (R(i) - .5) * C * 3.4, fr = ((now / 70 + i * 3) | 0) % 8, fl = .75 + .25 * Math.sin(now / 90 + i * 2), z = C * (.42 + R(i + 5) * .35) * fl * (1 - age / LIN.burn * .5); g.globalAlpha = .85 * f; g.drawImage(im, (fr % 4) * 128, ((fr / 4) | 0) * 192, 128, 192, fx - z / 2, -z * 1.3 + (R(i + 9) - .5) * C * .4, z, z * 1.5); } g.restore(); glow(g, 'glow_o', x, y, C * 3, .25 * f * (.8 + .2 * Math.sin(now / 120))); },
+    lichten(g, d, x, y, C, now, age, f, R) { const k = ((now / 110) | 0); if (Math.sin(k * 12.3 + d.seed) > .35) { const a0 = (Math.sin(k * 7.7 + d.seed) * .5 + .5) * TAU, r0 = C * 1.3; bolt(g, 'bolt_b', x, y, x + Math.cos(a0) * r0, y + Math.sin(a0) * r0 * .8, C * .55, .8 * f, k); } glow(g, 'glow_b', x, y, C * (1.6 + .4 * Math.sin(now / 60)), .35 * f); },
+    ice(g, d, x, y, C, now, age, f, R) { const n = LOW() ? 3 : 6; for (let i = 0; i < n; i++) { const tw = Math.max(0, Math.sin(now / 380 + i * 2.1 + d.seed)), px2 = x + (R(i) - .5) * C * 2.6, py2 = y + (R(i + 3) - .5) * C * 2; if (tw > .2) img(g, IM.starflare, px2, py2, C * .55 * tw, C * .55 * tw, tw * f, now / 900, true); } if (ok(IM.smoke) && !LOW()) { for (let i = 0; i < 2; i++) { const u = ((now / 5200 + i * .5 + d.seed) % 1), z = C * (1.4 + u * 1.2); g.save(); g.globalAlpha = .22 * Math.sin(u * Math.PI) * f; g.drawImage(IM.smoke, i * 128, 0, 128, 128, x - z / 2 + (u - .5) * C, y - z / 2 - u * C * .6, z, z); g.restore(); } } },
+    fault(g, d, x, y, C, now, age, f, R) { g.save(); g.translate(x, y); g.rotate(d.rot); for (let i = 0; i < 4; i++) { const px2 = (R(i) - .5) * C * 5, pu = .55 + .45 * Math.sin(now / 260 + i * 1.7); glow(g, 'glow_o', px2, 0, C * 1.4 * pu, .5 * f); } if (ok(IM.smoke)) for (let i = 0; i < (LOW() ? 1 : 3); i++) { const u = ((now / 3000 + i / 3 + d.seed) % 1), px2 = (R(i + 7) - .5) * C * 4.4, z = C * (.6 + u * 1.3); g.globalAlpha = .35 * Math.sin(u * Math.PI) * f; g.drawImage(tint(IM.smoke, 'fsm', '70,55,45', .6), (i % 4) * 128, 0, 128, 128, px2 - z / 2, -z / 2 - u * C * 1.8, z, z); } g.restore(); },
+    acid(g, d, x, y, C, now, age, f, R) { const n = LOW() ? 3 : 6; for (let i = 0; i < n; i++) { const ph = ((now / 900 + R(i) * 3) % 1), px2 = x + (R(i + 2) - .5) * C * 1.8, py2 = y + (R(i + 4) - .5) * C * 1.3, r = C * (.08 + .14 * ph); g.save(); g.globalAlpha = (1 - ph) * .8 * f; g.strokeStyle = 'rgba(190,255,130,1)'; g.lineWidth = Math.max(1, C * .03); g.beginPath(); g.arc(px2, py2, r, 0, TAU); g.stroke(); g.restore(); } glow(g, 'glow_y', x, y, C * 2.2, .15 * f); },
+    plasma(g, d, x, y, C, now, age, f, R) { glow(g, 'glow_b', x, y, C * (2.2 + .3 * Math.sin(now / 200)), .45 * f); for (let i = 0; i < (LOW() ? 2 : 4); i++) { const u = ((now / 1400 + i / 4 + d.seed) % 1), a = R(i) * TAU, r = C * (.4 + u * 1.1); g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = (1 - u) * .8 * f; g.fillStyle = 'rgba(150,210,255,1)'; g.beginPath(); g.arc(x + Math.cos(a) * r, y + Math.sin(a) * r * .8 - u * C * .5, C * .05 * (1 - u) + 1, 0, TAU); g.fill(); g.restore(); } },
+    bloom(g, d, x, y, C, now, age, f, R) { const im = IM.petal; if (!ok(im)) return; for (let i = 0; i < (LOW() ? 3 : 6); i++) { const u = ((now / 3200 + i / 6 + d.seed) % 1), px2 = x + (R(i) - .5) * C * 2.6 + Math.sin(u * 6 + i) * C * .3, py2 = y - C * .4 + u * C * 1.2, z = C * .32; g.save(); g.globalAlpha = Math.sin(u * Math.PI) * .9 * f; g.translate(px2, py2); g.rotate(u * 6 + i); g.drawImage(im, (i % 5) * 64, 0, 64, 64, -z / 2, -z / 2, z, z); g.restore(); } glow(g, 'glow_y', x, y, C * 2, .12 * f); },
+    holy(g, d, x, y, C, now, age, f, R) { const pu = .6 + .4 * Math.sin(now / 300); glow(g, 'glow_y', x, y, C * 2.4 * pu, .35 * f); for (let i = 0; i < (LOW() ? 3 : 6); i++) { const u = ((now / 2200 + i / 6 + d.seed) % 1), px2 = x + (R(i) - .5) * C * 2.2; img(g, IM.starflare, px2, y - u * C * 2.4, C * .35 * (1 - u * .5), C * .35 * (1 - u * .5), Math.sin(u * Math.PI) * f, now / 700, true); } }
+  };
+  function drawLive(g, now) {
+    if (typeof CX !== 'number') return; const C = Math.min(CX, CY);
+    ['c', 'h'].forEach(s => { const cr = campCv(s); DEC[s].forEach(d => { const L3 = LIN[d.type], age = (now - (d.born || 0)) / 1000; if (!L3 || age > L3 || age < 0) return; const fade = smooth(kk(age, 0, .4)) * (1 - smooth(kk(age, L3 * .6, L3))), R = k => { const r = Math.sin(d.seed + k * 12.9898) * 43758.5453; return r - Math.floor(r); }; try { LIVE[d.type](g, d, cr.x0 + d.fx * cr.w, cr.y0 + d.fy * cr.h, C, now, age, fade, R); } catch (e) {} }); });
+  }
   function drawDecal(g, d, cx, cy, C) {
     const R = (k) => { const r = Math.sin(d.seed + k * 12.9898) * 43758.5453; return r - Math.floor(r); };
     g.save(); g.translate(cx, cy); g.rotate(d.rot); g.globalAlpha = .92;
     if (d.type === 'burn' && ok(IM.d_burn)) { g.globalAlpha = .72; g.drawImage(IM.d_burn, -C * 2.0 * d.s, -C * .45 * d.s, C * 4.0 * d.s, C * .9 * d.s); for (let i = 0; i < 3; i++) { const z = C * (.8 + R(i) * .6); g.drawImage(IM.d_burn, (R(i + 3) - .5) * C * 3, (R(i + 6) - .5) * C * 1.4 - z * .2, z * 1.6, z * .5); } }
     else if (d.type === 'lichten' && ok(IM.d_lichten)) { g.globalAlpha = .8; const z = C * 3.0 * d.s; g.drawImage(IM.d_lichten, -z / 2, -z / 2, z, z); }
     else if (d.type === 'ice' && ok(IM.d_ice)) { const z = C * 3.4 * d.s; g.drawImage(IM.d_ice, -z / 2, -z / 2, z, z * .85); if (ok(IM.ice)) for (let i = 0; i < 5; i++) { const a = R(i) * TAU, r = C * (.4 + R(i + 9) * .9), s2 = C * (.5 + R(i + 4) * .4); g.save(); g.translate(Math.cos(a) * r, Math.sin(a) * r * .8); g.rotate(R(i + 2) * TAU); g.drawImage(tint(IM.ice, 'dic', '200,235,255', .4), ((i % 4)) * 128, 0, 128, 128, -s2 / 2, -s2 / 2, s2, s2); g.restore(); } }
+    else if (d.type === 'acid' && ok(IM.d_acid)) { const z = C * 2.9 * d.s; g.globalAlpha = .85; g.drawImage(IM.d_acid, -z / 2, -z / 2, z, z * .8); }
+    else if (d.type === 'plasma' && ok(IM.d_plasma)) { const z = C * 3.1 * d.s; g.globalAlpha = .85; g.drawImage(IM.d_plasma, -z / 2, -z / 2, z, z * .82); }
+    else if (d.type === 'bloom' && ok(IM.d_bloom)) { const z = C * 3.3 * d.s; g.globalAlpha = .9; g.drawImage(IM.d_bloom, -z / 2, -z / 2, z, z * .85); }
+    else if (d.type === 'holy' && ok(IM.d_holy)) { const z = C * 3.0 * d.s; g.globalAlpha = .8; g.drawImage(IM.d_holy, -z / 2, -z / 2, z, z * .85); }
     else if (d.type === 'fault' && ok(IM.d_fault)) { g.drawImage(IM.d_fault, -C * 3.2 * d.s, -C * .65 * d.s, C * 6.4 * d.s, C * 1.3 * d.s); if (ok(IM.rock)) for (let i = 0; i < 6; i++) { const s2 = C * (.28 + R(i) * .3); g.save(); g.translate((R(i + 3) - .5) * C * 5, (R(i + 7) - .5) * C * 1.6); g.rotate(R(i + 1) * TAU); g.drawImage(IM.rock, ((i % 4)) * 64, 0, 64, 64, -s2 / 2, -s2 / 2, s2, s2); g.restore(); } }
     g.restore();
   }
   function hookGround() {
-    const orig = window.jgDrawBoardThemeFX; if (orig && orig.__n14) return;
+    const orig = window.jgDrawBoardThemeFX; const __hasHook=(f,t)=>{for(let i=0;f&&i<80;i++,f=f.__prev)if(f[t])return true;return false}; if (__hasHook(orig, '__n14')) return;
     const fn = function (g, now) {
       if (typeof orig === 'function') orig.apply(this, arguments);
       try {
@@ -139,10 +162,10 @@
         const cvEl = g.canvas, w = cvEl.width, h = cvEl.height, sig = w + 'x' + h + (typeof flip !== 'undefined' && flip ? 'f' : 'n');
         if (!dc || dc.width !== w || dc.height !== h) { dc = document.createElement('canvas'); dc.width = w; dc.height = h; dg = dc.getContext('2d'); dDirty = true; }
         if (dDirty || sig !== dSig) { dDirty = false; dSig = sig; dg.setTransform(1, 0, 0, 1, 0, 0); dg.clearRect(0, 0, w, h); const m = g.getTransform ? g.getTransform() : null; if (m) dg.setTransform(m); const C = Math.min(CX, CY); ['c', 'h'].forEach(s => { const cr = campCv(s); DEC[s].forEach(d => drawDecal(dg, d, cr.x0 + d.fx * cr.w, cr.y0 + d.fy * cr.h, C)); }); }
-        g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.drawImage(dc, 0, 0); g.restore();
+        g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.drawImage(dc, 0, 0); g.restore(); drawLive(g, now);
       } catch (e) {}
     };
-    fn.__n14 = true; window.jgDrawBoardThemeFX = fn;
+    fn.__n14 = true; fn.__prev = orig; window.jgDrawBoardThemeFX = fn;
   }
 
   /* ====================================================================
@@ -173,14 +196,15 @@
 
   /* jgSkillFx.start 훅: 핵/메테오/에네르기파2 슬롯이 시작될 때 새 연출 실행 */
   function hookStart() {
-    const S = window.jgSkillFx; if (!S || typeof S.start !== 'function' || S.start.__n14) return;
+    const S = window.jgSkillFx; if (!S || typeof S.start !== 'function' || __jgHas(S.start, '__n14')) return;
     const os = S.start;
-    S.start = function (sk, V) { if (N14.enabled && SC[sk] && !SC[sk].own) { hide = { n: 1, z: sk === 'kame2' ? '24' : '9', until: performance.now() + 900 }; try { run(sk, V); } catch (e) {} return; } return os.apply(this, arguments); };
-    S.start.__n14 = true;
+    S.start = function (sk, V) { if (N14.enabled && sk === 'alien') { const S2 = window.jgSkillFx, pv = S2.enabled; S2.enabled = false; try { return os.apply(this, arguments); } finally { S2.enabled = pv; } }   /* 외계인: 옛 효과층은 건너뜀(새 연출과 산성 자국이 대신함 · 휴대폰에서 매우 무거웠음) */
+      if (N14.enabled && SC[sk] && !SC[sk].own) { hide = { n: 1, z: sk === 'kame2' ? '24' : '9', until: performance.now() + 900 }; try { run(sk, V); } catch (e) {} return; } return os.apply(this, arguments); };
+    S.start.__n14 = true; S.start.__prev = os;
   }
   /* 차원와류포 슬롯 → 빙하 붕괴 (원본 함수 대체, 동기화 seed 유지) */
   function hookVortex() {
-    const ov = window.jgVortexFire; if (ov && ov.__n14) return;
+    const ov = window.jgVortexFire; if (__jgHas(ov, '__n14')) return;
     const fn = function (attackerSide, seed) {
       if (!N14.enabled) return ov && ov.apply(this, arguments);
       if (typeof window.jgPunishBusy === 'function' && window.jgPunishBusy()) return;
@@ -190,22 +214,28 @@
       const tick = () => { const now = performance.now() - st0; while (hi < scn.hits.length && now / 1000 >= scn.hits[hi][0]) { const h = scn.hits[hi++]; try { window.hitCamp && window.hitCamp(V, 'vortex', { fx: h[1], fy: h[2], rot: 0 }); } catch (e) {} if (hi === 1) try { window.hitScreen && Q() >= .6 && window.hitScreen(V, 'fist', h[1], h[2], 0, true); } catch (e) {} } if (hi < scn.hits.length) requestAnimationFrame(tick); else setTimeout(() => { if (typeof window.jgPunishBusy === 'function') window.jgPunishBusy(false); }, (scn.end - scn.hits[scn.hits.length - 1][0]) * 1000); };
       const st0 = performance.now(); requestAnimationFrame(tick);
     };
-    fn.__n14 = true; window.jgVortexFire = fn;
+    fn.__n14 = true; fn.__prev = ov; window.jgVortexFire = fn;
   }
   /* hitCamp: 새 스킬 4종은 예전 불탄 자국 대신 성질별 파손 데칼을 남김 */
+  const lastWl = {};
   function hookHit() {
-    const hc = window.hitCamp; if (typeof hc !== 'function' || hc.__n14) return;
+    const hc = window.hitCamp; if (typeof hc !== 'function' || __jgHas(hc, '__n14')) return;
     const fn = function (side, sk, extra) {
-      const mine = N14.enabled && SC[sk]; const S1 = window.jgSkillFx, prev = S1 ? S1.enabled : undefined;
-      if (mine && S1) S1.enabled = false;
-      let r; try { r = hc.apply(this, arguments); } finally { if (mine && S1) S1.enabled = prev; }
+      const mine = N14.enabled && SC[sk], quiet = mine || (N14.enabled && (sk === 'alien' || (typeof sk === 'string' && sk.indexOf('warlord_') === 0)));   /* 군주 공격도 자체 연출+속성 자국이 있어 옛 효과층은 건너뜀 */ const S1 = window.jgSkillFx, prev = S1 ? S1.enabled : undefined;
+      if (quiet && S1) S1.enabled = false;
+      let r; try { r = hc.apply(this, arguments); } finally { if (quiet && S1) S1.enabled = prev; }
+      const WLT = { zhuge: 'holy', sunquan: 'plasma', caocao: 'lichten', liubei: 'bloom', lvbu: 'fault', simayi: 'ice' }, wid = typeof sk === 'string' && sk.indexOf('warlord_') === 0 ? sk.slice(8) : null;
+      let extraType = N14.enabled ? (({ alien: 'acid', kame: 'plasma', skyfall: 'holy' })[sk] || (wid && WLT[wid]) || null) : null;
+      if (extraType && wid) { const now2 = performance.now(), key = side + wid; if (now2 - (lastWl[key] || 0) < 1500) extraType = null; else lastWl[key] = now2; if (wid === 'lvbu' && extraType) { try { addDecal(side, 'burn', rnd(.25, .75), rnd(.25, .75)); } catch (e) {} } }
+      if (extraType) { try { const fx = extra && extra.fx != null ? extra.fx : rnd(.3, .7), fy = extra && extra.fy != null ? extra.fy : rnd(.3, .7); addDecal(side, extraType, fx, fy); } catch (e) {} }
       if (mine) { try { const hits = (window.DMG_SK && window.DMG_SK[side]) || [], last = hits[hits.length - 1] || {}, fx = extra && extra.fx != null ? extra.fx : (last.fx != null ? last.fx : .5), fy = extra && extra.fy != null ? extra.fy : (last.fy != null ? last.fy : .5); addDecal(side, SC[sk].dmg, fx, fy, sk === 'nuke' ? rnd(-.3, .3) : null); if (sk === 'meteor') for (let i = 0; i < 2; i++) addDecal(side, 'lichten', clamp(fx + rnd(-.3, .3), .08, .92), clamp(fy + rnd(-.3, .3), .1, .9)); if (sk === 'nuke') addDecal(side, 'burn', clamp(fx + rnd(-.25, .25), .1, .9), clamp(fy + rnd(-.25, .25), .1, .9)); } catch (e) {} }
       return r;
     };
-    fn.__n14 = true; window.hitCamp = fn;
+    fn.__n14 = true; fn.__prev = hc; window.hitCamp = fn;
   }
   function installAll() { hookStart(); hookVortex(); hookHit(); hookGround(); }
   installAll(); setInterval(installAll, 1200);
   N14.test = (sk, V) => { if (sk === 'vortex') return window.jgVortexFire(V === 'h' ? 'c' : 'h', 1); run(sk, V || 'h'); setTimeout(() => window.hitCamp && window.hitCamp(V || 'h', sk), SC[sk].impact * 1000); };
   N14.decal = addDecal;
+  N14.clear = () => { DEC.c.length = 0; DEC.h.length = 0; dDirty = true; };
 })();

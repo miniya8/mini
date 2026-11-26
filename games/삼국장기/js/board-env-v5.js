@@ -143,10 +143,10 @@
   }
 
   function hookGround() {
-    const orig = window.jgDrawBoardThemeFX;
-    if (orig && orig.__e5) return;
+    const orig = window.jgDrawBoardThemeFX; const __hasHook=(f,t)=>{for(let i=0;f&&i<80;i++,f=f.__prev)if(f[t])return true;return false};
+    if (__hasHook(orig, '__e5')) return;   /* 연결 고리 전체를 확인(다른 모듈과 번갈아 감싸며 무한히 길어지던 문제 수정) */
     const w = function (g, now) { if (typeof orig === 'function') orig.apply(this, arguments); try { drawGround(g, now); } catch (e) {} };
-    w.__e5 = true; if (orig && orig.__e3) w.__e3 = true; if (orig && orig.__sfx) w.__sfx = true;
+    w.__e5 = true; w.__prev = orig; if (orig && orig.__e3) w.__e3 = true; if (orig && orig.__sfx) w.__sfx = true;
     window.jgDrawBoardThemeFX = w;
   }
 

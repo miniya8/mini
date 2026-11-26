@@ -902,13 +902,13 @@
 
   /* ---------- 바닥 흔적을 기존 보드 FX 렌더 단계에 연결 (장기알 아래) ---------- */
   function hookGround() {
-    const orig = window.jgDrawBoardThemeFX;
-    if (orig && orig.__e3) return;
+    const orig = window.jgDrawBoardThemeFX; const __hasHook=(f,t)=>{for(let i=0;f&&i<80;i++,f=f.__prev)if(f[t])return true;return false};
+    if (__hasHook(orig, '__e3')) return;
     window.jgDrawBoardThemeFX = function (g, now) {
       if (typeof orig === 'function') orig.apply(this, arguments);
       try { drawDecals(g, now); } catch (e) {}
     };
-    window.jgDrawBoardThemeFX.__e3 = true;
+    window.jgDrawBoardThemeFX.__e3 = true; window.jgDrawBoardThemeFX.__prev = orig;
   }
 
   /* ---------- 컨트롤 버튼 ---------- */
@@ -928,6 +928,7 @@
   E3.impact = (gx, gy, th) => impact(gx, gy, th == null ? (window.curBoardIdx || 0) : th);
   E3.check = (gx, gy) => { const [x, y] = P(gx == null ? 4 : gx, gy == null ? 1 : gy); checkFx(x, y, false); };
   E3.weatherNow = (idx) => startWeather(window.curBoardIdx || 0, idx);
+  E3.list = (th) => (WX[th == null ? (window.curBoardIdx || 0) : th] || WX[0]).map(d => d.name);   /* 테스트 장기판용 이벤트 이름 목록 */
   E3.trail = (gx, gy) => { const [x, y] = P(gx, gy); trail(x, y, window.curBoardIdx || 0, 'c', .03); };
 
   hookGround();

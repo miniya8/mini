@@ -25,7 +25,7 @@
   /* ---------- 이미지 ---------- */
   const DIR = 'assets/images/fx/', IM = {};
   const load = n => { const i = new Image(); i.src = DIR + n + '.webp'; return i; };
-  ['fx_fireball', 'fx_plasma_burst', 'fx_billow', 'fx_vapor', 'fx_warhead', 'fx_meteor_rock', 'fx_crater', 'fx_plasma', 'fx_beam', 'fx_ash', 'wl_rock', 'wl_softflash', 'wl_ribbon'].forEach(n => IM[n] = load(n));
+  ['fx_fireball', 'fx_plasma_burst', 'fx_billow', 'fx_vapor', 'fx_warhead', 'fx_meteor_rock', 'fx_crater', 'fx_plasma', 'fx_beam', 'fx_ash', 'skl_ufo', 'wl_rock', 'wl_softflash', 'wl_ribbon'].forEach(n => IM[n] = load(n));
   ['sparks', 'glow_o', 'glow_g', 'glow_y', 'glow_b', 'shock_o', 'shock_g', 'shock_y', 'bolt_g', 'bolt_y', 'vignette'].forEach(n => IM['v2_' + n] = load('v2_' + n));
   const ok = im => !!im && (im.tagName === 'CANVAS' ? im.width > 0 : (im.complete && im.naturalWidth > 0));
   const tc = {};
@@ -191,6 +191,8 @@
       END, bloom: .55, over: true,
       frame(g, t, dt) {
         const e = t - T;
+        /* 비행선 3대: 위에서 내려와 맴돌다 공격 후 위로 사라짐 */
+        if (ok(IM.skl_ufo)) ufos.forEach(([ux, uy], i) => { const inQ = smooth(kk(t, i * .08, .55 + i * .08)), outQ = smooth(kk(t, END - 1.3, END - .3)), y = uy - (1 - inQ) * S * .9 - outQ * S * .9 + Math.sin(t * 3 + i) * S * .01, x = ux + Math.sin(t * 1.7 + i * 2) * S * .015, z = S * (i === 1 ? .34 : .27), a = inQ * (1 - outQ); if (a < .01) return; glow(g, 'v2_glow_g', x, y + z * .25, z * 1.4, .35 * a * (.7 + .3 * Math.sin(t * 9 + i))); g.save(); g.globalAlpha = a; g.translate(x, y); g.rotate(Math.sin(t * 2.2 + i) * .06); g.drawImage(IM.skl_ufo, -z / 2, -z * .31, z, z * .625); g.restore(); });
         /* 견인 · 충전 광선 */
         const bq = smooth(kk(t, .45, 1.2)) * (1 - smooth(kk(t, T, T + .35)));
         if (bq > .01 && ok(IM.fx_beam)) ufos.forEach(([ux, uy], i) => { const L = Math.hypot(bx - ux, by - uy), a = Math.atan2(by - uy, bx - ux); g.save(); g.globalCompositeOperation = 'lighter'; g.translate(ux, uy); g.rotate(a - Math.PI / 2); g.globalAlpha = bq * (.55 + .2 * Math.sin(t * 24 + i)); g.drawImage(IM.fx_beam, -L * .09, 0, L * .18, L); g.restore(); });
@@ -254,10 +256,10 @@
 
   /* ---------- 훅 ---------- */
   function hook() {
-    const S = window.jgSkillFx; if (!S || typeof S.start !== 'function' || S.start.__r8) return;
+    const S = window.jgSkillFx; if (!S || typeof S.start !== 'function' || __jgHas(S.start, '__r8')) return;
     const os = S.start;
-    S.start = function (sk, V) { const r = os.apply(this, arguments); try { if (R8.enabled && SCN[sk]) { if (sk !== 'alien') hide = { n: 1, until: performance.now() + 900 }; run(sk, V); } } catch (e) { console.warn('real8 start', e); } return r; };
-    S.start.__r8 = true;
+    S.start = function (sk, V) { const r = os.apply(this, arguments); try { if (R8.enabled && SCN[sk]) { hide = { n: 1, until: performance.now() + 900 };   /* 외계인도 원래 그림은 숨기고(피해 처리는 유지) 다듬은 연출만 그림 — 두 겹으로 그려 무겁던 문제 */ run(sk, V); } } catch (e) { console.warn('real8 start', e); } return r; };
+    S.start.__r8 = true; S.start.__prev = os;
   }
   hook(); setInterval(hook, 1200);
   R8.test = function (sk, V) { run(sk, V || 'h'); };
