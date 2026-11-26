@@ -15,6 +15,9 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/board-theme-hud.js: 테마 HUD 동작
 - js/remaster-v1.js, js/remaster-v2.js, js/board-effects-v4.js: 추가 패치와 보드 효과
 - 모바일 최적화: 본판 해상도 자동 조절(휴대폰 1.5배→느리면 1.25/1.1배), 바닥 환경을 작은 오버레이로 이동, 그을음·균열 캐시, 쉬는 캔버스 클리어 생략, 예전 선 줄기 환경(remaster-v2) 중지, 컷신 중 환경 레이어 일시정지, 저사양에서 입자·블룸·큰 스프라이트 감소
+- js/duel-v12.js: 선공 일기토 개편 — 내 군주 vs 상대 군주(초상·무기·오라가 군주별로 다름), 매번 다른 합 대본(격돌·회피·치명타), 약 55% 확률 역전(각성), 군주별 결정타, 2배속·건너뛰기. 끄기: jgDuel12.enabled=false
+- 군주 필살기 해금: 50/100/150수(AI도 같은 시점에 사용)
+- js/warlord-ultimate-v11.js: 군주 필살기(30/60/90수 군주 스킬) 전용 연출 6종 — 군주별 컷인 모양·등장 방식·본 공격이 모두 다름(응징 연출 재사용 안 함). 모바일 최적화(캔버스 1장, 성능 조절기 연동). 끄기: jgUltimate11.enabled=false
 - js/perf-governor.js: 기기 성능에 맞춰 효과 품질(jgPerf.q)을 자동 조절(느리면 입자·블룸·해상도 감소). 수동: jgPerf.auto=false; jgPerf.q=0.5
 - js/piece-mask.js: 환경 효과가 장기알을 가리지 않도록 기물 위치를 비움. 끄기: jgPieceMask.enabled=false
 - warlord-punish-v6.js: 군주 스킬(30/60/90수 해금) 필살기 컷신 포함. 끄기: jgWarlordPunish6.ultimate=false

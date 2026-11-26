@@ -2851,7 +2851,7 @@
     }
   };
 
-  const WARLORD_ACT_MILESTONES = [30, 60, 90];
+  const WARLORD_ACT_MILESTONES = [50, 100, 150];
 
   function getWarlordCurrentMoves() {
     /* 수 카운터: 게임 코어의 mc(둔 수)를 사용. (예전 hist 배열은 분리된 구조에서 존재하지 않아 항상 0이었음) */
@@ -2874,7 +2874,7 @@
     if (st.remain <= 0) {
       const nextM = WARLORD_ACT_MILESTONES.find(m => m > st.moves);
       if (typeof toast === 'function') {
-        toast(nextM ? `⏳ ${nextM}수 달성 시 스킬이 해금됩니다! (현재 ${st.moves}수)` : '모든 스킬(30/60/90수)을 사용했습니다.', 2200);
+        toast(nextM ? `⏳ ${nextM}수 달성 시 스킬이 해금됩니다! (현재 ${st.moves}수)` : '모든 필살기(50/100/150수)를 사용했습니다.', 2200);
       }
       return;
     }
@@ -2931,7 +2931,7 @@
     const nextM = WARLORD_ACT_MILESTONES.find(m => m > st.moves);
     const btnLabel = canUse
       ? `${w.actionName} (${st.remain}회)`
-      : (nextM ? `🔒 ${nextM}수 해금 (${st.moves}/${nextM})` : '✓ 90수 사용완료');
+      : (nextM ? `🔒 ${nextM}수 해금 (${st.moves}/${nextM})` : '✓ 150수 사용완료');
 
     panel.innerHTML = `
       <div class="jg-wp-info">
@@ -3688,8 +3688,9 @@
       const wrappedDoMove = function(m) {
         const res = origDoMove.apply(this, arguments);
 
-        if (typeof mc !== 'undefined' && mc === 12 && typeof cfg !== 'undefined' && cfg.mode === 'ai' && !window.__JG_WARLORD_AI_ACTED__) {
-          window.__JG_WARLORD_AI_ACTED__ = true;
+        if (typeof mc !== 'undefined' && mc <= 1) window.__JG_AI_ACT_MARKS__ = {};
+        if (typeof mc !== 'undefined' && WARLORD_ACT_MILESTONES.indexOf(mc) >= 0 && typeof cfg !== 'undefined' && cfg.mode === 'ai' && !(window.__JG_AI_ACT_MARKS__ = window.__JG_AI_ACT_MARKS__ || {})[mc]) {
+          window.__JG_AI_ACT_MARKS__[mc] = true; window.__JG_WARLORD_AI_ACTED__ = true;   /* AI도 50/100/150수에 필살기 */
           const oppW = getWarlord(window.JG_OPP_WARLORD);
           setTimeout(() => {
             if (typeof over !== 'undefined' && !over) {
