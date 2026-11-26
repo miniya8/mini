@@ -229,8 +229,8 @@
     const M = metrics(V), mk = SCN[sk]; if (!mk) return;
     const ov = document.createElement('canvas'); ov.id = 'jg_real8_cv'; ov.style.cssText = 'position:fixed;inset:0;width:100vw;height:100vh;z-index:9;pointer-events:none;'; document.body.appendChild(ov);
     const g = ov.getContext('2d'), sm = document.createElement('canvas'), sm2 = document.createElement('canvas'), sg = sm.getContext('2d'), sg2 = sm2.getContext('2d');
-    const R = { run: { P: [] } }, scene = mk(R, M); let t0 = performance.now(), last = t0, fno = 0, done = false;
-    const cleanup = () => { if (done) return; done = true; try { ov.remove(); } catch (e) {} };
+    const R = { run: { P: [] } }, scene = mk(R, M); let t0 = performance.now(), last = t0, fno = 0, done = false; if (window.jgPerf) window.jgPerf.cinemaOn();
+    const cleanup = () => { if (done) return; done = true; if (window.jgPerf) window.jgPerf.cinemaOff(); try { ov.remove(); } catch (e) {} };
     function frame(now) {
       if (done) return;
       const dt = Math.min(.05, Math.max(.001, (now - last) / 1000)); last = now; const t = (now - t0) / 1000;

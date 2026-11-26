@@ -99,7 +99,11 @@
   const PS = [], NODES = [], ARCS = [], RINGS = [], TXT = [], SCORCH = [], SMK = [];
   let zeroSince = 0, ctx = null, warn = null, lastT = 0, flash = 0, flashCol = '255,200,120', flashX = 0, flashY = 0, crackAcc = 0;
 
+  const DUMMY_P = { x: 0, y: 0, vx: 0, vy: 0, life: 0, age: 1 };
   function sp(o) {
+    /* 저사양: 일부 입자 생략(반환값을 쓰는 코드가 있어 더미를 돌려줌) */
+    if (window.jgPerf && window.jgPerf.q < .95 && Math.random() > Math.max(.3, window.jgPerf.q)) return Object.assign({}, DUMMY_P);
+    if (PS.length > Math.round(500 * Math.max(.4, window.jgPerf ? window.jgPerf.q : 1))) return Object.assign({}, DUMMY_P);
     if (PS.length > 760) PS.shift();
     const p = Object.assign({ type: 'dot', x: 0, y: 0, vx: 0, vy: 0, ay: 0, drag: 1, age: 0, life: 1, size: 3, a: 1, pal: 'fire', seed: 0, sway: 0, swf: 6, rot: 0, vr: 0, grow: 0 }, o);
     PS.push(p); return p;
@@ -550,7 +554,7 @@
         const gr = g.createRadialGradient(0, 0, r * .05, 0, 0, r); gr.addColorStop(0, `rgba(8,5,3,${.62 * a})`); gr.addColorStop(.6, `rgba(20,12,8,${.38 * a})`); gr.addColorStop(1, 'rgba(20,12,8,0)'); g.fillStyle = gr; g.beginPath(); g.ellipse(0, 0, r, r * .84, 0, 0, TAU); g.fill();
         /* 식어가는 불씨 균열 */
         const glowA = Math.max(0, 1 - age / 14) * a, gc = s.pal === 'green' ? '140,255,110' : s.pal === 'blue' ? '120,200,255' : '255,120,40', pulse = .6 + .4 * Math.sin(now * .006 + s.seed);
-        if (glowA > .02) { g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(${gc},${.8 * glowA * pulse})`; g.lineWidth = Math.max(1.3, C * .035); g.shadowColor = `rgb(${gc})`; g.shadowBlur = 8; g.beginPath(); for (let k = 0; k < 9; k++) { const an = k / 9 * TAU + s.seed; let x = 0, y = 0; g.moveTo(0, 0); for (let q = 0; q < 3; q++) { const l = r * (.28 + q * .14); x += Math.cos(an + (q % 2 ? .4 : -.35)) * l; y += Math.sin(an + (q % 2 ? .4 : -.35)) * l * .84; g.lineTo(x, y); } } g.stroke(); }
+        if (glowA > .02) { g.globalCompositeOperation = 'lighter'; g.strokeStyle = `rgba(${gc},${.8 * glowA * pulse})`; g.lineWidth = Math.max(1.3, C * .035); g.shadowColor = `rgb(${gc})`; g.shadowBlur = (window.jgPerf && window.jgPerf.q < .6) ? 0 : 8; g.beginPath(); for (let k = 0; k < 9; k++) { const an = k / 9 * TAU + s.seed; let x = 0, y = 0; g.moveTo(0, 0); for (let q = 0; q < 3; q++) { const l = r * (.28 + q * .14); x += Math.cos(an + (q % 2 ? .4 : -.35)) * l; y += Math.sin(an + (q % 2 ? .4 : -.35)) * l * .84; g.lineTo(x, y); } } g.stroke(); }
       }
       g.restore();
     }
@@ -558,9 +562,23 @@
   function hookGround() {
     const orig = window.jgDrawBoardThemeFX;
     if (orig && orig.__sfx) return;
+    /* 그을음·균열은 매 프레임 다시 그리지 않고 캐시 캔버스에 주기적으로(빛날 땐 60~120ms, 식은 뒤엔 1초) 그려 두고 한 번만 복사 — 모바일 최적화 */
+    let dc = null, dg = null, dLast = 0, dSig = '';
     window.jgDrawBoardThemeFX = function (g, now) {
       if (typeof orig === 'function') orig.apply(this, arguments);
-      try { drawScorch(g, now); drawCracks(g, now); } catch (e) {}
+      try {
+        if (!SCORCH.length && !CRK.length) return;
+        const cvEl = g.canvas, w = cvEl.width, h = cvEl.height; if (!w || !h) return;
+        if (!dc || dc.width !== w || dc.height !== h) { dc = document.createElement('canvas'); dc.width = w; dc.height = h; dg = dc.getContext('2d'); dLast = 0; }
+        const q = window.jgPerf ? window.jgPerf.q : 1, young = SCORCH.some(x => !x.hole && (now - x.born) < 14000) || CRK.some(x => (now - (x.born || x.t0 || 0)) < 6000);
+        const sig = SCORCH.length + ':' + CRK.length + ':' + (typeof flip !== 'undefined' && flip ? 1 : 0), interval = young ? (q >= .8 ? 60 : 120) : 1000;
+        if (sig !== dSig || now - dLast > interval) {
+          dSig = sig; dLast = now; dg.setTransform(1, 0, 0, 1, 0, 0); dg.clearRect(0, 0, w, h);
+          const m = g.getTransform ? g.getTransform() : null; if (m) dg.setTransform(m); else dg.setTransform(w / (cvEl.offsetWidth || w), 0, 0, h / (cvEl.offsetHeight || h), 0, 0);
+          drawScorch(dg, now); drawCracks(dg, now);
+        }
+        g.save(); g.setTransform(1, 0, 0, 1, 0, 0); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.drawImage(dc, 0, 0); g.restore();
+      } catch (e) {}
     };
     window.jgDrawBoardThemeFX.__sfx = true;
   }
@@ -570,7 +588,10 @@
     requestAnimationFrame(loop);
     if (!ensureCanvas()) return;
     const dt = Math.min(.05, Math.max(.001, (now - (lastT || now)) / 1000)); lastT = now;
-    const dpr = Math.min(window.devicePixelRatio || 1, 1.5), Wn = window.innerWidth, Hn = window.innerHeight;
+    const busy = PS.length || NODES.length || ARCS.length || RINGS.length || TXT.length || SMK.length || warn || flash > .004;
+    if (!busy) { if (cvO.__dirty) { go.setTransform(1, 0, 0, 1, 0, 0); go.clearRect(0, 0, cvO.width, cvO.height); cvO.__dirty = false; } return; }
+    cvO.__dirty = true;
+    const dpr = window.jgPerf ? window.jgPerf.dpr(1.25) : Math.min(window.devicePixelRatio || 1, 1.5), Wn = window.innerWidth, Hn = window.innerHeight;
     if (cvO.width !== Math.round(Wn * dpr) || cvO.height !== Math.round(Hn * dpr)) { cvO.width = Math.round(Wn * dpr); cvO.height = Math.round(Hn * dpr); }
     W = Wn; H = Hn;
     go.setTransform(dpr, 0, 0, dpr, 0, 0); go.clearRect(0, 0, W, H);

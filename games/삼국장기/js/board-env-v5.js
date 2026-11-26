@@ -104,32 +104,44 @@
     for (let ty = y - sy; ty < y + h; ty += T) for (let tx = x - sx; tx < x + w; tx += T) g.drawImage(img, tx, ty, T + 1, T + 1);
     g.restore();
   }
-  function drawGround(g, now) {
-    if (!active() || !gameVisible() || E5.noGround) return;
-    const t = (window.curBoardIdx || 0), s = now * .001, bx = OX - CX * .3, by = OY - CY * .3, bw = 8 * CX + CX * .6, bh = 9 * CY + CY * .6, C0 = cl();
-    g.save();
-    if (t === 0) {          /* 사막: 바람에 밀리는 모래 물결 + 열기 */
-      g.globalCompositeOperation = 'source-over'; g.globalAlpha = .3; tile(g, IM.rippleA, bx, by, bw, bh, C0 * 6.5, s * 7, s * 1.5);
-      g.globalCompositeOperation = 'source-over'; g.globalAlpha = .09 + .03 * Math.sin(s * .5); g.fillStyle = 'rgb(255,214,140)'; g.fillRect(bx, by, bw, bh * .5);
+  /* 바닥 레이어: 저해상도 오프스크린에 일정 주기(품질에 따라 90~340ms)로만 그려 두고, 매 프레임은 두 번 복사만 합니다(모바일 최적화) */
+  let gcA = null, gcL = null, gcKey = '', gcLast = 0;
+  const mkC = (w, h) => { const c = document.createElement('canvas'); c.width = Math.max(2, w); c.height = Math.max(2, h); return { cv: c, g: c.getContext('2d') }; };
+  function renderGround(gA, gL, s, t, bx, by, bw, bh, C0, direct, offx, offy) {
+    const A = () => { if (direct) gA.globalCompositeOperation = 'source-over'; }, L = () => { if (direct) gL.globalCompositeOperation = 'lighter'; };
+    if (t === 0) {          /* 사막: 모래 물결 + 열기 */
+      A(); gA.globalAlpha = .3; tile(gA, IM.rippleA, bx, by, bw, bh, C0 * 6.5, s * 7, s * 1.5);
+      gA.globalAlpha = .09 + .03 * Math.sin(s * .5); gA.fillStyle = 'rgb(255,214,140)'; gA.fillRect(bx, by, bw, bh * .5);
     } else if (t === 1) {   /* 설원: 서리 결정 + 얼음 광택 스윕 */
-      g.globalCompositeOperation = 'lighter'; g.globalAlpha = .045 + .02 * Math.sin(s * .8); tile(g, IM.frost, bx, by, bw, bh, C0 * 8, 0, 0);
-      g.globalAlpha = .03 + .02 * Math.sin(s * 1.3 + 2); tile(g, IM.frost, bx, by, bw, bh, C0 * 5.5, 70, 40);
-      const ph = (s * .09) % 1.6 - .3, gx0 = bx + (bw + bh) * ph - bh;
-      const gr = g.createLinearGradient(gx0, by + bh, gx0 + bh, by); gr.addColorStop(0, 'rgba(200,240,255,0)'); gr.addColorStop(.5, 'rgba(225,250,255,.2)'); gr.addColorStop(1, 'rgba(200,240,255,0)');
-      g.globalAlpha = 1; g.fillStyle = gr; g.fillRect(bx, by, bw, bh);
-    } else if (t === 2) {   /* 숲: 잎 그림자·햇살 얼룩 + 신목 룬 */
-      g.globalCompositeOperation = 'source-over'; g.globalAlpha = .13; tile(g, IM.dapple_s, bx, by, bw, bh, C0 * 10, -s * 9, s * 4);
-      g.globalCompositeOperation = 'lighter'; g.globalAlpha = .06 + .025 * Math.sin(s * .7); tile(g, IM.dapple_l, bx, by, bw, bh, C0 * 12, s * 6, -s * 3);
+      L(); gL.globalAlpha = .045 + .02 * Math.sin(s * .8); tile(gL, IM.frost, bx, by, bw, bh, C0 * 8, 0, 0);
+      gL.globalAlpha = .03 + .02 * Math.sin(s * 1.3 + 2); tile(gL, IM.frost, bx, by, bw, bh, C0 * 5.5, 70, 40);
+      const ph = (s * .09) % 1.6 - .3, gx0 = bx + (bw + bh) * ph - bh, gr = gL.createLinearGradient(gx0, by + bh, gx0 + bh, by); gr.addColorStop(0, 'rgba(200,240,255,0)'); gr.addColorStop(.5, 'rgba(225,250,255,.2)'); gr.addColorStop(1, 'rgba(200,240,255,0)');
+      gL.globalAlpha = 1; gL.fillStyle = gr; gL.fillRect(bx, by, bw, bh);
+    } else if (t === 2) {   /* 숲: 잎 그림자·햇살 얼룩 */
+      A(); gA.globalAlpha = .13; tile(gA, IM.dapple_s, bx, by, bw, bh, C0 * 10, -s * 9, s * 4);
+      L(); gL.globalAlpha = .06 + .025 * Math.sin(s * .7); tile(gL, IM.dapple_l, bx, by, bw, bh, C0 * 12, s * 6, -s * 3);
     } else if (t === 3) {   /* 암흑: 갈라진 땅 틈의 용암 */
-      const pulse = .6 + .4 * Math.sin(s * 1.4), z = C0 * 12;
-      g.globalCompositeOperation = 'lighter'; g.globalAlpha = (.07 + .07 * pulse); tile(g, IM.lava, bx, by, bw, bh, z, s * 2, s * 1.2);
-      g.globalAlpha = .035 * pulse; tile(g, IM.lava, bx, by, bw, bh, z * .6, -s * 3, 30);
-    } else {                /* 고성: 횃불 빛웅덩이 (바닥에 일렁이는 따뜻한 빛) */
-      const C1 = cl(); g.globalCompositeOperation = 'lighter';
-      [[-.6, 1.6], [8.6, 1.6], [-.6, 4.5], [8.6, 4.5], [-.6, 7.4], [8.6, 7.4]].forEach((q, i) => { const p2 = px(q[0], q[1]), fl = .7 + .3 * Math.sin(s * 7 + i * 2) * Math.sin(s * 3.1 + i); const gm = IM.glow_o; if (ok(gm)) { const z = C1 * 6.5; g.globalAlpha = .26 * fl; g.drawImage(gm, p2[0] - z / 2, p2[1] - z / 2, z, z); } });
+      const pulse = .6 + .4 * Math.sin(s * 1.4), z = C0 * 12; L();
+      gL.globalAlpha = (.07 + .07 * pulse); tile(gL, IM.lava, bx, by, bw, bh, z, s * 2, s * 1.2);
+      gL.globalAlpha = .035 * pulse; tile(gL, IM.lava, bx, by, bw, bh, z * .6, -s * 3, 30);
+    } else {                /* 고성: 횃불 빛웅덩이 */
+      L(); [[-.6, 1.6], [8.6, 1.6], [-.6, 4.5], [8.6, 4.5], [-.6, 7.4], [8.6, 7.4]].forEach((q, i) => { const p0 = px(q[0], q[1]), p2 = [p0[0] + (offx || 0), p0[1] + (offy || 0)], fl = .7 + .3 * Math.sin(s * 7 + i * 2) * Math.sin(s * 3.1 + i), gm = IM.glow_o; if (ok(gm)) { const z = C0 * 6.5; gL.globalAlpha = .26 * fl; gL.drawImage(gm, p2[0] - z / 2, p2[1] - z / 2, z, z); } });
     }
-    g.restore();
   }
+  function drawGround(g, now) {
+    if (!E5.cvGround || !active() || !gameVisible() || E5.noGround) return;
+    const t = (window.curBoardIdx || 0), bx = OX - CX * .3, by = OY - CY * .3, bw = 8 * CX + CX * .6, bh = 9 * CY + CY * .6, C0 = cl();
+    const q = window.jgPerf ? window.jgPerf.q : 1, k = q >= .8 ? .5 : q >= .5 ? .4 : .3, key = [t, Math.round(bw), Math.round(bh), k].join();
+    if (key !== gcKey) { gcA = mkC(Math.round(bw * k), Math.round(bh * k)); gcL = mkC(Math.round(bw * k), Math.round(bh * k)); gcKey = key; gcLast = 0; }
+    const interval = q >= .8 ? 90 : q >= .5 ? 170 : 340;
+    if (now - gcLast > interval) {
+      gcLast = now;
+      [gcA, gcL].forEach(c => { c.g.setTransform(1, 0, 0, 1, 0, 0); c.g.clearRect(0, 0, c.cv.width, c.cv.height); c.g.setTransform(k, 0, 0, k, -bx * k, -by * k); c.g.globalCompositeOperation = 'source-over'; });
+      renderGround(gcA.g, gcL.g, now * .001, t, bx, by, bw, bh, C0);
+    }
+    g.save(); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; g.drawImage(gcA.cv, bx, by, bw, bh); g.globalCompositeOperation = 'lighter'; g.drawImage(gcL.cv, bx, by, bw, bh); g.restore();
+  }
+
   function hookGround() {
     const orig = window.jgDrawBoardThemeFX;
     if (orig && orig.__e5) return;
@@ -326,6 +338,10 @@
   function loop(now) {
     requestAnimationFrame(loop);
     if (!ensureCanvas()) return;
+    const _t0 = performance.now(); try { loopBody(now); } finally { E5.ms = (E5.ms || 0) * .9 + (performance.now() - _t0) * .1; }
+  }
+  function loopBody(now) {
+    if (window.jgPerf && window.jgPerf.cinema > 0) { if (cvO.style.visibility !== 'hidden') cvO.style.visibility = 'hidden'; return; } else if (cvO.style.visibility === 'hidden') cvO.style.visibility = '';
     if (window.jgPerf && window.jgPerf.q < .8 && ((skipN++) & 1)) return;
     const dt = Math.min(.05, Math.max(.001, (now - (lastT || now)) / 1000)); lastT = now;
     const dpr = (window.jgPerf ? window.jgPerf.dpr(1) : Math.min(window.devicePixelRatio || 1, 1)) * .8, Wn = window.innerWidth, Hn = window.innerHeight;
@@ -340,6 +356,8 @@
     const B = BR(), hudH = (document.getElementById('hud') || {}).offsetHeight || 0, tn = performance.now();
     if (inPlay && tn > nextSet) { startSet(t, B); nextSet = tn + rnd(14000, 30000); }
     go.save(); go.beginPath(); go.rect(RC.left, RC.top + hudH, RC.width, RC.height - hudH); go.clip();
+    if (!E5.noGround && !E5.cvGround) renderGround(go, go, tn * .001, t, RC.left + OX - CX * .3, RC.top + OY - CY * .3, 8 * CX + CX * .6, 9 * CY + CY * .6, cl(), true, RC.left, RC.top);
+    go.globalAlpha = 1; go.globalCompositeOperation = 'source-over';
     if (!E5.noAir) { drawAir(go, B, t, tn, dt); drawSets(go, B, tn); }
     for (let i = FXL.length - 1; i >= 0; i--) { const f = FXL[i], age = (tn - f.t0) / 1000, k = age / f.life; if (k >= 1) { FXL.splice(i, 1); continue; } go.save(); try { f.fn(go, k, age); } catch (e) { FXL.splice(i, 1); } go.restore(); }
     if (flashA > .01) { go.globalCompositeOperation = 'lighter'; go.globalAlpha = flashA; if (ok(IM.vignette)) go.drawImage(tinted(IM.vignette, 'vg', flashRGB, 1), RC.left, RC.top, RC.width, RC.height); go.fillStyle = `rgba(${flashRGB},${flashA * .3})`; go.globalAlpha = 1; go.fillRect(RC.left, RC.top, RC.width, RC.height); flashA *= Math.pow(.03, dt); }

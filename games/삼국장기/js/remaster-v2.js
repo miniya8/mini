@@ -1421,12 +1421,15 @@
     }));
 
     let lastTime = performance.now();
+    let envDirty = true;
     function envLoop(now) {
       requestAnimationFrame(envLoop);
-      if (!window.jgEnvConfig || !window.jgEnvConfig.enabled) {
-        eg.clearRect(0, 0, envCv.width, envCv.height);
+      /* 새 환경 시스템(board-env-v5 등)이 대체하므로 예전 선 줄기 환경은 쉼 */
+      if (!window.jgEnvConfig || !window.jgEnvConfig.enabled || (window.jgEnv5 && window.jgEnv5.enabled !== false && !window.__JG_LEGACY_ENV__)) {
+        if (envDirty) { eg.clearRect(0, 0, envCv.width, envCv.height); envDirty = false; }
         return;
       }
+      envDirty = true;
       // 로비 화면이 열려 있고 게임 화면이 숨겨진 경우 연산 절약
       const gEl = document.getElementById('g') || document.getElementById('cv');
       if (gEl && gEl.offsetParent === null && !window.__JG_FORCE_ENV_PREVIEW__) {

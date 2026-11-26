@@ -41,7 +41,7 @@
       xs.push(x); top.push(-(h + jt)); bot.push(h + jb);
     }
     /* 1) 벌어진 판 조각 : 스냅샷을 바깥으로 밀어 그림 + 바깥쪽으로 갈수록 투명 */
-    if (sn && M) {
+    if (sn && M && !(window.jgPerf && window.jgPerf.q < .5)) {
       const tb = document.createElement('canvas'); tb.width = lw; tb.height = lh; const t2 = tb.getContext('2d'), shift = G * .5;
       [-1, 1].forEach(side => {
         const edge = side < 0 ? top : bot; t2.save(); t2.translate(ox, oy); t2.beginPath();

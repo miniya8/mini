@@ -2981,11 +2981,12 @@
       lastLoopT = now;
 
       if (!activeBoardEffects.length && !activeAttachedVfx.length && !activeProceduralSkillFx.length && !activeWarlordSplinters.length) {
-        if (fcv.width > 0) fg.clearRect(0, 0, fcv.width, fcv.height);
+        if (fcv.__dirty && fcv.width > 0) { fg.setTransform(1, 0, 0, 1, 0, 0); fg.clearRect(0, 0, fcv.width, fcv.height); fcv.__dirty = false; }
         return;
       }
+      fcv.__dirty = true;
       const { W, H, br, grid } = getJanggiBoardMetrics();
-      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const dpr = window.jgPerf ? window.jgPerf.dpr(1.5) : Math.min(window.devicePixelRatio || 1, 2);
       if (fcv.width !== Math.round(W * dpr) || fcv.height !== Math.round(H * dpr)) {
         fcv.width = Math.round(W * dpr);
         fcv.height = Math.round(H * dpr);

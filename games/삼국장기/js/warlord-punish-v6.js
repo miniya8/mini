@@ -30,6 +30,7 @@
   const inOut = k => ease(k);
   const outBack = k => { k = clamp(k, 0, 1); const c1 = 1.2, c3 = c1 + 1; return 1 + c3 * Math.pow(k - 1, 3) + c1 * Math.pow(k - 1, 2); };
   const kk = (t, a, b) => clamp((t - a) / (b - a), 0, 1);
+  const LOWQ = () => !!(window.jgPerf && window.jgPerf.q < .6);
   const hash = (i, s) => { const r = Math.sin(i * 12.9898 + s * 78.233) * 43758.5453; return r - Math.floor(r); };
 
   /* ---------- 이미지 ---------- */
@@ -101,6 +102,7 @@
   function shockSprite(g, key, x, y, size, k, a, flat) {
     const im = IM[key]; if (!ok(im) || a <= .004 || k < 0) return; const kc = clamp(k, 0, .999), f = Math.min(7, (kc * 8) | 0), f2 = Math.min(7, f + 1), mix = kc * 8 - f;
     g.save(); g.globalCompositeOperation = 'lighter'; g.translate(x, y); g.scale(1, flat || .6);
+    if (LOWQ()) { g.globalAlpha = clamp(a, 0, 1); g.drawImage(im, (f % 4) * 256, ((f / 4) | 0) * 256, 256, 256, -size / 2, -size / 2, size, size); g.restore(); return; }   /* 저사양: 프레임 보간 생략 */
     g.globalAlpha = clamp(a * (1 - mix), 0, 1); g.drawImage(im, (f % 4) * 256, ((f / 4) | 0) * 256, 256, 256, -size / 2, -size / 2, size, size);
     g.globalAlpha = clamp(a * mix, 0, 1); g.drawImage(im, (f2 % 4) * 256, ((f2 / 4) | 0) * 256, 256, 256, -size / 2, -size / 2, size, size); g.restore();
   }
@@ -113,7 +115,7 @@
   function vig(g, M, rgb, a) { const im = IM.vignette, gg = BG || g; if (!ok(im) || a <= .003) return; gg.save(); gg.globalAlpha = clamp(a, 0, 1); gg.drawImage(tinted(im, 'v', rgb, 1), M.br.left, M.br.top, M.br.width, M.br.height); gg.restore(); }
   /* 떠다니는 보케 빛방울 */
   function bokeh(g, M, t, rgb, n, a, seed) {
-    const im = IM.bokeh; if (!ok(im) || a <= .004) return; const tt = tinted(im, 'bk', rgb, .85);
+    const im = IM.bokeh; if (!ok(im) || a <= .004 || LOWQ()) return; const tt = tinted(im, 'bk', rgb, .85);
     g.save(); g.globalCompositeOperation = 'lighter';
     for (let i = 0; i < n; i++) {
       const u = hash(i, seed), v = hash(i + 50, seed), sp = .012 + .02 * hash(i + 9, seed), x = M.br.left + M.br.width * ((u + .03 * Math.sin(t * .6 + i)) % 1), y = M.br.top + M.br.height * (((v - t * sp) % 1 + 1) % 1), s = M.S * (.035 + .075 * hash(i + 3, seed));
@@ -358,16 +360,16 @@
         R.drawTears(g, t);
         /* 귀신 기운 오라 + 먹구름 */
         const aq = smooth(kk(t, .15, 1.3)) * (t < this.impactT ? 1 : 1 - smooth(kk(t, this.impactT, this.impactT + .8)) * .6);
-        if (aq > .01 && ok(IM.aura)) { const az = S * (.5 + .55 * aq); g.save(); g.globalCompositeOperation = 'lighter'; g.translate(tx, ty); g.scale(1, .8); g.rotate(t * 1.1); g.globalAlpha = aq * .75 * out; g.drawImage(IM.aura, -az / 2, -az / 2, az, az); g.rotate(-t * 2); g.globalAlpha = aq * .45 * out; g.drawImage(IM.aura, -az * .35, -az * .35, az * .7, az * .7); g.restore(); }
-        for (let i = 0; i < 5; i++) { const a = t * .9 + i * TAU / 5, r = S * (.34 + .06 * Math.sin(t * 2 + i)) * (1 - .3 * kk(t, .6, 1.3)); if (ok(IM.e_cloud)) { g.globalAlpha = .46 * om * out; g.drawImage(tinted(IM.e_cloud, 'cl', '70,8,40', .95), (i % 4) * 256, 0, 256, 256, tx + Math.cos(a) * r - S * .28, ty + Math.sin(a) * r * .7 - S * .55 - S * .28, S * .56, S * .56); } }
+        if (aq > .01 && ok(IM.aura)) { const az = S * (.5 + .55 * aq); g.save(); g.globalCompositeOperation = 'lighter'; g.translate(tx, ty); g.scale(1, .8); g.rotate(t * 1.1); g.globalAlpha = aq * .75 * out; g.drawImage(IM.aura, -az / 2, -az / 2, az, az); if (!LOWQ()) { g.rotate(-t * 2); g.globalAlpha = aq * .45 * out; g.drawImage(IM.aura, -az * .35, -az * .35, az * .7, az * .7); } g.restore(); }
+        for (let i = 0, nc = LOWQ() ? 3 : 5; i < nc; i++) { const a = t * .9 + i * TAU / nc, r = S * (.34 + .06 * Math.sin(t * 2 + i)) * (1 - .3 * kk(t, .6, 1.3)); if (ok(IM.e_cloud)) { g.globalAlpha = .46 * om * out; g.drawImage(tinted(IM.e_cloud, 'cl', '70,8,40', .95), (i % 4) * 256, 0, 256, 256, tx + Math.cos(a) * r - S * .28, ty + Math.sin(a) * r * .7 - S * .55 - S * .28, S * .56, S * .56); } }
         if (t < 1.35 && Math.random() < .3) { const f = (Math.random() * 6) | 0, h = S * rnd(.4, .8), w = h * .5, x = tx + rnd(-.5, .5) * S; g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = .45; g.drawImage(IM.bolt_p, f * 256, 0, 256, 512, x - w / 2, ty - S * .9, w, h); g.restore(); }
         /* 적토마 질주 속도선 */
-        const sk = kk(t, .35, 1.05); if (sk > 0 && sk < 1) for (let i = 0; i < 9; i++) { const yy = ty + (i - 4) * S * .06 + Math.sin(i * 7) * S * .02, x1 = A.left + A.width * (1.1 - smooth(sk) * 1.3 + i * .02), L = S * (.5 + (i % 3) * .2); ribbon(g, x1, yy, x1 + L * side * -1, yy + (i - 4) * 2, S * .012 + 2, '255,70,90', Math.sin(sk * Math.PI) * .6); }
+        const sk = kk(t, .35, 1.05); if (sk > 0 && sk < 1) for (let i = 0, ns = LOWQ() ? 4 : 9; i < ns; i++) { const yy = ty + (i - 4) * S * .06 + Math.sin(i * 7) * S * .02, x1 = A.left + A.width * (1.1 - smooth(sk) * 1.3 + i * .02), L = S * (.5 + (i % 3) * .2); ribbon(g, x1, yy, x1 + L * side * -1, yy + (i - 4) * 2, S * .012 + 2, '255,70,90', Math.sin(sk * Math.PI) * .6); }
         /* 방천화극 강하 */
         const hq = kk(t, .55, 1.35), hs = { x: tx - side * S * .55, y: Math.max(A.top - S * .8, ty - S * 1.0) }, hp = inCubic(hq), hx = hs.x + (tx - hs.x) * hp, hy = hs.y + (ty - hs.y) * hp, dang = Math.atan2(ty - hs.y, tx - hs.x), HL = S * .95;
         const planted = t >= this.impactT, ha = planted ? (1 - smooth(kk(t, 2.8, 3.4))) : smooth(kk(t, .5, .75));
         if (ha > .01) {
-          if (!planted) { ribbon(g, hs.x, hs.y, hx, hy, S * .06, '255,70,100', .5 * hp * ha); for (let gh = 3; gh >= 1; gh--) { const q2 = clamp(hq - gh * .06, 0, 1), xx = hs.x + (tx - hs.x) * inCubic(q2), yy = hs.y + (ty - hs.y) * inCubic(q2); g.save(); g.globalCompositeOperation = 'lighter'; g.translate(xx - Math.cos(dang) * HL * .5, yy - Math.sin(dang) * HL * .5); g.rotate(dang + Math.PI / 2); g.globalAlpha = ha * (.4 - gh * .08); g.drawImage(IM.halberd, -HL / 6, -HL / 2, HL / 3, HL); g.restore(); } }
+          if (!planted) { ribbon(g, hs.x, hs.y, hx, hy, S * .06, '255,70,100', .5 * hp * ha); for (let gh = LOWQ() ? 0 : 3; gh >= 1; gh--) { const q2 = clamp(hq - gh * .06, 0, 1), xx = hs.x + (tx - hs.x) * inCubic(q2), yy = hs.y + (ty - hs.y) * inCubic(q2); g.save(); g.globalCompositeOperation = 'lighter'; g.translate(xx - Math.cos(dang) * HL * .5, yy - Math.sin(dang) * HL * .5); g.rotate(dang + Math.PI / 2); g.globalAlpha = ha * (.4 - gh * .08); g.drawImage(IM.halberd, -HL / 6, -HL / 2, HL / 3, HL); g.restore(); } }
           const px = planted ? tx : hx - Math.cos(dang) * HL * .5, py = planted ? ty - HL * .36 : hy - Math.sin(dang) * HL * .5;
           glow(g, 'glow_p', px, py + (planted ? HL * .25 : 0), HL * .6, ha * .45);
           g.save(); g.globalCompositeOperation = 'lighter'; g.translate(px, py); g.rotate(planted ? .1 : dang + Math.PI / 2); g.globalAlpha = ha; g.drawImage(IM.halberd, -HL / 6, -HL / 2, HL / 3, HL); g.restore();
@@ -381,8 +383,8 @@
           shockSprite(g, 'shock_p', tx, ty, S * 1.5, q / 1.0, .6 * (1 - q * .35), .62); shockSprite(g, 'shock_o', tx, ty, S * 1.1, (q - .08) / 1.0, .5, .62); shockSprite(g, 'shock_y', tx, ty, S * 1.9, (q - .2) / 1.1, .28, .6);
           const az = S * (.5 + 1.0 * outCubic(kk(q, 0, .9))); if (ok(IM.aura)) { g.save(); g.globalCompositeOperation = 'lighter'; g.translate(tx, ty); g.scale(1, .72); g.rotate(q * .8); g.globalAlpha = (1 - smooth(kk(q, .2, 1.1))) * .55; g.drawImage(IM.aura, -az / 2, -az / 2, az, az); g.restore(); }
           /* 불길 혀 */
-          for (let i = 0; i < 10; i++) { const fa = fr + i * TAU / 10, fr2 = S * (.16 + .12 * hash(i, 3)), fx = tx + Math.cos(fa) * fr2, fy = ty + Math.sin(fa) * fr2 * .7, ft = kk(q, .08 + hash(i, 5) * .25, 2.2), fo = smooth(kk(ft, 0, .15)) * (1 - smooth(kk(ft, .6, 1))), fw = S * (.14 + .08 * hash(i, 8)), f = ((q * 13 + i * 3) | 0) % 8, im = IM[i % 2 ? 'flame_p' : 'flame_o']; if (fo > .01 && ok(im)) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = fo * .85; g.drawImage(im, (f % 4) * 128, ((f / 4) | 0) * 192, 128, 192, fx - fw / 2, fy + S * .02 - fw * 1.5, fw, fw * 1.5); g.restore(); } }
-          for (let i = 0; i < 8; i++) { const bq = kk(q, i * .02, i * .02 + .6); if (bq <= 0 || bq >= 1) continue; const ang = i * TAU / 8 + fr, L = S * (.35 + outCubic(bq) * .5), f = ((q / .05 + i) | 0) % 6; g.save(); g.translate(tx, ty); g.rotate(ang - Math.PI / 2); g.globalCompositeOperation = 'lighter'; g.globalAlpha = .7 * (1 - smooth(bq)) * (.55 + .4 * Math.sin(q * 50 + i)); g.drawImage(IM.bolt_p, f * 256, 0, 256, 512, -L * .25, 0, L * .5, L); g.restore(); }
+          for (let i = 0, nf = LOWQ() ? 5 : 10; i < nf; i++) { const fa = fr + i * TAU / nf, fr2 = S * (.16 + .12 * hash(i, 3)), fx = tx + Math.cos(fa) * fr2, fy = ty + Math.sin(fa) * fr2 * .7, ft = kk(q, .08 + hash(i, 5) * .25, 2.2), fo = smooth(kk(ft, 0, .15)) * (1 - smooth(kk(ft, .6, 1))), fw = S * (.14 + .08 * hash(i, 8)), f = ((q * 13 + i * 3) | 0) % 8, im = IM[i % 2 ? 'flame_p' : 'flame_o']; if (fo > .01 && ok(im)) { g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = fo * .85; g.drawImage(im, (f % 4) * 128, ((f / 4) | 0) * 192, 128, 192, fx - fw / 2, fy + S * .02 - fw * 1.5, fw, fw * 1.5); g.restore(); } }
+          for (let i = 0, nb = LOWQ() ? 4 : 8; i < nb; i++) { const bq = kk(q, i * .02, i * .02 + .6); if (bq <= 0 || bq >= 1) continue; const ang = i * TAU / 8 + fr, L = S * (.35 + outCubic(bq) * .5), f = ((q / .05 + i) | 0) % 6; g.save(); g.translate(tx, ty); g.rotate(ang - Math.PI / 2); g.globalCompositeOperation = 'lighter'; g.globalAlpha = .7 * (1 - smooth(bq)) * (.55 + .4 * Math.sin(q * 50 + i)); g.drawImage(IM.bolt_p, f * 256, 0, 256, 512, -L * .25, 0, L * .5, L); g.restore(); }
           if (q < 2 && Math.random() < .5) sp(R.run, { kind: 'spark', cell: pick([6, 7, 0]), x: tx + rnd(-1, 1) * S * .25, y: ty + rnd(-.5, .5) * S * .2, vy: -rnd(30, 110), vx: rnd(-20, 20), life: rnd(1.2, 2.4), size: S * rnd(.01, .024), rgb: pick(['255,70,100', '210,90,255']), fadeIn: .2 });
         }
         stepPT(R.run, g, dt);
@@ -466,12 +468,12 @@
     const tearSnap = window.jgTear ? window.jgTear.snap() : null, tears = [];
     const R = { run, rn, dir: dirR, tx: 0, ty: 0, S: 1, M: () => metrics(V), kick(a) { shakeAmp = Math.max(shakeAmp, a); punch = Math.max(punch, .5); },
       /* 장기판 찢김 : spec(위치·각도·길이·틈·모드) , o(t0 시작 · grow 열리는 시간 · fade0/fade1 사라짐) */
-      tear(spec, o, M) { if (!window.jgTear) return null; try { const cut = window.jgTear.make(spec, M, tearSnap); const e = Object.assign({ cut, t0: 0, grow: .3, fade0: 9, fade1: 10, rgb: spec.rgb }, o); tears.push(e); return e; } catch (err) { return null; } },
+      tear(spec, o, M) { if (!window.jgTear || W6.noTear) return null; if (window.jgPerf && window.jgPerf.q < .5 && tears.length >= 3) return null; try { const cut = window.jgTear.make(spec, M, tearSnap); const e = Object.assign({ cut, t0: 0, grow: .3, fade0: 9, fade1: 10, rgb: spec.rgb }, o); tears.push(e); return e; } catch (err) { return null; } },
       drawTears(g, t) { for (const e of tears) { const q = smooth(kk(t, e.t0, e.t0 + e.grow)), a = 1 - smooth(kk(t, e.fade0, e.fade1)); if (q > 0 && a > .004) window.jgTear.draw(g, e.cut, q, a, e.rgb, t); } },
       shards(x, y, n, S, ang, spread) { for (let i = 0; i < n; i++) { const a = (ang == null ? rnd(0, TAU) : ang + rnd(-1, 1) * (spread || 1.2)), v = S * rnd(.25, .9); sp(run, { kind: 'tshard', cell: (Math.random() * 4) | 0, x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v * .8 - S * rnd(.2, .6), ay: S * 2.2, rot: rnd(0, TAU), vr: rnd(-9, 9), size: S * rnd(.035, .08), life: rnd(.9, 1.7), add: false, a: 1, drag: .995 }); } } };
-    const scene = mk(R), cvB = document.getElementById('cv');
+    const scene = mk(R), cvB = document.getElementById('cv'); if (window.jgPerf) window.jgPerf.cinemaOn();
     try { scene.start && scene.start(); } catch (e) {}
-    const cleanup = () => { if (done) return; done = true; BG = null; try { ov.remove(); } catch (e) {} if (cvB) { cvB.style.transform = ''; cvB.style.transformOrigin = ''; } if (typeof window.jgPunishBusy === 'function') window.jgPunishBusy(false); };
+    const cleanup = () => { if (done) return; done = true; BG = null; if (window.jgPerf) window.jgPerf.cinemaOff(); try { ov.remove(); } catch (e) {} if (cvB) { cvB.style.transform = ''; cvB.style.transformOrigin = ''; } if (typeof window.jgPunishBusy === 'function') window.jgPunishBusy(false); };
     function frame(now) {
       if (done) return;
       const rdt = Math.min(.08, Math.max(.001, (now - last) / 1000)); last = now;
@@ -499,12 +501,12 @@
       if (!impacted && t >= scene.impactT) {
         impacted = true; impactT = t; try { scene.onImpact && scene.onImpact(); } catch (e) {}
         try { if (typeof window.hitCamp === 'function') window.hitCamp(V, 'warlord_' + w.id, { fx, fy, rot }); } catch (e) {}
-        try { if (typeof window.hitScreen === 'function') window.hitScreen(V, 'warlord', fx, fy, rot, true); } catch (e) {}
+        try { if (typeof window.hitScreen === 'function' && !(window.jgPerf && window.jgPerf.q < .6)) window.hitScreen(V, 'warlord', fx, fy, rot, true); } catch (e) {}
         try { navigator.vibrate && navigator.vibrate(w.id === 'lvbu' ? [90, 40, 220] : [40, 30, 90]); } catch (e) {}
         shakeAmp = Math.max(shakeAmp, M.S * (scene.shake || 0) * (opt.ult ? 1.6 : 1)); punch = opt.ult ? 1.5 : 1; ptime = 0; const sl = scene.slow || [.42, .32]; slowF = sl[0]; slowDur = sl[1]; slowLeft = slowDur;
       }
       /* 줌 펀치 + 감쇠 진동 (부드러운 저주파) */
-      if (cvB && (punch > .003)) {
+      if (cvB && (punch > .003) && !W6.noPunch) {
         ptime += rdt; punch *= Math.pow(.015, rdt / .75); const z = 1 + (scene.zoom || .012) * punch, sx = shakeAmp * punch * (Math.sin(ptime * 31) + .5 * Math.sin(ptime * 53)), sy = shakeAmp * punch * (Math.cos(ptime * 27) + .5 * Math.cos(ptime * 47));
         cvB.style.transformOrigin = `${R.tx - M.br.left}px ${R.ty - M.br.top}px`; cvB.style.transform = `translate3d(${sx.toFixed(2)}px,${sy.toFixed(2)}px,0) scale(${z.toFixed(4)})`;
         if (punch < .004) { cvB.style.transform = ''; cvB.style.transformOrigin = ''; punch = 0; }

@@ -14,6 +14,7 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/three-kingdoms-main-screen.js: 메인 화면 효과
 - js/board-theme-hud.js: 테마 HUD 동작
 - js/remaster-v1.js, js/remaster-v2.js, js/board-effects-v4.js: 추가 패치와 보드 효과
+- 모바일 최적화: 본판 해상도 자동 조절(휴대폰 1.5배→느리면 1.25/1.1배), 바닥 환경을 작은 오버레이로 이동, 그을음·균열 캐시, 쉬는 캔버스 클리어 생략, 예전 선 줄기 환경(remaster-v2) 중지, 컷신 중 환경 레이어 일시정지, 저사양에서 입자·블룸·큰 스프라이트 감소
 - js/perf-governor.js: 기기 성능에 맞춰 효과 품질(jgPerf.q)을 자동 조절(느리면 입자·블룸·해상도 감소). 수동: jgPerf.auto=false; jgPerf.q=0.5
 - js/piece-mask.js: 환경 효과가 장기알을 가리지 않도록 기물 위치를 비움. 끄기: jgPieceMask.enabled=false
 - warlord-punish-v6.js: 군주 스킬(30/60/90수 해금) 필살기 컷신 포함. 끄기: jgWarlordPunish6.ultimate=false

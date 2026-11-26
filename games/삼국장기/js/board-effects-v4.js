@@ -827,6 +827,10 @@
   function frameLoop(now) {
     requestAnimationFrame(frameLoop);
     if (!ensureCanvas()) return;
+    const _t0 = performance.now(); try { frameBody(now); } finally { E3.ms = (E3.ms || 0) * .9 + (performance.now() - _t0) * .1; }
+  }
+  function frameBody(now) {
+    if (window.jgPerf && window.jgPerf.cinema > 0) { if (cvO.style.visibility !== 'hidden') cvO.style.visibility = 'hidden'; return; } else if (cvO.style.visibility === 'hidden') cvO.style.visibility = '';
     if (window.jgPerf && window.jgPerf.q < .8 && ((skipN++) & 1)) return;   /* 느린 기기: 30fps 로 갱신 */
     const dt = Math.min(.05, Math.max(.001, (now - (lastT || now)) / 1000)); lastT = now;
     const W = window.innerWidth, H = window.innerHeight, dpr = window.jgPerf ? window.jgPerf.dpr(1.25) : Math.min(window.devicePixelRatio || 1, 1.5);
