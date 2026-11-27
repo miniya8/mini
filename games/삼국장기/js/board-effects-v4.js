@@ -887,6 +887,7 @@
     go.globalAlpha = 1;
     if (flash > .004) { const fx = flashX == null ? RC.left + RC.width / 2 : flashX, fy = flashY == null ? RC.top + RC.height / 2 : flashY; go.save(); go.globalCompositeOperation = 'lighter'; const fr = Math.max(RC.width, RC.height) * 1.1, fg = go.createRadialGradient(fx, fy, 0, fx, fy, fr); fg.addColorStop(0, `rgba(${flashCol},${Math.min(1, flash * 2.2)})`); fg.addColorStop(.35, `rgba(${flashCol},${flash * .8})`); fg.addColorStop(1, `rgba(${flashCol},${flash * .12})`); go.fillStyle = fg; go.fillRect(RC.left, RC.top, RC.width, RC.height); go.restore(); flash *= Math.pow(.02, dt / 1.6); }
     go.restore();
+    if (window.jgPieceMask) window.jgPieceMask.carveLines(go);
     if (window.jgPieceMask) window.jgPieceMask.carve(go, RC);   /* 기물 위치는 효과를 비워 가리지 않음 */
 
     /* 환경 이벤트 안내 문구 */

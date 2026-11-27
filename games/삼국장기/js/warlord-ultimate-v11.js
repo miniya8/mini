@@ -253,7 +253,7 @@
       if (ta >= -.05) { const sh = punch > .01 ? punch * M.S * .012 : 0; g.save(); if (sh) g.translate(Math.sin(ptime * 60) * sh, Math.cos(ptime * 53) * sh);
         for (const e of tears) { const q = smooth(kk(ta, e.t0, e.t0 + .3)), a = 1 - smooth(kk(ta, sc0.dur - .8, sc0.dur - .2)); if (q > 0 && a > .01) window.jgTear.draw(g, e.cut, q, a, e.rgb, ta); }
         try { sc0.frame(g, Math.max(0, ta), dt, M, st); } catch (e) { console.warn('ult11', e); }
-        stepPT(st.P, g, dt); g.restore();
+        stepPT(st.P, g, dt); g.restore(); if (window.jgPieceMask) window.jgPieceMask.carveLines(g);   /* 판 위 공격만 선을 비움(컷인·도장은 그대로) */
         /* 피해 처리 */
         while (hitI < sc0.hits.length && ta >= sc0.hits[hitI][0]) { const h = sc0.hits[hitI++]; try { if (typeof window.hitCamp === 'function' && !U.noHit && (!LOW() || hitI === 2)) window.hitCamp(V, 'warlord_' + w.id, { fx: h[1], fy: h[2], rot: (rn() - .5) * .3 }); } catch (e) {} if (hitI === 2) { try { if (typeof window.hitScreen === 'function' && Q() >= .6) window.hitScreen(V, 'warlord', h[1], h[2], 0, true); } catch (e) {} } punch = hitI === 2 ? 1.2 : .7; ptime = 0; if (hitI === 2) st.if0 = ta; try { navigator.vibrate && navigator.vibrate(hitI === 2 ? [80, 40, 160] : 40); } catch (e) {} if (hitI === 2) { tone('sine', 80, 30, 1.4, .3); noise(1.2, 'lowpass', 1500, 80, .24); } }
         /* 필살 도장 */

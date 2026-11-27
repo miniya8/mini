@@ -511,6 +511,7 @@
         cvB.style.transformOrigin = `${R.tx - M.br.left}px ${R.ty - M.br.top}px`; cvB.style.transform = `translate3d(${sx.toFixed(2)}px,${sy.toFixed(2)}px,0) scale(${z.toFixed(4)})`;
         if (punch < .004) { cvB.style.transform = ''; cvB.style.transformOrigin = ''; punch = 0; }
       }
+      if (window.jgPieceMask) window.jgPieceMask.carveLines(g);
       if (t < scene.dur || W6.debugT != null) requestAnimationFrame(frame); else cleanup();
     }
     requestAnimationFrame(frame);

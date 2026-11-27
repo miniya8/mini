@@ -362,7 +362,7 @@
     for (let i = FXL.length - 1; i >= 0; i--) { const f = FXL[i], age = (tn - f.t0) / 1000, k = age / f.life; if (k >= 1) { FXL.splice(i, 1); continue; } go.save(); try { f.fn(go, k, age); } catch (e) { FXL.splice(i, 1); } go.restore(); }
     if (flashA > .01) { go.globalCompositeOperation = 'lighter'; go.globalAlpha = flashA; if (ok(IM.vignette)) go.drawImage(tinted(IM.vignette, 'vg', flashRGB, 1), RC.left, RC.top, RC.width, RC.height); go.fillStyle = `rgba(${flashRGB},${flashA * .3})`; go.globalAlpha = 1; go.fillRect(RC.left, RC.top, RC.width, RC.height); flashA *= Math.pow(.03, dt); }
     go.restore(); go.globalAlpha = 1; go.globalCompositeOperation = 'source-over';
-    if (window.jgPieceMask) window.jgPieceMask.carve(go, RC);
+    if (window.jgPieceMask) { window.jgPieceMask.carveLines(go); window.jgPieceMask.carve(go, RC); }
   }
   setInterval(hookGround, 1500); hookGround();
   E5.test = function (kind) { const B = BR(); const t = window.curBoardIdx || 0; if (kind === 'set') startSet(t, B); else if (kind === 'capture') onCapture(4, 4, t); };

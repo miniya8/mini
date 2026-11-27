@@ -14,7 +14,7 @@
 
   /* ---------- 새로 추가된 항목 (새 연출을 넣으면 여기에 추가) ---------- */
   const NEW = [
-    ['🔥 화룡 강림', () => fire('nuke')], ['⛈️ 뇌신 폭풍', () => fire('meteor')], ['🌋 대지 분쇄', () => fire('kame2')], ['🧊 빙하 붕괴', () => fire('vortex')],
+    ['🎬 화룡 강림 (영상)', () => fire('nuke')], ['🎬 뇌신 폭풍 (영상)', () => fire('meteor')], ['🎬 빙하 붕괴 (영상)', () => fire('vortex')], ['📏 선 확인: 눈보라', () => { window.pickRandomBoard(1); setTimeout(() => window.jgEnv3.weatherNow(7), 500); }], ['📏 선 확인: 모래폭풍', () => { window.pickRandomBoard(0); setTimeout(() => window.jgEnv3.weatherNow(0), 500); }], ['🌋 대지 분쇄', () => fire('kame2')],
     ['🎨 속성 자국 7종', () => allDecals()], ['💥 임팩트 컷(필살기)', () => ult('lvbu')], ['🌸 유비 꽃잎 자국', () => ult('liubei')],
     ['🎯 이동 표시(차 선택)', () => selectDemo()], ['🏯 장기판 꾸밈 순환', () => cycleMaps()], ['⚔️ 잡기 연출', () => captureDemo()], ['🤺 일기토', () => duel()]
   ];

@@ -15,6 +15,8 @@ index.html을 열어 실행합니다. HTML, CSS, JavaScript, 이미지 자료가
 - js/board-theme-hud.js: 테마 HUD 동작
 - js/remaster-v1.js, js/remaster-v2.js, js/board-effects-v4.js: 추가 패치와 보드 효과
 - 모바일 최적화: 본판 해상도 자동 조절(휴대폰 1.5배→느리면 1.25/1.1배), 바닥 환경을 작은 오버레이로 이동, 그을음·균열 캐시, 쉬는 캔버스 클리어 생략, 예전 선 줄기 환경(remaster-v2) 중지, 컷신 중 환경 레이어 일시정지, 저사양에서 입자·블룸·큰 스프라이트 감소
+- 영상 적용(사용자 제공 GIF 5개 → assets/images/fx/cine_*.webp, 17MB→약 2MB): 화룡 강림(화산 황무지→용 컷인 + 판 위 용암 균열), 뇌신 폭풍(폭풍 하늘 번개→토네이도 컷인 + 판 위 번개 토네이도), 빙하 붕괴(빙하 컷인 + 얼음 운석·결정 빙하). *_glow 는 밝기를 투명도로 바꾼 판 위 합성용
+- 장기판 선 지키기: 환경·스킬·응징·필살기 효과층에서 격자선 자리만 비워 선이 항상 보임(기물은 선 위, 제목·컷인은 그대로). 끄기: jgPieceMask.lines=false
 - 🧪 테스트 장기판: test.html (또는 index.html?test) — 스킬·필살기·응징·환경·기물 연출을 골라 바로 재생. 새 연출은 js/test-board-v17.js 의 NEW 목록에 한 줄 추가
 - js/hook-guard.js: 여러 모듈이 같은 함수를 1~1.5초마다 서로 다시 감싸며 효과가 중복 실행되던 버그 수정(플레이할수록 느려지던 원인)
 - js/board-beauty-v15.js: 장기판 꾸밈(궁성 문양·모서리 장식·가장자리 그늘·빛 쓸림, 전장별 색). 끄기: jgBoardBeauty.enabled=false

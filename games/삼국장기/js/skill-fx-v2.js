@@ -387,7 +387,8 @@
     runFx(g, now, false);
     updatePT(dt);
     g.save(); drawPT(g); g.restore();
-    runFx(g, now, true);   /* 기술명 배너는 맨 위에 */
+    if (window.jgPieceMask) window.jgPieceMask.carveLines(g);   /* 판 위 효과만 선 자리를 비움 */
+    runFx(g, now, true);   /* 기술명 배너는 맨 위에(선에 잘리지 않음) */
     g.globalAlpha = 1; g.globalCompositeOperation = 'source-over';
   }
   let dirty = false;

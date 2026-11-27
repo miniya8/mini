@@ -603,6 +603,7 @@
     draw(go, now);
     go.restore();
     if (flash > .004) flash *= Math.pow(.04, dt);
+    if (window.jgPieceMask) window.jgPieceMask.carveLines(go);
   }
 
   /* ---------- 훅 연결 ---------- */

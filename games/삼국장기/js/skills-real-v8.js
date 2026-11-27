@@ -246,6 +246,7 @@
       const bl = clamp((scene.bloom || .5) * R8.bloom * 2, 0, 1);
       if (bl > .01 && (!window.jgPerf || window.jgPerf.bloomOK())) { if ((fno++ & 1) === 0) { sg.imageSmoothingQuality = 'high'; sg.clearRect(0, 0, a1, b1); sg.drawImage(ov, 0, 0, a1, b1); sg2.imageSmoothingQuality = 'high'; sg2.clearRect(0, 0, a2, b2); sg2.drawImage(sm, 0, 0, a2, b2); }
         g.setTransform(1, 0, 0, 1, 0, 0); g.globalCompositeOperation = 'lighter'; g.imageSmoothingEnabled = true; g.globalAlpha = bl * .6; g.drawImage(sm, 0, 0, pw, ph); g.globalAlpha = bl * .5; g.drawImage(sm2, 0, 0, pw, ph); g.globalAlpha = 1; g.globalCompositeOperation = 'source-over'; }
+      if (window.jgPieceMask) window.jgPieceMask.carveLines(g);
       if (t < scene.END + .4) requestAnimationFrame(frame); else cleanup();
     }
     requestAnimationFrame(frame); setTimeout(cleanup, (scene.END + 2) * 1000);
