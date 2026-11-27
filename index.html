@@ -324,25 +324,40 @@
     .anim-janggi-piece { animation: janggi-piece-pulse 2.6s ease-in-out infinite; transform-origin: 32px 37px; }
     .anim-janggi-swords { animation: janggi-sword-glint 1.8s ease-in-out infinite; }
 
-    /* [메뉴 2: 전설장기 1] 탱크 돌진 반동 + 곡사 포탄 궤적 비행 + 폭발 섬광 */
-    @keyframes tank-drive {
-      0%, 100% { transform: translateX(0px); }
-      40% { transform: translateX(2.5px); }
-      55% { transform: translateX(-1.5px); }
+    /* [메뉴 2: 커스텀 장기] 황금 장기판 + 기물 부유 + 왕 광휘 + 별가루 스파클 (최고 화려) */
+    @keyframes custom-board-glow {
+      0%, 100% { filter: drop-shadow(0 0 3px rgba(253, 224, 71, 0.45)); }
+      50% { filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.95)); }
     }
-    @keyframes shell-arc {
-      0% { stroke-dashoffset: 38; opacity: 0.3; }
-      50% { stroke-dashoffset: 0; opacity: 1; }
-      100% { stroke-dashoffset: -38; opacity: 0.3; }
+    @keyframes custom-king-float {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-3px) scale(1.08); }
     }
-    @keyframes boom-burst {
-      0%, 35% { transform: scale(0.55) rotate(0deg); opacity: 0.4; }
-      55% { transform: scale(1.22) rotate(18deg); opacity: 1; }
-      100% { transform: scale(0.7) rotate(36deg); opacity: 0.5; }
+    @keyframes custom-piece-bob {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-2.2px); }
     }
-    .anim-tank { animation: tank-drive 2.4s ease-in-out infinite; }
-    .anim-shell-trail { stroke-dasharray: 12 26; animation: shell-arc 2.4s linear infinite; }
-    .anim-boom { animation: boom-burst 2.4s ease-out infinite; transform-origin: 50px 21px; }
+    @keyframes custom-star-twinkle {
+      0%, 100% { opacity: 0.35; transform: scale(0.7); }
+      50% { opacity: 1; transform: scale(1.35); }
+    }
+    @keyframes custom-ring-pulse {
+      0% { r: 4; opacity: 0.85; stroke-width: 2.2; }
+      100% { r: 16; opacity: 0; stroke-width: 0.5; }
+    }
+    @keyframes custom-spark-spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .anim-custom-board { animation: custom-board-glow 2.8s ease-in-out infinite; }
+    .anim-custom-king { animation: custom-king-float 2.4s ease-in-out infinite; transform-origin: 32px 28px; }
+    .anim-custom-piece-a { animation: custom-piece-bob 2.1s ease-in-out infinite; }
+    .anim-custom-piece-b { animation: custom-piece-bob 2.1s ease-in-out infinite 0.7s; }
+    .anim-custom-star1 { animation: custom-star-twinkle 1.6s ease-in-out infinite; }
+    .anim-custom-star2 { animation: custom-star-twinkle 1.6s ease-in-out infinite 0.5s; }
+    .anim-custom-star3 { animation: custom-star-twinkle 1.6s ease-in-out infinite 1s; }
+    .anim-custom-ring { animation: custom-ring-pulse 2.2s ease-out infinite; }
+    .anim-custom-spark { animation: custom-spark-spin 8s linear infinite; transform-origin: 32px 32px; }
 
     /* [메뉴 3: 미니삼국 땅따먹기] 영토 점령 점멸 + 정복 깃발 펄럭임 + 파동 링 */
     @keyframes territory-capture-1 {
@@ -751,54 +766,95 @@
       </div>
 
       <!-- =========================================================
-           2. 전설장기 1 (전략·장기)
+           2. 커스텀 장기 (전략·장기) ★ 최고 화려 버전
            ========================================================= -->
       <div class="game-item flex flex-col gap-1.5 min-w-0" data-category="strategy">
-        <a href="games/janggi/index.html" target="_self" draggable="false" style="--glow-color: rgba(52, 211, 153, 0.26);" class="live-game-card flex-1 border-2 border-emerald-400/90 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_6px_26px_rgba(52,211,153,0.32)] hover:shadow-[0_12px_36px_rgba(52,211,153,0.58)]">
+        <a href="games/janggi/index.html" target="_self" draggable="false" style="--glow-color: rgba(251, 191, 36, 0.42);" class="live-game-card flex-1 border-2 border-amber-300/95 rounded-2xl p-3.5 sm:p-4 cursor-pointer flex flex-col justify-between group block text-left shadow-[0_8px_32px_rgba(251,191,36,0.48)] hover:shadow-[0_16px_48px_rgba(251,191,36,0.78)] relative overflow-hidden">
+          <!-- 카드 테두리 황금 빛 보강 -->
+          <div class="pointer-events-none absolute inset-0 rounded-2xl ring-1 ring-amber-200/40"></div>
           <div>
             <div class="flex items-start justify-between gap-1.5 mb-2.5">
-              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-emerald-500/35 to-teal-500/20 border border-emerald-400/75 flex items-center justify-center shadow-inner flex-shrink-0">
-                <!-- 전용 애니메이션 SVG: 돌진 탱크 + 곡사 포격 탄도 + 폭발 섬광 -->
-                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <!-- 장기판 격자 -->
-                  <path d="M10 48H54M14 40H50M20 34V54M32 34V54M44 34V54" stroke="#34D399" stroke-opacity="0.38" stroke-width="1.5"/>
-                  <!-- 곡사 포격 궤적 (흐르는 탄도 애니메이션) -->
-                  <path d="M18 32C22 14 40 12 49 22" stroke="#FDE047" stroke-opacity="0.3" stroke-width="2" stroke-linecap="round"/>
-                  <path class="anim-shell-trail" d="M18 32C22 14 40 12 49 22" stroke="#FEF08A" stroke-width="2.8" stroke-linecap="round"/>
-                  <!-- 포격 폭발 스파크 -->
-                  <polygon class="anim-boom" points="50,15 52,20 57,20 53,23 54,28 50,25 46,28 47,23 43,20 48,20" fill="#F97316" stroke="#FEF08A" stroke-width="1.2"/>
-                  <!-- 전설 탱크 -->
-                  <g class="anim-tank">
-                    <rect x="16" y="33" width="18" height="8" rx="3" fill="#10B981" stroke="#A7F3D0" stroke-width="1.8"/>
-                    <path d="M32 36L43 31" stroke="#ECFDF5" stroke-width="3.5" stroke-linecap="round"/>
-                    <rect x="11" y="40" width="28" height="10" rx="5" fill="#047857" stroke="#6EE7B7" stroke-width="2"/>
-                    <circle cx="17" cy="45" r="2" fill="#A7F3D0"/>
-                    <circle cx="25" cy="45" r="2" fill="#A7F3D0"/>
-                    <circle cx="33" cy="45" r="2" fill="#A7F3D0"/>
+              <div class="live-icon-wrap w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-gradient-to-br from-amber-400/45 via-yellow-500/30 to-orange-500/25 border-2 border-amber-300/90 flex items-center justify-center shadow-[0_0_18px_rgba(251,191,36,0.55)] flex-shrink-0">
+                <!-- 커스텀 장기 전용 초화려 SVG: 황금 장기판 + 왕 부유 + 기물 바운스 + 별가루 + 파동링 -->
+                <svg class="game-svg-icon w-9 h-9 sm:w-10 sm:h-10 anim-custom-board" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <defs>
+                    <linearGradient id="customBoardGold" x1="8" y1="8" x2="56" y2="56">
+                      <stop offset="0%" stop-color="#FEF08A"/>
+                      <stop offset="50%" stop-color="#F59E0B"/>
+                      <stop offset="100%" stop-color="#D97706"/>
+                    </linearGradient>
+                    <linearGradient id="customKingGrad" x1="24" y1="14" x2="40" y2="42">
+                      <stop offset="0%" stop-color="#FEF3C7"/>
+                      <stop offset="100%" stop-color="#F59E0B"/>
+                    </linearGradient>
+                    <radialGradient id="customAura" cx="32" cy="30" r="22">
+                      <stop offset="0%" stop-color="#FDE047" stop-opacity="0.35"/>
+                      <stop offset="100%" stop-color="#F59E0B" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+
+                  <!-- 은은한 황금 아우라 -->
+                  <circle cx="32" cy="30" r="22" fill="url(#customAura)"/>
+
+                  <!-- 장기판 프레임 -->
+                  <rect x="10" y="12" width="44" height="42" rx="4" fill="#1C1917" stroke="url(#customBoardGold)" stroke-width="2.4"/>
+                  <!-- 격자선 -->
+                  <path d="M16 20H48M16 28H48M16 36H48M16 44H48M20 16V50M28 16V50M36 16V50M44 16V50" stroke="#FBBF24" stroke-opacity="0.45" stroke-width="1.1"/>
+
+                  <!-- 회전하는 별가루 스파클 -->
+                  <g class="anim-custom-spark">
+                    <circle class="anim-custom-star1" cx="14" cy="18" r="1.6" fill="#FEF08A"/>
+                    <circle class="anim-custom-star2" cx="50" cy="16" r="1.8" fill="#FDE047"/>
+                    <circle class="anim-custom-star3" cx="52" cy="48" r="1.5" fill="#FBBF24"/>
+                    <circle class="anim-custom-star1" cx="12" cy="46" r="1.4" fill="#FDE68A"/>
+                  </g>
+
+                  <!-- 파동 링 (왕 주변) -->
+                  <circle class="anim-custom-ring" cx="32" cy="30" r="4" fill="none" stroke="#FDE047" stroke-opacity="0.7"/>
+
+                  <!-- 중앙 왕(將) 기물 - 부유 + 광휘 -->
+                  <g class="anim-custom-king">
+                    <polygon points="24,18 40,18 44,26 40,40 24,40 20,26" fill="url(#customKingGrad)" stroke="#FFFBEB" stroke-width="1.8"/>
+                    <polygon points="26,20 38,20 41,27 38,38 26,38 23,27" fill="none" stroke="#B45309" stroke-width="1.2"/>
+                    <text x="32" y="33" text-anchor="middle" fill="#7C2D12" font-family="serif" font-weight="900" font-size="13">將</text>
+                    <!-- 왕관 장식 -->
+                    <path d="M26 18L28 13L32 17L36 13L38 18" fill="#FACC15" stroke="#FEF08A" stroke-width="1"/>
+                  </g>
+
+                  <!-- 좌측 기물 (車) -->
+                  <g class="anim-custom-piece-a">
+                    <circle cx="18" cy="48" r="5.5" fill="#F59E0B" stroke="#FEF08A" stroke-width="1.5"/>
+                    <text x="18" y="51" text-anchor="middle" fill="#1C1917" font-family="serif" font-weight="900" font-size="8">車</text>
+                  </g>
+
+                  <!-- 우측 기물 (馬) -->
+                  <g class="anim-custom-piece-b">
+                    <circle cx="46" cy="48" r="5.5" fill="#FBBF24" stroke="#FFFBEB" stroke-width="1.5"/>
+                    <text x="46" y="51" text-anchor="middle" fill="#1C1917" font-family="serif" font-weight="900" font-size="8">馬</text>
                   </g>
                 </svg>
               </div>
-              <span class="px-2 py-0.5 bg-gradient-to-r from-emerald-600 to-teal-600 border border-emerald-300/80 text-white text-[10px] font-black rounded-full shadow">
-                ⚡ 실시간 P2P
+              <span class="px-2 py-0.5 bg-gradient-to-r from-amber-500 via-yellow-400 to-orange-500 border border-amber-200/90 text-slate-900 text-[10px] font-black rounded-full shadow-[0_0_12px_rgba(251,191,36,0.7)] animate-pulse">
+                ✨ 커스텀 룰
               </span>
             </div>
 
-            <h3 class="live-title-text text-base sm:text-lg font-black text-emerald-100 title-font tracking-wide drop-shadow">
-              전설장기 1
+            <h3 class="live-title-text text-base sm:text-lg font-black text-amber-100 title-font tracking-wide drop-shadow-[0_0_8px_rgba(251,191,36,0.55)]">
+              커스텀 장기
             </h3>
-            <p class="live-desc-text text-[11px] sm:text-xs text-slate-200/90 mt-1 leading-snug line-clamp-2">
-              탱크 돌진, 곡사 포격 모션 및 킬 이펙트 탑재!
+            <p class="live-desc-text text-[11px] sm:text-xs text-amber-50/95 mt-1 leading-snug line-clamp-2">
+              나만의 규칙으로 펼치는 황금빛 커스텀 장기 대국!
             </p>
           </div>
 
-          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-emerald-600/85 to-teal-600/85 border border-emerald-300/60 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-white shadow">
+          <div class="mt-3.5 flex items-center justify-between bg-gradient-to-r from-amber-500 via-yellow-500 to-orange-500 border border-amber-200/80 rounded-xl px-3 py-2 text-[11px] sm:text-xs font-black text-slate-900 shadow-[0_4px_16px_rgba(251,191,36,0.45)]">
             <span>대국실 입장</span>
             <span class="enter-arrow">▶</span>
           </div>
         </a>
 
         <a href="games/janggi개발/index.html" target="_self" draggable="false" class="dev-drawer dev-mini-btn rounded-xl px-2.5 py-1.5 items-center justify-between text-[10px] font-bold">
-          <span class="truncate">🛠️ 전설장기 개발버전</span>
+          <span class="truncate">🛠️ 커스텀 장기 개발버전</span>
           <span class="text-[9px] bg-amber-500/20 px-1.5 py-0.5 rounded flex-shrink-0">DEV</span>
         </a>
       </div>
