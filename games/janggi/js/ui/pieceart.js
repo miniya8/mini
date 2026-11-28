@@ -56,6 +56,19 @@ MJ.PieceArt = (function () {
     }
     g.restore();
   }
+  /* 진영 표식 (작은 방패 + 초/한) */
+  function badge(g, x, y, br, side) {
+    const C = MJ.CONFIG.sides[side], T = C.token;
+    g.save(); g.translate(x, y);
+    g.shadowColor = C.aura; g.shadowBlur = br * 0.9;
+    g.beginPath(); g.moveTo(0, br * 1.25); g.lineTo(-br * 0.95, br * 0.2); g.lineTo(-br * 0.95, -br); g.lineTo(br * 0.95, -br); g.lineTo(br * 0.95, br * 0.2); g.closePath();
+    const gr = g.createLinearGradient(0, -br, 0, br); gr.addColorStop(0, T.face[0]); gr.addColorStop(1, T.face[1]);
+    g.fillStyle = gr; g.fill(); g.shadowBlur = 0;
+    g.lineWidth = Math.max(1, br * 0.16); g.strokeStyle = '#fff'; g.stroke();
+    g.fillStyle = '#fff'; g.font = `900 ${br * 1.15}px "Black Han Sans", sans-serif`; g.textAlign = 'center'; g.textBaseline = 'middle';
+    g.fillText(C.short, 0, -br * 0.05);
+    g.restore();
+  }
   function hexA(hex, a) {
     const h = hex.replace('#', '');
     const n = parseInt(h.length === 3 ? h.replace(/./g, x => x + x) : h, 16);
@@ -64,7 +77,7 @@ MJ.PieceArt = (function () {
 
   /* 왕 정의를 스킨 형태로 변환 */
   function kingAsSkin(king) {
-    return {
+    return { badge,
       shape: king.shape || 'octagon', face: king.colors.face, rim: king.colors.rim, rimWidth: 0.1, inner: true,
       glyphColor: king.colors.glyph, glow: king.colors.aura, font: '"Noto Serif KR", serif',
       image: king.piece, glyphs: null, isKing: true, sprite: king.sprite || null, id: king.id,
@@ -112,12 +125,29 @@ MJ.PieceArt = (function () {
         const isToken = !!(TF[an] && TF[an].includes(f));
         if (o.aura !== false) aura(g, r, side, isToken ? 'token' : 'unit', o.glowPulse);
         if (!isToken && !!o.flip !== (sp.face < 0)) g.scale(-1, 1); // 시트가 왼쪽을 보면(face:-1) 반대로, 장기알 상태는 뒤집지 않음
+        const T = MJ.CONFIG.team || {}, sc = MJ.CONFIG.sides[side].aura || MJ.CONFIG.sides[side].color;
+        if (!isToken && o.aura !== false && T.unitOutline) {
+          // 진영색 또렷한 외곽선: 그림자를 4방향으로 겹쳐 그림
+          const d = Math.max(1.5, r * 0.07);
+          g.shadowColor = sc; g.shadowBlur = 0;
+          for (const [ox, oy] of [[d, 0], [-d, 0], [0, d], [0, -d]]) {
+            g.shadowOffsetX = ox; g.shadowOffsetY = oy;
+            g.drawImage(sheet, f * sp.frameW, A.row * sp.frameH, sp.frameW, sp.frameH, -dw / 2, -dh / 2, dw, dh);
+          }
+          g.shadowOffsetX = 0; g.shadowOffsetY = 0;
+        }
         if (o.selected) { g.shadowColor = '#fff36b'; g.shadowBlur = r * 0.7; }
         else if (o.aura !== false && MJ.CONFIG.aura.outline) {
-          g.shadowColor = MJ.CONFIG.sides[side].aura || MJ.CONFIG.sides[side].color;
+          g.shadowColor = sc;
           g.shadowBlur = r * (isToken ? 0.25 : 0.45);
         }
         g.drawImage(sheet, f * sp.frameW, A.row * sp.frameH, sp.frameW, sp.frameH, -dw / 2, -dh / 2, dw, dh);
+        if (!isToken && o.aura !== false && T.unitBadge && !o.noBadge) {
+          // 머리 위 진영 표식
+          g.shadowBlur = 0;
+          if (!!o.flip !== (sp.face < 0)) g.scale(-1, 1);
+          badge(g, 0, -r * 1.55, Math.max(7, r * 0.55), side);
+        }
         if (o.selected) { g.shadowBlur = r * 0.4; g.drawImage(sheet, f * sp.frameW, A.row * sp.frameH, sp.frameW, sp.frameH, -dw / 2, -dh / 2, dw, dh); }
         g.restore();
         return;
@@ -150,6 +180,10 @@ MJ.PieceArt = (function () {
     // 진영 오라
     if (o.aura !== false) aura(g, r, side, 'token', o.glowPulse);
 
+    // 진영색 장기알 (초=청록, 한=진홍) — 한눈에 구분
+    const TT = (MJ.CONFIG.team || {}).teamTokens && !skin.keepColors ? MJ.CONFIG.sides[side].token : null;
+    if (TT) skin = Object.assign({}, skin, { face: TT.face, rim: TT.rim, glyphColor: TT.glyph, glow: null, glyphStroke: TT.stroke, innerColor: TT.inner });
+
     // 그림자
     g.save();
     g.translate(r * 0.06, r * 0.12);
@@ -176,6 +210,7 @@ MJ.PieceArt = (function () {
     // 안쪽 링
     if (skin.inner) {
       g.lineWidth = Math.max(1, r * 0.035);
+      if (skin.innerColor) g.strokeStyle = skin.innerColor;
       g.globalAlpha *= 0.55;
       shapePath(g, skin.shape, r * 0.8); g.stroke();
       g.globalAlpha = o.alpha != null ? o.alpha : 1;
@@ -203,7 +238,12 @@ MJ.PieceArt = (function () {
     g.textAlign = 'center'; g.textBaseline = 'middle';
     g.fillStyle = col(skin.glyphColor || 'side');
     if (skin.glow && !skin.isKing) { g.shadowColor = col(skin.glow); g.shadowBlur = r * 0.2; }
+    if (skin.glyphStroke) { g.lineJoin = 'round'; g.lineWidth = r * 0.16; g.strokeStyle = skin.glyphStroke; g.strokeText(ch, 0, r * 0.06); }
     g.fillText(ch, 0, r * 0.06);
+    if (TT && piece.t === 'K') { // 궁: 금테
+      g.lineWidth = Math.max(1.5, r * 0.07); g.strokeStyle = '#ffd76a'; g.shadowColor = '#ffd76a'; g.shadowBlur = r * 0.3;
+      shapePath(g, skin.shape, r * 0.9); g.stroke();
+    }
     g.restore();
   }
 
@@ -239,5 +279,5 @@ MJ.PieceArt = (function () {
     g.shadowBlur = 0;
   }
 
-  return { draw, portrait, shapePath, glyphOf, aura };
+  return { draw, portrait, shapePath, glyphOf, aura, badge };
 })();

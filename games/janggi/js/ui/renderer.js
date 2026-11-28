@@ -126,12 +126,16 @@ MJ.Renderer = function (canvas, opt) {
     for (let r = 0; r < 10; r++) { const [x0, y0] = P(r, 0), [x1, y1] = P(r, 8); b.moveTo(x0, y0); b.lineTo(x1, y1); }
     for (let cc = 0; cc < 9; cc++) { const [x0, y0] = P(0, cc), [x1, y1] = P(9, cc); b.moveTo(x0, y0); b.lineTo(x1, y1); }
     b.stroke();
-    b.strokeStyle = C.palace || C.line || '#000'; b.lineWidth = Math.max(1, cell * (isImg ? 0.025 : 0.04));
+    // 궁성 대각선: 어떤 판에서도 또렷하게 (그림 위에서도 어두운 테두리 + 진한 선)
     b.beginPath();
     [[0, 2], [7, 9]].forEach(([r0, r1]) => {
       let [a, bb] = [P(r0, 3), P(r1, 5)]; b.moveTo(a[0], a[1]); b.lineTo(bb[0], bb[1]);
       [a, bb] = [P(r0, 5), P(r1, 3)]; b.moveTo(a[0], a[1]); b.lineTo(bb[0], bb[1]);
     });
+    const pw = Math.max(1, cell * (isImg ? 0.03 : 0.04));
+    if (isImg) { b.globalAlpha = 0.45; b.strokeStyle = '#000'; b.lineWidth = pw + 2.5; b.stroke(); }
+    b.globalAlpha = isImg ? 0.95 : 1;
+    b.strokeStyle = C.palace || C.line || '#000'; b.lineWidth = pw;
     b.stroke();
     linesCache = c;
   }
@@ -563,7 +567,17 @@ MJ.Renderer = function (canvas, opt) {
       const [x, y] = toXY(S.checkIdx);
       const k = 0.5 + 0.5 * Math.sin(now / 120);
       g.save(); g.fillStyle = `rgba(255,30,30,${0.25 + k * 0.3})`;
-      g.beginPath(); g.arc(x, y, cell * (0.55 + k * 0.1), 0, 7); g.fill(); g.restore();
+      g.beginPath(); g.arc(x, y, cell * (0.55 + k * 0.1), 0, 7); g.fill();
+      // 회전하는 경고 고리 + 안쪽을 가리키는 화살표
+      g.translate(x, y); g.strokeStyle = `rgba(255,70,70,${0.7 + k * 0.3})`; g.shadowColor = '#ff2020'; g.shadowBlur = 12;
+      g.lineWidth = Math.max(2, cell * 0.05); g.setLineDash([cell * 0.16, cell * 0.1]);
+      g.rotate(now / 700); g.beginPath(); g.arc(0, 0, cell * 0.74, 0, 7); g.stroke(); g.setLineDash([]);
+      g.fillStyle = '#ff4040';
+      for (let i = 0; i < 4; i++) {
+        g.rotate(Math.PI / 2); const d = cell * (0.98 + k * 0.08), w = cell * 0.13;
+        g.beginPath(); g.moveTo(d - w * 1.4, 0); g.lineTo(d, -w); g.lineTo(d, w); g.closePath(); g.fill();
+      }
+      g.restore();
     }
 
     // 이동 중인 기물의 도착칸은 정지 그림에서 제외

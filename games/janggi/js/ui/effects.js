@@ -53,6 +53,77 @@ MJ.Effects = (function () {
         g.strokeText(e.text, e.x, y); g.fillText(e.text, e.x, y); g.restore();
       },
     },
+
+    /* ===== 장군·외통 연출 (판 위 · 기물 아래 층) ===== */
+    // 번개 줄기: x,y → x2,y2
+    bolt: {
+      init(e) { e.life = e.life || 0.8; e.seed = 0; e.pts = null; e.delay = e.delay || 0; },
+      update(e) {
+        const k = Math.floor((e.t) / 0.045);
+        if (k !== e.seed || !e.pts) { e.seed = k; e.pts = jag(e.x, e.y, e.x2, e.y2, 7, e.r * 0.55); e.br = branch(e.pts, e.r); }
+      },
+      draw(g, e) {
+        if (e.t < e.delay) return;
+        const k = (e.t - e.delay) / (e.life - e.delay), a = k < 0.15 ? k / 0.15 : 1 - (k - 0.15) / 0.85;
+        g.save(); g.globalCompositeOperation = 'lighter'; g.lineCap = 'round'; g.lineJoin = 'round';
+        const c = e.color || '#7fd8ff';
+        const path = pts => { g.beginPath(); pts.forEach((p, i) => i ? g.lineTo(p[0], p[1]) : g.moveTo(p[0], p[1])); g.stroke(); };
+        g.globalAlpha = a * 0.45; g.strokeStyle = c; g.shadowColor = c; g.shadowBlur = 26; g.lineWidth = e.r * 0.38; path(e.pts);
+        g.globalAlpha = a * 0.9; g.lineWidth = e.r * 0.14; path(e.pts); e.br.forEach(b => { g.lineWidth = e.r * 0.07; path(b); });
+        g.globalAlpha = a; g.strokeStyle = '#ffffff'; g.shadowBlur = 8; g.lineWidth = Math.max(1.5, e.r * 0.06); path(e.pts);
+        g.restore();
+      },
+    },
+    // 충격파: 두꺼운 링 + 안쪽 섬광
+    shock: {
+      init(e) { e.life = e.life || 0.7; e.delay = e.delay || 0; e.max = e.max || 3.2; },
+      draw(g, e) {
+        if (e.t < e.delay) return;
+        const k = Math.min(1, (e.t - e.delay) / (e.life - e.delay)), ease = 1 - Math.pow(1 - k, 3);
+        const R = e.r * (0.3 + ease * e.max), c = e.color || '#ff3b3b';
+        g.save(); g.globalCompositeOperation = 'lighter';
+        if (k < 0.35) {
+          const gr = g.createRadialGradient(e.x, e.y, 0, e.x, e.y, R);
+          gr.addColorStop(0, `rgba(255,255,255,${0.7 * (1 - k / 0.35)})`); gr.addColorStop(1, 'rgba(255,255,255,0)');
+          g.fillStyle = gr; g.beginPath(); g.arc(e.x, e.y, R, 0, 7); g.fill();
+        }
+        g.globalAlpha = 1 - k; g.strokeStyle = c; g.shadowColor = c; g.shadowBlur = 20;
+        g.lineWidth = e.r * 0.42 * (1 - k) + 1; g.beginPath(); g.arc(e.x, e.y, R, 0, 7); g.stroke();
+        g.strokeStyle = '#fff'; g.lineWidth = Math.max(1, e.r * 0.08 * (1 - k)); g.beginPath(); g.arc(e.x, e.y, R * 0.96, 0, 7); g.stroke();
+        g.restore();
+      },
+    },
+    // 불꽃 파편 (꼬리 있는 섬광 입자)
+    burst: {
+      init(e) {
+        e.life = e.life || 1.1;
+        const cols = e.colors || ['#fff4b0', '#ffb347', '#ff4d4d', '#ffffff'];
+        e.ps = Array.from({ length: e.n || 60 }, () => {
+          const a = Math.random() * Math.PI * 2, v = (0.4 + Math.random() * 1.2) * e.r * (e.speed || 9);
+          return { x: e.x, y: e.y, px: e.x, py: e.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, c: cols[(Math.random() * cols.length) | 0], w: 1 + Math.random() * 2.5 };
+        });
+      },
+      update(e, dt) { e.ps.forEach(p => { p.px = p.x; p.py = p.y; p.x += p.vx * dt; p.y += p.vy * dt; p.vx *= 0.9; p.vy = p.vy * 0.9 + e.r * 3 * dt; }); },
+      draw(g, e) {
+        const k = e.t / e.life;
+        g.save(); g.globalCompositeOperation = 'lighter'; g.globalAlpha = 1 - k; g.lineCap = 'round';
+        e.ps.forEach(p => { g.strokeStyle = p.c; g.lineWidth = p.w; g.beginPath(); g.moveTo(p.px - (p.x - p.px) * 2, p.py - (p.y - p.py) * 2); g.lineTo(p.x, p.y); g.stroke(); });
+        g.restore();
+      },
+    },
+    // 왕 주위 마법진 (장군 순간)
+    sigil: {
+      init(e) { e.life = e.life || 1.2; },
+      draw(g, e) {
+        const k = e.t / e.life, a = k < 0.2 ? k / 0.2 : 1 - (k - 0.2) / 0.8, R = e.r * (1.5 - 0.3 * k), c = e.color || '#ff3b3b';
+        g.save(); g.translate(e.x, e.y); g.rotate(e.t * 2.2); g.globalCompositeOperation = 'lighter';
+        g.globalAlpha = a; g.strokeStyle = c; g.shadowColor = c; g.shadowBlur = 16; g.lineWidth = 2.5;
+        g.beginPath(); g.arc(0, 0, R, 0, 7); g.stroke();
+        g.setLineDash([e.r * 0.25, e.r * 0.15]); g.beginPath(); g.arc(0, 0, R * 0.82, 0, 7); g.stroke(); g.setLineDash([]);
+        for (let i = 0; i < 6; i++) { const t = i / 6 * Math.PI * 2; g.beginPath(); g.moveTo(Math.cos(t) * R, Math.sin(t) * R); g.lineTo(Math.cos(t + 2.09) * R, Math.sin(t + 2.09) * R); g.stroke(); }
+        g.restore();
+      },
+    },
     confetti: {
       init(e) {
         e.life = 3.2;
@@ -71,6 +142,29 @@ MJ.Effects = (function () {
       },
     },
   };
+
+  /* 지그재그 번개 경로 */
+  function jag(x1, y1, x2, y2, depth, amp) {
+    let pts = [[x1, y1], [x2, y2]];
+    for (let d = 0; d < 5; d++) {
+      const out = [pts[0]];
+      for (let i = 1; i < pts.length; i++) {
+        const [ax, ay] = pts[i - 1], [bx, by] = pts[i], mx = (ax + bx) / 2, my = (ay + by) / 2;
+        const nx = -(by - ay), ny = bx - ax, L = Math.hypot(nx, ny) || 1, o = (Math.random() - 0.5) * amp / (d + 1) * 2;
+        out.push([mx + nx / L * o, my + ny / L * o], pts[i]);
+      }
+      pts = out;
+    }
+    return pts;
+  }
+  function branch(pts, r) {
+    const out = [];
+    for (let k = 0; k < 3; k++) {
+      const i = 3 + ((Math.random() * (pts.length - 6)) | 0), [x, y] = pts[i], a = Math.random() * Math.PI * 2, L = r * (0.6 + Math.random());
+      out.push(jag(x, y, x + Math.cos(a) * L, y + Math.sin(a) * L, 3, r * 0.3).slice(0, 12));
+    }
+    return out;
+  }
 
   function create(type, opts) {
     const T = types[type]; if (!T) return null;

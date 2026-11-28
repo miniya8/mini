@@ -30,8 +30,16 @@ MJ.Audio = (function () {
   function probeSfx(def) {
     let e = sfxCache.get(def.id);
     if (e) return e;
-    e = { state: def.src ? 'loading' : 'missing', el: null };
+    e = { state: def.src ? 'loading' : 'missing', el: null, buf: null };
     sfxCache.set(def.id, e);
+    // 웹 서버에서 실행 중이면 미리 디코딩(WebAudio) → 지연 없이 겹쳐 재생
+    if (def.src && def.preload && location.protocol !== 'file:' && ac()) {
+      fetch(def.src).then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); })
+        .then(ab => new Promise((ok, no) => ctx.decodeAudioData(ab, ok, no)))
+        .then(buf => { e.buf = buf; e.state = 'ok'; })
+        .catch(() => { e.state = 'missing'; });
+      return e;
+    }
     if (def.src) {
       const el = new Audio();
       el.preload = 'auto';
@@ -56,16 +64,36 @@ MJ.Audio = (function () {
       const d = MJ.Registry.get('sfx', id);
       if (!d) continue;
       const e = probeSfx(d);
-      if (e.state === 'ok') return { file: e.el, def: d };
+      if (e.state === 'ok') return { file: e.el, buf: e.buf, def: d };
       if (id === key || d.synth) return { def: d, synthOnly: e.state !== 'ok' };
     }
     return null;
   }
 
-  function sfx(key, side, voice, skin, type) {
+  /* 큰 효과음 미리 불러오기 (preload:true) */
+  /* 큰 연출 동안 배경음 잠시 줄이기 */
+  let duckT = 0;
+  function duck(sec) {
+    if (!bgmEl) return;
+    const v = S().bgmVol; bgmEl.volume = v * 0.25;
+    clearTimeout(duckT); duckT = setTimeout(() => { if (bgmEl) bgmEl.volume = S().bgmVol; }, (sec || 3) * 1000);
+  }
+  function preload() { MJ.Registry.list('sfx').forEach(d => { if (d.preload) probeSfx(d); }); }
+  /* 효과음 + 옵션 (vol, rate, delay) */
+  function play(key, opts) { sfx(key, null, null, null, null, opts); }
+  function sfx(key, side, voice, skin, type, opts) {
     if (!S().sfxOn) return;
     const r = resolve(key, side, voice, skin, type);
     if (!r) return;
+    if (r.buf) {
+      const c = ac(); if (!c) return;
+      if (c.state === 'suspended') c.resume();
+      const src = c.createBufferSource(), gg = c.createGain();
+      src.buffer = r.buf; gg.gain.value = S().sfxVol * (opts && opts.vol != null ? opts.vol : 1);
+      if (opts && opts.rate) src.playbackRate.value = opts.rate;
+      src.connect(gg); gg.connect(master); src.start(c.currentTime + (opts && opts.delay || 0));
+      return;
+    }
     if (r.file) {
       const n = r.file.cloneNode();
       n.volume = S().sfxVol;
@@ -282,6 +310,6 @@ MJ.Audio = (function () {
     MJ.Store.save();
   }
 
-  return { unlock, sfx, playBgm, stopBgm, pauseBgm, resumeBgm, next, setVolume, autoScan, tracks,
+  return { unlock, sfx, play, preload, duck, playBgm, stopBgm, pauseBgm, resumeBgm, next, setVolume, autoScan, tracks,
            current: () => current, isUnlocked: () => unlocked, rebuild: buildQueue };
 })();

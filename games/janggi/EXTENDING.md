@@ -256,3 +256,13 @@ MJ.register('board', { id: 'volcano', $patch: true, hidden: true });
 - **초대 코드는 숫자 4자리** (`MJ.NET_CONFIG.codeChars / codeLen`).
 - **저장된 꾸미기 빠른 선택**: 대국 준비 화면 맨 위, 대국 종료 창에 프리셋 버튼 (`MJ.UI.presetPicker`).
 - 가로형 배경 그림은 세로 화면에서 잘리지 않도록 흐린 배경 + 전체 그림으로 자동 표시.
+
+## v1.9 추가
+- **큰 연출** `js/ui/spectacle.js` (`MJ.Spectacle.check / end`)
+  - 장군: 공격 기물 → 왕 번개, 3중 충격파, 마법진, 파편, 화면 가장자리 집중선·붉은 빛, 진동, 전용 효과음
+  - 외통/승리: 대폭발 + 섬광 → 금빛 외통승리 글자 → 빛줄기 · 폭죽(효과음 포함) · 금화 비 · 팡파르
+  - 패배: 화면 금 감 + 판 흑백 + 재·불씨 + 패배 음악
+  - 판 위 효과는 기물·선 아래 층에 그려서 대국 중 판을 가리지 않음
+- **효과음** `assets/audio/sfx/*.mp3` (tools/make_sfx.py 로 합성, 같은 이름 파일로 교체 가능)
+- **진영 구분**: `MJ.CONFIG.team` — 장기알 진영색(초=청록, 한=진홍), 변신 캐릭터 진영색 외곽선 + 머리 위 초/한 표식
+- **궁성 선**: 불꽃 용궁·바다 궁전·요정의 숲 판 그림의 아래 궁성 X 를 올바른 위치로 다시 그림 (tools/fix_palace.py, 원본은 tools/board_originals/)

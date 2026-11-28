@@ -24,10 +24,10 @@ MJ.register('sfx', [
   { id: 'select',  src: 'assets/audio/sfx/select.mp3',  synth: { wave: 'triangle', freq: 880, dur: 0.06, vol: 0.25 } },
   { id: 'move',    src: 'assets/audio/sfx/move.mp3',    synth: { wave: 'wood', freq: 220, dur: 0.12, vol: 0.6 } },
   { id: 'capture', src: 'assets/audio/sfx/capture.mp3', synth: { wave: 'slash', freq: 600, dur: 0.25, vol: 0.5 } },
-  { id: 'check',   src: 'assets/audio/sfx/check.mp3',   synth: { wave: 'gong', freq: 150, dur: 1.2, vol: 0.7 } },
+  { id: 'check', preload: true,   src: 'assets/audio/sfx/check.mp3',   synth: { wave: 'gong', freq: 150, dur: 1.2, vol: 0.7 } },
   { id: 'invalid', src: 'assets/audio/sfx/invalid.mp3', synth: { wave: 'square', freq: 140, dur: 0.12, vol: 0.2 } },
-  { id: 'win',     src: 'assets/audio/sfx/win.mp3',     synth: { wave: 'fanfare', freq: 523, dur: 1.4, vol: 0.5 } },
-  { id: 'lose',    src: 'assets/audio/sfx/lose.mp3',    synth: { wave: 'sad', freq: 330, dur: 1.4, vol: 0.45 } },
+  { id: 'win', preload: true,     src: 'assets/audio/sfx/win.mp3',     synth: { wave: 'fanfare', freq: 523, dur: 1.4, vol: 0.5 } },
+  { id: 'lose', preload: true,    src: 'assets/audio/sfx/lose.mp3',    synth: { wave: 'sad', freq: 330, dur: 1.4, vol: 0.45 } },
   { id: 'button',  src: 'assets/audio/sfx/button.mp3',  synth: { wave: 'sine', freq: 660, dur: 0.05, vol: 0.2 } },
   { id: 'skill',   src: 'assets/audio/sfx/skill.mp3',   synth: { wave: 'fanfare', freq: 784, dur: 0.9, vol: 0.4 } },
   { id: 'pass',    src: 'assets/audio/sfx/pass.mp3',    synth: { wave: 'sine', freq: 392, dur: 0.18, vol: 0.3 } },
@@ -53,6 +53,10 @@ MJ.register('sfx', [
   { id: 'transform_saiyans', src: 'assets/audio/sfx/transform_saiyans.mp3', synth: { wave: 'zap', freq: 300, dur: 0.5, vol: 0.35 } },
   { id: 'move_saiyans', src: 'assets/audio/sfx/move_saiyans.mp3', synth: { wave: 'whoosh', dur: 0.3, vol: 0.45 } },
   { id: 'capture_saiyans', src: 'assets/audio/sfx/capture_saiyans.mp3', synth: { wave: 'zap', freq: 1400, dur: 0.45, vol: 0.55 } },
+  /* ---------- 큰 연출 (tools/make_sfx.py 로 만든 시네마틱 효과음) ---------- */
+  { id: 'mate',     preload: true, src: 'assets/audio/sfx/mate.mp3',     synth: { wave: 'gong', freq: 90, dur: 2.0, vol: 0.8 } },
+  { id: 'firework', preload: true, src: 'assets/audio/sfx/firework.mp3', synth: { wave: 'boom', dur: 0.5, vol: 0.4 } },
+  { id: 'slam',     preload: true, src: 'assets/audio/sfx/slam.mp3',     synth: { wave: 'boom', dur: 0.6, vol: 0.6 } },
   { id: 'chat', src: 'assets/audio/sfx/chat.mp3', synth: { wave: 'triangle', freq: 1320, dur: 0.08, vol: 0.25 } },
 
   /* 진영/왕 전용 예시 (파일 넣고 주석 해제)

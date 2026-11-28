@@ -75,9 +75,10 @@ MJ.register('skin', [
     tags: ['애니메이션'],
   },
   {
-    id: 'mecha-desert', name: '메카닉 (사막 원본색)', desc: '원본 사막 도장 · 진영은 테두리 빛으로 구분',
+    id: 'mecha-desert', name: '메카닉 (사막 원본색)', desc: '원본 사막 도장 로봇 · 장기알은 진영색',
     shape: 'octagon', face: ['#f0d6a8', '#b98a52'], rim: 'side', rimWidth: 0.08, inner: true,
     glyphSet: 'hanja', glyphColor: '#4a2a10', font: '"Noto Serif KR", serif',
+    codeToken: true,
     sprite: MJ.spriteDef('assets/images/pieces/mecha-desert/{side}_{type}.webp', { sideGlow: true }),
     tags: ['애니메이션'],
   },

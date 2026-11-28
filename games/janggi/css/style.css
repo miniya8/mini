@@ -350,7 +350,7 @@ input, textarea { user-select: text; -webkit-user-select: text; }
 @media (min-aspect-ratio: 5/4) { .side-slot { max-width: 200px; } .skillcol .sk { flex-direction: row; gap: 6px; } }
 
 /* 외통승리 배너 */
-.banner.mate .txt { font-size: clamp(60px, 19vw, 150px); color: #fff6c8;
+.banner.mate .txt { font-size: clamp(46px, 14.5vw, 130px); white-space: nowrap; color: #fff6c8;
   text-shadow: 0 0 20px #ffd34d, 0 0 50px var(--glow, #ff3b3b), 0 0 90px var(--glow, #ff3b3b), 0 6px 0 rgba(0,0,0,.6); }
 .banner.mate.go .txt { animation: bangmate 2.4s cubic-bezier(.2,1.6,.4,1) forwards; }
 @keyframes bangmate { 0% { opacity: 0; transform: scale(4) rotate(-12deg); } 15% { opacity: 1; transform: scale(.85) rotate(3deg); }
@@ -607,3 +607,49 @@ input, textarea { user-select: text; -webkit-user-select: text; }
 #scr-multi.wide-img::after { display: none; }
 #scr-menu.wide-img .menu-shade, #scr-title.wide-img .menu-shade { background: linear-gradient(180deg, rgba(10,5,20,.35), transparent 30%, transparent 62%, rgba(8,4,14,.75)); }
 @media (min-aspect-ratio: 1/1) { .screen.wide-img::after { top: 50%; height: 100%; aspect-ratio: auto; max-height: none; -webkit-mask-image: none; mask-image: none; } }
+
+/* =========================================================
+ * v1.9 큰 연출 (장군 · 외통 · 승패)
+ * ========================================================= */
+#fxOverlay { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 48; }
+#fxFlash { position: fixed; inset: 0; pointer-events: none; z-index: 49; background: var(--fc, #fff); opacity: 0; }
+#fxFlash.go { animation: fxflash var(--fd, 260ms) ease-out forwards; }
+@keyframes fxflash { 0% { opacity: var(--fo, .55); } 100% { opacity: 0; } }
+#fxVignette { position: fixed; inset: 0; pointer-events: none; z-index: 47; opacity: 0;
+  background: radial-gradient(ellipse 75% 60% at center, transparent 62%, color-mix(in srgb, var(--vc, #f00) 35%, transparent) 85%, color-mix(in srgb, var(--vc, #f00) 75%, transparent) 120%); }
+#fxVignette.pulse { animation: vpulse 1.5s ease-out forwards; }
+@keyframes vpulse { 0% { opacity: 0; } 10% { opacity: 1; } 30% { opacity: .55; } 45% { opacity: .95; } 100% { opacity: 0; } }
+#fxVignette.hold { animation: vhold 1s ease-out forwards; }
+@keyframes vhold { from { opacity: 0; } to { opacity: .9; } }
+.fx-shake { animation: fxshake .5s cubic-bezier(.36,.07,.19,.97) both; }
+@keyframes fxshake {
+  10%, 90% { transform: translate(calc(var(--sh) * -.2), calc(var(--sh) * .1)); }
+  20%, 80% { transform: translate(calc(var(--sh) * .4), calc(var(--sh) * -.3)); }
+  30%, 50%, 70% { transform: translate(calc(var(--sh) * -.8), calc(var(--sh) * .5)); }
+  40%, 60% { transform: translate(calc(var(--sh) * .8), calc(var(--sh) * -.5)); } }
+body.fx-defeat #gameCanvas { filter: grayscale(.85) brightness(.7) contrast(1.1); transition: filter 1.4s ease; }
+#gameCanvas { transition: filter .6s ease; }
+body.fx-celebrate .modal { background: rgba(0,0,0,.32); }
+body.fx-celebrate .modal .box { box-shadow: 0 0 0 2px rgba(255,211,77,.6), 0 0 50px rgba(255,190,60,.45), 0 20px 60px rgba(0,0,0,.6); }
+body.fx-defeat .modal .box { box-shadow: 0 0 0 1px rgba(255,60,60,.35), 0 0 40px rgba(120,0,0,.5); }
+
+/* 장군 배너: 위쪽(판 밖)에서 크게 쾅 */
+.banner.check.ingame .txt { font-size: clamp(42px, 14vw, 78px); padding: 0 22px; background: linear-gradient(180deg, rgba(60,0,6,.92), rgba(20,0,4,.92));
+  border: 2px solid #ff4040; box-shadow: 0 0 24px rgba(255,40,40,.8), inset 0 0 18px rgba(255,80,80,.35);
+  color: #fff; -webkit-text-stroke: 2px #6a0008; text-shadow: 0 0 12px #ff2a2a, 0 0 28px #ff2a2a, 0 3px 0 #300; letter-spacing: 4px; }
+.banner.check.go .txt { animation: checkslam 1.6s cubic-bezier(.2,1.7,.35,1) forwards; }
+@keyframes checkslam {
+  0% { opacity: 0; transform: scale(3.2) translateY(30px); filter: blur(6px); }
+  12% { opacity: 1; transform: scale(.88); filter: blur(0); }
+  18% { transform: scale(1.12) rotate(-2deg); } 24% { transform: scale(1) rotate(1deg); }
+  30%, 36% { transform: translateX(-4px); } 33%, 39% { transform: translateX(4px); } 42% { transform: none; }
+  80% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1.15); } }
+
+/* 외통 배너: 금빛 금속 글자 + 빛 지나감 */
+.banner.mate .txt { position: relative; color: transparent; -webkit-text-stroke: 0; text-shadow: none;
+  background: linear-gradient(180deg, #fffbe6 0%, #ffe28a 35%, #f0a92a 55%, #fff1b8 70%, #c98a22 100%);
+  -webkit-background-clip: text; background-clip: text;
+  filter: drop-shadow(0 3px 0 #5a2a05) drop-shadow(0 0 18px rgba(255,200,80,.9)) drop-shadow(0 0 40px var(--glow, #ff3b3b)); }
+.banner.mate .sub { top: 62%; font-size: 17px; background: rgba(20,8,0,.7); border: 1px solid rgba(255,211,77,.6); color: #ffe7ad; }
+.banner.mate.go .txt { animation: bangmate 3.2s cubic-bezier(.2,1.6,.4,1) forwards; }
+.banner.mate.go .sub { animation: subin 3.2s ease forwards; }

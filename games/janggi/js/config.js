@@ -8,15 +8,17 @@ window.MJ = window.MJ || {};
 MJ.CONFIG = {
   title: '미니의 커스텀 장기',
   subtitle: 'MINI CUSTOM JANGGI',
-  version: '1.8.0',
+  version: '1.9.0',
 
   /* 에셋 폴더 (이미지/소리 경로의 기준) */
   assetBase: 'assets/',
 
   /* 진영 색상 — 'side', 'sideDark', 'sideLight' 토큰이 이 값으로 바뀝니다 */
   sides: {
-    cho: { name: '초나라', short: '초', color: '#11a08c', dark: '#06574c', light: '#c4f3ea', aura: '#1cffc8' },
-    han: { name: '한나라', short: '한', color: '#d8343a', dark: '#7c1216', light: '#ffd4d0', aura: '#ff2d45' },
+    cho: { name: '초나라', short: '초', color: '#11a08c', dark: '#06574c', light: '#c4f3ea', aura: '#1cffc8',
+            token: { face: ['#46e6c4', '#0a6a5a'], rim: '#04302a', inner: '#c8fff2', glyph: '#ffffff', stroke: '#03231e' } },
+    han: { name: '한나라', short: '한', color: '#d8343a', dark: '#7c1216', light: '#ffd4d0', aura: '#ff2d45',
+            token: { face: ['#ff6f6f', '#9c0f1c'], rim: '#3b0509', inner: '#ffd6d2', glyph: '#ffffff', stroke: '#2a0306' } },
   },
 
   pieceTypes: ['K', 'R', 'C', 'H', 'E', 'A', 'P'],
@@ -77,6 +79,11 @@ MJ.CONFIG = {
 
   /* 진영 구분 오라: ring(장기알 테두리 링) · ground(발밑 빛) · outline(변신 시 외곽 빛) */
   aura: { ring: true, ground: true, outline: true, strength: 1 },
+  /* 진영 구분 강화
+   * teamTokens : 코드로 그리는 장기알을 진영색(초=옥빛 청록, 한=진홍)으로 칠함
+   * unitOutline: 변신한 캐릭터 둘레에 진영색 외곽선
+   * unitBadge  : 변신한 캐릭터 머리 위에 '초'/'한' 표식 */
+  team: { teamTokens: true, unitOutline: true, unitBadge: true },
 };
 
 /* 진영 색 토큰 해석: 'side' → 실제 색 */

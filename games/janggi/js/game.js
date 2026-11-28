@@ -73,6 +73,7 @@ MJ.Game = (function () {
    * opts : { replay: [moves] }  (재접속 동기화) */
   function start(setup, opts) {
     opts = opts || {};
+    MJ.Spectacle.stop();
     const forms = Object.keys(MJ.CONFIG.formations);
     const mySide = setup.mode === 'local' ? 'cho' : setup.mySide;
     let F = setup.forms;
@@ -400,6 +401,12 @@ MJ.Game = (function () {
     hud();
   }
 
+  /* 상대 왕을 노리는 기물들 */
+  function attackers(board, side, kIdx) {
+    if (kIdx < 0) return [];
+    return [...new Set(R.genMoves(board, side, []).filter(m => m.to === kIdx).map(m => m.from))];
+  }
+
   function afterMove(mover) {
     if (!st || st.over) return;
     if (advanceTurn(mover)) {
@@ -414,11 +421,11 @@ MJ.Game = (function () {
 
     if (checked && !legal.length) return end(mover, '왕이 빠져나갈 곳이 없습니다', 'mate');
     if (checked) {
-      const k = king(mover);
-      MJ.UI.banner('장군!', `${k.name}: "${pick(k.quotes.check)}"`, MJ.CONFIG.sides[mover].color);
+      const k = king(mover), kIdx = R.findKing(st.board, defender);
+      MJ.UI.banner('장군!', `${k.name}: "${pick(k.quotes.check)}"`, MJ.CONFIG.sides[mover].color, 'check');
       MJ.Audio.sfx('check', mover, k.voice);
-      rd.shake(14);
-      buzz([70, 50, 110]);
+      MJ.Spectacle.check(rd, { side: mover, king: kIdx, from: attackers(st.board, mover, kIdx),
+        mine: st.mode !== 'local' && defender === st.mySide });
       setTimeout(() => say(defender, 'checked'), 1200);
     }
     if (st.ply >= MJ.CONFIG.moveLimit) return endByScore();
@@ -604,22 +611,20 @@ MJ.Game = (function () {
     }
     MJ.Store.save();
     const me = st;
+    const loserKing = R.findKing(st.board, MJ.other(winner));
+    MJ.Spectacle.end(rd, { win: iWon, mate, winner, loserKing, from: mate || kind === 'check' ? attackers(st.board, winner, loserKing) : [] });
     setTimeout(() => {
       if (st !== me) return;
       if (mate) {
         // 외통 승리 전용 연출
-        MJ.UI.banner(iWon ? '외통승리!' : '외통패배', `${sideName(winner)} · ${reason}`, MJ.CONFIG.sides[winner].aura || MJ.CONFIG.sides[winner].color, 'mate');
-        rd.shake(20);
-        const ki = R.findKing(st.board, MJ.other(winner));
-        if (ki >= 0) { rd.fxAt('sparks', ki, { color: '#fff36b', n: 40 }); rd.fxAt('ring', ki, { color: '#ff4d4d', life: 1.2 }); }
+        MJ.UI.banner(st.mode === 'local' ? `${MJ.CONFIG.sides[winner].short} 외통승리!` : iWon ? '외통승리!' : '외통패배',
+          `${sideName(winner)} · ${reason}`, MJ.CONFIG.sides[winner].aura || MJ.CONFIG.sides[winner].color, 'mate');
       } else {
-        MJ.UI.banner(st.mode === 'local' ? `${MJ.CONFIG.sides[winner].name} 승리!` : iWon ? '승리!' : '패배…', reason, MJ.CONFIG.sides[winner].color);
+        MJ.UI.banner(st.mode === 'local' ? `${MJ.CONFIG.sides[winner].name} 승리!` : iWon ? '승리!' : '패배…', reason, MJ.CONFIG.sides[winner].color, 'mate');
       }
-      MJ.Audio.sfx(iWon ? 'win' : 'lose', winner, wk.voice);
-      buzz(iWon ? [60, 40, 60, 40, 140] : 200);
       if (iWon) rd.fx('confetti', {});
       say(winner, 'win'); say(MJ.other(winner), 'lose');
-    }, 500);
+    }, mate ? 350 : 250);
     setTimeout(() => {
       if (st !== me) return;
       const buttons = st.mode === 'online'
@@ -640,7 +645,7 @@ MJ.Game = (function () {
         text: `${reason}\n\n${wk.name}: "${pick(wk.quotes.win)}"\n${lk.name}: "${pick(lk.quotes.lose)}"`,
         buttons,
       });
-    }, 2100);
+    }, mate ? 3600 : 2800);
   }
 
   /* ---------- HUD ---------- */

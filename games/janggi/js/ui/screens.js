@@ -19,6 +19,7 @@ MJ.UI = (function () {
 
   /* ---------------- 공용 ---------------- */
   function show(name, push = true) {
+    if (MJ.Spectacle && arguments[0] !== 'game') MJ.Spectacle.stop();
     document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === 'scr-' + name));
     if (push && history[history.length - 1] !== name) history.push(name);
     requestAnimationFrame(() => MJ.emit('screen', name));
@@ -38,6 +39,7 @@ MJ.UI = (function () {
   function banner(txt, sub, glow, kind) {
     const b = $('#banner');
     b.classList.toggle('mate', kind === 'mate');
+    b.classList.toggle('check', kind === 'check');
     b.classList.toggle('ingame', current() === 'game' && kind !== 'mate'); // 대국 중엔 위쪽에 작게 → 판을 가리지 않음
     b.querySelector('.txt').textContent = txt;
     b.querySelector('.sub').textContent = sub || '';

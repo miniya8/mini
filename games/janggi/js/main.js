@@ -39,6 +39,8 @@
     MJ.UI.init();
     MJ.Game.init();
     MJ.Chat.init();
+    MJ.Spectacle.init();
+    MJ.Audio.preload();
 
     document.addEventListener('click', e => {
       const b = e.target.closest('[data-act]');
