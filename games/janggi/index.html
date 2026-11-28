@@ -8,6 +8,11 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="format-detection" content="telephone=no">
+<!-- 카카오톡·메신저 링크 미리보기 (웹에 올리면 표시) -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="⚔️ 미니의 커스텀 장기">
+<meta property="og:description" content="친구와 장기 한 판! 링크를 누르면 바로 참가해요">
+<meta property="og:image" content="assets/images/ui/share.jpg">
 <title>미니의 커스텀 장기</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Jua&family=Noto+Sans+KR:wght@400;700;900&family=Noto+Serif+KR:wght@700;900&display=swap">
@@ -18,7 +23,7 @@
 
   <!-- ================= 타이틀 (첫 화면) =================
        이미지 슬롯: assets/images/ui/title_bg.(webp|png|jpg) · logo.(webp|png) 를 넣으면 자동 적용 -->
-  <section id="scr-title" class="screen active" data-slot="assets/images/ui/title_bg">
+  <section id="scr-title" class="screen active" data-slot="assets/images/ui/title_bg|assets/images/ui/main_bg">
     <canvas id="titleCanvas"></canvas>
     <div class="menu-shade"></div>
     <div class="title-inner" data-act="enter">
@@ -42,37 +47,45 @@
         <button class="profile" data-act="nick">
           <span class="avatar" id="menuAvatar">🙂</span>
           <span class="pinfo"><b id="menuNick"></b><small id="menuStats"></small></span>
+          <span class="pedit">✎</span>
         </button>
-        <button class="icon-btn" data-act="settings">⚙️</button>
+        <button class="icon-btn gold" data-act="help" aria-label="규칙">📖</button>
+        <button class="icon-btn gold" data-act="settings" aria-label="설정">⚙️</button>
       </div>
       <div class="logo" data-slot-logo="assets/images/ui/logo">
         <div class="logo-sub">MINI CUSTOM JANGGI</div>
         <h1><span class="mini">미니</span>의 커스텀 장기</h1>
+        <div class="logo-line"></div>
       </div>
+      <div class="menu-gap"></div>
       <div class="vs" data-act="custom">
-        <div class="vs-card cho"><canvas id="menuKingCho" width="168" height="168"></canvas><b id="menuKingChoName"></b><small>초나라</small></div>
+        <div class="vs-card cho"><canvas id="menuKingCho" width="168" height="168"></canvas><span><b id="menuKingChoName"></b><small>楚 초나라</small></span></div>
         <div class="vs-mark">VS</div>
-        <div class="vs-card han"><canvas id="menuKingHan" width="168" height="168"></canvas><b id="menuKingHanName"></b><small>한나라</small></div>
+        <div class="vs-card han"><span><b id="menuKingHanName"></b><small>漢 한나라</small></span><canvas id="menuKingHan" width="168" height="168"></canvas></div>
       </div>
       <div class="menu-btns">
-        <button class="btn primary wide big" data-act="multi"><span class="bi">⚔️</span><span><b>멀티 대전</b><small>친구와 방 코드로 1:1</small></span></button>
-        <button class="btn" data-act="setup-ai"><span class="bi">🤖</span><span><b>AI 대전</b><small>초보·중수·고수</small></span></button>
-        <button class="btn" data-act="setup-local"><span class="bi">👥</span><span><b>2인 대전</b><small>한 기기로 번갈아</small></span></button>
-        <button class="btn" data-act="custom"><span class="bi">🎨</span><span><b>꾸미기</b><small>판·왕·기물 스킨</small></span></button>
-        <button class="btn" data-act="help"><span class="bi">📖</span><span><b>장기 규칙</b><small>기물 이동 안내</small></span></button>
+        <button class="mbtn hero" data-act="multi">
+          <span class="mi">⚔️</span>
+          <span class="mt"><b>멀티 대전</b><small>카카오톡으로 친구 초대 · 1:1 실시간</small></span>
+          <span class="mgo">›</span>
+        </button>
+        <button class="mbtn" data-act="setup-ai"><span class="mi">🤖</span><b>AI 대전</b><small>초보 · 중수 · 고수</small></button>
+        <button class="mbtn" data-act="setup-local"><span class="mi">👥</span><b>2인 대전</b><small>한 기기로 번갈아</small></button>
+        <button class="mbtn" data-act="custom"><span class="mi">🎨</span><b>꾸미기</b><small>판 · 왕 · 기물 · 스킬</small></button>
       </div>
-      <div class="notice" id="menuNotice">💡 꾸미기에서 '메카닉 전투단' 스킨을 골라보세요!</div>
+      <div class="notice" id="menuNotice"></div>
       <div class="menu-foot"><span id="menuNow">🎵 배경음: assets/audio/bgm/ 폴더</span></div>
     </div>
   </section>
 
   <!-- ================= 멀티 대전 로비 ================= -->
-  <section id="scr-multi" class="screen">
-    <div class="topbar">
-      <button class="icon-btn" data-act="multi-back">←</button>
+  <section id="scr-multi" class="screen" data-slot="assets/images/ui/lobby_bg|assets/images/ui/main_bg">
+    <div class="menu-shade lobby"></div>
+    <div class="topbar lobby-top">
+      <button class="icon-btn gold" data-act="multi-back">←</button>
       <h2>⚔️ 멀티 대전</h2>
     </div>
-    <div class="setup-body scroll" id="multiBody"></div>
+    <div class="setup-body scroll lobby-body" id="multiBody"></div>
   </section>
 
   <!-- ================= 꾸미기 ================= -->
@@ -113,6 +126,8 @@
   <section id="scr-game" class="screen">
     <div class="game-layout">
       <div class="pcard top" id="cardTop"></div>
+      <!-- 전황 게이지 (판 바깥, 판을 가리지 않음) -->
+      <div class="evalbar" id="evalBar"><div class="ev-fill"></div><span class="ev-l"></span><span class="ev-r"></span></div>
       <!-- 장기판 8 : 오른쪽 여유 공간 2 -->
       <div class="play-row">
         <div class="board-wrap"><canvas id="gameCanvas"></canvas></div>
@@ -128,6 +143,7 @@
             <button class="sp-btn" data-act="pass"><span>⏭</span><small>한수쉼</small></button>
             <button class="sp-btn danger" data-act="resign"><span>🏳</span><small>기권</small></button>
             <button class="sp-btn" data-act="game-menu"><span>☰</span><small>메뉴</small></button>
+            <button class="sp-btn chat-btn" data-act="chat" hidden><span>💬</span><small>채팅</small><b class="chat-badge" style="display:none"></b></button>
           </div>
         </aside>
       </div>
@@ -144,6 +160,14 @@
     <div class="setup-body scroll" id="settingsBody"></div>
   </section>
 
+  <!-- 멀티 채팅 창 -->
+  <div class="chat-sheet" id="chatSheet">
+    <div class="chat-head"><b>💬 채팅</b><button class="icon-btn" id="chatClose">✕</button></div>
+    <div class="chat-list" id="chatList"></div>
+    <div class="chat-quick" id="chatQuick"></div>
+    <form class="chat-form" id="chatForm"><input class="text-in" id="chatInput" maxlength="80" placeholder="메시지 입력…" autocomplete="off"><button class="btn primary" type="submit">보내기</button></form>
+  </div>
+
   <div class="banner" id="banner"><div class="txt"></div><div class="sub"></div></div>
   <div class="toast" id="toast"></div>
   <div class="modal" id="modal"><div class="box"></div></div>
@@ -158,6 +182,7 @@
 <script src="js/data/boards_pack2.js"></script>
 <script src="js/data/skins.js"></script>
 <script src="js/data/kings.js"></script>
+<script src="js/data/skins_pack3.js"></script>
 <script src="js/data/audio.js"></script>
 <script src="js/data/skills.js"></script>
 
@@ -182,6 +207,7 @@
 <script src="js/net/net.js"></script>
 <script src="js/net/lobby.js"></script>
 <script src="js/net/invite.js"></script>
+<script src="js/net/chat.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

@@ -33,6 +33,12 @@ MJ.Lobby = (function () {
   MJ.Net.on('msg', d => {
     switch (d.t) {
       case 'hello':
+        if (!opp && MJ.Net.role() === 'host' && !inGame) {
+          joinedFlash = true;
+          MJ.UI.toast(`🎉 ${String(d.nick || '상대').slice(0, 12)}님이 들어왔어요!`, 2600);
+          try { MJ.Audio.sfx('chat'); } catch (e) {}
+          if (store().settings.vibrate && navigator.vibrate) try { navigator.vibrate([40, 40, 80]); } catch (e) {}
+        }
         opp = { nick: String(d.nick || '상대').slice(0, 12), loadout: d.loadout, form: d.form };
         if (MJ.Net.role() === 'host' && inGame) sendSync();
         render();
@@ -41,6 +47,7 @@ MJ.Lobby = (function () {
       case 'room': roomInfo = d; render(); break;
       case 'start': rematch = { me: false, opp: false }; startGame(d.setup); break;
       case 'sync': rematch = { me: false, opp: false }; startGame(d.setup, d.moves); break;
+      case 'chat': MJ.Chat.receive(d); break;
       case 'sync-req': if (MJ.Net.role() === 'host') sendSync(); break;
       case 'rematch':
         rematch.opp = true;
@@ -120,6 +127,7 @@ MJ.Lobby = (function () {
     MJ.Net.send({ t: 'bye' });
     setTimeout(() => MJ.Net.leave(), 150);
     opp = null; roomInfo = null; inGame = false; view = 'home';
+    MJ.Chat.reset();
   }
   function leaveToMenu() { MJ.Game.stopTimer(); leave(); MJ.UI.show('menu'); }
 
@@ -132,99 +140,173 @@ MJ.Lobby = (function () {
     MJ.Net.loadLib().catch(e => MJ.UI.toast(e.message, 4000));
   }
 
+  const KK_SVG = '<svg class="kk" viewBox="0 0 26 24"><path fill="#191919" d="M13 1C6.4 1 1 5.2 1 10.4c0 3.3 2.2 6.2 5.6 7.9l-1.2 4.4c-.1.4.3.7.7.5l5.2-3.5c.6.1 1.1.1 1.7.1 6.6 0 12-4.2 12-9.4S19.6 1 13 1z"/></svg>';
+  let autoShareFailed = false, joinedFlash = false;
+
+  /* 방 만들기 (+ 바로 카톡 초대) */
+  async function createRoom(then) {
+    view = 'connecting'; render();
+    try {
+      await MJ.Net.host(); view = 'host'; opp = null; autoShareFailed = false; render();
+      if (then === 'kakao') {
+        const ok = await MJ.Invite.share(MJ.Net.code(), { auto: true });
+        if (!ok) { autoShareFailed = true; render(); MJ.UI.toast('👇 카카오톡 버튼을 눌러 초대를 보내세요', 3000); }
+      } else if (then === 'copy') MJ.Invite.copy(MJ.Net.code());
+    } catch (e) { view = 'home'; render(); }
+  }
+  async function joinRoom(code) {
+    code = MJ.Invite.parseCode(code);
+    if (!code) { MJ.UI.toast('코드 5자리를 입력하세요'); return; }
+    view = 'connecting'; render();
+    try { await MJ.Net.join(code); view = 'guest'; render(); MJ.UI.toast('✅ 방에 들어왔어요!'); }
+    catch (e) {
+      view = 'home'; render(); MJ.UI.toast(e.message || '방에 참가하지 못했어요', 3500);
+      const ci = document.querySelector('.code-boxes input'); if (ci) { ci.value = code; ci.dispatchEvent(new Event('input')); }
+    }
+  }
+
+  function kingOf(loadout, side) {
+    const id = loadout && loadout.kings && loadout.kings[side];
+    return MJ.Registry.get('king', id) || MJ.Registry.first('king');
+  }
+
   function render() {
     const body = $('#multiBody');
     if (!body || MJ.UI.current() !== 'multi') return;
     body.innerHTML = '';
     const P = store().profile, R = store().room;
     const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
-    const label = t => body.appendChild(el('div', 'label', t));
+    const label = (t, to) => (to || body).appendChild(el('div', 'label', t));
     const forms = Object.keys(MJ.CONFIG.formations).map(f => ({ v: f, label: f }));
+    const busy = view === 'connecting';
+    const m = store().multiStats;
 
     if (view === 'home' || view === 'connecting') {
-      label('닉네임');
-      const nick = el('input', 'text-in'); nick.value = P.nick; nick.maxLength = 12;
+      /* 내 이름 */
+      const me = el('div', 'lb-me');
+      me.appendChild(el('span', 'avatar', '🙂'));
+      const nick = el('input'); nick.value = P.nick; nick.maxLength = 12; nick.placeholder = '닉네임';
       nick.onchange = () => { P.nick = nick.value.trim().slice(0, 12) || P.nick; MJ.Store.save(); };
-      body.appendChild(nick);
+      me.appendChild(nick);
+      me.appendChild(el('small', '', `${m.win}승 ${m.lose}패 ✎`));
+      body.appendChild(me);
 
-      const box = el('div', 'multi-cards');
-      const c1 = el('div', 'mcard');
-      c1.innerHTML = '<div class="mcard-ico">🏠</div><b>방 만들기</b><small>코드를 만들어 친구를 초대해요</small>';
-      const b1 = el('button', 'btn primary', '방 만들기');
-      b1.disabled = view === 'connecting';
-      b1.onclick = async () => {
-        view = 'connecting'; render();
-        try { await MJ.Net.host(); view = 'host'; opp = null; render(); }
-        catch (e) { view = 'home'; render(); }
-      };
-      c1.appendChild(b1);
+      /* 초대하기 */
+      const c1 = el('div', 'lb-card');
+      c1.appendChild(el('h3', '', '💌 친구 초대하기'));
+      c1.appendChild(el('p', '', '버튼 한 번이면 방이 만들어지고 카카오톡이 열려요.<br>친구가 링크를 누르면 바로 이 방으로 들어와요.'));
+      c1.appendChild(el('div', 'lb-step', '<span>① 카톡 보내기</span><span>② 친구 입장</span><span>③ 대국 시작</span>'));
+      const kk = el('button', 'btn kakao', busy ? '⏳ 방 만드는 중…' : KK_SVG + '<span>카카오톡으로 초대</span>');
+      kk.disabled = busy; kk.onclick = () => createRoom('kakao');
+      c1.appendChild(kk);
+      const row = el('div', 'sub-row');
+      const b1 = el('button', 'btn lacq', '🏠 방만 만들기'); b1.disabled = busy; b1.onclick = () => createRoom();
+      const b2 = el('button', 'btn lacq', '🔗 초대 메시지 복사'); b2.disabled = busy; b2.onclick = () => createRoom('copy');
+      row.appendChild(b1); row.appendChild(b2); c1.appendChild(row);
+      body.appendChild(c1);
 
-      const c2 = el('div', 'mcard');
-      c2.innerHTML = '<div class="mcard-ico">🚪</div><b>코드로 참가</b><small>친구가 알려준 5자리 코드를 입력해요</small>';
-      const code = el('input', 'text-in code-in'); code.placeholder = 'ABCDE'; code.maxLength = MJ.NET_CONFIG.codeLen;
-      code.oninput = () => { code.value = code.value.toUpperCase().replace(/[^A-Z0-9]/g, ''); };
-      const b2 = el('button', 'btn', '참가하기');
-      b2.disabled = view === 'connecting';
-      b2.onclick = async () => {
-        if (code.value.length < MJ.NET_CONFIG.codeLen) { MJ.UI.toast('코드 5자리를 입력하세요'); return; }
-        P.nick = nick.value.trim().slice(0, 12) || P.nick; MJ.Store.save();
-        view = 'connecting'; render();
-        try { await MJ.Net.join(code.value); view = 'guest'; render(); }
-        catch (e) { view = 'home'; render(); MJ.UI.toast(e.message, 3500); }
+      body.appendChild(el('div', 'lb-or', '초대를 받았나요?'));
+
+      /* 코드로 참가 */
+      const c2 = el('div', 'lb-card');
+      c2.appendChild(el('h3', '', '🚪 코드로 참가'));
+      c2.appendChild(el('p', '', '카톡 메시지를 통째로 붙여넣어도 코드를 알아서 찾아요.'));
+      const boxes = el('div', 'code-boxes');
+      const N = MJ.NET_CONFIG.codeLen, cells = [];
+      for (let i = 0; i < N; i++) { const c = el('div', 'cb'); cells.push(c); boxes.appendChild(c); }
+      const inp = el('input'); inp.maxLength = 200; inp.autocomplete = 'off'; inp.setAttribute('autocapitalize', 'characters'); inp.inputMode = 'text';
+      const paint = () => {
+        const v = inp.value;
+        cells.forEach((c, i) => { c.textContent = v[i] || ''; c.classList.toggle('fill', !!v[i]); c.classList.toggle('cur', i === Math.min(v.length, N - 1) && document.activeElement === inp); });
       };
-      c2.appendChild(code); c2.appendChild(b2);
-      box.appendChild(c1); box.appendChild(c2);
-      body.appendChild(box);
-      if (view === 'connecting') body.appendChild(el('div', 'status-line', '⏳ 연결 중…'));
-      const m = store().multiStats;
-      label(`멀티 전적: ${m.played}판 ${m.win}승 ${m.lose}패`);
-      const vs = Object.entries(m.vs).slice(-5).map(([n, r]) => `${esc(n)} ${r.win}승 ${r.lose}패`).join(' · ');
-      if (vs) body.appendChild(el('div', 'hint-line', vs));
-      body.appendChild(el('div', 'hint-line', '💡 두 기기 모두 인터넷에 연결되어 있어야 해요. 서로의 꾸미기(왕·기물 스킨)가 상대 화면에도 보여요.'));
+      inp.oninput = () => {
+        const raw = inp.value;
+        const found = raw.length > N ? MJ.Invite.parseCode(raw) : null;
+        inp.value = found || raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, N);
+        paint();
+        if (inp.value.length === N && found) joinRoom(inp.value); // 메시지 붙여넣기 → 바로 참가
+      };
+      inp.onfocus = paint; inp.onblur = paint;
+      inp.onkeydown = e => { if (e.key === 'Enter') joinRoom(inp.value); };
+      boxes.appendChild(inp); c2.appendChild(boxes); paint();
+      const jr = el('div', 'join-row');
+      const pst = el('button', 'btn lacq', '📋 붙여넣기'); pst.disabled = busy;
+      pst.onclick = async () => {
+        try {
+          const t = await navigator.clipboard.readText();
+          const code = MJ.Invite.parseCode(t);
+          if (!code) { MJ.UI.toast('복사한 내용에서 코드를 못 찾았어요'); return; }
+          inp.value = code; paint(); joinRoom(code);
+        } catch (e) { inp.focus(); MJ.UI.toast('칸을 길게 눌러 붙여넣기 하세요'); }
+      };
+      const go = el('button', 'btn gold-btn', busy ? '⏳ 연결 중…' : '참가하기'); go.disabled = busy;
+      go.onclick = () => joinRoom(inp.value);
+      jr.appendChild(pst); jr.appendChild(go); c2.appendChild(jr);
+      body.appendChild(c2);
+
+      const vs = Object.entries(m.vs).slice(-4).map(([n, r]) => `${esc(n)} ${r.win}승 ${r.lose}패`).join(' · ');
+      body.appendChild(el('div', 'lb-stats', `멀티 전적 ${m.played}판 ${m.win}승 ${m.lose}패${vs ? '<br>' + vs : ''}<br>💡 서로의 왕·기물 스킨이 상대 화면에도 보여요`));
       return;
     }
 
-    /* 대기실 공통: 코드 */
-    const codeBox = el('div', 'room-code');
-    codeBox.innerHTML = `<small>방 코드</small><div class="code">${esc(MJ.Net.code())}</div>`;
-    body.appendChild(codeBox);
+    /* ---------- 대기실 ---------- */
+    const code = MJ.Net.code() || '';
+    const tk = el('div', 'ticket');
+    tk.appendChild(el('div', 'tl', 'ROOM CODE · 방 코드'));
+    const dg = el('div', 'digits', code.split('').map(c => `<span>${esc(c)}</span>`).join(''));
+    dg.onclick = async () => { try { await navigator.clipboard.writeText(code); MJ.UI.toast('코드를 복사했어요'); } catch (e) {} };
+    tk.appendChild(dg);
+    tk.appendChild(el('div', 'tap', '코드를 누르면 복사돼요'));
+    if (!opp) tk.appendChild(el('div', 'wait', (view === 'host' ? '친구를 기다리는 중' : (MJ.Net.connected() ? '방장 정보를 받는 중' : '연결 중')) + ' <span class="dots"><i></i><i></i><i></i></span>'));
+    body.appendChild(tk);
+
     if (view === 'host' && !opp) {
-      const row = el('div', 'invite-row');
-      const kk = el('button', 'btn kakao', '💬 카카오톡 초대');
-      kk.onclick = () => MJ.Invite.share(MJ.Net.code());
-      const cp = el('button', 'btn', '📋 복사');
-      cp.onclick = () => MJ.Invite.copy(MJ.Net.code());
-      row.appendChild(kk); row.appendChild(cp);
-      body.appendChild(row);
+      const kk = el('button', 'btn kakao' + (autoShareFailed ? ' pulse' : ''), KK_SVG + '<span>카카오톡으로 초대 보내기</span>');
+      kk.style.marginTop = '12px';
+      kk.onclick = () => { autoShareFailed = false; kk.classList.remove('pulse'); MJ.Invite.share(code); };
+      body.appendChild(kk);
+      const row = el('div', 'sub-row');
+      const cp = el('button', 'btn lacq', '🔗 메시지 복사'); cp.onclick = () => MJ.Invite.copy(code);
+      const ot = el('button', 'btn lacq', '📤 다른 앱 공유'); ot.onclick = () => MJ.Invite.shareOther(code);
+      row.appendChild(cp); row.appendChild(ot); body.appendChild(row);
     }
 
+    /* 선수 */
+    const mySide = view === 'host' ? (R.side === 'han' ? 'han' : 'cho')
+      : (roomInfo && roomInfo.side !== 'random' ? MJ.other(roomInfo.side) : 'han');
     const vsBox = el('div', 'room-vs');
-    vsBox.appendChild(playerChip(P.nick + ' (나)', view === 'host' ? '👑 방장' : '참가자', true));
+    vsBox.appendChild(playerChip(P.nick + ' (나)', view === 'host' ? '👑 방장' : '참가자', true, false, kingOf(store().loadout, mySide), mySide));
     vsBox.appendChild(el('div', 'vs-mark small', 'VS'));
-    vsBox.appendChild(opp
-      ? playerChip(opp.nick, view === 'host' ? '참가자' : '👑 방장', MJ.Net.connected())
-      : playerChip('대기 중…', '친구에게 코드를 알려주세요', false, true));
+    const oSide = MJ.other(mySide);
+    const oc = opp
+      ? playerChip(opp.nick, view === 'host' ? '참가자' : '👑 방장', MJ.Net.connected(), false, kingOf(opp.loadout, oSide), oSide)
+      : playerChip('대기 중…', '초대를 보내 주세요', false, true);
+    if (opp && joinedFlash) { oc.classList.add('joined'); joinedFlash = false; }
+    vsBox.appendChild(oc);
     body.appendChild(vsBox);
 
+    const sec = el('div', 'lb-sec');
     if (view === 'host') {
-      label('내 진영 (초나라가 먼저 둡니다)');
-      body.appendChild(MJ.UI.seg([{ v: 'cho', label: '초나라', cls: 'cho' }, { v: 'han', label: '한나라', cls: 'han' }, { v: 'random', label: '🎲 랜덤' }], R.side, v => { R.side = v; MJ.Store.save(); sendRoom(); }));
-      label('내 차림');
-      body.appendChild(MJ.UI.seg(forms, R.form, v => { R.form = v; MJ.Store.save(); sendRoom(); }));
-      label('한 수 제한시간');
-      body.appendChild(MJ.UI.seg(MJ.CONFIG.timeLimits.map(t => ({ v: t, label: t ? t + '초' : '없음' })), R.time, v => { R.time = v; MJ.Store.save(); sendRoom(); }));
-      if (opp) body.appendChild(el('div', 'hint-line', `상대 차림: ${esc(opp.form || '마상마상')}`));
-      const go = el('button', 'btn primary big', opp ? '⚔️ 대국 시작' : '⏳ 상대를 기다리는 중…');
+      label('내 진영 (초나라가 먼저 둡니다)', sec);
+      sec.appendChild(MJ.UI.seg([{ v: 'cho', label: '초나라', cls: 'cho' }, { v: 'han', label: '한나라', cls: 'han' }, { v: 'random', label: '🎲 랜덤' }], R.side, v => { R.side = v; MJ.Store.save(); sendRoom(); render(); }));
+      label('내 차림', sec);
+      sec.appendChild(MJ.UI.seg(forms, R.form, v => { R.form = v; MJ.Store.save(); sendRoom(); }));
+      label('한 수 제한시간', sec);
+      sec.appendChild(MJ.UI.seg(MJ.CONFIG.timeLimits.map(t => ({ v: t, label: t ? t + '초' : '없음' })), R.time, v => { R.time = v; MJ.Store.save(); sendRoom(); }));
+      if (opp) sec.appendChild(el('div', 'hint-line', `상대 차림: ${esc(opp.form || '마상마상')}`));
+      body.appendChild(sec);
+      const go = el('button', 'btn primary big', opp ? '⚔️ 대국 시작' : '⏳ 친구가 들어오면 시작할 수 있어요');
       go.disabled = !opp;
       go.onclick = () => hostStart(false);
       body.appendChild(go);
     } else {
       if (roomInfo) {
         const sideTxt = roomInfo.side === 'random' ? '🎲 랜덤' : `방장 ${MJ.CONFIG.sides[roomInfo.side].name} → 나는 ${MJ.CONFIG.sides[MJ.other(roomInfo.side)].name}`;
-        body.appendChild(el('div', 'hint-line', `진영: ${esc(sideTxt)} · 제한시간: ${roomInfo.time ? roomInfo.time + '초' : '없음'}`));
+        sec.appendChild(el('div', 'hint-line', `진영: ${esc(sideTxt)} · 제한시간: ${roomInfo.time ? roomInfo.time + '초' : '없음'}`));
       }
-      label('내 차림');
-      body.appendChild(MJ.UI.seg(forms, R.form, v => { R.form = v; MJ.Store.save(); MJ.Net.send({ t: 'guest-form', form: v }); }));
+      label('내 차림', sec);
+      sec.appendChild(MJ.UI.seg(forms, R.form, v => { R.form = v; MJ.Store.save(); MJ.Net.send({ t: 'guest-form', form: v }); }));
+      body.appendChild(sec);
       body.appendChild(el('div', 'status-line', MJ.Net.connected() ? '⏳ 방장이 대국을 시작하기를 기다리는 중…' : '🔄 연결 중…'));
     }
     const out = el('button', 'btn ghost', '🚪 방 나가기');
@@ -232,10 +314,16 @@ MJ.Lobby = (function () {
     body.appendChild(out);
   }
 
-  function playerChip(name, sub, on, waiting) {
+  function playerChip(name, sub, on, waiting, king, side) {
     const d = document.createElement('div');
     d.className = 'pchip' + (on ? ' on' : '') + (waiting ? ' waiting' : '');
-    d.innerHTML = `<b>${esc(name)}</b><small>${esc(sub)}</small>`;
+    if (king) {
+      const c = document.createElement('canvas'); c.width = 112; c.height = 112;
+      try { MJ.PieceArt.portrait(c.getContext('2d'), 112, 112, king, side); } catch (e) {}
+      c.style.boxShadow = `0 0 0 2px ${side === 'cho' ? '#1cffc8' : '#ff2d45'}`;
+      d.appendChild(c);
+    } else d.insertAdjacentHTML('beforeend', '<div class="ph">❔</div>');
+    d.insertAdjacentHTML('beforeend', `<b>${esc(name)}</b><small>${esc(sub)}</small>`);
     return d;
   }
 
@@ -250,7 +338,7 @@ MJ.Lobby = (function () {
       MJ.UI.toast('방에 참가했어요! 방장이 시작하면 대국이 시작돼요', 3000);
     } catch (e) {
       view = 'home'; render();
-      const ci = document.querySelector('.code-in'); if (ci) ci.value = code;
+      const ci = document.querySelector('.code-boxes input'); if (ci) { ci.value = code; ci.dispatchEvent(new Event('input')); }
       MJ.UI.toast(e.message || '방에 참가하지 못했어요', 3500);
     }
   }

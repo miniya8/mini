@@ -85,7 +85,8 @@ MJ.PieceArt = (function () {
     // 장기알 상태(대기) → 진영 대표 스킨으로 통일
     if (!o.anim && o.tokenSkin) {
       const ts = o.tokenSkin;
-      if (piece.t === 'K') skin = Object.assign({}, ts, { sprite: ts.kingSprite || null, image: null, isKing: true });
+      if (ts.codeToken) skin = Object.assign({}, ts, { sprite: null, image: null }); // 코드로 그린 통일 장기알
+      else if (piece.t === 'K') skin = Object.assign({}, ts, { sprite: ts.kingSprite || null, image: null, isKing: true });
       else skin = ts;
     }
     const side = piece.s;
@@ -98,9 +99,9 @@ MJ.PieceArt = (function () {
     if (o.scale) g.scale(o.scale, o.scale);
 
     // 스프라이트(애니메이션 시트) 우선
-    if (skin.sprite) {
-      const sp = skin.sprite;
-      const sheet = MJ.Assets.img(MJ.Assets.fill(sp.sheet, { side, type: piece.t }));
+    const sp = skin.sprite ? MJ.spriteFor(skin.sprite, side, piece.t) : null;
+    if (sp) {
+      const sheet = MJ.Assets.img(sp.sheet);
       if (sheet) {
         const [an, fi] = o.anim || sp.idle;
         const A = sp.anims[an] || sp.anims.transform;
@@ -212,8 +213,8 @@ MJ.PieceArt = (function () {
     const im = MJ.Assets.img(MJ.Assets.fill(king.portrait, { side }));
     if (im) { g.drawImage(im, 0, 0, w, h); return; }
     const c = MJ.CONFIG.sides[side];
-    const sp = king.sprite;
-    const sheet = sp && MJ.Assets.img(MJ.Assets.fill(sp.sheet, { side, type: 'K' }));
+    const sp = king.sprite ? MJ.spriteFor(king.sprite, side, 'K') : null;
+    const sheet = sp && MJ.Assets.img(sp.sheet);
     if (sheet) {
       const gr0 = g.createRadialGradient(w / 2, h * 0.45, 4, w / 2, h / 2, w * 0.75);
       gr0.addColorStop(0, c.light); gr0.addColorStop(1, c.dark);

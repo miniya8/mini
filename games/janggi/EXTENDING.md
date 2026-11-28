@@ -129,6 +129,23 @@ MJ.register('skin', {
 - 규격이 다르면 `MJ.spriteDef(경로, { frameW, frameH, tokenDiam, anims:{…} })` 로 덮어쓰기.
 - 왕에도 `sprite:` 를 넣으면 애니메이션 왕이 됩니다 (`kings.js` 의 메카 사령관 참고).
 
+### 기물마다 프레임 수가 다른 스킨 (manifest 방식)
+```js
+MJ.register('skin', { id: 'my-pack', name: '…', codeToken: true,
+  sprite: { base: 'assets/images/pieces/my-pack/', frameW: 200, frameH: 150, tokenDiam: 66, fps: 11, face: 1,
+    manifest: { cho_R: { file: 'cho_R', anims: { transform:{row:0,n:4}, move:{row:1,n:5}, attack:{row:2,n:6},
+      hit:{row:3,n:4}, death:{row:4,n:4}, revert:{row:5,n:4}, ranged:{row:6,n:3}, proj:{row:7,n:1} }, tokenFrames:{ transform:[0], revert:[3] } } } } });
+```
+- 없는 진영·기물 조합은 manifest 에서 빠지면 코드 그림으로 나오고, 다른 진영 시트 파일을 `file` 로 빌려 쓸 수도 있어요.
+- `ranged` + `proj` 가 있으면 2칸 이상 떨어진 상대를 잡을 때 투사체(장풍 등)를 날립니다.
+- `codeToken: true` 면 대기 상태 장기알을 코드로 그려 같은 나라 알 색을 통일합니다.
+- 불규칙한 원본 시트 변환 도구: `tools/sheet_extract/`
+
+### 성능(휴대폰) 최적화
+- 대기 중인 장기알과 오라는 미리 그려 둔 그림을 재사용 (매 프레임 그리기 비용 감소)
+- 연출이 없을 땐 화면 갱신을 20~30fps로 낮춰 배터리 절약, 애니메이션 중에만 60fps
+- 꾸미기 구성의 시트·장기판 이미지를 미리 불러와 첫 변신 때 끊김 방지
+
 ### 이미지 장기판 (격자 맞춤)
 ```js
 MJ.register('board', {
@@ -154,7 +171,7 @@ MJ.register('board', {
 - 규칙: `MJ.CONFIG.skills` — `milestones: [30,60,90,120]` 수마다 1회 충전, `slots: 4` 장착, `mode: 'charge'`(충전식) 또는 `'slot'`(n번째 칸은 n번째 수부터)
 - 스킬 정의: `js/data/skills.js` (파일 맨 위에 형식 설명). 새 스킬은 `MJ.register('skill', {...})` 로 추가하면 꾸미기 › ⚡ 스킬 탭에 바로 나타납니다.
 - 아이콘 이미지: `assets/images/skills/{id}.png` 를 넣으면 이모지 대신 표시.
-- 예시 스킬: 철벽 방어 / 빙결 봉인 / 부활 / 위치 교환 / 질풍 연속
+- 예시 스킬: 철벽 방어 / 빙결 봉인 / 부활 / 위치 교환 / 질풍 연속 / 순간 이동 / 정화 / 진격 나팔 / 궁성 결계 / 화공
 - 상태효과 `shield`(잡히지 않음)·`freeze`(움직이지 못함)는 규칙 엔진에 연결되어 AI·멀티에서도 그대로 적용됩니다.
 - 멀티 대전에서는 스킬 사용이 상대에게 전송되고, 무르기·재접속 동기화에도 포함됩니다.
 
@@ -168,6 +185,17 @@ MJ.register('board', {
 ### 게임 화면 오른쪽 메뉴 패널
 - `index.html` 의 `#sideSlot` — 스킬 4칸 + 무르기·한수쉼·기권·메뉴. 채팅 등도 이 안에 `sp-sec` 블록으로 추가하면 됩니다.
 
+### 스킨별 효과음
+- 찾는 순서: `{종류}_{스킨}_{기물}` → `{종류}_{스킨}` → `{종류}_{왕voice}` → `{종류}_{진영}` → `{종류}` (종류: transform·move·capture)
+- 예) `assets/audio/sfx/capture_fighters_C.mp3` 를 넣고 `js/data/audio.js` 에 같은 id 로 등록 → 격투가 포의 공격음
+- 파일이 없으면 스킨별 합성음(휙·퍽·쾅·슈웅·위잉·레이저·챙)이 나와요.
+
+### 전황 게이지
+- `js/game.js` 의 `renderEval` — 기물 점수+위치 평가를 확률로 바꿔 표시 (`/ 7` 값이 작을수록 민감).
+
+### 멀티 채팅
+- `js/net/chat.js` — 빠른 문구는 `QUICK` 배열, 최대 글자 수 `MAX`.
+
 ### 화면 이미지 슬롯
 `assets/images/ui/` 에 `title_bg`, `main_bg`, `logo` 이름으로 webp/png/jpg 를 넣으면 자동 적용.
 다른 곳에도 HTML 요소에 `data-slot="assets/images/ui/이름"` 을 달면 같은 방식으로 동작합니다.
@@ -178,7 +206,9 @@ MJ.register('board', {
 - 서로의 꾸미기(왕·기물 스킨)가 상대 화면에도 표시됩니다. 상대에게 없는 스킨은 클래식으로 보여요.
 
 ### 카카오톡 초대
-- 방장 화면의 **💬 카카오톡 초대** → 메시지 `⚔️ 장기 한 판! 코드 ABCDE` + 링크 전송. 링크를 누르면 그 방에 바로 참가.
+- 멀티 대전 첫 화면의 **카카오톡으로 초대** 한 번 → 방 만들기 + 카카오톡 열기까지 자동. 메시지 `⚔️ 장기 한 판! 코드 ABCDE` + 링크. 링크를 누르면 그 방에 바로 참가.
+- 받는 쪽: 카톡 메시지를 통째로 **붙여넣기** 해도 코드를 찾아서 바로 참가 (`MJ.Invite.parseCode`).
+- 공유가 막히면 메시지를 복사하고 카카오톡 앱을 열어 줌 (`openAppAfterCopy`). 카드 그림은 `assets/images/ui/share.jpg`.
 - 문구는 `js/net/invite.js` 의 `MJ.KAKAO_CONFIG.inviteText`.
 - 카카오 공유 카드(바로 참가 버튼)로 보내려면 `jsKey` 에 카카오 JavaScript 키를 넣고, 카카오 개발자 콘솔에 사이트 도메인을 등록.
 - 키가 없으면 안드로이드는 카카오톡 공유창을 바로 열고, 아이폰은 공유창에서 카카오톡 선택.

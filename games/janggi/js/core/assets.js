@@ -29,5 +29,18 @@ MJ.Assets = (function () {
   function status(path) { const e = cache.get(path); return e ? e.state : 'unknown'; }
   function onLoad(fn) { listeners.push(fn); }
 
-  return { img, fill, status, onLoad };
+  /* 꾸미기 구성에 필요한 스프라이트 시트·장기판 이미지를 미리 불러옴 (첫 변신 때 끊김 방지) */
+  function preloadLoadout(L) {
+    if (!L) return;
+    const B = MJ.Registry.get('board', L.board); if (B && B.image) img(B.image);
+    ['cho', 'han'].forEach(s => {
+      MJ.CONFIG.skinnableTypes.concat('K').forEach(t => {
+        const sk = t === 'K' ? MJ.Registry.get('king', L.kings[s]) : MJ.Registry.get('skin', (L.skins[s] || {})[t]);
+        const sp = sk && sk.sprite && MJ.spriteFor(sk.sprite, s, t);
+        if (sp) img(sp.sheet);
+      });
+    });
+  }
+
+  return { img, fill, status, onLoad, preloadLoadout };
 })();

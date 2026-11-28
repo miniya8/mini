@@ -92,6 +92,7 @@ MJ.Game = (function () {
     };
     st.skills = { cho: { eq: skillSet('cho', mySide, setup), used: [] }, han: { eq: skillSet('han', mySide, setup), used: [] } };
     refreshFx();
+    MJ.Assets.preloadLoadout(st.loadout);
     Object.assign(rd.state, { board: st.board, view: mySide, selected: -1, targets: [], lastMove: null, checkIdx: -1, loadout: st.loadout, skillTargets: null });
     document.querySelectorAll('.pcard').forEach(el => { el.dataset.key = ''; });
     MJ.UI.show('game');
@@ -184,12 +185,32 @@ MJ.Game = (function () {
       fxAt: (t, i, o) => rd.fxAt(t, i, o),
       shake: n => rd.shake(n),
       legalAfter: fn => { const b = board.slice(); fn(b); return !R.inCheck(b, side); },
+      effects: () => st.effects.filter(e => st.ply < e.until).map(e => Object.assign({ victim: (board.find(p => p && p.id === e.id) || {}).s }, e, { _ref: e })),
+      removeEffects: fn => {
+        const live = ctx.effects().filter(fn).map(e => e._ref);
+        st.effects = st.effects.filter(e => !live.includes(e));
+        return live;
+      },
+      restoreEffects: list => { (list || []).forEach(e => st.effects.push(e)); },
+      flash: col => rd.fx('ring', { x: rd.toXY(R.findKing(board, side))[0], y: rd.toXY(R.findKing(board, side))[1], color: col, life: 1, r: rd.cell() * 2 }),
+      rallyMoves: () => {
+        const f = side === 'cho' ? -9 : 9, out = [], b = board.slice();
+        ctx.cells(side, p => p.t === 'P').forEach(i => {
+          const t = i + f;
+          if (t < 0 || t >= 90 || b[t]) return;
+          const save = b[t]; b[t] = b[i]; b[i] = null;
+          if (R.inCheck(b, side)) { b[i] = b[t]; b[t] = save; return; }
+          out.push([i, t]);
+        });
+        return out;
+      },
+      palaceGuards: () => ctx.cells(side, (p, i) => p.t !== 'K' && R.PALACE.has(i) && ((side === 'cho') === (i >= 45))),
     };
     return ctx;
   }
   function skillTargets(side, def) {
     const ctx = makeCtx(side);
-    const who = def.target === 'enemy' ? MJ.other(side) : side;
+    const who = def.target === 'enemy' ? MJ.other(side) : side;  // own / own2 / ownEmpty 첫 단계 = 내 기물
     return ctx.cells(who, (p, i) => !def.filter || def.filter(ctx, i));
   }
   /* 사용 가능 여부: true 또는 이유 */
@@ -206,7 +227,7 @@ MJ.Game = (function () {
     if (st.turn !== side) return '내 차례에만 사용';
     if (rd.busy()) return '연출 중';
     if (def.canUse) { const r = def.canUse(makeCtx(side)); if (r !== true) return r; }
-    if ((def.target === 'own' || def.target === 'enemy' || def.target === 'own2') && !skillTargets(side, def).length) return '대상이 없어요';
+    if (['own', 'enemy', 'own2', 'ownEmpty'].includes(def.target) && !skillTargets(side, def).length) return '대상이 없어요';
     return true;
   }
   function useSkill(side, id, args, o) {
@@ -266,13 +287,30 @@ MJ.Game = (function () {
     st.targeting = { id, side, picks: [] };
     rd.state.skillTargets = skillTargets(side, def);
     rd.state.skillColor = def.color;
-    MJ.UI.toast(def.target === 'enemy' ? '대상 상대 기물을 누르세요' : def.target === 'own2' ? '자리를 바꿀 내 기물 2개를 누르세요' : '대상 내 기물을 누르세요', 2500);
+    MJ.UI.toast(def.target === 'enemy' ? '대상 상대 기물을 누르세요' : def.target === 'own2' ? '자리를 바꿀 내 기물 2개를 누르세요'
+      : def.target === 'ownEmpty' ? '이동시킬 내 기물을 누르세요' : '대상 내 기물을 누르세요', 2500);
     hud();
   }
+  const board90 = () => Array.from({ length: 90 }, (_, k) => k);
   function cancelTargeting() { st.targeting = null; rd.state.skillTargets = null; hud(); }
   function tapTargeting(i) {
     const T = st.targeting, def = MJ.Registry.get('skill', T.id);
     if (!rd.state.skillTargets.includes(i)) { cancelTargeting(); MJ.UI.toast('스킬 사용을 취소했어요'); return; }
+    if (def.target === 'ownEmpty') {
+      if (!T.picks.length) {
+        T.picks.push(i);
+        const ctx = makeCtx(T.side);
+        rd.state.skillTargets = board90().filter(j => def.filter2(ctx, j, i));
+        rd.state.selected = i;
+        if (!rd.state.skillTargets.length) { cancelTargeting(); MJ.UI.toast('옮길 수 있는 빈 칸이 없어요'); }
+        else MJ.UI.toast('옮길 빈 칸을 누르세요', 2000);
+        return;
+      }
+      const args = { a: T.picks[0], b: i };
+      cancelTargeting(); rd.state.selected = -1;
+      useSkill(T.side, T.id, args);
+      return;
+    }
     if (def.target === 'own2') {
       if (T.picks.includes(i)) return;
       T.picks.push(i);
@@ -334,6 +372,8 @@ MJ.Game = (function () {
   function doMove(m, remote) {
     const piece = st.board[m.from];
     const side = st.turn, voice = king(side).voice;
+    const skinId = piece.t === 'K' ? null : ((lo().skins[side] || {})[piece.t] || null);
+    if (rd.spriteOf(piece)) MJ.Audio.sfx('transform', side, null, skinId, piece.t);
     if (st.mode === 'online' && !remote) MJ.Net.send({ t: 'move', f: m.from, to: m.to, ply: st.ply });
     st.history.push({ m, side, prevLast: rd.state.lastMove, prevCheck: rd.state.checkIdx });
     R.make(st.board, m);
@@ -348,12 +388,12 @@ MJ.Game = (function () {
         rd.fxAt('text', m.to, { text: `${MJ.pieceName(m.cap.s, m.cap.t)} 격파! +${MJ.CONFIG.pieceValues[m.cap.t]}`, color: '#fff36b', size: rd.cell() * 0.42 });
         rd.shake(m.cap.t === 'R' ? 12 : 6);
         buzz(m.cap.t === 'R' ? 70 : 40);
-        MJ.Audio.sfx('capture', side, voice);
+        MJ.Audio.sfx('capture', side, voice, skinId, piece.t);
         if ('RCH'.includes(m.cap.t)) say(side, 'capture');
       },
       arrive: () => {
         rd.fxAt('ring', m.to, { color: 'rgba(255,255,255,0.7)', life: 0.4 });
-        MJ.Audio.sfx('move', side, voice);
+        MJ.Audio.sfx('move', side, voice, skinId, piece.t);
       },
       done: () => afterMove(side),
     });
@@ -550,7 +590,7 @@ MJ.Game = (function () {
   function end(winner, reason, kind) {
     const mate = kind === 'mate';
     if (st.over) return;
-    st.over = true;
+    st.over = true; st.winner = winner;
     stopTimer(); clearSel(); hud();
     saveResume(); keepAwake(false);
     const wk = king(winner), lk = king(MJ.other(winner));
@@ -613,8 +653,38 @@ MJ.Game = (function () {
     clearTimeout(bubbleT[side]); bubbleT[side] = setTimeout(() => b.classList.remove('show'), 2300);
   }
 
+  /* 전황 게이지: 정적 평가(기물 점수+위치) → 유리할 확률 */
+  let evShown = 0.5;
+  function renderEval() {
+    const bar = $('#evalBar'); if (!bar || !st) return;
+    const view = rd.state.view, other = MJ.other(view);
+    let s = MJ.AI.evaluate(st.board, view);
+    if (R.inCheck(st.board, other)) s += 1.5;
+    if (R.inCheck(st.board, view)) s -= 1.5;
+    let p = 1 / (1 + Math.exp(-s / 7));
+    if (st.over) p = st.winner === view ? 1 : st.winner === other ? 0 : p;
+    evShown = evShown * 0.3 + p * 0.7;
+    const C = MJ.CONFIG.sides;
+    bar.style.setProperty('--cl', C[view].color); bar.style.setProperty('--cr', C[other].color);
+    bar.querySelector('.ev-fill').style.width = (evShown * 100).toFixed(1) + '%';
+    const me = st.mode === 'local' ? C[view].name : '나';
+    const op = st.mode === 'local' ? C[other].name : (st.mode === 'ai' ? 'AI' : st.nicks[other]);
+    bar.querySelector('.ev-l').textContent = `${me} ${Math.round(evShown * 100)}%`;
+    bar.querySelector('.ev-r').textContent = `${Math.round((1 - evShown) * 100)}% ${op}`;
+  }
+
+  /* 채팅 말풍선 (상대 카드 안) */
+  function showChat(text) {
+    if (!st) return;
+    const card = $('#cardTop'), b = card.querySelector('.bubble'); if (!b) return;
+    b.textContent = '💬 ' + text; b.classList.add('show');
+    clearTimeout(bubbleT.chat); bubbleT.chat = setTimeout(() => b.classList.remove('show'), 3500);
+  }
+
   function hud() {
     if (!st) return;
+    renderEval();
+    const cb = document.querySelector('[data-act="chat"]'); if (cb) cb.hidden = st.mode !== 'online';
     const view = rd.state.view;
     fillCard($('#cardBottom'), view);
     fillCard($('#cardTop'), MJ.other(view));
@@ -723,6 +793,6 @@ MJ.Game = (function () {
     start(R0.setup, { replay: R0.moves });
   }
 
-  return { init, start, undo, resume, pressSkill, useSkill, canUseSkill, pass: () => passTurn(false), resign, menu, remote, moveList, setNetLost,
+  return { init, start, undo, resume, showChat, pressSkill, useSkill, canUseSkill, pass: () => passTurn(false), resign, menu, remote, moveList, setNetLost,
            state: () => st, stopTimer };
 })();

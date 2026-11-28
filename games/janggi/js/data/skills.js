@@ -15,6 +15,7 @@
  *           'enemy'    상대 기물 1개 선택    → args = { idx }
  *           'own2'     내 기물 2개 선택      → args = { a, b }
  *           'captured' 잡힌 내 기물 선택     → args = { pieceId }
+ *           'ownEmpty' 내 기물 1개 → 빈 칸 1개 선택 → args = { a, b }  (filter2(ctx, idx, a) 로 빈 칸 조건)
  *  filter(ctx, idx)   선택 가능한 칸 조건 (own/enemy/own2)
  *  canUse(ctx)        true 또는 사용 불가 이유(문자열)
  *  apply(ctx, args)   효과 적용. 되돌리기용 데이터를 return
@@ -96,5 +97,77 @@ MJ.register('skill', [
     apply(ctx) { ctx.extraMove(true); },
     undo(ctx) { ctx.extraMove(false); },
     ai(ctx) { return ctx.anyCapture() ? {} : null; },
+  },
+  /* ---------- 추가 스킬 ---------- */
+  {
+    id: 'teleport', name: '순간 이동', icon: '🌀', color: '#7ad7ff',
+    desc: '내 기물 하나를 우리 진영 쪽 빈 칸으로 순간 이동시켜요. (궁·사 제외, 내 궁이 위험해지면 불가)',
+    target: 'ownEmpty',
+    filter: (ctx, i) => !'KA'.includes(ctx.pieceAt(i).t),
+    // 우리 진영 절반(초: 아래 5줄, 한: 위 5줄)의 빈 칸
+    filter2: (ctx, i) => !ctx.pieceAt(i) && (ctx.side === 'cho' ? Math.floor(i / 9) >= 5 : Math.floor(i / 9) <= 4),
+    valid: (ctx, a) => ctx.legalAfter(b => { b[a.b] = b[a.a]; b[a.a] = null; }),
+    apply(ctx, a) {
+      const b = ctx.board; b[a.b] = b[a.a]; b[a.a] = null;
+      ctx.fxAt('ring', a.a, { color: '#7ad7ff', life: 0.7 }); ctx.fxAt('sparks', a.b, { color: '#bdf0ff', n: 24 });
+      return a;
+    },
+    undo(ctx, d) { const b = ctx.board; b[d.a] = b[d.b]; b[d.b] = null; },
+    ai: () => null,
+  },
+  {
+    id: 'purify', name: '정화', icon: '✨', color: '#fff6b0',
+    desc: '내 기물에 걸린 빙결과 상대 기물의 철벽 방어를 모두 없애요.',
+    target: 'none',
+    canUse: ctx => (ctx.effects().some(e => (e.type === 'freeze' && e.victim === ctx.side) || (e.type === 'shield' && e.side !== ctx.side)) ? true : '없앨 효과가 없어요'),
+    apply(ctx) {
+      const gone = ctx.removeEffects(e => (e.type === 'freeze' && e.victim === ctx.side) || (e.type === 'shield' && e.side !== ctx.side));
+      ctx.flash('#fff6b0');
+      return { gone };
+    },
+    undo(ctx, d) { ctx.restoreEffects(d.gone); },
+    ai: ctx => (ctx.effects().some(e => e.type === 'freeze' && e.victim === ctx.side) ? {} : null),
+  },
+  {
+    id: 'rally', name: '진격 나팔', icon: '📯', color: '#ffb347',
+    desc: '앞이 비어 있는 내 졸·병이 모두 한 칸씩 전진해요. (내 궁이 위험해지면 그 졸은 멈춤)',
+    target: 'none',
+    canUse: ctx => (ctx.rallyMoves().length ? true : '전진할 수 있는 졸이 없어요'),
+    apply(ctx) {
+      const mv = ctx.rallyMoves();
+      mv.forEach(([f, t]) => { ctx.board[t] = ctx.board[f]; ctx.board[f] = null; ctx.fxAt('ring', t, { color: '#ffb347', life: 0.6 }); });
+      return { mv };
+    },
+    undo(ctx, d) { d.mv.slice().reverse().forEach(([f, t]) => { ctx.board[f] = ctx.board[t]; ctx.board[t] = null; }); },
+    ai: ctx => (ctx.rallyMoves().length >= 3 ? {} : null),
+  },
+  {
+    id: 'barrier', name: '궁성 결계', icon: '🏯', color: '#9ab8ff',
+    desc: '우리 궁성 안의 내 기물(궁 제외)을 상대의 다음 2턴 동안 모두 보호해요.',
+    target: 'none',
+    canUse: ctx => (ctx.palaceGuards().length ? true : '궁성 안에 보호할 기물이 없어요'),
+    apply(ctx) { ctx.palaceGuards().forEach(i => { ctx.addEffect('shield', i, 4); ctx.fxAt('ring', i, { color: '#9ab8ff', life: 0.8 }); }); },
+    ai: ctx => (ctx.palaceGuards().some(i => ctx.attacked(i)) ? {} : null),
+  },
+  {
+    id: 'firebomb', name: '화공', icon: '🔥', color: '#ff6a3d',
+    desc: '상대 졸·병 하나를 불태워 없애요.',
+    target: 'enemy',
+    filter: (ctx, i) => ctx.pieceAt(i).t === 'P',
+    apply(ctx, a) {
+      const p = ctx.pieceAt(a.idx); ctx.remove(a.idx);
+      ctx.fxAt('sparks', a.idx, { color: '#ff8a3d', n: 36 }); ctx.fxAt('ring', a.idx, { color: '#ff3d2d', life: 0.8 }); ctx.shake(10);
+      return { idx: a.idx, p };
+    },
+    undo(ctx, d) { ctx.place(d.p, d.idx); },
+    ai(ctx) {
+      // 가장 많이 전진한 상대 졸
+      let best = null, bv = -1;
+      ctx.cells(ctx.opp, p => p.t === 'P').forEach(i => {
+        const r = Math.floor(i / 9), adv = ctx.opp === 'cho' ? 9 - r : r;
+        if (adv > bv) { bv = adv; best = i; }
+      });
+      return best == null ? null : { idx: best };
+    },
   },
 ]);

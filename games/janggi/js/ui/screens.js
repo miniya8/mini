@@ -37,6 +37,7 @@ MJ.UI = (function () {
   function banner(txt, sub, glow, kind) {
     const b = $('#banner');
     b.classList.toggle('mate', kind === 'mate');
+    b.classList.toggle('ingame', current() === 'game' && kind !== 'mate'); // 대국 중엔 위쪽에 작게 → 판을 가리지 않음
     b.querySelector('.txt').textContent = txt;
     b.querySelector('.sub').textContent = sub || '';
     b.querySelector('.sub').style.display = sub ? '' : 'none';
@@ -98,8 +99,8 @@ MJ.UI = (function () {
   }
   function thumbPiece(c, piece, skin, king) {
     const g = c.getContext('2d'); g.clearRect(0, 0, c.width, c.height);
-    const sp = skin && skin.sprite;
-    if (sp && MJ.Assets.img(MJ.Assets.fill(sp.sheet, { side: piece.s, type: piece.t }))) {
+    const sp = skin && skin.sprite ? MJ.spriteFor(skin.sprite, piece.s, piece.t) : null;
+    if (sp && MJ.Assets.img(sp.sheet)) {
       // 변신한 모습으로 크게
       const r = (c.width * 0.98 / sp.frameW) * sp.tokenDiam / 2 / 1.04;
       MJ.PieceArt.draw(g, c.width / 2, c.height / 2 + c.height * 0.05, r * 1.25, piece, { skin, anim: sp.thumb });
@@ -147,14 +148,17 @@ MJ.UI = (function () {
   /* 이미지 슬롯: data-slot="경로(확장자 없이)" → webp/png/jpg 중 있는 파일을 배경으로 */
   function slots() {
     document.querySelectorAll('[data-slot],[data-slot-logo]').forEach(node => {
-      const base = node.dataset.slot || node.dataset.slotLogo;
-      const exts = ['webp', 'png', 'jpg'];
+      // "a|b" → a 가 없으면 b 사용 (예: title_bg 가 없으면 main_bg)
+      const bases = (node.dataset.slot || node.dataset.slotLogo).split('|');
+      const exts = ['webp', 'png', 'jpg', 'gif'];
+      const list = [];
+      bases.forEach(b => exts.forEach(e => list.push(b + '.' + e)));
       const tryN = i => {
-        if (i >= exts.length) return;
+        if (i >= list.length) return;
         const im = new Image();
-        im.onload = () => { node.style.backgroundImage = `url("${base}.${exts[i]}")`; node.classList.add('has-img'); };
+        im.onload = () => { node.style.backgroundImage = `url("${list[i]}")`; node.classList.add('has-img'); };
         im.onerror = () => tryN(i + 1);
-        im.src = base + '.' + exts[i];
+        im.src = list[i];
       };
       tryN(0);
     });
@@ -272,8 +276,9 @@ MJ.UI = (function () {
       });
       const k = MJ.Registry.get('king', L().kings[C.side]);
       const kp = MJ.Assets.fill(k.portrait, { side: C.side });
-      hint(k.sprite ? `🤖 애니메이션 시트: ${MJ.Assets.fill(k.sprite.sheet, { side: C.side, type: 'K' })} · 초상: ${kp}`
-        : `🖼️ 초상: ${kp || '-'}  ·  장기알: ${k.piece || '-'}`, k.sprite ? MJ.Assets.fill(k.sprite.sheet, { side: C.side, type: 'K' }) : kp);
+      const kspr = k.sprite ? MJ.spriteFor(k.sprite, C.side, 'K') : null;
+      hint(kspr ? `🤖 애니메이션 시트: ${kspr.sheet} · 초상: ${kp}`
+        : `🖼️ 초상: ${kp || '-'}  ·  장기알: ${k.piece || '-'}`, kspr ? kspr.sheet : kp);
     }
 
     if (C.tab === 'skin') {
@@ -284,7 +289,8 @@ MJ.UI = (function () {
         const on = t === 'ALL'
           ? MJ.CONFIG.skinnableTypes.every(x => L().skins[C.side][x] === s.id)
           : L().skins[C.side][t] === s.id;
-        const path = s.sprite ? MJ.Assets.fill(s.sprite.sheet, { side: C.side, type: showType }) : MJ.Assets.fill(s.image, { side: C.side, type: showType, id: s.id });
+        const spr = s.sprite ? MJ.spriteFor(s.sprite, C.side, showType) : null;
+        const path = spr ? spr.sheet : MJ.Assets.fill(s.image, { side: C.side, type: showType, id: s.id });
         grid.appendChild(card(s.name, s.desc, on, c => thumbPiece(c, { s: C.side, t: showType }, s), () => {
           if (t === 'ALL') MJ.CONFIG.skinnableTypes.forEach(x => { L().skins[C.side][x] = s.id; });
           else L().skins[C.side][t] = s.id;
@@ -297,7 +303,8 @@ MJ.UI = (function () {
       });
       const curId = L().skins[C.side][t === 'ALL' ? 'R' : t];
       const cur = MJ.Registry.get('skin', curId);
-      const pat = cur && cur.sprite ? cur.sprite.sheet : cur && cur.image;
+      const cspr = cur && cur.sprite && t !== 'ALL' ? MJ.spriteFor(cur.sprite, C.side, t) : null;
+      const pat = cur && cur.sprite ? (cspr ? cspr.sheet : (cur.sprite.sheet || (cur.sprite.base + '{side}_{type}.webp'))) : cur && cur.image;
       const p = MJ.Assets.fill(pat, { side: C.side, type: t === 'ALL' ? '{type}' : t, id: curId });
       hint(`${cur && cur.sprite ? '🎬 애니메이션 시트' : '🖼️ 기물 이미지'} 경로: ${p || '(없음)'}  — type: R C H E A P · 카드를 누르면 미리보기에서 시연`, null);
     }

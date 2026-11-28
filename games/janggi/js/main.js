@@ -9,6 +9,7 @@
     'multi': () => MJ.Lobby.open(),
     'multi-back': () => MJ.Lobby.back(),
     'help': () => MJ.UI.help(),
+    'chat': () => MJ.Chat.toggle(),
     'nick': () => MJ.UI.editNick(),
     'setup-ai': () => MJ.UI.openSetup('ai'),
     'setup-local': () => MJ.UI.openSetup('local'),
@@ -37,6 +38,7 @@
     MJ.Store.load();
     MJ.UI.init();
     MJ.Game.init();
+    MJ.Chat.init();
 
     document.addEventListener('click', e => {
       const b = e.target.closest('[data-act]');
@@ -63,6 +65,8 @@
     document.addEventListener('visibilitychange', () => { if (document.hidden) MJ.Audio.pauseBgm(); else if (MJ.Audio.isUnlocked()) MJ.Audio.resumeBgm(); });
 
     MJ.Audio.autoScan();
+    MJ.Assets.preloadLoadout(MJ.Store.get().loadout);
+    MJ.on('loadout', () => MJ.Assets.preloadLoadout(MJ.Store.get().loadout));
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { MJ.emit('resize'); MJ.UI.refreshMenu(); });
   }
 

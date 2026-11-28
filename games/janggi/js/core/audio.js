@@ -44,8 +44,11 @@ MJ.Audio = (function () {
   }
 
   /* key 와 문맥(진영, 왕 voice)으로 가장 구체적인 효과음 선택 */
-  function resolve(key, side, voice) {
+  /* 찾는 순서: {key}_{스킨}_{기물} → {key}_{스킨} → {key}_{왕voice} → {key}_{진영} → {key} */
+  function resolve(key, side, voice, skin, type) {
     const ids = [];
+    if (skin && type) ids.push(key + '_' + skin + '_' + type);
+    if (skin) ids.push(key + '_' + skin);
     if (voice) ids.push(key + '_' + voice);
     if (side) ids.push(key + '_' + side);
     ids.push(key);
@@ -59,9 +62,9 @@ MJ.Audio = (function () {
     return null;
   }
 
-  function sfx(key, side, voice) {
+  function sfx(key, side, voice, skin, type) {
     if (!S().sfxOn) return;
-    const r = resolve(key, side, voice);
+    const r = resolve(key, side, voice, skin, type);
     if (!r) return;
     if (r.file) {
       const n = r.file.cloneNode();
@@ -105,6 +108,63 @@ MJ.Audio = (function () {
         osc('triangle', o.freq * 3.2, 0, o.dur * 0.4, vol * 0.2); break;
       case 'fanfare':
         [0, 4, 7, 12].forEach((s, k) => osc('triangle', o.freq * Math.pow(2, s / 12), k * 0.13, 0.5, vol)); break;
+      case 'whoosh': { // 휙 — 바람 가르는 소리
+        const n = noise(c, o.dur); const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.Q.value = 1.2;
+        bp.frequency.setValueAtTime(400, t); bp.frequency.exponentialRampToValueAtTime(3200, t + o.dur);
+        const gg = c.createGain(); gg.gain.setValueAtTime(0.0001, t); gg.gain.exponentialRampToValueAtTime(vol, t + o.dur * 0.4); gg.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+        n.connect(bp); bp.connect(gg); gg.connect(g); n.start(t); break;
+      }
+      case 'punch': { // 퍽 — 묵직한 타격
+        const os = c.createOscillator(), gg = c.createGain(); os.type = 'sine';
+        os.frequency.setValueAtTime(o.freq || 160, t); os.frequency.exponentialRampToValueAtTime(45, t + 0.18);
+        gg.gain.setValueAtTime(vol, t); gg.gain.exponentialRampToValueAtTime(0.0001, t + 0.22);
+        os.connect(gg); gg.connect(g); os.start(t); os.stop(t + 0.25);
+        const n = noise(c, 0.06), ng = c.createGain(); ng.gain.setValueAtTime(vol * 0.6, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+        n.connect(ng); ng.connect(g); n.start(t); break;
+      }
+      case 'boom': { // 쾅 — 대포
+        const n = noise(c, o.dur); const lp = c.createBiquadFilter(); lp.type = 'lowpass';
+        lp.frequency.setValueAtTime(1400, t); lp.frequency.exponentialRampToValueAtTime(120, t + o.dur);
+        const gg = c.createGain(); gg.gain.setValueAtTime(vol, t); gg.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+        n.connect(lp); lp.connect(gg); gg.connect(g); n.start(t);
+        osc('sine', 70, 0, o.dur * 0.8, vol * 0.8); break;
+      }
+      case 'zap': { // 슈웅 — 기공파
+        const os = c.createOscillator(), gg = c.createGain(); os.type = 'sawtooth';
+        os.frequency.setValueAtTime(o.freq || 1200, t); os.frequency.exponentialRampToValueAtTime(180, t + o.dur);
+        gg.gain.setValueAtTime(vol * 0.5, t); gg.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+        const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 2600;
+        os.connect(lp); lp.connect(gg); gg.connect(g); os.start(t); os.stop(t + o.dur + 0.05);
+        osc('sine', (o.freq || 1200) * 1.5, 0, o.dur * 0.6, vol * 0.25); break;
+      }
+      case 'servo': { // 위잉 — 기계
+        const os = c.createOscillator(), gg = c.createGain(); os.type = 'square';
+        os.frequency.setValueAtTime(o.freq || 180, t); os.frequency.linearRampToValueAtTime((o.freq || 180) * 1.6, t + o.dur);
+        const lp = c.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 900;
+        gg.gain.setValueAtTime(vol * 0.35, t); gg.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+        os.connect(lp); lp.connect(gg); gg.connect(g); os.start(t); os.stop(t + o.dur + 0.05); break;
+      }
+      case 'laser': {
+        const os = c.createOscillator(), gg = c.createGain(); os.type = 'square';
+        os.frequency.setValueAtTime(2400, t); os.frequency.exponentialRampToValueAtTime(300, t + o.dur);
+        gg.gain.setValueAtTime(vol * 0.3, t); gg.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+        os.connect(gg); gg.connect(g); os.start(t); os.stop(t + o.dur + 0.05); break;
+      }
+      case 'metal': { // 챙 — 칼 부딪힘
+        [2400, 3170, 4300].forEach((f, k) => osc('triangle', f, 0, o.dur * (1 - k * 0.2), vol * (0.5 - k * 0.12)));
+        const n = noise(c, 0.05), hp = c.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000;
+        const ng = c.createGain(); ng.gain.setValueAtTime(vol * 0.6, t); ng.gain.exponentialRampToValueAtTime(0.0001, t + 0.05);
+        n.connect(hp); hp.connect(ng); ng.connect(g); n.start(t); break;
+      }
+      case 'chime': // 변신 반짝
+        [0, 4, 7, 12, 16].forEach((s, k) => osc('sine', (o.freq || 880) * Math.pow(2, s / 12), k * 0.045, 0.35, vol * 0.5)); break;
+      case 'creak': { // 삐걱 — 나무 배
+        const os = c.createOscillator(), gg = c.createGain(); os.type = 'sawtooth';
+        os.frequency.setValueAtTime(110, t); os.frequency.linearRampToValueAtTime(160, t + o.dur * 0.5); os.frequency.linearRampToValueAtTime(95, t + o.dur);
+        const bp = c.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 700; bp.Q.value = 4;
+        gg.gain.setValueAtTime(vol * 0.4, t); gg.gain.exponentialRampToValueAtTime(0.0001, t + o.dur);
+        os.connect(bp); bp.connect(gg); gg.connect(g); os.start(t); os.stop(t + o.dur + 0.05); break;
+      }
       case 'sad':
         [0, -2, -4, -7].forEach((s, k) => osc('sine', o.freq * Math.pow(2, s / 12), k * 0.25, 0.6, vol)); break;
       default:

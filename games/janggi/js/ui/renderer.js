@@ -110,7 +110,34 @@ MJ.Renderer = function (canvas, opt) {
   MJ.Assets.onLoad(() => { bgDirty = true; });
 
   /* ---------- 배경(지형 + 판) ---------- */
+  /* 판 선만 따로 그린 그림 — 이펙트·파티클 위에 다시 덧그려서 선이 항상 보이게 */
+  let linesCache = null;
+  function buildLines() {
+    const B = self.state.boardDef, C = B.colors || {};
+    const c = document.createElement('canvas');
+    c.width = canvas.width; c.height = canvas.height;
+    const b = c.getContext('2d'); b.scale(dpr, dpr);
+    const P = (r, cc) => (gxs ? [gxs[cc], gys[r]] : [ox + cc * cell, oy + r * cell]);
+    const isImg = !!(gxs || (imgRect && B.grid));
+    b.globalAlpha = isImg ? 0.6 : 1;
+    b.strokeStyle = C.line || '#000'; b.lineCap = 'round';
+    b.lineWidth = Math.max(1, cell * (isImg ? 0.022 : 0.03));
+    b.beginPath();
+    for (let r = 0; r < 10; r++) { const [x0, y0] = P(r, 0), [x1, y1] = P(r, 8); b.moveTo(x0, y0); b.lineTo(x1, y1); }
+    for (let cc = 0; cc < 9; cc++) { const [x0, y0] = P(0, cc), [x1, y1] = P(9, cc); b.moveTo(x0, y0); b.lineTo(x1, y1); }
+    b.stroke();
+    b.strokeStyle = C.palace || C.line || '#000'; b.lineWidth = Math.max(1, cell * (isImg ? 0.025 : 0.04));
+    b.beginPath();
+    [[0, 2], [7, 9]].forEach(([r0, r1]) => {
+      let [a, bb] = [P(r0, 3), P(r1, 5)]; b.moveTo(a[0], a[1]); b.lineTo(bb[0], bb[1]);
+      [a, bb] = [P(r0, 5), P(r1, 3)]; b.moveTo(a[0], a[1]); b.lineTo(bb[0], bb[1]);
+    });
+    b.stroke();
+    linesCache = c;
+  }
+
   function buildBg() {
+    buildLines();
     const B = self.state.boardDef;
     const c = document.createElement('canvas');
     c.width = canvas.width; c.height = canvas.height;
@@ -210,9 +237,68 @@ MJ.Renderer = function (canvas, opt) {
     return MJ.Registry.get('skin', best) || MJ.Registry.get('skin', 'classic');
   }
   this.mainSkin = mainSkin;
+  /* ---------- 성능: 대기 상태 장기알·오라를 미리 그려 둔 그림으로 재사용 ---------- */
+  const pcache = new Map(), acache = new Map();
+  MJ.Assets.onLoad(() => { pcache.clear(); });
+  let msMemo = null, msKey = '';
+  function mainSkinFast(side) {
+    const L = self.state.loadout, key = L ? JSON.stringify(L.skins) : '';
+    if (key !== msKey) { msKey = key; msMemo = { cho: mainSkin('cho'), han: mainSkin('han') }; pcache.clear(); }
+    return msMemo[side];
+  }
+  function auraImg(side, R) {
+    const key = side + '|' + Math.round(R * dpr);
+    let c = acache.get(key);
+    if (!c) {
+      const S2 = R * 3.2; c = document.createElement('canvas');
+      c.width = c.height = Math.ceil(S2 * dpr);
+      const cg = c.getContext('2d'); cg.setTransform(dpr, 0, 0, dpr, 0, 0); cg.translate(S2 / 2, S2 / 2);
+      MJ.PieceArt.aura(cg, R, side, 'token', 1);
+      acache.set(key, c);
+      if (acache.size > 40) acache.delete(acache.keys().next().value);
+    }
+    return c;
+  }
+  function idleImg(p, R) {
+    if (!(R > 1) || !(dpr > 0)) return null;
+    const sk = skinFor(p), ms = mainSkinFast(p.s), kg = p.t === 'K' ? kingFor(p.s) : null;
+    // 대기 모습이 아직 안 불러온 시트에 의존하면 캐시하지 않음
+    let need = null;
+    if (!ms.codeToken) {
+      if (p.t === 'K') need = ms.kingSprite ? MJ.spriteFor(ms.kingSprite, p.s, 'K') : null;
+      else need = ms.sprite ? MJ.spriteFor(ms.sprite, p.s, p.t) : null;
+    }
+    if (need && !MJ.Assets.img(need.sheet)) return null;
+    const key = [p.s, p.t, sk.id, ms.id, kg ? kg.id : '', Math.round(R * dpr)].join('|');
+    let c = pcache.get(key);
+    if (!c) {
+      const S2 = R * 5; c = document.createElement('canvas');
+      c.width = c.height = Math.ceil(S2 * dpr);
+      const cg = c.getContext('2d'); cg.setTransform(dpr, 0, 0, dpr, 0, 0);
+      MJ.PieceArt.draw(cg, S2 / 2, S2 / 2, R, p, { skin: sk, king: kg, tokenSkin: ms, aura: false, glowPulse: 0.5 });
+      pcache.set(key, c);
+      if (pcache.size > 120) pcache.delete(pcache.keys().next().value);
+    }
+    return c;
+  }
+  function drawIdle(p, x, y, pulse) {
+    const R = radius(p), img = idleImg(p, R);
+    if (!img) return false;
+    if (MJ.Store.get().settings.aura !== false) {
+      const a = auraImg(p.s, R), S2 = R * 3.2;
+      g.globalAlpha = 0.7 + 0.3 * pulse; g.drawImage(a, x - S2 / 2, y - S2 / 2, S2, S2); g.globalAlpha = 1;
+    }
+    const S2 = R * 5;
+    g.drawImage(img, x - S2 / 2, y - S2 / 2, S2, S2);
+    return true;
+  }
+
   function drawPiece(p, x, y, extra) {
+    if (extra && !extra.anim && !extra.selected && extra.alpha == null && !extra.scale && !extra.rotate && !extra.noCache) {
+      if (drawIdle(p, x, y, 0.5 + 0.5 * Math.sin(performance.now() / 400))) return;
+    }
     MJ.PieceArt.draw(g, x, y, radius(p), p, Object.assign({
-      skin: skinFor(p), king: p.t === 'K' ? kingFor(p.s) : null, tokenSkin: mainSkin(p.s),
+      skin: skinFor(p), king: p.t === 'K' ? kingFor(p.s) : null, tokenSkin: mainSkinFast(p.s),
       glowPulse: 0.5 + 0.5 * Math.sin(performance.now() / 400),
       aura: MJ.Store.get().settings.aura !== false,
     }, extra || {}));
@@ -301,9 +387,9 @@ MJ.Renderer = function (canvas, opt) {
   /* ---------- 공개 API ---------- */
   function spriteOf(p) {
     const sk = p.t === 'K' ? kingFor(p.s) : skinFor(p);
-    const sp = sk && sk.sprite;
+    const sp = sk && sk.sprite ? MJ.spriteFor(sk.sprite, p.s, p.t) : null;
     if (!sp) return null;
-    return MJ.Assets.img(MJ.Assets.fill(sp.sheet, { side: p.s, type: p.t })) ? sp : null;
+    return MJ.Assets.img(sp.sheet) ? sp : null;
   }
   this.spriteOf = spriteOf;
 
@@ -327,7 +413,7 @@ MJ.Renderer = function (canvas, opt) {
     f = a.loop ? f % A.n : Math.min(A.n - 1, f);
     return [a.anim, f];
   }
-  const speed = () => MJ.Store.get().settings.animSpeed || 1;
+  const speed = () => (MJ.Store.get().settings.animSpeed || 1) * 0.82; // 기물 속도 약간 느리게
   function defaultFlip(piece) { return piece.s !== self.state.view; } // 위쪽 진영은 왼쪽을 봄
 
   /* 스크립트(제너레이터) 실행기: yield 초 */
@@ -361,34 +447,52 @@ MJ.Renderer = function (canvas, opt) {
       if (V) V.flip = !A.flip;
       const sp = A.sp, spd = speed();
       if (sp) yield play(A, 'transform');
-      // 이동 (잡는 수면 상대 앞에서 멈춤)
-      const stop = V && sp ? Math.min(cell * 0.8, dist * 0.6) : 0;
-      const ex = tx - (dx / (dist || 1)) * stop, ey = ty - (dy / (dist || 1)) * stop;
-      const travel = Math.max(0.22, dist / (cell * (sp ? 5.5 : 9))) / spd;
-      if (sp) play(A, 'move', true); else A.scale = 1.1;
-      tween(A, ex, ey, travel, sp ? cell * 0.08 : cell * 0.25);
-      yield travel;
-      A.scale = 1;
-      if (V) {
-        let rest = 0;
-        if (sp) {
-          const total = play(A, 'attack');
-          const hitAt = (sp.impact / sp.anims.attack.n) * total;
-          yield hitAt; rest = total - hitAt;
-        }
+      // 원거리 공격: 시트에 ranged + proj 가 있고 2칸 이상 떨어진 상대를 잡을 때
+      const canRanged = V && sp && sp.anims.ranged && sp.anims.proj && dist >= cell * 1.9;
+      let rest = 0;
+      if (canRanged) {
+        A.flip = dx < -1 ? true : dx > 1 ? false : defaultFlip(piece);
+        const tot = play(A, 'ranged');
+        yield tot * 0.7;
+        // 투사체 발사
+        const P = actor(piece, m.from); P.sp = sp; P.proj = true; P.anim = 'proj'; P.t0 = clock; P.loop = true;
+        P.rot = Math.atan2(dy, dx); P.scale = 1;
+        const fly = Math.max(0.18, dist / (cell * 14)) / spd;
+        tween(P, tx, ty, fly, 0);
+        yield fly;
+        remove(P);
         cb.impact && cb.impact();
+      } else {
+        // 이동 (잡는 수면 상대 앞에서 멈춤)
+        const stop = V && sp ? Math.min(cell * 0.8, dist * 0.6) : 0;
+        const ex = tx - (dx / (dist || 1)) * stop, ey = ty - (dy / (dist || 1)) * stop;
+        const travel = Math.max(0.22, dist / (cell * (sp ? 5.5 : 9))) / spd;
+        if (sp) play(A, 'move', true); else A.scale = 1.1;
+        tween(A, ex, ey, travel, sp ? cell * 0.08 : cell * 0.25);
+        yield travel;
+        A.scale = 1;
+        if (V) {
+          if (sp) {
+            const total = play(A, 'attack');
+            const hitAt = (sp.impact / sp.anims.attack.n) * total;
+            yield hitAt; rest = total - hitAt;
+          }
+          cb.impact && cb.impact();
+        }
+      }
+      if (V) {
         if (V.sp) {
           const h = play(V, 'hit');
           yield Math.max(h * 0.6, rest);
           const d = play(V, 'death');
-          if (sp) play(A, 'attack'), (A.t0 -= (sp.anims.attack.n - 1) / (sp.fps * spd)); // 마지막 자세 유지
+          if (sp && !canRanged) play(A, 'attack'), (A.t0 -= (sp.anims.attack.n - 1) / (sp.fps * spd)); // 마지막 자세 유지
           yield d + 0.15 / spd;
         } else {
           yield Math.max(0.2 / spd, rest);
         }
         V.fade = { t0: clock, dur: 0.3 / spd };
         yield 0.2 / spd;
-        if (sp) { play(A, 'move', true); tween(A, tx, ty, 0.2 / spd, 0); yield 0.2 / spd; }
+        if (sp) { const back = (canRanged ? Math.max(0.22, dist / (cell * 7)) : 0.2) / spd; play(A, 'move', true); tween(A, tx, ty, back, 0); yield back; }
         else { tween(A, tx, ty, 0.12, 0); yield 0.12; }
         remove(V);
       } else {
@@ -428,11 +532,19 @@ MJ.Renderer = function (canvas, opt) {
   this.busy = () => scripts.length > 0;
 
   /* ---------- 프레임 ---------- */
+  let lastDraw = 0;
   function frame(now) {
     if (!running) return;
     requestAnimationFrame(frame);
+    if (!canvas.offsetParent) { last = now; return; } // 화면에 안 보이면 쉼
+    // 성능: 연출이 없을 땐 프레임 수를 낮춰 배터리 절약 (파티클 있으면 30fps, 없으면 20fps)
+    const S0 = self.state;
+    const active = scripts.length || fxList.length || shake > 0 || (S0.skillTargets && S0.skillTargets.length) || S0.checkIdx >= 0 || bgDirty;
+    const parts0 = MJ.Store.get().settings.particles && parts.length;
+    const minGap = active ? 0 : (parts0 ? 32 : 48);
+    if (now - lastDraw < minGap) return;
+    lastDraw = now;
     const dt = Math.min(0.05, (now - last) / 1000); last = now;
-    if (!canvas.offsetParent) return; // 화면에 안 보이면 쉼
     if (bgDirty || !bgCache) { layout(); buildBg(); MJ.emit && MJ.emit('board-layout', self); }
     const S = self.state;
 
@@ -465,6 +577,28 @@ MJ.Renderer = function (canvas, opt) {
         s.wait += r.value || 0;
       }
     }
+    // ── 그리는 순서: 이펙트·파티클(아래) → 판 선 → 움직이는 기물 → 서 있는 기물 → 선택 표시(맨 위)
+    //    → 기물과 판 선은 어떤 연출에도 가려지지 않음 (게임 플레이 우선)
+    if (MJ.Store.get().settings.particles) { g.save(); g.globalAlpha = 0.75; MJ.Terrain.updateDraw(g, S.boardDef, parts, dt, W, H); g.restore(); }
+    MJ.Effects.step(fxList, g, dt);
+    if (linesCache) g.drawImage(linesCache, 0, 0, W, H);
+
+    // 애니메이션 중인 기물 (아래쪽에 있는 것부터)
+    actors.slice().sort((a, b) => a.y - b.y).forEach(a => {
+      let hop = 0;
+      if (a.tw) {
+        const u = Math.min(1, (clock - a.tw.t0) / a.tw.dur), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
+        a.x = a.tw.x0 + (a.tw.x1 - a.tw.x0) * e; a.y = a.tw.y0 + (a.tw.y1 - a.tw.y0) * e;
+        hop = Math.sin(u * Math.PI) * a.tw.hop;
+        if (u >= 1) a.tw = null;
+      }
+      let alpha = 1;
+      if (a.fade) alpha = Math.max(0, 1 - (clock - a.fade.t0) / a.fade.dur);
+      if (a.proj) drawPiece(a.piece, a.x, a.y, { anim: frameOf(a), rotate: a.rot, aura: false, alpha: 1, flip: false });
+      else drawPiece(a.piece, a.x, a.y - hop, { anim: frameOf(a), flip: a.flip, alpha, scale: a.scale });
+    });
+
+    // 서 있는 기물 (항상 맨 위)
     for (let i = 0; i < 90; i++) {
       const p = S.board[i];
       if (!p || hiddenIdx.has(i)) continue;
@@ -498,23 +632,6 @@ MJ.Renderer = function (canvas, opt) {
         g.restore();
       });
     }
-
-    // 애니메이션 중인 기물 (아래쪽에 있는 것부터)
-    actors.slice().sort((a, b) => a.y - b.y).forEach(a => {
-      let hop = 0;
-      if (a.tw) {
-        const u = Math.min(1, (clock - a.tw.t0) / a.tw.dur), e = u < 0.5 ? 2 * u * u : 1 - Math.pow(-2 * u + 2, 2) / 2;
-        a.x = a.tw.x0 + (a.tw.x1 - a.tw.x0) * e; a.y = a.tw.y0 + (a.tw.y1 - a.tw.y0) * e;
-        hop = Math.sin(u * Math.PI) * a.tw.hop;
-        if (u >= 1) a.tw = null;
-      }
-      let alpha = 1;
-      if (a.fade) alpha = Math.max(0, 1 - (clock - a.fade.t0) / a.fade.dur);
-      drawPiece(a.piece, a.x, a.y - hop, { anim: frameOf(a), flip: a.flip, alpha, scale: a.scale });
-    });
-
-    MJ.Effects.step(fxList, g, dt);
-    if (MJ.Store.get().settings.particles) MJ.Terrain.updateDraw(g, S.boardDef, parts, dt, W, H);
   }
   requestAnimationFrame(frame);
 };

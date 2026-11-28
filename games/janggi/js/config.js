@@ -8,7 +8,7 @@ window.MJ = window.MJ || {};
 MJ.CONFIG = {
   title: '미니의 커스텀 장기',
   subtitle: 'MINI CUSTOM JANGGI',
-  version: '1.4.0',
+  version: '1.7.0',
 
   /* 에셋 폴더 (이미지/소리 경로의 기준) */
   assetBase: 'assets/',
@@ -30,7 +30,7 @@ MJ.CONFIG = {
   hanBonus: 1.5,
 
   /* 기물 크기 비율 (칸 크기 대비) */
-  pieceScale: { K: 0.96, R: 0.84, C: 0.84, H: 0.84, E: 0.84, A: 0.70, P: 0.70 },
+  pieceScale: { K: 0.88, R: 0.77, C: 0.77, H: 0.77, E: 0.77, A: 0.65, P: 0.65 },
 
   /* 글자 세트 — 스킨의 glyphSet 으로 선택. 새 세트도 자유롭게 추가 */
   glyphSets: {
@@ -92,3 +92,32 @@ MJ.pieceName = function (side, t) {
   return (o && o[t]) || MJ.CONFIG.pieceNames[t];
 };
 MJ.other = s => (s === 'cho' ? 'han' : 'cho');
+
+/* 스프라이트 해석: 스킨의 sprite 정의 + 진영/기물 → 실제 시트 정보 (결과 캐시)
+ *  - 일반: sprite.sheet 패턴('{side}_{type}') 사용
+ *  - manifest 방식: sprite.manifest['cho_R'] = { file, anims, tokenFrames } (기물마다 프레임 수가 다른 시트)
+ *    없는 조합은 null → 코드 그림으로 표시 */
+MJ.spriteFor = (function () {
+  const cache = new WeakMap();
+  return function (sp, side, type) {
+    if (!sp) return null;
+    let m = cache.get(sp);
+    if (!m) { m = new Map(); cache.set(sp, m); }
+    const key = side + '_' + type;
+    if (m.has(key)) return m.get(key);
+    let r = null;
+    if (sp.manifest) {
+      const e = sp.manifest[key];
+      if (e) {
+        r = Object.assign({}, sp, e, { sheet: sp.base + e.file + '.webp' });
+        if (!e.thumb) r.thumb = ['transform', e.anims.transform.n - 1];
+        if (!e.idle) r.idle = ['revert', e.anims.revert.n - 1];
+        if (e.impact == null) r.impact = Math.max(1, Math.round(e.anims.attack.n * 0.55));
+      }
+    } else {
+      r = Object.assign({}, sp, { sheet: MJ.Assets ? MJ.Assets.fill(sp.sheet, { side, type }) : sp.sheet.replace('{side}', side).replace('{type}', type) });
+    }
+    m.set(key, r);
+    return r;
+  };
+})();
