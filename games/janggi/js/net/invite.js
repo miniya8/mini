@@ -1,8 +1,8 @@
 /* =========================================================
  * 카카오톡 초대 + 초대 링크로 바로 참가
  * ---------------------------------------------------------
- * 초대 메시지:  ⚔️ 장기 한 판! 코드 ABCDE  + 링크
- * 링크를 누르면 게임이 열리면서 그 방에 바로 참가합니다 (?room=ABCDE)
+ * 초대 메시지:  ⚔️ 장기 한 판! 코드 1234  + 링크
+ * 링크를 누르면 게임이 열리면서 그 방에 바로 참가합니다 (?room=1234)
  *
  * 보내는 방법 (위에서부터 가능한 것 사용)
  *  1) 카카오 SDK — jsKey 를 넣으면 카카오톡 공유 카드로 전송 (버튼: 바로 참가)
@@ -139,28 +139,30 @@ MJ.Invite = (function () {
   /* 카카오톡 말고 다른 앱(문자 등) */
   async function shareOther(code) { if (!(await viaShareSheet(code))) copy(code); }
 
-  /* 붙여넣은 글에서 방 코드 찾기 (링크 / "코드 ABCDE" / 5자리 단어) */
+  /* 붙여넣은 글에서 방 코드 찾기 (링크 / "코드 1234" / 4자리 숫자) */
+  const keep = t => [...String(t || '').toUpperCase()].filter(c => MJ.NET_CONFIG.codeChars.includes(c)).join('');
   function parseCode(text) {
-    const N = MJ.NET_CONFIG.codeLen, CH = MJ.NET_CONFIG.codeChars;
+    const N = MJ.NET_CONFIG.codeLen;
     text = String(text || '');
     let m = text.match(/[?&#]room[=-]([A-Za-z0-9]+)/);
-    if (m) return m[1].toUpperCase().slice(0, N);
-    m = text.match(/코드\s*[:：]?\s*([A-Za-z0-9]{4,8})/);
-    if (m && m[1].length === N) return m[1].toUpperCase();
-    const clean = text.toUpperCase().replace(/[^A-Z0-9]/g, '');
-    if (clean.length === N) return clean;
-    const toks = text.toUpperCase().split(/[^A-Z0-9]+/).filter(t => t.length === N && [...t].every(c => CH.includes(c)));
+    if (m) return keep(m[1]).slice(0, N);
+    m = text.match(/코드\s*[:：]?\s*([A-Za-z0-9]+)/);
+    if (m && keep(m[1]).length === N) return keep(m[1]);
+    const all = keep(text);
+    if (all.length === N) return all;
+    const toks = text.toUpperCase().split(/[^A-Z0-9]+/).filter(t => t.length === N && keep(t) === t);
     return toks.length ? toks[toks.length - 1] : '';
   }
 
-  /* 링크로 들어왔을 때: ?room=ABCDE 또는 #room-ABCDE */
+
+  /* 링크로 들어왔을 때: ?room=1234 또는 #room-1234 */
   function checkLink() {
     const q = new URLSearchParams(location.search);
     let code = q.get('room');
     const h = location.hash.match(/^#room-([A-Za-z0-9]+)/);
     if (!code && h) code = h[1];
     if (!code) return false;
-    code = code.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, MJ.NET_CONFIG.codeLen);
+    code = keep(code).slice(0, MJ.NET_CONFIG.codeLen);
     try { history.replaceState(null, '', location.pathname); } catch (e) {}
     MJ.Lobby.autoJoin(code);
     return true;

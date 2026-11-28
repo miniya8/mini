@@ -585,3 +585,25 @@ input, textarea { user-select: text; -webkit-user-select: text; }
   font-family: var(--font-title); font-weight: 400; font-size: 22px; }
 #multiBody .btn.primary.big:not(:disabled) { animation: kpulse 1.6s ease-in-out infinite; }
 .lb-stats { margin-top: 14px; text-align: center; font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+/* 저장된 꾸미기 빠른 선택 */
+.pp { margin: 4px 0 12px; text-align: left; }
+.pp-h { font-size: 12px; font-weight: 800; color: #e6cf9c; margin: 0 2px 6px; }
+.pp-row { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 2px; -webkit-overflow-scrolling: touch; }
+.pp-chip { flex: 0 0 auto; max-width: 160px; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 8px 12px; border-radius: 12px; text-align: left;
+  background: rgba(255,255,255,.06); border: 1.5px solid rgba(255,220,140,.25); }
+.pp-chip b { font-size: 13px; color: var(--gold1); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pp-chip small { font-size: 10.5px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.pp-chip.on { background: linear-gradient(180deg, rgba(255,210,100,.25), rgba(176,122,28,.2)); border-color: var(--gold2); box-shadow: 0 0 10px rgba(255,190,70,.3); }
+
+/* 가로형 배경 그림 (세로 화면에서 잘리지 않게) */
+.screen.wide-img { background: #07060c; overflow: hidden; }
+.screen.wide-img::before { content: ''; position: absolute; inset: -30px; background: var(--slot-img) center / cover no-repeat; filter: blur(16px) brightness(.5) saturate(1.2); z-index: 0; pointer-events: none; }
+.screen.wide-img::after { content: ''; position: absolute; left: -18%; right: -18%; top: var(--wide-y, 40%); transform: translateY(-50%); aspect-ratio: var(--slot-ar, 1.78);
+  max-height: 70%; background: var(--slot-img) center / cover no-repeat; z-index: 0; pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent); mask-image: linear-gradient(180deg, transparent, #000 14%, #000 86%, transparent); }
+#scr-title.wide-img { --wide-y: 47%; }
+#scr-menu.wide-img { --wide-y: 39%; }
+#scr-multi.wide-img::after { display: none; }
+#scr-menu.wide-img .menu-shade, #scr-title.wide-img .menu-shade { background: linear-gradient(180deg, rgba(10,5,20,.35), transparent 30%, transparent 62%, rgba(8,4,14,.75)); }
+@media (min-aspect-ratio: 1/1) { .screen.wide-img::after { top: 50%; height: 100%; aspect-ratio: auto; max-height: none; -webkit-mask-image: none; mask-image: none; } }

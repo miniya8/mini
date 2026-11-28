@@ -206,7 +206,7 @@ MJ.register('board', {
 - 서로의 꾸미기(왕·기물 스킨)가 상대 화면에도 표시됩니다. 상대에게 없는 스킨은 클래식으로 보여요.
 
 ### 카카오톡 초대
-- 멀티 대전 첫 화면의 **카카오톡으로 초대** 한 번 → 방 만들기 + 카카오톡 열기까지 자동. 메시지 `⚔️ 장기 한 판! 코드 ABCDE` + 링크. 링크를 누르면 그 방에 바로 참가.
+- 멀티 대전 첫 화면의 **카카오톡으로 초대** 한 번 → 방 만들기 + 카카오톡 열기까지 자동. 메시지 `⚔️ 장기 한 판! 코드 1234` + 링크. 링크를 누르면 그 방에 바로 참가.
 - 받는 쪽: 카톡 메시지를 통째로 **붙여넣기** 해도 코드를 찾아서 바로 참가 (`MJ.Invite.parseCode`).
 - 공유가 막히면 메시지를 복사하고 카카오톡 앱을 열어 줌 (`openAppAfterCopy`). 카드 그림은 `assets/images/ui/share.jpg`.
 - 문구는 `js/net/invite.js` 의 `MJ.KAKAO_CONFIG.inviteText`.
@@ -247,3 +247,12 @@ MJ.register('board', { id: 'volcano', $patch: true, hidden: true });
 | 진영 색 | `MJ.CONFIG.sides` |
 
 저장 데이터는 브라우저 localStorage(`miniCustomJanggi.save`)에 있고, 삭제된 콘텐츠 id 는 자동으로 기본값으로 돌아갑니다.
+
+
+## v1.8 추가
+- **판타지 기사단 스킨** (`js/data/skins_pack4.js`, 시트 `assets/images/pieces/fantasy/`) — 포·상·마는 원거리 마법/화살/번개.
+- **영웅 왕 7종** (오공·루피·류·세이버·나루토·마리오·세피로스) — 왕 꾸미기에서 선택, 시트 `assets/images/pieces/kingpack/<이름>.webp`.
+  새 왕 시트 추가: `tools/sheet_extract/kings_seg.py` 의 행 위치·이름을 고치고 `build_kings.py` 실행 → 나온 manifest 를 `skins_pack4.js` 의 `HERO()` 에 넣기.
+- **초대 코드는 숫자 4자리** (`MJ.NET_CONFIG.codeChars / codeLen`).
+- **저장된 꾸미기 빠른 선택**: 대국 준비 화면 맨 위, 대국 종료 창에 프리셋 버튼 (`MJ.UI.presetPicker`).
+- 가로형 배경 그림은 세로 화면에서 잘리지 않도록 흐린 배경 + 전체 그림으로 자동 표시.

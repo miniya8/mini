@@ -385,7 +385,7 @@ MJ.Game = (function () {
       impact: () => {
         rd.fxAt('slash', m.to, { color: MJ.CONFIG.sides[side].light });
         rd.fxAt('sparks', m.to, { color: MJ.CONFIG.sides[side].color });
-        rd.fxAt('text', m.to, { text: `${MJ.pieceName(m.cap.s, m.cap.t)} 격파! +${MJ.CONFIG.pieceValues[m.cap.t]}`, color: '#fff36b', size: rd.cell() * 0.42 });
+        rd.fxAt('text', m.to, { text: `${MJ.pieceName(m.cap.s, m.cap.t)} 격파!`, color: '#fff36b', size: rd.cell() * 0.42 });
         rd.shake(m.cap.t === 'R' ? 12 : 6);
         buzz(m.cap.t === 'R' ? 70 : 40);
         MJ.Audio.sfx('capture', side, voice, skinId, piece.t);
@@ -613,7 +613,7 @@ MJ.Game = (function () {
         const ki = R.findKing(st.board, MJ.other(winner));
         if (ki >= 0) { rd.fxAt('sparks', ki, { color: '#fff36b', n: 40 }); rd.fxAt('ring', ki, { color: '#ff4d4d', life: 1.2 }); }
       } else {
-        MJ.UI.banner(st.mode === 'local' ? `${MJ.CONFIG.sides[winner].short} 승리!` : iWon ? '승리!' : '패배…', reason, MJ.CONFIG.sides[winner].color);
+        MJ.UI.banner(st.mode === 'local' ? `${MJ.CONFIG.sides[winner].name} 승리!` : iWon ? '승리!' : '패배…', reason, MJ.CONFIG.sides[winner].color);
       }
       MJ.Audio.sfx(iWon ? 'win' : 'lose', winner, wk.voice);
       buzz(iWon ? [60, 40, 60, 40, 140] : 200);
@@ -632,8 +632,9 @@ MJ.Game = (function () {
           { label: '🎨 꾸미고 다시', fn: () => { MJ.UI.show('menu'); MJ.UI.openCustom(); } },
           { label: '🏠 로비로', fn: () => MJ.UI.show('menu') },
         ];
+      const node = MJ.UI.presetPicker(() => { if (st.mode === 'online') MJ.Lobby.resendHello(); });
       MJ.UI.modal({
-        king: wk, side: winner,
+        king: wk, side: winner, node,
         title: mate ? (st.mode === 'local' ? `🏆 ${sideName(winner)} 외통승리!` : iWon ? '🏆 외통승리!' : '외통패배')
           : st.mode === 'local' ? `${sideName(winner)} 승리` : iWon ? '🎉 승리!' : '패배',
         text: `${reason}\n\n${wk.name}: "${pick(wk.quotes.win)}"\n${lk.name}: "${pick(lk.quotes.lose)}"`,

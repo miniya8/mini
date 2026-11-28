@@ -1,16 +1,16 @@
 /* =========================================================
  * 멀티 대전 네트워크 (PeerJS · P2P)
  * ---------------------------------------------------------
- * - 방 만들기: 5자리 코드 생성 → 친구가 코드 입력으로 참가
+ * - 방 만들기: 4자리 숫자 코드 생성 → 친구가 코드 입력으로 참가
  * - 서버 없이 기기끼리 직접 연결 (연결 중개만 PeerJS 공개 서버 사용)
  * - 끊김 감지(하트비트) + 재접속 시 대국 상태 동기화
  * 휴대폰 데이터망 등에서 연결이 안 되면 iceServers 에 TURN 서버를 넣으세요.
  * ========================================================= */
 MJ.NET_CONFIG = {
   peerLib: 'https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js',
-  prefix: 'mini-cjanggi-v1-',
-  codeChars: 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789',
-  codeLen: 5,
+  prefix: 'mini-cjanggi-v2-',
+  codeChars: '0123456789',   // 숫자만 — 말로 불러 주기도 쉬움
+  codeLen: 4,
   heartbeatMs: 3000,
   timeoutMs: 12000,
   iceServers: [

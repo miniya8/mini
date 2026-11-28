@@ -43,6 +43,7 @@ MJ.Lobby = (function () {
         if (MJ.Net.role() === 'host' && inGame) sendSync();
         render();
         break;
+      case 'loadout': if (opp) opp.loadout = d.loadout; break;
       case 'guest-form': if (opp) { opp.form = d.form; render(); } break;
       case 'room': roomInfo = d; render(); break;
       case 'start': rematch = { me: false, opp: false }; startGame(d.setup); break;
@@ -156,7 +157,7 @@ MJ.Lobby = (function () {
   }
   async function joinRoom(code) {
     code = MJ.Invite.parseCode(code);
-    if (!code) { MJ.UI.toast('코드 5자리를 입력하세요'); return; }
+    if (!code) { MJ.UI.toast('코드 숫자 4자리를 입력하세요'); return; }
     view = 'connecting'; render();
     try { await MJ.Net.join(code); view = 'guest'; render(); MJ.UI.toast('✅ 방에 들어왔어요!'); }
     catch (e) {
@@ -213,8 +214,10 @@ MJ.Lobby = (function () {
       c2.appendChild(el('p', '', '카톡 메시지를 통째로 붙여넣어도 코드를 알아서 찾아요.'));
       const boxes = el('div', 'code-boxes');
       const N = MJ.NET_CONFIG.codeLen, cells = [];
+      boxes.style.gridTemplateColumns = 'repeat(' + N + ', 1fr)';
+      boxes.style.gridTemplateColumns = `repeat(${N}, 1fr)`;
       for (let i = 0; i < N; i++) { const c = el('div', 'cb'); cells.push(c); boxes.appendChild(c); }
-      const inp = el('input'); inp.maxLength = 200; inp.autocomplete = 'off'; inp.setAttribute('autocapitalize', 'characters'); inp.inputMode = 'text';
+      const inp = el('input'); inp.maxLength = 200; inp.autocomplete = 'off'; inp.inputMode = /^[0-9]+$/.test(MJ.NET_CONFIG.codeChars) ? 'numeric' : 'text'; inp.setAttribute('pattern', '[0-9]*');
       const paint = () => {
         const v = inp.value;
         cells.forEach((c, i) => { c.textContent = v[i] || ''; c.classList.toggle('fill', !!v[i]); c.classList.toggle('cur', i === Math.min(v.length, N - 1) && document.activeElement === inp); });
@@ -222,7 +225,7 @@ MJ.Lobby = (function () {
       inp.oninput = () => {
         const raw = inp.value;
         const found = raw.length > N ? MJ.Invite.parseCode(raw) : null;
-        inp.value = found || raw.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, N);
+        inp.value = found || [...raw].filter(ch => MJ.NET_CONFIG.codeChars.includes(ch)).join('').slice(0, N);
         paint();
         if (inp.value.length === N && found) joinRoom(inp.value); // 메시지 붙여넣기 → 바로 참가
       };
@@ -343,5 +346,6 @@ MJ.Lobby = (function () {
     }
   }
 
-  return { open, render, autoJoin, requestRematch, leaveToMenu, desync, back: () => { if (MJ.Net.role()) leave(); MJ.UI.back(); } };
+  function resendHello() { if (MJ.Net.connected()) MJ.Net.send({ t: 'loadout', loadout: store().loadout }); }
+  return { open, render, autoJoin, resendHello, requestRematch, leaveToMenu, desync, back: () => { if (MJ.Net.role()) leave(); MJ.UI.back(); } };
 })();

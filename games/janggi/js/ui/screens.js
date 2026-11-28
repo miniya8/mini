@@ -13,6 +13,7 @@ MJ.UI = (function () {
   const $ = s => document.querySelector(s);
   const el = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
   const store = () => MJ.Store.get();
+  const esc = t => String(t == null ? '' : t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const L = () => store().loadout;
   let history = ['title'];
 
@@ -51,6 +52,7 @@ MJ.UI = (function () {
     if (o.title) box.appendChild(el('h3', null, o.title));
     if (o.text) { const p = el('p'); p.textContent = o.text; box.appendChild(p); }
     if (o.html) box.appendChild(el('div', 'help', o.html));
+    if (o.node) box.appendChild(o.node);
     const btns = el('div', 'btns');
     (o.buttons || [{ label: '확인' }]).forEach(b => {
       const x = el('button', 'btn ' + (b.cls || ''), b.label);
@@ -63,6 +65,32 @@ MJ.UI = (function () {
   function closeModal() { $('#modal').classList.remove('show'); }
   function confirm(title, text, yes) {
     modal({ title, text, buttons: [{ label: '예', cls: 'primary', fn: yes }, { label: '아니요' }] });
+  }
+
+  /* 저장된 꾸미기(프리셋) 바로 고르기 — 대국 준비 화면·대국 종료 창에서 사용
+   * onPick(k): 적용 후 불림. 저장된 프리셋이 없으면 null 반환 */
+  function presetPicker(onPick) {
+    const list = store().presets.map((P, k) => P ? { P, k } : null).filter(Boolean);
+    if (!list.length) return null;
+    const same = P => JSON.stringify(P.loadout) === JSON.stringify(L());
+    const box = el('div', 'pp');
+    box.appendChild(el('div', 'pp-h', '💾 저장된 꾸미기로'));
+    const row = el('div', 'pp-row');
+    list.forEach(({ P, k }) => {
+      const kn = s => { const kk = MJ.Registry.get('king', P.loadout.kings && P.loadout.kings[s]); return kk ? kk.name : ''; };
+      const sk = MJ.Registry.get('skin', P.loadout.skins && (P.loadout.skins.cho && P.loadout.skins.cho.R || P.loadout.skins.R));
+      const b = el('button', 'pp-chip' + (same(P) ? ' on' : ''), `<b>${esc(P.name)}</b><small>${esc(kn('cho'))} · ${esc(kn('han'))}${sk ? ' · ' + esc(sk.name) : ''}</small>`);
+      b.onclick = () => {
+        if (!MJ.Store.loadPreset(k)) return;
+        MJ.emit('loadout'); MJ.Assets.preloadLoadout(L());
+        row.querySelectorAll('.pp-chip').forEach(x => x.classList.remove('on')); b.classList.add('on');
+        MJ.Audio.sfx('button'); toast(`'${P.name}' 적용!`);
+        onPick && onPick(k);
+      };
+      row.appendChild(b);
+    });
+    box.appendChild(row);
+    return box;
   }
 
   /* 선택 버튼 묶음 */
@@ -156,7 +184,15 @@ MJ.UI = (function () {
       const tryN = i => {
         if (i >= list.length) return;
         const im = new Image();
-        im.onload = () => { node.style.backgroundImage = `url("${list[i]}")`; node.classList.add('has-img'); };
+        im.onload = () => {
+          node.classList.add('has-img');
+          node.style.setProperty('--slot-img', `url("${new URL(list[i], location.href).href}")`);
+          // 가로로 넓은 그림(예: 16:9)은 세로 화면에서 잘리지 않게: 흐린 배경 + 전체 그림
+          if (node.dataset.slot && im.width > im.height * 1.05) {
+            node.classList.add('wide-img');
+            node.style.setProperty('--slot-ar', (im.width / im.height).toFixed(3));
+          } else node.style.backgroundImage = `url("${list[i]}")`;
+        };
         im.onerror = () => tryN(i + 1);
         im.src = list[i];
       };
@@ -436,6 +472,8 @@ MJ.UI = (function () {
     const forms = Object.keys(MJ.CONFIG.formations).map(f => ({ v: f, label: f }));
     const add = (label, node) => { body.appendChild(el('div', 'label', label)); body.appendChild(node); };
 
+    const pp = presetPicker(() => renderSetup());
+    if (pp) body.appendChild(pp);
     add('대전 방식', seg([{ v: 'ai', label: '🤖 AI 대전' }, { v: 'local', label: '👥 한 기기 2인' }], S.mode, v => { S.mode = v; renderSetup(); }));
     if (S.mode === 'ai') {
       add('내 진영 (초나라가 먼저 둡니다)', seg([{ v: 'cho', label: `초나라 · ${kn('cho')}`, cls: 'cho' }, { v: 'han', label: `한나라 · ${kn('han')}`, cls: 'han' }], S.mySide, v => { S.mySide = v; }));
@@ -494,7 +532,7 @@ MJ.UI = (function () {
     MJ.Assets.onLoad(() => { if (current() === 'custom') renderCustom(); });
   }
 
-  return { init, show, back, current, toast, banner, modal, closeModal, confirm, openCustom, openSetup, openSettings, seg, help, editNick,
+  return { init, show, back, current, toast, banner, modal, closeModal, confirm, presetPicker, openCustom, openSetup, openSettings, seg, help, editNick,
            refreshMenu, portraitInto, resetCustom: () => {
              const d = MJ.Store.defaults().loadout; Object.assign(L(), d); saveLoadout();
              prevRd.setBoardDef(MJ.Registry.get('board', L().board)); renderCustom(); toast('기본 꾸미기로 되돌렸어요');

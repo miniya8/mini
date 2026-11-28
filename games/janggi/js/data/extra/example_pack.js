@@ -26,7 +26,7 @@ MJ.register('skin', {
 
 /* 새 왕 예시 (주석을 풀면 꾸미기에 추가됨)
 MJ.register('king', {
-  id: 'seonbi', side: 'any', name: '김선비', title: '장기 고수 선비', glyph: '金', emoji: '🪭',
+  id: 'seonbi', side: 'any', name: '김선비', title: '장기 고수 선비', glyph: { cho: '楚', han: '漢' }, emoji: '🪭',
   colors: { face: ['#fffbe8', '#d9c48a'], rim: '#3d2f10', glyph: '#3d2f10', aura: '#fff2a8' },
   quotes: {
     select: ['허허, 어디 보자.', '장기는 마음으로 두는 것이네.'],

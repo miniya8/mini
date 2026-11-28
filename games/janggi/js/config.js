@@ -8,15 +8,15 @@ window.MJ = window.MJ || {};
 MJ.CONFIG = {
   title: '미니의 커스텀 장기',
   subtitle: 'MINI CUSTOM JANGGI',
-  version: '1.7.0',
+  version: '1.8.0',
 
   /* 에셋 폴더 (이미지/소리 경로의 기준) */
   assetBase: 'assets/',
 
   /* 진영 색상 — 'side', 'sideDark', 'sideLight' 토큰이 이 값으로 바뀝니다 */
   sides: {
-    cho: { name: '초나라', short: '楚', color: '#11a08c', dark: '#06574c', light: '#c4f3ea', aura: '#1cffc8' },
-    han: { name: '한나라', short: '漢', color: '#d8343a', dark: '#7c1216', light: '#ffd4d0', aura: '#ff2d45' },
+    cho: { name: '초나라', short: '초', color: '#11a08c', dark: '#06574c', light: '#c4f3ea', aura: '#1cffc8' },
+    han: { name: '한나라', short: '한', color: '#d8343a', dark: '#7c1216', light: '#ffd4d0', aura: '#ff2d45' },
   },
 
   pieceTypes: ['K', 'R', 'C', 'H', 'E', 'A', 'P'],
